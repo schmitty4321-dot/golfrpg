@@ -18,6 +18,7 @@ import { Tournament } from "./screens/Tournament";
 import { Training } from "./screens/Training";
 import { TABS, type Go, type Tab } from "./nav";
 import { MoreMenu } from "./components/MoreMenu";
+import { MobileMenu } from "./components/MobileMenu";
 import { useGame } from "./useGame";
 
 type Theme = "system" | "light" | "dark";
@@ -74,6 +75,18 @@ export function App() {
             ))}
             <MoreMenu tab={tab} go={go} />
           </nav>
+        )}
+        {world && (
+          <MobileMenu
+            tab={tab}
+            go={go}
+            extra={
+              <>
+                <span className="secondary small">Season {world.season} · Week {Math.min(world.week, game.lib.seasonWeeks(world))}{world.edited ? " · edited world" : ""}</span>
+                <button className="btn btn-small" onClick={() => setTheme(nextTheme[theme])}>Theme: {theme === "dark" ? "Dark" : theme === "light" ? "Light" : "Auto"}</button>
+              </>
+            }
+          />
         )}
         <div className="topbar-right" style={{ marginLeft: world ? undefined : "auto" }}>
           {world?.edited && <span className="badge" title="This world has been changed in the editor">Edited</span>}

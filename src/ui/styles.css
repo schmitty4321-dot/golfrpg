@@ -402,3 +402,26 @@ select, input[type="text"], input[type="number"] {
   .shot-list { font-size: 14px; }
   .shot-list li { padding: 3px 0; }
 }
+
+/* ---------- phones: a menu button instead of the tab bar ---------- */
+.mobile-menu { display: none; }
+@media (max-width: 700px) {
+  .topbar .nav { display: none; }
+  .brand-name { display: none; }
+  .mobile-menu { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+  .mobile-menu-current { flex: 1; min-width: 0; font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mobile-menu-button { display: inline-flex; align-items: center; gap: 6px; }
+  .mobile-menu-panel {
+    position: fixed; top: 52px; left: 0; right: 0; z-index: 20;
+    max-height: calc(100vh - 52px); overflow-y: auto;
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18); padding: 10px 12px 14px;
+  }
+  .mobile-menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .mobile-menu-grid button {
+    text-align: left; padding: 11px 12px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text); font: inherit; font-size: 15px; cursor: pointer;
+  }
+  .mobile-menu-grid button[aria-current="page"] { background: var(--accent-soft); border-color: var(--accent); font-weight: 650; }
+  .mobile-menu-extra { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+}
