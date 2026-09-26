@@ -40,7 +40,9 @@ describe("real courses", () => {
       if (!p) continue;
       expect(p.file).toMatch(/^courses\/.+\.jpg$/);
       expect(p.license).toBeTruthy();
-      expect(p.page).toMatch(/^https:\/\/commons\.wikimedia\.org\//);
+      // Wikimedia Commons photos, or public-domain USGS aerials for US courses.
+      expect(p.page).toMatch(/^https:\/\/(commons\.wikimedia\.org|apps\.nationalmap\.gov)\//);
+      if (p.page.includes("nationalmap")) expect(p.license).toBe("Public domain");
     }
   });
 });

@@ -103,5 +103,138 @@
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
   "page": "https://commons.wikimedia.org/wiki/File:East_Lake_Golf_Club_TOUR_Championship.JPG"
+ },
+ "quail-hollow": {
+  "file": "courses/quail-hollow.jpg",
+  "artist": "Jbrubins",
+  "license": "CC BY-SA 3.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Wells_Fargo_Championship_at_Quail_Hollow.JPG"
+ },
+ "osprey-valley-north": {
+  "file": "courses/osprey-valley-north.jpg",
+  "artist": "BDeckerFlagstick89",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "page": "https://commons.wikimedia.org/wiki/File:TPC_Toronto_North_12th_hole_2024.jpg"
+ },
+ "riviera": {
+  "file": "courses/riviera.jpg",
+  "artist": "Unknown author",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "page": "https://commons.wikimedia.org/wiki/File:18th_hole_at_the_1951_LA_Open.jpg"
+ },
+ "pga-national-champion": {
+  "file": "courses/pga-national-champion.jpg",
+  "artist": "USDA NAIP / USGS The National Map (aerial)",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "page": "https://apps.nationalmap.gov/viewer/"
+ },
+ "bay-hill": {
+  "file": "courses/bay-hill.jpg",
+  "artist": "USDA NAIP / USGS The National Map (aerial)",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "page": "https://apps.nationalmap.gov/viewer/"
+ },
+ "grand-reserve": {
+  "file": "courses/grand-reserve.jpg",
+  "artist": "USDA NAIP / USGS The National Map (aerial)",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "page": "https://apps.nationalmap.gov/viewer/"
+ },
+ "memorial-park": {
+  "file": "courses/memorial-park.jpg",
+  "artist": "USDA NAIP / USGS The National Map (aerial)",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "page": "https://apps.nationalmap.gov/viewer/"
+ },
+ "tpc-san-antonio-oaks": {
+  "file": "courses/tpc-san-antonio-oaks.jpg",
+  "artist": "USDA NAIP / USGS The National Map (aerial)",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "page": "https://apps.nationalmap.gov/viewer/"
+ },
+ "dunes-club": {
+  "file": "courses/dunes-club.jpg",
+  "artist": "USDA NAIP / USGS The National Map (aerial)",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "page": "https://apps.nationalmap.gov/viewer/"
+ },
+ "tpc-craig-ranch": {
+  "file": "courses/tpc-craig-ranch.jpg",
+  "artist": "USDA NAIP / USGS The National Map (aerial)",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "page": "https://apps.nationalmap.gov/viewer/"
+ },
+ "colonial": {
+  "file": "courses/colonial.jpg",
+  "artist": "USDA NAIP / USGS The National Map (aerial)",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "page": "https://apps.nationalmap.gov/viewer/"
+ },
+ "tpc-deere-run": {
+  "file": "courses/tpc-deere-run.jpg",
+  "artist": "USDA NAIP / USGS The National Map (aerial)",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "page": "https://apps.nationalmap.gov/viewer/"
+ },
+ "hurstbourne": {
+  "file": "courses/hurstbourne.jpg",
+  "artist": "USDA NAIP / USGS The National Map (aerial)",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "page": "https://apps.nationalmap.gov/viewer/"
+ },
+ "tpc-twin-cities": {
+  "file": "courses/tpc-twin-cities.jpg",
+  "artist": "USDA NAIP / USGS The National Map (aerial)",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "page": "https://apps.nationalmap.gov/viewer/"
+ },
+ "detroit-golf-club": {
+  "file": "courses/detroit-golf-club.jpg",
+  "artist": "USDA NAIP / USGS The National Map (aerial)",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "page": "https://apps.nationalmap.gov/viewer/"
+ },
+ "sedgefield": {
+  "file": "courses/sedgefield.jpg",
+  "artist": "USDA NAIP / USGS The National Map (aerial)",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "page": "https://apps.nationalmap.gov/viewer/"
+ },
+ "tpc-southwind": {
+  "file": "courses/tpc-southwind.jpg",
+  "artist": "USDA NAIP / USGS The National Map (aerial)",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "page": "https://apps.nationalmap.gov/viewer/"
+ },
+ "sea-island-seaside": {
+  "file": "courses/sea-island-seaside.jpg",
+  "artist": "USDA NAIP / USGS The National Map (aerial)",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "page": "https://apps.nationalmap.gov/viewer/"
+ },
+ "pga-west-stadium": {
+  "file": "courses/pga-west-stadium.jpg",
+  "artist": "USDA NAIP / USGS The National Map (aerial)",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "page": "https://apps.nationalmap.gov/viewer/"
  }
 }
