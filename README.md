@@ -180,6 +180,17 @@ fixed per player and drive the replays and stats:
 - **Strategy:** aggressive players go for par 5s in two far more often.
 - **Putting pace:** chargers leave longer comebacks, and diers leave tap-ins.
 
+Four more change his scores, not just how the replays look:
+- **Under pressure:** front-runners are about 0.4 a round better protecting a weekend lead, and chasers
+  about 0.3 better hunting one down (each is worse in the other spot). Nerve makes front-runners likelier.
+- **Week rhythm:** fast starters gain 0.3 a round on Thursday and Friday and give it back at the weekend;
+  strong finishers do the reverse. Stamina tilts it toward finishing strong.
+- **Weather:** bad-weather players (good wind tolerance and flight control) lose less to the wind than the
+  field; fair-weather players lose more.
+- **Consistency:** streaky players swing more from round to round, steady ones less (on top of focus).
+
+These are balanced so a whole field scores the same on average; calibration is unchanged.
+
 ### Shot tracer
 
 Click any score on a scorecard (Leaderboards → click a player), or press **Watch his final round**, to replay

@@ -13,6 +13,7 @@ import {
   simulateTournament,
   tendencies,
   describeTendencies,
+  roundTendencyShift,
   feetInches,
 } from "../src/engine";
 import { flatPlayer } from "./helpers";
@@ -83,7 +84,52 @@ describe("tendencies", () => {
   it("are fixed per player and described in words", () => {
     const p = flatPlayer("tendency-test", 12);
     expect(tendencies(p)).toEqual(tendencies(p));
-    expect(describeTendencies(tendencies(p))).toHaveLength(5);
+    expect(describeTendencies(tendencies(p))).toHaveLength(9);
+  });
+
+  it("shift round scores the right way", () => {
+    const base = tendencies(flatPlayer("shift-test", 12));
+    const fast = { ...base, rhythm: "fast starter" as const, pressure: "neutral" as const };
+    expect(roundTendencyShift(fast, 1, null)).toBeLessThan(0);
+    expect(roundTendencyShift(fast, 4, 5)).toBeGreaterThan(0);
+    const late = { ...base, rhythm: "strong finisher" as const, pressure: "neutral" as const };
+    expect(roundTendencyShift(late, 2, null)).toBeGreaterThan(0);
+    expect(roundTendencyShift(late, 3, 20)).toBeLessThan(0);
+    const front = { ...base, rhythm: "even" as const, pressure: "front-runner" as const };
+    expect(roundTendencyShift(front, 4, 0)).toBeLessThan(0);
+    expect(roundTendencyShift(front, 4, 4)).toBeGreaterThan(0);
+    expect(roundTendencyShift(front, 1, 0)).toBe(0);
+    const chaser = { ...base, rhythm: "even" as const, pressure: "chaser" as const };
+    expect(roundTendencyShift(chaser, 4, 0)).toBeGreaterThan(0);
+    expect(roundTendencyShift(chaser, 4, 4)).toBeLessThan(0);
+  });
+
+  it("cover every category across a field", () => {
+    const all = Array.from({ length: 400 }, (_, i) => tendencies(flatPlayer(`c${i}`, 12)));
+    for (const v of ["front-runner", "neutral", "chaser"]) expect(all.some((t) => t.pressure === v)).toBe(true);
+    for (const v of ["fast starter", "even", "strong finisher"]) expect(all.some((t) => t.rhythm === v)).toBe(true);
+    for (const v of ["streaky", "normal", "steady"]) expect(all.some((t) => t.consistency === v)).toBe(true);
+    const windy = tendencies(flatPlayer("windy", 12, { windTolerance: 19, trajectoryControl: 18 }));
+    const calm = tendencies(flatPlayer("calm", 12, { windTolerance: 5, trajectoryControl: 6 }));
+    expect(windy.weather).toBe("bad-weather");
+    expect(calm.weather).toBe("fair-weather");
+  });
+
+  it("make streaky players swing more from round to round", () => {
+    const players = Array.from({ length: 300 }, (_, i) => flatPlayer(`s${i}`, 12));
+    const streaky = players.find((p) => tendencies(p).streak > 1.17)!;
+    const steady = players.find((p) => tendencies(p).streak < 0.88)!;
+    const spread = (p: typeof streaky) => {
+      const scores: number[] = [];
+      for (let s = 0; s < 40; s++) {
+        const tt = simulateTournament({ name: `S${s}`, course: COURSES[0]!, field: [p, ...field.slice(0, 20)], purse: 1, seed: s });
+        const row = tt.leaderboard.find((r) => r.player.id === p.id)!;
+        scores.push(...row.rounds);
+      }
+      const mean = scores.reduce((a, b) => a + b, 0) / scores.length;
+      return Math.sqrt(scores.reduce((a, b) => a + (b - mean) ** 2, 0) / scores.length);
+    };
+    expect(spread(streaky)).toBeGreaterThan(spread(steady));
   });
 
   it("show up in the replays: a right-miss player misses right", () => {

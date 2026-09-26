@@ -1,6 +1,7 @@
 import { TOUR_AVERAGE } from "./attributes";
 import { clamp, type Rng } from "./rng";
 import { expectedStrokesGained } from "./skill";
+import { roundTendencyShift, tendencies } from "./tendencies";
 import {
   SG_CATEGORIES,
   type Course,
@@ -152,17 +153,20 @@ export function playHole({ ctx, hole, dayForm, teeShotHoles, state }: HoleInputs
 }
 
 /** Draws a player's category form for the day around their expected level. */
-export function drawDayForm(player: Player, course: Course, rng: Rng, weekForm = 0): StrokesGained {
+export function drawDayForm(player: Player, course: Course, rng: Rng, weekForm = 0, streak = 1): StrokesGained {
   const expected = expectedStrokesGained(player, course);
-  // Focused players are steadier from day to day.
-  const spread = clamp(1 - (player.attributes.focus - TOUR_AVERAGE) * 0.02, 0.7, 1.3);
+  // Focused players are steadier from day to day; streaky ones less so.
+  const spread = clamp(1 - (player.attributes.focus - TOUR_AVERAGE) * 0.02, 0.7, 1.3) * streak;
   const day = { ...expected };
   for (const k of SG_CATEGORIES) day[k] = expected[k] + weekForm / 4 + rng.normal(0, DAY_SD[k] * spread);
   return day;
 }
 
 export function simulateRound(ctx: RoundContext): RoundResult {
-  const dayForm = drawDayForm(ctx.player, ctx.course, ctx.rng, ctx.weekForm);
+  // Round-level habits: early- or late-week form, leading or chasing, streakiness.
+  const habits = tendencies(ctx.player);
+  const shift = roundTendencyShift(habits, ctx.round, ctx.shotsBehind);
+  const dayForm = drawDayForm(ctx.player, ctx.course, ctx.rng, (ctx.weekForm ?? 0) - shift, habits.streak);
   const teeShotHoles = ctx.course.holes.filter((h) => h.par > 3).length;
   const state: HoleState = { lastOverPar: 0 };
   const holes = ctx.course.holes.map((hole) => playHole({ ctx, hole, dayForm, teeShotHoles, state }));
