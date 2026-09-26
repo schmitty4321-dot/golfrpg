@@ -14,6 +14,7 @@ import {
   type World,
 } from "../../season";
 import { Stars } from "./Stars";
+import { TendenciesPanel } from "./TendenciesPanel";
 import { money, plural } from "../format";
 import type { Game } from "../useGame";
 
@@ -112,6 +113,12 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
                 </div>
               ) : (
                 <p className="muted small">A more accurate report (60%+) would reveal his ceiling, work ethic and other hidden traits.</p>
+              )}
+              {hidden && (
+                <>
+                  <h3 style={{ margin: "14px 0 8px" }}>Tendencies</h3>
+                  <TendenciesPanel player={wp.player} />
+                </>
               )}
               {!wp.client && (
                 <p className="small">

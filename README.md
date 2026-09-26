@@ -156,6 +156,30 @@ it, **Sim the rest of the tournament** jumps to the final results; if anyone mad
 The week is simulated in one go and revealed a round at a time, so nothing you do on this screen changes
 the outcome, and the save and the rest of the world stay consistent. The auto-sim buttons skip the screen.
 
+### Round stats and tendencies
+
+Each round on the event screen shows your client's stats in the style of the tour's stats pages, each with
+his **rank in the field**, the **field average** and his **event total so far**:
+- **Scoring:** score to par, birdies or better, bogeys or worse.
+- **Off the tee:** driving distance, driving accuracy, left and right rough tendency.
+- **Approach:** greens in regulation, accuracy from the fairway and from the rough, proximity to the hole, going for par 5s in two.
+- **Around the green:** scrambling, sand saves.
+- **Putting:** putts, putts per green in regulation, one-putts, three-putts, average first-putt distance, average
+  distance of putts made, and longest putt made.
+
+Plus the round's leaders in driving distance, accuracy, greens, proximity, putts and scrambling. The stats
+are counted from the same reconstructed shots the tracer replays, so stats, replays and scores always agree.
+Across a field they come out tour-like: about 299-yard drives, 60% of fairways and greens, 76% of greens
+from the fairway vs 43% from the rough, 54% scrambling, 29.5 putts.
+
+Every player also has **tendencies**, shown on the Player tab (and on scouted players' profiles). They're
+fixed per player and drive the replays and stats:
+- **Miss bias:** his left/right split when he misses a fairway.
+- **Shot shape:** draw or fade.
+- **Ball flight:** low, medium or high.
+- **Strategy:** aggressive players go for par 5s in two far more often.
+- **Putting pace:** chargers leave longer comebacks, and diers leave tap-ins.
+
 ### Shot tracer
 
 Click any score on a scorecard (Leaderboards → click a player), or press **Watch his final round**, to replay

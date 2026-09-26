@@ -1,8 +1,9 @@
-import { Fragment, useState } from "react";
-import { coursePar, courseYards, standingsAfterRound, type PlayerEventResult, type RoundStanding, type TournamentResult } from "../../engine";
+import { Fragment, useMemo, useState } from "react";
+import { coursePar, courseYards, fieldRoundStats, standingsAfterRound, type PlayerEventResult, type RoundStanding, type TournamentResult } from "../../engine";
 import { theEvent, type TourEvent, type WeekReport, type World } from "../../season";
 import { Scorecard } from "../components/Scorecard";
 import { ShotTracer } from "../components/ShotTracer";
+import { RoundLeaders, RoundStatsPanel } from "../components/RoundStatsPanel";
 import { Leaderboard } from "../components/Leaderboard";
 import { TIER_LABELS, millions, toPar } from "../format";
 
@@ -119,6 +120,7 @@ export function EventScreen({ world, report, onDone }: { world: World; report: W
 
 function RoundView({ live, round, rows }: { live: LiveEvent; round: number; rows: (id: string) => PlayerEventResult }) {
   const standings = standingsAfterRound(live.result, round);
+  const field = useMemo(() => fieldRoundStats(live.result, round - 1), [live.result, round]);
   const [watch, setWatch] = useState<{ id: string; hole: number } | null>(null);
   const w = live.result.weather[round - 1]!;
   const cutLine = round === 2 && live.result.cutLine !== null ? live.result.cutLine : null;
@@ -146,7 +148,10 @@ function RoundView({ live, round, rows }: { live: LiveEvent; round: number; rows
                   </span>
                 </div>
                 {played ? (
-                  <Scorecard course={live.result.course} rounds={[r.holes[round - 1]!]} firstRound={round} onPick={(_, hole) => setWatch({ id, hole })} />
+                  <>
+                    <Scorecard course={live.result.course} rounds={[r.holes[round - 1]!]} firstRound={round} onPick={(_, hole) => setWatch({ id, hole })} />
+                    <RoundStatsPanel result={live.result} row={r} round={round} field={field} />
+                  </>
                 ) : (
                   <p className="empty">He's done for the week after {toPar(r.toPar)} over two rounds.</p>
                 )}
@@ -165,6 +170,8 @@ function RoundView({ live, round, rows }: { live: LiveEvent; round: number; rows
             <span className="muted small">Wind {Math.round(w.windMph.AM)} mph AM, {Math.round(w.windMph.PM)} mph PM{w.rain ? ", rain" : ""}</span>
           </div>
           <RoundBoard standings={standings} clientIds={live.clientIds} round={round} cutLine={cutLine} />
+          <h2 style={{ marginTop: 18 }}>Round {round} leaders</h2>
+          <RoundLeaders result={live.result} field={field} clientIds={live.clientIds} />
         </section>
       </div>
       {watch && <ShotTracer result={live.result} row={rows(watch.id)} round={round - 1} hole={watch.hole} onClose={() => setWatch(null)} />}

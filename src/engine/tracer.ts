@@ -10,6 +10,7 @@
 import { TOUR_AVERAGE } from "./attributes";
 import { clamp, createRng, type Rng } from "./rng";
 import type { Course, CourseStyle, Hole, Player } from "./types";
+import { tendencies } from "./tendencies";
 
 export interface Pt {
   x: number;
@@ -102,8 +103,18 @@ export function pointAt(path: Pt[], along: number, side = 0): Pt {
 
 const dist = (a: Pt, b: Pt) => Math.hypot(a.x - b.x, a.y - b.y);
 
+const layoutCache = new WeakMap<Hole, HoleLayout>();
+
 /** Draws a hole from its numbers. Features are placed from a seed of the course and hole, so they never move. */
 export function holeLayout(course: Course, hole: Hole): HoleLayout {
+  const cached = layoutCache.get(hole);
+  if (cached) return cached;
+  const layout = buildLayout(course, hole);
+  layoutCache.set(hole, layout);
+  return layout;
+}
+
+function buildLayout(course: Course, hole: Hole): HoleLayout {
   const rng = createRng(traceSeed(course.id, hole.number, "layout"));
   const Y = hole.yards;
   const path: Pt[] = [{ x: 0, y: 0 }];
@@ -219,7 +230,7 @@ export function planHole(par: number, score: number, hazard: number, rng: Rng): 
   // Bogey or worse: start from a way to make bogey, then add trouble.
   const options: [number, ShotPlan][] = [
     [0.45, plan({ missGreen: true, chips: 1, putts: 2 })],
-    [0.2, plan({ putts: 3 })],
+    [0.13, plan({ putts: 3 })],
     [0.25, plan({ long: g + 1, recoveries: 1, putts: 2 })],
     [0.1 + hazard * 0.3, plan({ penalties: 1, putts: 2 })],
   ];
@@ -289,8 +300,21 @@ export interface TraceInput {
 export function traceHole({ course, hole, score, player, windMph = 0, seed }: TraceInput): HoleTrace {
   const layout = holeLayout(course, hole);
   const rng = createRng(seed);
-  const plan = planHole(hole.par, score, hole.hazard, rng);
   const a = player.attributes;
+  const habits = tendencies(player);
+  const plan = planHole(hole.par, score, hole.hazard, rng);
+  // Going for a par 5 in two and missing (then chipping) scores the same as laying up and pitching on:
+  // aggressive long hitters take that route more often.
+  const reach = hole.yards - (300 + (a.drivingDistance - TOUR_AVERAGE) * 6);
+  if (hole.par === 5 && plan.long === 3 && plan.recoveries === 0 && plan.penalties === 0 && reach < 270) {
+    const goChance = (habits.strategy === "aggressive" ? 0.95 : habits.strategy === "conservative" ? 0.35 : 0.7) * (reach < 240 ? 1 : 0.6);
+    if (rng.chance(goChance)) {
+      // One fewer full shot, one more chip: the same score.
+      plan.long = 2;
+      plan.missGreen = true;
+      plan.chips++;
+    }
+  }
   const shots: Shot[] = [];
   const Y = hole.yards;
   const w = hole.fairwayWidth || 30;
@@ -319,7 +343,9 @@ export function traceHole({ course, hole, score, player, windMph = 0, seed }: Tr
   /** Where a missed green ends up: a greenside bunker or the rough around it. */
   const aroundGreen = (): { at: Pt; lie: Lie } => {
     const greenside = layout.bunkers.filter((b) => dist(b, layout.green) < layout.green.r + 12);
-    if (greenside.length && rng.chance(0.45)) {
+    // Greenside bunkers cost more shots than rough: they turn up more on the bogey holes.
+    const bunkerOdds = trace_scoreOver(score, hole.par) ? 0.55 : 0.25;
+    if (greenside.length && rng.chance(bunkerOdds)) {
       const b = rng.pick(greenside);
       return { at: { x: b.x + rng.normal(0, 1), y: b.y + rng.normal(0, 1) }, lie: "bunker" };
     }
@@ -335,8 +361,11 @@ export function traceHole({ course, hole, score, player, windMph = 0, seed }: Tr
   const chipFeet = (): number => (plan.putts <= 1 ? 1 + rng.next() * 6 : plan.putts === 2 ? 6 + rng.next() * 10 : 20 + rng.next() * 15);
 
   // ---- long shots
-  const driveLen = clamp(292 + (a.drivingDistance - TOUR_AVERAGE) * 6 + rng.normal(0, 9) - windMph * 0.6, 230, 345);
-  const accurate = clamp(0.62 + (a.drivingAccuracy - TOUR_AVERAGE) * 0.03, 0.3, 0.9);
+  // Every player has a favourite miss: some fight a slice, some a hook.
+  const missSide = () => (rng.chance(habits.missRight) ? 1 : -1);
+  const driveLen = clamp(305 + (a.drivingDistance - TOUR_AVERAGE) * 6 + rng.normal(0, 9) - windMph * 0.6, 230, 345);
+  // Fairways lead to greens: a hole where the approach finds the green was usually played from the short grass.
+  const accurate = clamp(0.66 + (a.drivingAccuracy - TOUR_AVERAGE) * 0.03 + (plan.missGreen ? -0.25 : 0.12), 0.1, 0.95);
   const lastLong = plan.long;
   const finalLong = (club?: string) => {
     const from = cur;
@@ -380,11 +409,11 @@ export function traceHole({ course, hole, score, player, windMph = 0, seed }: Tr
     const len = Math.min(teeClub === "3-wood" ? driveLen - 25 : driveLen, Y - 70);
     if (plan.penalties > 0) {
       const wet = layout.water.length > 0;
-      tee = wet ? pointAt(layout.path, len - 20, (layout.water[0]![0]!.x > 0 ? 1 : -1) * (w / 2 + 22)) : pointAt(layout.path, len, (rng.chance(0.5) ? 1 : -1) * (w / 2 + 50));
+      tee = wet ? pointAt(layout.path, len - 20, (layout.water[0]![0]!.x > 0 ? 1 : -1) * (w / 2 + 22)) : pointAt(layout.path, len, missSide() * (w / 2 + 50));
       lie = wet ? "water" : "ob";
       teeText = `${teeClub} ${wet ? "finds the water" : "goes out of bounds"}.`;
     } else if (plan.recoveries > 0) {
-      const side = rng.chance(0.5) ? 1 : -1;
+      const side = missSide();
       tee = pointAt(layout.path, len - 10, side * (w / 2 + (layout.trees.length ? 24 : 14)));
       lie = layout.trees.length ? "trees" : "rough";
       teeText = `${teeClub}, ${Math.round(len - 10)} yds, ${lie === "trees" ? "blocked out in the trees" : "buried in deep rough"}.`;
@@ -399,7 +428,7 @@ export function traceHole({ course, hole, score, player, windMph = 0, seed }: Tr
         lie = "bunker";
         teeText = `${teeClub} runs into a fairway bunker.`;
       } else {
-        tee = pointAt(layout.path, len, (rng.chance(0.5) ? 1 : -1) * (w / 2 + 4 + rng.next() * 8));
+        tee = pointAt(layout.path, len, missSide() * (w / 2 + 4 + rng.next() * 8));
         lie = "rough";
         teeText = `${teeClub}, ${Math.round(len)} yds, just in the rough.`;
       }
@@ -454,7 +483,8 @@ export function traceHole({ course, hole, score, player, windMph = 0, seed }: Tr
     if (last) {
       push({ kind: "putt", club: "Putter", to: pin, lie: "holed", yards: Math.round(ft / 3), feet: 0, text: ft <= 3 ? "Taps in." : `Holes the ${ft}-footer.` });
     } else {
-      const leave = plan.putts - i === 3 ? 5 + rng.next() * 6 : 1 + rng.next() * 3;
+      const paceLeave = habits.puttingPace === "charger" ? 1.6 : habits.puttingPace === "dier" ? 0.6 : 1;
+      const leave = (plan.putts - i === 3 ? 5 + rng.next() * 6 : 1 + rng.next() * 3) * paceLeave;
       const to = onGreen(leave, cur);
       push({ kind: "putt", club: "Putter", to, lie: "green", yards: Math.round(ft / 3), feet: toPinFt(to), text: `Putts from ${ft} ft, leaves ${toPinFt(to)} ft.` });
     }
@@ -483,3 +513,25 @@ export function projectAlong(path: Pt[], p: Pt): number {
   }
   return best;
 }
+
+/** Which side of the centre line a point is on (+1 right, -1 left, looking down the hole). */
+export function sideOf(path: Pt[], p: Pt): number {
+  let best = Infinity;
+  let sign = 0;
+  for (let i = 0; i < path.length - 1; i++) {
+    const a = path[i]!;
+    const b = path[i + 1]!;
+    const len = Math.hypot(b.x - a.x, b.y - a.y);
+    const t = clamp(((p.x - a.x) * (b.x - a.x) + (p.y - a.y) * (b.y - a.y)) / (len * len), 0, 1);
+    const q = { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
+    const d = Math.hypot(p.x - q.x, p.y - q.y);
+    if (d < best) {
+      best = d;
+      // Right-hand normal of the direction of play is (dy, -dx).
+      sign = Math.sign((p.x - q.x) * (b.y - a.y) - (p.y - q.y) * (b.x - a.x));
+    }
+  }
+  return sign;
+}
+
+const trace_scoreOver = (score: number, par: number) => score > par;

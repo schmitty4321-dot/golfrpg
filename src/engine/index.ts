@@ -10,3 +10,5 @@ export * from "./tournament";
 export * from "./types";
 export * from "./weather";
 export * from "./tracer";
+export * from "./roundStats";
+export * from "./tendencies";

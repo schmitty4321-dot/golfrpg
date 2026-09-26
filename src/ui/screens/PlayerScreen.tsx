@@ -1,5 +1,6 @@
 import { ATTRIBUTE_GROUPS, ATTRIBUTE_LABELS } from "../../engine";
 import { STATUS_LABELS, seasonChange, type World } from "../../season";
+import { TendenciesPanel } from "../components/TendenciesPanel";
 import { formWord, money, signed, toPar } from "../format";
 
 const GROUP_LABELS: Record<keyof typeof ATTRIBUTE_GROUPS, string> = {
@@ -56,6 +57,11 @@ export function PlayerScreen({ world, clientId }: { world: World; clientId: stri
           ))}
         </div>
         <p className="muted small">Hidden traits (wind tolerance, grass preference, comfort on each style of course) show up only in results. Scouting comes later.</p>
+      </section>
+
+      <section className="panel">
+        <div className="panel-head"><h2>Tendencies</h2><span className="muted small">His habits: they show up in replays and round stats</span></div>
+        <TendenciesPanel player={p} />
       </section>
 
       <section className="panel">
