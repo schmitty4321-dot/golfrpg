@@ -1,0 +1,254 @@
+import { useEffect, useMemo, useState } from "react";
+import {
+  callOdds,
+  decisionsFor,
+  holeLayout,
+  liveBoard,
+  playLiveHole,
+  traceHole,
+  traceSeed,
+  type CallKind,
+  type HoleCall,
+  type HoleSituation,
+  type HoleTrace,
+  type LiveTournament,
+} from "../../engine";
+import { useHoleMap } from "../holeMaps";
+import { HoleDrawing, LIE_WORDS, scoreClass } from "./ShotTracer";
+import { toPar } from "../format";
+
+interface Played {
+  index: number;
+  trace: HoleTrace;
+}
+
+/** Where the client stands before a hole, for deciding which calls matter. */
+function situation(t: LiveTournament): HoleSituation {
+  const board = liveBoard(t);
+  const me = board.find((r) => r.player.id === t.controlledId)!;
+  const cutTop = t.config.cutTop;
+  const cutMargin = t.round === 2 && cutTop !== undefined && board.length > cutTop ? board[cutTop - 1]!.toPar - me.toPar : null;
+  return { round: t.round, index: t.current!.holes.length, behind: me.toPar - board[0]!.toPar, cutMargin };
+}
+
+const pct = (x: number) => `${Math.round(x * 100)}%`;
+
+/**
+ * Your client's round, a hole at a time. On key holes you make the calls
+ * (off the tee, going for a par 5, attacking a pin, the putts on the closing
+ * holes), with the odds of each; elsewhere he plays his own game. Each hole
+ * then plays out in the shot tracer.
+ */
+export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTournament; name: string; onChange: () => void; onRoundDone: () => void }) {
+  const course = t.config.course;
+  const player = t.config.field.find((p) => p.id === t.controlledId)!;
+  const cur = t.current;
+  const [calls, setCalls] = useState<HoleCall>({});
+  const [played, setPlayed] = useState<Played | null>(null);
+  const [step, setStep] = useState(0);
+  const [photo, setPhoto] = useState(true);
+
+  const index = cur ? cur.holes.length : course.holes.length;
+  const upcoming = cur ? course.holes[index]! : null;
+  const decisions = useMemo(() => (cur && upcoming ? decisionsFor(upcoming, course, player, situation(t)) : []), [cur, upcoming, course, player, t, index]); // eslint-disable-line react-hooks/exhaustive-deps
+  const odds = useMemo(() => {
+    if (!cur || !decisions.length) return null;
+    const own = callOdds(t, null);
+    const byOption: Record<string, ReturnType<typeof callOdds>> = {};
+    for (const d of decisions) for (const o of d.options) byOption[`${d.kind}:${o.value}`] = callOdds(t, { [d.kind]: o.value } as HoleCall);
+    return { own, byOption };
+  }, [decisions]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // What the drawing shows: the hole just played (animated), or the next one.
+  const preview: HoleTrace | null = upcoming ? { layout: holeLayout(course, upcoming), shots: [], score: 0, result: "" } : null;
+  const shown = played ?? (preview ? { index, trace: preview } : null);
+  const map = useHoleMap(shown?.trace.layout.real);
+
+  useEffect(() => {
+    if (!played || step >= played.trace.shots.length) return;
+    const id = setTimeout(() => setStep((s) => s + 1), step === 0 ? 350 : 900);
+    return () => clearTimeout(id);
+  }, [played, step]);
+
+  const entry = t.entries.find((e) => e.player.id === t.controlledId)!;
+  const wind = () => t.weather[t.round - 1]!.windMph[cur?.wave ?? entry.waves[t.round - 1] ?? "AM"];
+
+  function playOne(call: HoleCall | null): Played {
+    const i = t.current!.holes.length;
+    const hole = course.holes[i]!;
+    const windMph = wind();
+    const score = playLiveHole(t, call);
+    const trace = traceHole({ course, hole, score, player, windMph, seed: traceSeed(t.config.name, player.id, t.round - 1, i), call });
+    return { index: i, trace };
+  }
+
+  function play() {
+    const call = Object.keys(calls).length ? calls : null;
+    const p = playOne(call);
+    setPlayed(p);
+    setStep(0);
+    setCalls({});
+    onChange();
+  }
+
+  /** Plays holes with no decisions to make, stopping before the next one that has any. */
+  function playToDecision() {
+    let last: Played | null = null;
+    do {
+      last = playOne(null);
+    } while (t.current && !decisionsFor(course.holes[t.current.holes.length]!, course, player, situation(t)).length);
+    setPlayed(last);
+    setStep(0);
+    setCalls({});
+    onChange();
+  }
+
+  function finishRound() {
+    let last: Played | null = null;
+    while (t.current) last = playOne(null);
+    setPlayed(last);
+    setStep(last ? last.trace.shots.length : 0);
+    onChange();
+  }
+
+  const board = liveBoard(t);
+  const me = board.find((r) => r.player.id === t.controlledId);
+  const myPos = me ? board.findIndex((r) => r.toPar === me.toPar) + 1 : null;
+  const tied = me ? board.filter((r) => r.toPar === me.toPar).length > 1 : false;
+  const today = cur ? cur.holes : (entry.holes[t.round - 1] ?? []);
+  const todayPar = course.holes.slice(0, today.length).reduce((a, h) => a + h.par, 0);
+  const showHole = course.holes[shown?.index ?? 0];
+  const pick = (kind: CallKind, value: string | undefined) => setCalls((c) => {
+    const next = { ...c };
+    if (value === undefined) delete next[kind];
+    else (next as Record<string, string>)[kind] = value;
+    return next;
+  });
+
+  return (
+    <section className="panel hbh">
+      <div className="panel-head">
+        <div>
+          <h2>{name}: round {t.round}, hole by hole</h2>
+          <span className="secondary small">
+            Today {today.length ? toPar(today.reduce((a, b) => a + b, 0) - todayPar) : "E"} thru {today.length}
+            {me && ` · ${toPar(me.toPar)} overall · ${tied ? "T" : ""}${myPos}${myPos === 1 ? " (leading)" : ""}`}
+          </span>
+        </div>
+        <div className="hbh-card" aria-label="Today's scorecard">
+          {course.holes.map((h, i) => (
+            <span key={i} className={i < today.length ? scoreClass(today[i]!, h.par) : "muted"} title={`Hole ${i + 1}, par ${h.par}`}>
+              {i < today.length ? today[i] : "·"}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div className="tracer-body">
+        <div>
+          {shown && <HoleDrawing trace={shown.trace} step={played ? step : 0} photo={photo} map={map} />}
+          <div className="hole-credit">
+            {map?.aerial && (
+              <div className="tabs" role="tablist" aria-label="Hole view" style={{ margin: 0 }}>
+                <button role="tab" aria-selected={photo} onClick={() => setPhoto(true)}>Photo</button>
+                <button role="tab" aria-selected={!photo} onClick={() => setPhoto(false)}>Map</button>
+              </div>
+            )}
+            {shown?.trace.layout.real && (
+              <span className="muted small">
+                {photo && map?.aerial ? "Aerial photo: USDA NAIP / USGS · " : ""}Hole map © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div>
+          {showHole && (
+            <p className="hbh-hole">
+              <strong>Hole {(shown?.index ?? 0) + 1}</strong> · Par {showHole.par} · {showHole.yards} yds
+              {showHole.tourAverage !== undefined && ` · Tour average ${toPar(Math.round((showHole.tourAverage - showHole.par) * 100) / 100)}`}
+              {` · Wind ${Math.round(wind())} mph`}
+            </p>
+          )}
+
+          {played ? (
+            <>
+              <p style={{ marginTop: 0 }}>
+                <strong>{step >= played.trace.shots.length ? played.trace.result : "…"}</strong>
+              </p>
+              <ol className="shot-list">
+                {played.trace.shots.map((s, i) => (
+                  <li key={i} className={i < step ? (i === step - 1 ? "current" : "") : "pending"}>
+                    {(s.kind === "penalty" || !s.text.startsWith(s.club)) && <span className="muted small">{s.kind === "penalty" ? "Penalty" : s.club}</span>}
+                    <span>{i < step ? s.text : "…"}</span>
+                    {i < step && s.kind !== "penalty" && s.lie !== "holed" && <span className="muted small">Lies: {LIE_WORDS[s.lie]}</span>}
+                  </li>
+                ))}
+              </ol>
+              <div className="btn-row">
+                {step < played.trace.shots.length && <button className="btn btn-small" onClick={() => setStep(played.trace.shots.length)}>Show all shots</button>}
+                {cur ? (
+                  <button className="btn btn-primary" onClick={() => { setPlayed(null); setStep(0); }}>Next hole</button>
+                ) : (
+                  <button className="btn btn-primary" onClick={onRoundDone}>See the round</button>
+                )}
+              </div>
+            </>
+          ) : cur && upcoming ? (
+            <>
+              {decisions.length === 0 ? (
+                <p className="secondary">Nothing to decide here: he plays his own game.</p>
+              ) : (
+                decisions.map((d) => {
+                  const chosen = calls[d.kind];
+                  const own = odds?.own;
+                  return (
+                    <fieldset key={d.kind} className="call">
+                      <legend>{d.question}</legend>
+                      <div className="call-options">
+                        <button className="choice" aria-pressed={chosen === undefined} onClick={() => pick(d.kind, undefined)}>
+                          <strong>His call</strong>
+                          {own && <span className="small secondary">Avg {own.expected.toFixed(2)} · Birdie {pct(own.birdie)} · Bogey+ {pct(own.bogey)}</span>}
+                        </button>
+                        {d.options.map((o) => {
+                          const od = odds?.byOption[`${d.kind}:${o.value}`];
+                          return (
+                            <button key={o.value} className="choice" aria-pressed={chosen === o.value} onClick={() => pick(d.kind, o.value)} title={o.blurb}>
+                              <strong>{o.label}</strong>
+                              {od && <span className="small secondary">Avg {od.expected.toFixed(2)} · Birdie {pct(od.birdie)} · Bogey+ {pct(od.bogey)}</span>}
+                              <span className="small muted">{o.blurb}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </fieldset>
+                  );
+                })
+              )}
+              <div className="btn-row">
+                <button className="btn btn-primary" onClick={play}>Play hole {index + 1}</button>
+                <button className="btn" onClick={playToDecision}>Play to the next decision</button>
+                <button className="btn" onClick={finishRound}>Finish the round</button>
+              </div>
+              <p className="muted small">Averages and chances are for this hole, from his game today and the conditions.</p>
+            </>
+          ) : null}
+
+          <h3 style={{ marginBottom: 4 }}>Leaderboard <span className="muted small">(everyone through the same hole)</span></h3>
+          <table className="hbh-board">
+            <tbody>
+              {board.slice(0, 8).concat(me && board.indexOf(me) >= 8 ? [me] : []).map((r) => (
+                <tr key={r.player.id} className={r.player.id === t.controlledId ? "me" : ""}>
+                  <td className="num">{board.findIndex((x) => x.toPar === r.toPar) + 1}</td>
+                  <td>{r.player.name}</td>
+                  <td className="num">{toPar(r.toPar)}</td>
+                  <td className="num muted small">{r.thru === 18 ? "F" : `thru ${r.thru}`}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  );
+}

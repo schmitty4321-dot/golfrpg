@@ -110,9 +110,17 @@ export interface HoleInputs {
   dayForm: StrokesGained;
   teeShotHoles: number;
   state: HoleState;
+  /** A strategy call's effect on this hole (see calls.ts): strokes added, spread and blow-up multipliers. */
+  mod?: HoleMod;
 }
 
-export function playHole({ ctx, hole, dayForm, teeShotHoles, state }: HoleInputs): number {
+export interface HoleMod {
+  mean: number;
+  sd: number;
+  blowup: number;
+}
+
+export function playHole({ ctx, hole, dayForm, teeShotHoles, state, mod }: HoleInputs): number {
   const { player, course, weather, wave, rng } = ctx;
   const a = player.attributes;
 
@@ -137,14 +145,16 @@ export function playHole({ ctx, hole, dayForm, teeShotHoles, state }: HoleInputs
     mean += Math.max(0, TOUR_AVERAGE - a.stamina) * 0.004 + Math.max(0, 70 - player.condition) * 0.002;
   }
 
-  let sd = HOLE_SD * (1 + (a.aggression - TOUR_AVERAGE) * 0.015);
+  if (mod) mean += mod.mean;
+
+  let sd = HOLE_SD * (1 + (a.aggression - TOUR_AVERAGE) * 0.015) * (mod?.sd ?? 1);
   if (pressure > 0) sd *= 1 + pressure * 3; // nervy players get wilder, not just worse
 
   // Big numbers: trouble on the hole, wind, and poor decisions.
   const blowupChance = clamp(
-    (0.014 + hole.hazard * 0.05) * (1 - (a.courseManagement - TOUR_AVERAGE) * 0.04) * (1 + weather.windMph[wave] / 30),
+    (0.014 + hole.hazard * 0.05) * (1 - (a.courseManagement - TOUR_AVERAGE) * 0.04) * (1 + weather.windMph[wave] / 30) * (mod?.blowup ?? 1),
     0,
-    0.2,
+    0.25,
   );
 
   let score = stochasticRound(mean + rng.normal(0, sd), rng);

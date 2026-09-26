@@ -1,22 +1,24 @@
 import { CourseCard, CourseFacts, CoursePhoto } from "../components/CourseHeader";
-import { Fragment, useMemo, useState } from "react";
-import { fieldRoundStats, standingsAfterRound, type PlayerEventResult, type RoundStanding, type TournamentResult } from "../../engine";
-import { theEvent, type TourEvent, type WeekReport, type World } from "../../season";
+import { Fragment, useMemo, useState, type ReactNode } from "react";
+import { autoFinishRound, clientActive, fieldRoundStats, finishLive, liveSnapshot, standingsAfterRound, startLiveRound, type Course, type PlayerEventResult, type RoundStanding, type TournamentResult } from "../../engine";
+import { theEvent, type LiveEvent, type TourEvent, type WeekReport, type World } from "../../season";
+import { HoleByHole } from "../components/HoleByHole";
+import type { Game, LiveWeek } from "../useGame";
 import { Scorecard } from "../components/Scorecard";
 import { ShotTracer } from "../components/ShotTracer";
 import { RoundLeaders, RoundStatsPanel } from "../components/RoundStatsPanel";
 import { Leaderboard } from "../components/Leaderboard";
 import { TIER_LABELS, millions, toPar } from "../format";
 
-interface LiveEvent {
+interface EventView {
   event: TourEvent;
   result: TournamentResult;
   clientIds: string[];
 }
 
-/** The events your clients played this week. */
-function liveEvents(report: WeekReport): LiveEvent[] {
-  const byEvent = new Map<string, LiveEvent>();
+/** The events your clients played this week (from the finished week's report). */
+function reportEvents(report: WeekReport): EventView[] {
+  const byEvent = new Map<string, EventView>();
   for (const [id, c] of Object.entries(report.clients)) {
     if (!c.record || !c.result) continue;
     const e = report.results.find((r) => r.event.id === c.record!.eventId)!;
@@ -28,102 +30,136 @@ function liveEvents(report: WeekReport): LiveEvent[] {
 }
 
 /**
- * A week your clients played, revealed a round at a time: play round 1,
- * see where they stand, and so on. If every client misses the cut, sim
- * the rest in one go.
+ * Your clients' events this week. While the week is live, each round is
+ * played on demand (simulated, or hole by hole with your calls); once every
+ * event is done the week is recorded and the final results show.
  */
-export function EventScreen({ world, report, onDone }: { world: World; report: WeekReport; onDone: () => void }) {
-  const events = liveEvents(report);
+export function EventScreen({ world, game, onDone }: { world: World; game: Game; onDone: () => void }) {
+  const lw = game.state.liveWeek;
+  if (lw) return <LiveWeekView world={world} game={game} lw={lw} />;
+  return <FinalView world={world} report={game.state.live!} onDone={onDone} />;
+}
+
+function EventTabs({ names, which, setWhich }: { names: string[]; which: number; setWhich: (i: number) => void }) {
+  if (names.length < 2) return null;
+  return (
+    <div className="tabs" role="tablist" aria-label="Your clients' events">
+      {names.map((n, i) => (
+        <button key={n} role="tab" aria-selected={i === which} onClick={() => setWhich(i)}>{n}</button>
+      ))}
+    </div>
+  );
+}
+
+function EventHeader({ event, course, week, players, hasCut, status, children }: { event: TourEvent; course: Course; week: number; players: number; hasCut: boolean; status: string; children: ReactNode }) {
+  return (
+    <section className="panel">
+      <CoursePhoto course={course} />
+      <div className="panel-head">
+        <div>
+          <div className="event-title">
+            <span className={`badge${event.tier === "major" ? " badge-major" : ""}`}>{TIER_LABELS[event.tier]}</span>
+            <h1 style={{ fontSize: 22 }}>{event.name}</h1>
+          </div>
+          <div className="facts" style={{ marginTop: 6 }}>
+            <span>Week {week}</span>
+            <CourseFacts course={course} />
+            <span>Purse {millions(event.purse)}</span>
+            <span>{players} players{hasCut ? ", cut after 36 holes" : ", no cut"}</span>
+          </div>
+        </div>
+        <span className="secondary">{status}</span>
+      </div>
+      <div className="btn-row">{children}</div>
+    </section>
+  );
+}
+
+function LiveWeekView({ world, game, lw }: { world: World; game: Game; lw: LiveWeek }) {
   const [which, setWhich] = useState(0);
-  const [stage, setStage] = useState<Record<string, number>>({});
-  const live = events[which]!;
-  const rounds = Math.max(...live.result.leaderboard.map((r) => r.rounds.length));
-  const shown = stage[live.event.id] ?? 0;
-  const setShown = (n: number) => setStage((s) => ({ ...s, [live.event.id]: n }));
-  const hasCut = live.result.cutLine !== null;
-  const rows = (id: string) => live.result.leaderboard.find((r) => r.player.id === id)!;
-  const anyMadeCut = live.clientIds.some((id) => rows(id).madeCut);
-  const finished = shown >= rounds;
-  const allDone = events.every((e) => (stage[e.event.id] ?? 0) >= Math.max(...e.result.leaderboard.map((r) => r.rounds.length)));
+  const [holeByHole, setHoleByHole] = useState<Record<string, boolean>>({});
+  const ev = lw.events[which]!;
+  const t = ev.tournament;
+  const snap = useMemo(() => liveSnapshot(t), [t, lw.version]); // eslint-disable-line react-hooks/exhaustive-deps
+  const view: EventView = { event: ev.event, result: snap, clientIds: ev.clientIds };
+  const rows = (id: string) => snap.leaderboard.find((r) => r.player.id === id)!;
+  const done = (e: LiveEvent) => e.tournament.round >= 4 && !e.tournament.current;
+  const allDone = lw.events.every(done);
+  const stillIn = t.round < 2 || ev.clientIds.some((id) => t.entries.find((e) => e.player.id === id)?.active);
+  const walker = world.players[t.controlledId]!.player.name;
+  const inHbh = !!holeByHole[ev.event.id];
+  const next = t.round + 1;
+  const status = t.round === 0 ? "Before round 1" : t.current ? `Round ${t.round}, hole ${t.current.holes.length + 1}` : done(ev) ? "Final round done" : `After round ${t.round}`;
 
-  const next = () => {
-    if (shown === 2 && hasCut && !anyMadeCut) setShown(rounds);
-    else setShown(shown + 1);
-  };
-  const nextLabel =
-    shown === 0 ? "Play round 1" : shown === 2 && hasCut && !anyMadeCut ? "Sim the rest of the tournament" : `Play round ${shown + 1}`;
-
-  const c = live.result.course;
   return (
     <main>
-      {events.length > 1 && (
-        <div className="tabs" role="tablist" aria-label="Your clients' events">
-          {events.map((e, i) => (
-            <button key={e.event.id} role="tab" aria-selected={i === which} onClick={() => setWhich(i)}>
-              {e.event.name}
-            </button>
-          ))}
-        </div>
-      )}
-      <section className="panel">
-        <CoursePhoto course={c} />
-        <div className="panel-head">
-          <div>
-            <div className="event-title">
-              <span className={`badge${live.event.tier === "major" ? " badge-major" : ""}`}>{TIER_LABELS[live.event.tier]}</span>
-              <h1 style={{ fontSize: 22 }}>{live.event.name}</h1>
-            </div>
-            <div className="facts" style={{ marginTop: 6 }}>
-              <span>Week {report.week}</span>
-              <CourseFacts course={c} />
-              <span>Purse {millions(live.event.purse)}</span>
-              <span>{live.result.leaderboard.length} players{hasCut ? ", cut after 36 holes" : ", no cut"}</span>
-            </div>
-          </div>
-          <span className="secondary">{shown === 0 ? "Before round 1" : finished ? "Final" : `After round ${shown}`}</span>
-        </div>
-        <div className="btn-row">
-          {!finished && <button className="btn btn-primary" onClick={next}>{nextLabel}</button>}
-          {!finished && shown > 0 && <button className="btn" onClick={() => setShown(rounds)}>Skip to the final results</button>}
-          {finished && allDone && <button className="btn btn-primary" onClick={onDone}>Continue</button>}
-          {finished && !allDone && (
-            <button className="btn btn-primary" onClick={() => setWhich(events.findIndex((e) => (stage[e.event.id] ?? 0) < Math.max(...e.result.leaderboard.map((r) => r.rounds.length))))}>
-              Next event
-            </button>
-          )}
-          {shown === 0 && <button className="btn" onClick={() => setShown(rounds)}>Skip to the final results</button>}
-        </div>
-      </section>
+      <EventTabs names={lw.events.map((e) => e.event.name)} which={which} setWhich={setWhich} />
+      <EventHeader event={ev.event} course={t.config.course} week={world.week} players={t.config.field.length} hasCut={t.config.cutTop !== undefined} status={status}>
+        {!inHbh && !done(ev) && stillIn && (
+          <>
+            <button className="btn btn-primary" onClick={() => game.liveAct(() => { startLiveRound(t); autoFinishRound(t); })}>Play round {next}</button>
+            {(t.round < 2 || clientActive(t)) && (
+              <button className="btn btn-primary" onClick={() => { game.liveAct(() => startLiveRound(t)); setHoleByHole((h) => ({ ...h, [ev.event.id]: true })); }}>
+                Play round {next} hole by hole
+              </button>
+            )}
+          </>
+        )}
+        {!inHbh && !done(ev) && !stillIn && <button className="btn btn-primary" onClick={() => game.liveAct(() => void finishLive(t))}>Sim the rest of the tournament</button>}
+        {!inHbh && done(ev) && allDone && <button className="btn btn-primary" onClick={() => void game.completeLiveWeek()}>See the final results</button>}
+        {!inHbh && done(ev) && !allDone && <button className="btn btn-primary" onClick={() => setWhich(lw.events.findIndex((e) => !done(e)))}>Next event</button>}
+        {!allDone && <button className="btn" onClick={() => void game.completeLiveWeek()}>Skip to the final results</button>}
+      </EventHeader>
 
-      {shown === 0 ? (
-        <section className="panel">
-          <div className="panel-head"><h2>Your clients in the field</h2></div>
-          <ul className="news">
-            {live.clientIds.map((id) => {
-              const r = rows(id);
-              return (
+      {inHbh ? (
+        <HoleByHole
+          key={`${ev.event.id}-${t.round}`}
+          t={t}
+          name={walker}
+          onChange={() => game.liveAct(() => {})}
+          onRoundDone={() => setHoleByHole((h) => ({ ...h, [ev.event.id]: false }))}
+        />
+      ) : t.round === 0 ? (
+        <>
+          <section className="panel">
+            <div className="panel-head"><h2>Your clients in the field</h2></div>
+            <ul className="news">
+              {ev.clientIds.map((id) => (
                 <li key={id} style={{ color: "var(--text)" }}>
-                  <strong>{r.player.name}</strong> · round 1 tee time {r.waves[0] === "AM" ? "morning" : "afternoon"}
-                  {report.clients[id]!.record!.via === "monday" ? " · got in through the Monday qualifier" : ""}
+                  <strong>{world.players[id]!.player.name}</strong>
+                  {ev.field.mondayQualifiers.includes(id) ? " · got in through the Monday qualifier" : ""}
                 </li>
-              );
-            })}
-          </ul>
-          <p className="muted small" style={{ marginBottom: 0 }}>Round 1 weather: wind {Math.round(live.result.weather[0]!.windMph.AM)} mph in the morning, {Math.round(live.result.weather[0]!.windMph.PM)} mph in the afternoon{live.result.weather[0]!.rain ? ", with rain" : ""}.</p>
-        </section>
-      ) : null}
-      {shown === 0 ? (
-        <CourseCard course={c} />
-      ) : finished ? (
-        <Final world={world} report={report} live={live} />
+              ))}
+            </ul>
+            <p className="muted small" style={{ marginBottom: 0 }}>
+              Play a round at a time, or walk with {walker} hole by hole: you make the calls on the key holes (off the tee, going for par 5s, attacking pins, the closing putts) and watch every shot.
+            </p>
+          </section>
+          <CourseCard course={t.config.course} />
+        </>
       ) : (
-        <RoundView live={live} round={shown} rows={rows} />
+        <RoundView live={view} round={t.round} rows={rows} />
       )}
     </main>
   );
 }
 
-function RoundView({ live, round, rows }: { live: LiveEvent; round: number; rows: (id: string) => PlayerEventResult }) {
+function FinalView({ world, report, onDone }: { world: World; report: WeekReport; onDone: () => void }) {
+  const events = reportEvents(report);
+  const [which, setWhich] = useState(0);
+  const live = events[which]!;
+  return (
+    <main>
+      <EventTabs names={events.map((e) => e.event.name)} which={which} setWhich={setWhich} />
+      <EventHeader event={live.event} course={live.result.course} week={report.week} players={live.result.leaderboard.length} hasCut={live.result.cutLine !== null} status="Final">
+        <button className="btn btn-primary" onClick={onDone}>Continue</button>
+      </EventHeader>
+      <Final world={world} report={report} live={live} />
+    </main>
+  );
+}
+
+function RoundView({ live, round, rows }: { live: EventView; round: number; rows: (id: string) => PlayerEventResult }) {
   const standings = standingsAfterRound(live.result, round);
   const field = useMemo(() => fieldRoundStats(live.result, round - 1), [live.result, round]);
   const [watch, setWatch] = useState<{ id: string; hole: number } | null>(null);
@@ -215,7 +251,7 @@ function RoundBoard({ standings, clientIds, round, cutLine }: { standings: Round
   );
 }
 
-function Final({ world, report, live }: { world: World; report: WeekReport; live: LiveEvent }) {
+function Final({ world, report, live }: { world: World; report: WeekReport; live: EventView }) {
   const winner = live.result.leaderboard[0]!;
   return (
     <>

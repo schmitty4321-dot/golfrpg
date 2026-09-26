@@ -1,5 +1,5 @@
 import { recordEventStats } from "./stats";
-import { clamp, createRng, expectedStrokesGained, simulateTournament, totalSg, type TournamentResult } from "../engine";
+import { clamp, createRng, expectedStrokesGained, simulateTournament, startLive, totalSg, type LiveTournament, type TournamentConfig, type TournamentResult } from "../engine";
 import { seasonWeeks, majorSetup } from "./calendar";
 import { buildFields, courseById, mixSeed, planWeek, weekContext, type AiChoice, type FieldResult } from "./entries";
 import { owgrPointsFor, owgrWinnerPoints, seasonPointsFor, tieCounts } from "./points";
@@ -54,35 +54,73 @@ function toAiChoice(world: World, choice: ClientChoice): AiChoice | "auto" {
   return { eventId: e.id, route: "entry" };
 }
 
-/** Simulates one week of the season for the whole world and moves on. */
-export function playWeek(world: World, choices: ClientChoices = {}): WeekReport {
-  if (world.week > seasonWeeks(world)) throw new Error("the season is over; call finishSeason first");
-  const ctxBefore = weekContext(world);
+/** An event this week with your clients in it, set up to be played live (round by round, or hole by hole). */
+export interface LiveEvent {
+  event: TourEvent;
+  field: FieldResult;
+  clientIds: string[];
+  /** The client walked hole by hole (the first of yours in the field). */
+  tournament: LiveTournament;
+}
+
+function weekPlan(world: World, choices: ClientChoices) {
   const own = new Map<string, AiChoice | "auto">();
   for (const id of world.clientIds) own.set(id, toAiChoice(world, choices[id] ?? { kind: "auto" }));
   const plan = planWeek(world, own);
-  const fields = buildFields(world, plan);
-  const played = new Set<string>();
+  return { plan, fields: buildFields(world, plan) };
+}
+
+function tournamentConfig(world: World, f: FieldResult, i: number): TournamentConfig {
+  const venue = courseById(world, f.event.courseId);
+  return {
+    name: f.event.name,
+    course: f.event.tier === "major" ? majorSetup(venue) : venue,
+    field: f.field.map((id) => world.players[id]!.player),
+    purse: f.event.purse,
+    seed: mixSeed(world.seed, world.season, world.week, 10 + i),
+    cutTop: f.event.cutTop ?? undefined,
+  };
+}
+
+/**
+ * This week's events with your clients in the field, as live tournaments,
+ * before anything is played. Play them (see startLiveRound, playLiveHole,
+ * finishLive), then pass the results to playWeek, which plays the rest of
+ * the week exactly as it would have anyway.
+ */
+export function liveEvents(world: World, choices: ClientChoices = {}): LiveEvent[] {
+  if (world.week > seasonWeeks(world)) return [];
+  const { fields } = weekPlan(world, choices);
+  const out: LiveEvent[] = [];
+  fields.forEach((f, i) => {
+    const clientIds = f.field.filter((id) => world.clientIds.includes(id));
+    if (!clientIds.length || f.field.length < 2) return;
+    out.push({ event: f.event, field: f, clientIds, tournament: startLive(tournamentConfig(world, f, i), clientIds[0]!) });
+  });
+  return out;
+}
+
+/**
+ * Simulates one week of the season for the whole world and moves on. Events
+ * already played live come in `played`, by event id, and are used as they are.
+ */
+export function playWeek(world: World, choices: ClientChoices = {}, played: Record<string, TournamentResult> = {}): WeekReport {
+  if (world.week > seasonWeeks(world)) throw new Error("the season is over; call finishSeason first");
+  const ctxBefore = weekContext(world);
+  const { plan, fields } = weekPlan(world, choices);
+  const playedIds = new Set<string>();
   const report: WeekReport = { season: world.season, week: world.week, results: [], clients: {} };
   for (const id of world.clientIds) report.clients[id] = { summary: "", record: null, result: null };
   const sgVsExpected = new Map<string, number>();
 
   fields.forEach((f, i) => {
     if (f.field.length < 2) return;
-    const venue = courseById(world, f.event.courseId);
-    const course = f.event.tier === "major" ? majorSetup(venue) : venue;
-    const players = f.field.map((id) => world.players[id]!.player);
+    const config = tournamentConfig(world, f, i);
+    const { course, field: players } = config;
     const expected = new Map(players.map((p) => [p.id, totalSg(expectedStrokesGained(p, course))]));
     const fieldExpected = [...expected.values()].reduce((s, x) => s + x, 0) / players.length;
 
-    const result = simulateTournament({
-      name: f.event.name,
-      course,
-      field: players,
-      purse: f.event.purse,
-      seed: mixSeed(world.seed, world.season, world.week, 10 + i),
-      cutTop: f.event.cutTop ?? undefined,
-    });
+    const result = played[f.event.id] ?? simulateTournament(config);
     const ties = tieCounts(result);
     const winnerOwgr = owgrWinnerPoints(f.event.tier, f.field.map((id) => ctxBefore.owgrRank.get(id) ?? 9999));
 
@@ -131,7 +169,7 @@ export function playWeek(world: World, choices: ClientChoices = {}): WeekReport 
       const travel = c.lastRegion !== null && c.lastRegion !== f.event.region ? TRAVEL_FATIGUE : 0;
       wp.player.condition = clamp(wp.player.condition - (f.event.tier === "major" ? MAJOR_FATIGUE : EVENT_FATIGUE) - travel, 0, 100);
       c.lastRegion = f.event.region;
-      played.add(r.player.id);
+      playedIds.add(r.player.id);
 
       if (wp.client) {
         const m = wp.client;
@@ -162,12 +200,12 @@ export function playWeek(world: World, choices: ClientChoices = {}): WeekReport 
 
   // Everyone who didn't play rests.
   for (const wp of Object.values(world.players)) {
-    if (played.has(wp.player.id)) continue;
+    if (playedIds.has(wp.player.id)) continue;
     wp.player.condition = clamp(wp.player.condition + REST_RECOVERY, 0, 100);
     wp.player.form *= 0.9;
   }
   const rng = createRng(mixSeed(world.seed, world.season, world.week, 3));
-  endOfWeek(world, played, rng);
+  endOfWeek(world, playedIds, rng);
 
   // The agency's week: sponsors pay, moods move, scouts report, bills are paid.
   for (const wp of clients(world)) {
@@ -176,7 +214,7 @@ export function playWeek(world: World, choices: ClientChoices = {}): WeekReport 
     const goodWeek = !!rec && rec.madeCut && rec.position <= 5;
     const pay = sponsorWeek(world, wp, rng, goodWeek, seasonWeeks(world));
     if (pay > 0) payEndorsement(world, id, pay);
-    updateHappiness(wp, { played: played.has(id), sgVsExpected: sgVsExpected.get(id) ?? null, heldOut: heldOut(plan, id, choices[id]) });
+    updateHappiness(wp, { played: playedIds.has(id), sgVsExpected: sgVsExpected.get(id) ?? null, heldOut: heldOut(plan, id, choices[id]) });
     report.clients[id]!.summary = describeClientWeek(world, id, plan.choices.get(id) ?? null, fields, rec);
   }
   // No agency exists during the silent warm-up season, so nothing to pay.

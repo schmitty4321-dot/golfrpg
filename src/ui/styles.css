@@ -353,3 +353,15 @@ select, input[type="text"], input[type="number"] {
 .stats-table tr.me td:nth-child(2) { background: var(--highlight); }
 .hole-credit { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin-top: 6px; }
 .hole-credit .tabs button { padding: 2px 10px; font-size: 12px; }
+
+/* ---------- hole by hole ---------- */
+.hbh-card { display: grid; grid-template-columns: repeat(18, 22px); gap: 2px; font-size: 12px; text-align: center; }
+.hbh-card > span { display: inline-block; line-height: 20px; }
+.hbh-hole { margin-top: 0; }
+.call { border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px 10px; margin: 0 0 10px; }
+.call legend { font-weight: 600; padding: 0 4px; }
+.call-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px; }
+.call-options .choice { display: grid; gap: 2px; text-align: left; }
+.hbh-board { width: 100%; font-size: 13px; }
+.hbh-board td { padding: 3px 6px; }
+@media (max-width: 700px) { .hbh-card { grid-template-columns: repeat(9, 22px); } }

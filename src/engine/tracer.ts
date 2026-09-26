@@ -12,6 +12,7 @@ import { clamp, createRng, type Rng } from "./rng";
 import type { Course, CourseStyle, Hole, Player } from "./types";
 import { tendencies } from "./tendencies";
 import realHoles from "./realHoles.json";
+import type { HoleCall } from "./calls";
 
 export interface Pt {
   x: number;
@@ -357,20 +358,28 @@ export interface TraceInput {
   player: Player;
   windMph?: number;
   seed: number;
+  /** Strategy calls made for this hole (hole-by-hole play): the replay follows them. */
+  call?: HoleCall | null;
 }
 
 /** The shots behind a hole score. The strokes (shots plus penalties) always equal the score. */
-export function traceHole({ course, hole, score, player, windMph = 0, seed }: TraceInput): HoleTrace {
+export function traceHole({ course, hole, score, player, windMph = 0, seed, call }: TraceInput): HoleTrace {
   const layout = holeLayout(course, hole);
   const rng = createRng(seed);
   const a = player.attributes;
   const habits = tendencies(player);
   const plan = planHole(hole.par, score, hole.hazard, rng);
+  // Laid up on a par 5: a birdie is a wedge and a putt, not two shots and two putts.
+  if (call?.second === "layup" && hole.par === 5 && plan.long === 2 && !plan.missGreen && plan.putts >= 1 && plan.recoveries === 0 && plan.penalties === 0) {
+    plan.long = 3;
+    plan.putts--;
+  }
   // Going for a par 5 in two and missing (then chipping) scores the same as laying up and pitching on:
   // aggressive long hitters take that route more often.
   const reach = hole.yards - (300 + (a.drivingDistance - TOUR_AVERAGE) * 6);
   if (hole.par === 5 && plan.long === 3 && plan.recoveries === 0 && plan.penalties === 0 && reach < 270) {
-    const goChance = (habits.strategy === "aggressive" ? 0.95 : habits.strategy === "conservative" ? 0.35 : 0.7) * (reach < 240 ? 1 : 0.6);
+    const natural = (habits.strategy === "aggressive" ? 0.95 : habits.strategy === "conservative" ? 0.35 : 0.7) * (reach < 240 ? 1 : 0.6);
+    const goChance = call?.second === "go" ? 1 : call?.second === "layup" ? 0 : natural;
     if (rng.chance(goChance)) {
       // One fewer full shot, one more chip: the same score.
       plan.long = 2;
@@ -450,7 +459,8 @@ export function traceHole({ course, hole, score, player, windMph = 0, seed }: Tr
     // One-putts are mostly from inside 20 feet, with the odd long one holed.
     const onePutt = () => (rng.chance(0.08) ? 22 + 50 * rng.next() ** 2 : 3 + rng.next() * 17);
     const base = plan.putts <= 1 ? onePutt() : plan.putts === 2 ? 18 + rng.next() * 35 : 38 + rng.next() * 30;
-    return Math.round(clamp(base * (1 - skill * 0.03), 2, 90));
+    const aim = call?.approach === "attack" ? 0.8 : call?.approach === "middle" ? 1.3 : 1;
+    return Math.round(clamp(base * aim * (1 - skill * 0.03), 2, 90));
   };
   const chipFeet = (): number => (plan.putts <= 1 ? 1 + rng.next() * 6 : plan.putts === 2 ? 6 + rng.next() * 10 : 20 + rng.next() * 15);
 
@@ -500,8 +510,8 @@ export function traceHole({ course, hole, score, player, windMph = 0, seed }: Tr
     let tee: Pt;
     let lie: Lie;
     let teeText: string;
-    const teeClub = Y < 360 || (w < 24 && a.courseManagement >= 13) ? "3-wood" : "Driver";
-    const len = Math.min(teeClub === "3-wood" ? driveLen - 25 : driveLen, Y - 70);
+    const teeClub = call?.tee === "iron" ? "Long iron" : call?.tee === "3-wood" ? "3-wood" : call?.tee === "driver" ? "Driver" : Y < 360 || (w < 24 && a.courseManagement >= 13) ? "3-wood" : "Driver";
+    const len = Math.min(teeClub === "Long iron" ? driveLen - 55 : teeClub === "3-wood" ? driveLen - 25 : driveLen, Y - 70);
     if (plan.penalties > 0) {
       const wet = layout.water.length > 0;
       const landing = pointAt(layout.path, len - 20, (layout.water[0]?.[0]?.x ?? 0) > 0 ? w / 2 + 22 : -(w / 2 + 22));
@@ -579,7 +589,8 @@ export function traceHole({ course, hole, score, player, windMph = 0, seed }: Tr
     if (last) {
       push({ kind: "putt", club: "Putter", to: pin, lie: "holed", yards: Math.round(ft / 3), feet: 0, text: ft <= 3 ? "Taps in." : `Holes the ${ft}-footer.` });
     } else {
-      const paceLeave = habits.puttingPace === "charger" ? 1.6 : habits.puttingPace === "dier" ? 0.6 : 1;
+      const pace = call?.putt === "charge" ? "charger" : call?.putt === "lag" ? "dier" : habits.puttingPace;
+      const paceLeave = pace === "charger" ? 1.6 : pace === "dier" ? 0.6 : 1;
       const leave = (plan.putts - i === 3 ? 5 + rng.next() * 6 : 1 + rng.next() * 3) * paceLeave;
       const to = onGreen(leave, cur);
       push({ kind: "putt", club: "Putter", to, lie: "green", yards: Math.round(ft / 3), feet: toPinFt(to), text: `Putts from ${ft} ft, leaves ${toPinFt(to)} ft.` });

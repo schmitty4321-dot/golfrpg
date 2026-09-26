@@ -49,8 +49,8 @@ export function App() {
   }, [theme]);
 
   const go: Go = (t, id) => {
-    // Leaving the event screen is fine: the week's results are already recorded.
-    if (game.state.live) game.dismissLive();
+    // Leaving the event screen finishes the week (anything unplayed plays itself), then moves on.
+    if (game.state.live || game.state.liveWeek) void game.dismissLive();
     setTab(t);
     if (id) setEventId(id);
     window.scrollTo(0, 0);
@@ -77,7 +77,7 @@ export function App() {
         )}
         <div className="topbar-right" style={{ marginLeft: world ? undefined : "auto" }}>
           {world?.edited && <span className="badge" title="This world has been changed in the editor">Edited</span>}
-          {world && <span className="topbar-season">S{world.season} · Wk {Math.min(world.week, 36)}</span>}
+          {world && <span className="topbar-season">S{world.season} · Wk {Math.min(world.week, game.lib.seasonWeeks(world))}</span>}
           <button className="btn btn-small" onClick={() => setTheme(nextTheme[theme])} title={`Theme: ${theme} (click to switch)`} aria-label={`Theme: ${theme}`}>
             {theme === "dark" ? "Dark" : theme === "light" ? "Light" : "Auto"}
           </button>
@@ -86,13 +86,13 @@ export function App() {
 
       {!loaded ? null : !world ? (
         <NewGame game={game} />
-      ) : game.state.live ? (
+      ) : game.state.live || game.state.liveWeek ? (
         <EventScreen
-          key={`${game.state.live.season}-${game.state.live.week}`}
+          key={`${world.season}-${game.state.live?.week ?? world.week}`}
           world={world}
-          report={game.state.live}
+          game={game}
           onDone={() => {
-            game.dismissLive();
+            void game.dismissLive();
             go("home");
           }}
         />

@@ -156,6 +156,33 @@ it, **Sim the rest of the tournament** jumps to the final results; if anyone mad
 The week is simulated in one go and revealed a round at a time, so nothing you do on this screen changes
 the outcome, and the save and the rest of the world stay consistent. The auto-sim buttons skip the screen.
 
+### Hole by hole
+
+When your client plays, each round can be simulated, or played **hole by hole** with you as his caddie.
+You make the calls at the key moments; on the other holes he plays his own game.
+
+| Moment | When it comes up | Choices |
+|---|---|---|
+| Off the tee | water, OB or a tight fairway, or a short par 4 | driver, 3-wood or a long iron |
+| Par 5 | a par 5 he can reach in two | go for it, or lay up |
+| Approach | a green guarded by water or bunkers | attack the pin, or the middle of the green |
+| Putts | the closing holes, in contention or on the cut line | charge them, or lag them |
+
+- **Odds:** each option shows its average score and the chances of birdie and of bogey or worse,
+  from simulating the hole with his game today in today's conditions. Attacking gives more birdies
+  and more disasters; the hazards on the hole decide whether that's worth it. On Sawgrass's 17th,
+  attacking the island green raises his birdie chance from 8% to 13% and bogey-or-worse from 22% to 28%.
+- **Replay:** each hole then plays out in the shot tracer, on the real hole map or aerial photo, and
+  follows your calls. It shows the club you chose off the tee, going for it or laying up, the
+  approach distance, and the pace of the putts.
+- **Leaderboard:** the board shows everyone through the same hole as your client.
+- **Pacing:** play one hole at a time, jump to the next decision, or finish the round.
+- **Leaving his calls:** "his call" is the baseline the simulation is calibrated on. Leaving every call
+  to him plays exactly like a simulated round.
+- **The rest of the field:** it plays from the tournament's own random stream, and your client plays
+  from his own, so your calls never change anyone else's scores. The week is recorded once every
+  event is finished. Leaving the event screen plays the rest automatically.
+
 ### Round stats and tendencies
 
 Each round on the event screen shows your client's stats in the style of the tour's stats pages, each with

@@ -11,7 +11,7 @@ interface Props {
   onClose: () => void;
 }
 
-const LIE_WORDS: Record<Shot["lie"], string> = {
+export const LIE_WORDS: Record<Shot["lie"], string> = {
   tee: "tee",
   fairway: "fairway",
   rough: "rough",
@@ -24,7 +24,7 @@ const LIE_WORDS: Record<Shot["lie"], string> = {
   holed: "holed",
 };
 
-function scoreClass(score: number, par: number): string {
+export function scoreClass(score: number, par: number): string {
   const d = score - par;
   return d <= -2 ? "sc sc-eagle" : d === -1 ? "sc sc-birdie" : d === 1 ? "sc sc-bogey" : d >= 2 ? "sc sc-double" : "sc";
 }
@@ -43,7 +43,7 @@ export function ShotTracer({ result, row, round: startRound, hole: startHole, on
   const wind = result.weather[round]?.windMph[row.waves[round] ?? "AM"] ?? 0;
 
   const trace: HoleTrace = useMemo(
-    () => traceHole({ course, hole: h, score: card[hole]!, player: row.player, windMph: wind, seed: traceSeed(result.name, row.player.id, round, hole) }),
+    () => traceHole({ course, hole: h, score: card[hole]!, player: row.player, windMph: wind, seed: traceSeed(result.name, row.player.id, round, hole), call: row.calls?.[round]?.[hole] ?? null }),
     [course, h, card, hole, row.player, wind, result.name, round],
   );
   const holesToShow = course.holes.map((_, i) => i).filter((i) => !keyOnly || card[i] !== course.holes[i]!.par || i === hole);
@@ -146,7 +146,7 @@ export function ShotTracer({ result, row, round: startRound, hole: startHole, on
   );
 }
 
-function HoleDrawing({ trace, step, photo, map }: { trace: HoleTrace; step: number; photo: boolean; map: ReturnType<typeof useHoleMap> }) {
+export function HoleDrawing({ trace, step, photo, map }: { trace: HoleTrace; step: number; photo: boolean; map: ReturnType<typeof useHoleMap> }) {
   const L = trace.layout;
   const { minX, maxX, minY, maxY } = L.bounds;
   const W = maxX - minX;
