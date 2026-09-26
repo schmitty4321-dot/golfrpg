@@ -25,6 +25,7 @@ export const TIER_LABELS = {
   signature: "Signature",
   standard: "Tour event",
   opposite: "Opposite field",
+  playoff: "Playoff",
   finale: "Finale",
   dev: "Dev tour",
 } as const;

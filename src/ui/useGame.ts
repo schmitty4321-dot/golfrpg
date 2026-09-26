@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as season from "../season";
 import {
-  SEASON_WEEKS,
+  seasonWeeks,
   createWorld,
   deserializeWorld,
   finishSeason,
@@ -81,7 +81,7 @@ export function useGame() {
         publish({ busy: `Simulating ${weeks} weeks…` });
         await nextFrame();
       }
-      for (let i = 0; i < weeks && w.week <= SEASON_WEEKS; i++) {
+      for (let i = 0; i < weeks && w.week <= seasonWeeks(w); i++) {
         reportsRef.current.push(playWeek(w, i === 0 ? choices : {}));
       }
       reportsRef.current = reportsRef.current.slice(-60);

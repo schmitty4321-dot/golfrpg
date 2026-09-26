@@ -3,7 +3,7 @@ import { coursePar, courseYards } from "../../engine";
 import {
   FULL_CARD,
   REGION_NAMES,
-  SEASON_WEEKS,
+  seasonWeeks,
   PRO_AGE,
   STATUS_LABELS,
   clientOptions,
@@ -29,7 +29,7 @@ const ACCESS_TONE: Record<EntryOption["access"], string> = {
 };
 
 export function Home({ world, game, go }: { world: World; game: Game; go: Go }) {
-  const seasonOver = world.week > SEASON_WEEKS;
+  const seasonOver = world.week > seasonWeeks(world);
   const last = game.state.reports[game.state.reports.length - 1];
   return (
     <main>
@@ -78,7 +78,7 @@ function AgencyStrip({ world }: { world: World }) {
     <section className="panel">
       <div className="panel-head">
         <h1 style={{ fontSize: 22 }}>{a.name}</h1>
-        <span className="secondary small">Season {world.season} · Week {Math.min(world.week, SEASON_WEEKS)} of {SEASON_WEEKS}</span>
+        <span className="secondary small">Season {world.season} · Week {Math.min(world.week, seasonWeeks(world))} of {seasonWeeks(world)}</span>
       </div>
       <div className="stat-row">
         <div className="stat" style={{ minWidth: 140 }}>
@@ -130,7 +130,7 @@ function Alerts({ world, go }: { world: World; go: Go }) {
 
 function ThisWeek({ world, game }: { world: World; game: Game }) {
   const [choices, setChoices] = useState<ClientChoices>({});
-  const remaining = SEASON_WEEKS - world.week + 1;
+  const remaining = seasonWeeks(world) - world.week + 1;
   const set = (id: string, c: ClientChoice) => setChoices((x) => ({ ...x, [id]: c }));
   const play = (weeks: number) => {
     void game.play(choices, weeks);

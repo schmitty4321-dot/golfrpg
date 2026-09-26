@@ -1,3 +1,4 @@
+import { REAL_COURSES } from "./realCourses";
 import type { Course, CourseStyle, Grass, Hole } from "./types";
 
 /** [par, yards, fairwayWidth, hazard, bunkers, exposure] */
@@ -72,7 +73,7 @@ export const coursePar = (c: Course): number => c.holes.reduce((s, h) => s + h.p
 export const courseYards = (c: Course): number => c.holes.reduce((s, h) => s + h.yards, 0);
 
 export function getCourse(id: string): Course {
-  const c = COURSES.find((x) => x.id === id);
+  const c = COURSES.find((x) => x.id === id) ?? REAL_COURSES.find((x) => x.id === id);
   if (!c) throw new Error(`unknown course ${id}`);
   return c;
 }

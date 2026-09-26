@@ -1,4 +1,4 @@
-import { coursePar, courseYards } from "../../engine";
+import { CourseCard, CourseFacts, CoursePhoto } from "../components/CourseHeader";
 import type { World } from "../../season";
 import { Leaderboard } from "../components/Leaderboard";
 import { TIER_LABELS, millions } from "../format";
@@ -23,6 +23,7 @@ export function Tournament({ world, game, eventId, setEventId }: { world: World;
   return (
     <main>
       <section className="panel">
+        <CoursePhoto course={c} />
         <div className="panel-head">
           <div>
             <div className="event-title">
@@ -31,7 +32,7 @@ export function Tournament({ world, game, eventId, setEventId }: { world: World;
             </div>
             <div className="facts" style={{ marginTop: 6 }}>
               <span>Week {selected.week}</span>
-              <span>{c.name} ({c.style}), par {coursePar(c)}, {courseYards(c).toLocaleString("en-US")} yds</span>
+              <CourseFacts course={c} />
               <span>Purse {millions(event.purse)}</span>
               {result.cutLine !== null && <span>Cut {result.cutLine > 0 ? `+${result.cutLine}` : result.cutLine === 0 ? "E" : result.cutLine}</span>}
               {result.playoff && <span>Won in a {result.playoff.holesPlayed}-hole playoff</span>}
@@ -54,6 +55,7 @@ export function Tournament({ world, game, eventId, setEventId }: { world: World;
         </div>
         <Leaderboard key={event.id} result={result} clientIds={world.clientIds} limit={30} />
       </section>
+      <CourseCard course={c} />
     </main>
   );
 }

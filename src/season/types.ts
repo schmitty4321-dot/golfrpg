@@ -1,7 +1,7 @@
 import type { AttributeKey, Attributes, Course, Player } from "../engine";
 
 /** "dev" events are the developmental tour, a level below the main tour. */
-export type EventTier = "major" | "signature" | "standard" | "opposite" | "finale" | "dev";
+export type EventTier = "major" | "signature" | "standard" | "opposite" | "playoff" | "finale" | "dev";
 export type Region = "NA" | "EU" | "ASIA" | "AUS";
 
 export const REGION_NAMES: Record<Region, string> = {
@@ -23,6 +23,8 @@ export interface TourEvent {
   /** Top N and ties after 36 holes; null = no cut. */
   cutTop: number | null;
   region: Region;
+  /** Season points for the winner, when not the tier's usual (THE PLAYERS pays like a major). */
+  winnerPoints?: number;
 }
 
 /**

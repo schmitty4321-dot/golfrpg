@@ -30,9 +30,22 @@ import {
 describe("tour calendar", () => {
   const { courses, schedule } = buildTour(1);
 
-  it("has four majors, a finale, and at most two main-tour events a week", () => {
-    expect(schedule.filter((e) => e.tier === "major")).toHaveLength(4);
-    expect(schedule.filter((e) => e.tier === "finale").map((e) => e.week)).toEqual([SEASON_WEEKS]);
+  it("is the real season: four majors, two playoff events, the finale, then the fall", () => {
+    expect(schedule.filter((e) => e.tier === "major").map((e) => e.name)).toEqual([
+      "Masters Tournament",
+      "PGA Championship",
+      "U.S. Open",
+      "The Open Championship",
+    ]);
+    expect(schedule.filter((e) => e.tier === "playoff").map((e) => e.fieldSize)).toEqual([70, 50]);
+    const finale = schedule.find((e) => e.tier === "finale")!;
+    expect(finale.name).toBe("TOUR Championship");
+    expect(finale.courseId).toBe("east-lake");
+    expect(schedule.find((e) => e.week === SEASON_WEEKS && e.tier !== "dev")!.name).toBe("The RSM Classic");
+    expect(schedule.find((e) => e.courseId === "augusta-national")!.week).toBe(13);
+  });
+
+  it("has an event every week, and at most two main-tour events a week", () => {
     for (let w = 1; w <= SEASON_WEEKS; w++) {
       expect(schedule.filter((e) => e.week === w && e.tier === "dev").length).toBeLessThanOrEqual(1);
       const n = schedule.filter((e) => e.week === w && e.tier !== "dev").length;
@@ -41,10 +54,10 @@ describe("tour calendar", () => {
     }
   });
 
-  it("pairs every opposite-field event with a major or signature event", () => {
+  it("pairs every opposite-field event with a bigger event that week", () => {
     for (const e of schedule.filter((x) => x.tier === "opposite")) {
-      const main = schedule.find((x) => x.week === e.week && x !== e)!;
-      expect(["major", "signature"]).toContain(main.tier);
+      const main = schedule.find((x) => x.week === e.week && x !== e && x.tier !== "dev")!;
+      expect(main.purse).toBeGreaterThan(e.purse);
     }
   });
 
@@ -175,8 +188,8 @@ describe("playWeek", () => {
     while (w.week <= 14) {
       const report = playWeek(w);
       for (const { event, field } of report.results) {
-        if (event.tier === "signature") expect(field.field.length).toBeLessThanOrEqual(72);
-        if (event.tier === "major") expect(field.field).toHaveLength(156);
+        if (event.tier === "signature") expect(field.field.length).toBeLessThanOrEqual(event.fieldSize);
+        if (event.tier === "major") expect(field.field).toHaveLength(event.fieldSize);
       }
     }
   });

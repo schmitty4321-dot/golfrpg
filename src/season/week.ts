@@ -1,5 +1,5 @@
 import { clamp, createRng, expectedStrokesGained, simulateTournament, totalSg, type TournamentResult } from "../engine";
-import { SEASON_WEEKS, majorSetup } from "./calendar";
+import { seasonWeeks, majorSetup } from "./calendar";
 import { buildFields, courseById, mixSeed, planWeek, weekContext, type AiChoice, type FieldResult } from "./entries";
 import { owgrPointsFor, owgrWinnerPoints, seasonPointsFor, tieCounts } from "./points";
 import { OFFICE_COST, addReputation, clients, reputationFor, updateHappiness } from "./agency";
@@ -55,7 +55,7 @@ function toAiChoice(world: World, choice: ClientChoice): AiChoice | "auto" {
 
 /** Simulates one week of the season for the whole world and moves on. */
 export function playWeek(world: World, choices: ClientChoices = {}): WeekReport {
-  if (world.week > SEASON_WEEKS) throw new Error("the season is over; call finishSeason first");
+  if (world.week > seasonWeeks(world)) throw new Error("the season is over; call finishSeason first");
   const ctxBefore = weekContext(world);
   const own = new Map<string, AiChoice | "auto">();
   for (const id of world.clientIds) own.set(id, toAiChoice(world, choices[id] ?? { kind: "auto" }));
@@ -99,7 +99,7 @@ export function playWeek(world: World, choices: ClientChoices = {}): WeekReport 
         label: r.positionLabel,
         toPar: r.toPar,
         earnings: r.earnings,
-        seasonPoints: r.madeCut ? seasonPointsFor(f.event.tier, r.position, count) : 0,
+        seasonPoints: r.madeCut ? seasonPointsFor(f.event.tier, r.position, count, f.event.winnerPoints) : 0,
         owgrPoints: r.madeCut ? owgrPointsFor(winnerOwgr, r.position, count) : 0,
         sgPerRound: Math.round(r.sgPerRound * 100) / 100,
         madeCut: r.madeCut,
@@ -172,7 +172,7 @@ export function playWeek(world: World, choices: ClientChoices = {}): WeekReport 
     const id = wp.player.id;
     const rec = report.clients[id]?.record ?? null;
     const goodWeek = !!rec && rec.madeCut && rec.position <= 5;
-    const pay = sponsorWeek(world, wp, rng, goodWeek, SEASON_WEEKS);
+    const pay = sponsorWeek(world, wp, rng, goodWeek, seasonWeeks(world));
     if (pay > 0) payEndorsement(world, id, pay);
     updateHappiness(wp, { played: played.has(id), sgVsExpected: sgVsExpected.get(id) ?? null, heldOut: heldOut(plan, id, choices[id]) });
     report.clients[id]!.summary = describeClientWeek(world, id, plan.choices.get(id) ?? null, fields, rec);

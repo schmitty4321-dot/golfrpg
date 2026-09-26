@@ -38,6 +38,34 @@ export interface Hole {
   bunkers: number;
   /** 0-1: how exposed the hole is to wind. */
   exposure: number;
+  /** Strokes added to the hole's modelled average so it plays like the real hole (real courses only). */
+  adjust?: number;
+  /** The real tour field's scoring average on this hole, when known. */
+  tourAverage?: number;
+}
+
+/** A course's photo, from Wikimedia Commons, with the credit its licence asks for. */
+export interface CoursePhoto {
+  /** Path of the image under the site's public folder. */
+  file: string;
+  artist: string;
+  license: string;
+  licenseUrl: string;
+  /** The image's page on Wikimedia Commons. */
+  page: string;
+}
+
+/** Facts about a real venue. */
+export interface CourseInfo {
+  city: string;
+  country: string;
+  designer?: string;
+  established?: string;
+  /** Where the hole data came from, e.g. "PGA TOUR course stats, 2026". */
+  source?: string;
+  /** True when no hole-by-hole data was found and the layout is a stand-in. */
+  estimated?: boolean;
+  photo?: CoursePhoto;
 }
 
 export interface Course {
@@ -54,6 +82,8 @@ export interface Course {
   windiness: number;
   /** 0-1: green firmness in dry weather. */
   firmness: number;
+  /** Real venues only. */
+  info?: CourseInfo;
 }
 
 export type Wave = "AM" | "PM";

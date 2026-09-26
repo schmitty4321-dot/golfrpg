@@ -11,7 +11,7 @@ import {
   type PlayerTier,
   type Rng,
 } from "../engine";
-import { DEV_GRADUATES, SEASON_WEEKS, buildTour } from "./calendar";
+import { DEV_GRADUATES, buildTour, seasonWeeks } from "./calendar";
 import { newDevelopment, overall } from "./development";
 import { generateCoaches, offseason, OFFSEASON_WEEKS } from "./staff";
 import { STANDARD_COMMISSION, addReputation, agencySeasonEnd, clients, assignRivalAgents, emptyFinances, newAgency, newManagement } from "./agency";
@@ -172,7 +172,7 @@ export function createWorld(opts: CreateWorldOptions): World {
   }
 
   setTargets(world);
-  while (world.week <= SEASON_WEEKS) playWeek(world);
+  while (world.week <= seasonWeeks(world)) playWeek(world);
   finishSeason(world, rng);
   world.pastSeasons = [];
   world.news = [];
@@ -347,10 +347,25 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   pruneHistory(world);
   world.season++;
   world.week = 1;
+  adoptRealTour(world);
   for (const wp of clients(world)) wp.client!.finances = emptyFinances();
   world.agency.ledger = { prizeCommission: 0, endorsementCommission: 0, office: 0, scouts: 0 };
   setTargets(world);
   return summary;
+}
+
+/**
+ * Careers started before the tour went real switch to the real schedule and
+ * venues at the start of their next season. Their old venues stay in the
+ * save (history and the editor still know them).
+ */
+export function adoptRealTour(world: World): void {
+  if (world.schedule.some((e) => e.id.startsWith("r"))) return;
+  const tour = buildTour(world.seed);
+  const replaced = new Set(tour.courses.map((c) => c.id));
+  world.courses = [...world.courses.filter((c) => !replaced.has(c.id)), ...tour.courses];
+  world.schedule = tour.schedule;
+  world.news.unshift("The tour moves to the real schedule: real events on their real courses, from the Sony Open to the RSM Classic.");
 }
 
 function seasonHeadlines(world: World): Pick<SeasonSummary, "season" | "pointsLeaders" | "majors"> {
@@ -458,7 +473,7 @@ export function clientPreference(world: World, clientId: string): string | null 
 function inviteRule(e: TourEvent): string {
   if (e.tier === "major") return "top 80 in the world, recent winners, last season's top 50";
   if (e.tier === "signature") return "top 50 on the points list, this or last season, or a winner this season";
-  return "top 30 on the points list";
+  return `top ${e.fieldSize} on the points list`;
 }
 
 /**

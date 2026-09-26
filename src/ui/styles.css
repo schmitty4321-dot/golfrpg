@@ -310,3 +310,12 @@ select, input[type="text"], input[type="number"] {
 .leaders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; margin-top: 14px; }
 .tendencies { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px 20px; }
 .tendency { display: grid; gap: 2px; }
+
+/* ---------- course ---------- */
+.course-photo { margin: -16px -16px 14px; position: relative; }
+.course-photo img { display: block; width: 100%; height: clamp(160px, 28vw, 300px); object-fit: cover; border-radius: 10px 10px 0 0; background: var(--surface-2); }
+.course-photo figcaption { position: absolute; right: 8px; bottom: 6px; font-size: 11px; color: #fff; background: rgba(0, 0, 0, 0.55); padding: 2px 6px; border-radius: 4px; max-width: calc(100% - 16px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.course-photo figcaption a { color: #fff; }
+.course-card td, .course-card th { padding: 4px 6px; }
+.course-card tbody + tbody tr:first-child th { padding-top: 12px; }
+.course-card .hardest { color: var(--critical-text); font-weight: 600; }

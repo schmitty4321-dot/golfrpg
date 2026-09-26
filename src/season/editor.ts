@@ -35,7 +35,7 @@ export function validateCourse(c: Course): string[] {
   c.holes.forEach((h, i) => {
     const n = i + 1;
     if (![3, 4, 5].includes(h.par)) errors.push(`Hole ${n}: par must be 3, 4 or 5.`);
-    const [lo, hi] = h.par === 3 ? [100, 260] : h.par === 4 ? [280, 530] : [480, 680];
+    const [lo, hi] = h.par === 3 ? [90, 300] : h.par === 4 ? [280, 560] : [480, 700];
     if (h.yards < lo || h.yards > hi) errors.push(`Hole ${n}: a par ${h.par} should be ${lo}-${hi} yards.`);
     if (h.par > 3 && (h.fairwayWidth < 15 || h.fairwayWidth > 60)) errors.push(`Hole ${n}: fairway width should be 15-60 yards.`);
     if (h.hazard < 0 || h.hazard > 1) errors.push(`Hole ${n}: hazard must be 0-1.`);

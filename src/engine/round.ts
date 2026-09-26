@@ -20,7 +20,7 @@ export const DAY_SD: StrokesGained = { offTheTee: 0.4, approach: 0.6, aroundTheG
 /** Spread of a player's level from one week to the next, strokes per round. */
 export const WEEK_SD = 0.4;
 /** Leftover hole-to-hole luck (bounces, lip-outs) not tied to a category. */
-export const HOLE_SD = 0.45;
+export const HOLE_SD = 0.41;
 
 /**
  * Expected score before blow-ups for a tour-average player on a standard
@@ -41,6 +41,8 @@ export function holeBaseline(hole: Hole, course: Course, weather: RoundWeather):
   mean += (course.greenSpeed - 12) * 0.015;
   mean += hole.bunkers * 0.008;
   mean += weather.rain ? -0.06 : (course.firmness - 0.5) * 0.08;
+  // Real holes carry a correction so they play to their real scoring average.
+  mean += hole.adjust ?? 0;
   return mean;
 }
 

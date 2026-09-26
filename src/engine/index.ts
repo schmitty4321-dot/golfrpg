@@ -12,3 +12,4 @@ export * from "./weather";
 export * from "./tracer";
 export * from "./roundStats";
 export * from "./tendencies";
+export * from "./realCourses";

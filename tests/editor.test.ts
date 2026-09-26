@@ -46,7 +46,7 @@ describe("course editor", () => {
 
   it("saves an edited course, which then plays differently", () => {
     const w = fresh();
-    const c = structuredClone(w.courses.find((x) => x.id === "marisol-bay")!);
+    const c = structuredClone(w.courses.find((x) => x.id === "harbour-town")!);
     const before = courseReport(c).scoringVsPar;
     for (const h of c.holes) {
       h.hazard = 0.9;
@@ -55,7 +55,7 @@ describe("course editor", () => {
     c.greenSpeed = 14;
     expect(saveCourse(w, c)).toEqual([]);
     expect(w.edited).toBe(true);
-    expect(courseReport(w.courses.find((x) => x.id === "marisol-bay")!).scoringVsPar).toBeGreaterThan(before + 2);
+    expect(courseReport(w.courses.find((x) => x.id === "harbour-town")!).scoringVsPar).toBeGreaterThan(before + 2);
   });
 
   it("rejects a broken course without changing the world", () => {
@@ -172,12 +172,12 @@ describe("sharing databases", () => {
 
   it("exports and imports courses", () => {
     const w = fresh();
-    const json = exportCourses(w, ["harrow-pines"]);
+    const json = exportCourses(w, ["pebble-beach"]);
     expect(JSON.parse(json).format).toBe(COURSE_DB_FORMAT);
     const { added, errors } = importCourses(w, json);
     expect(errors).toEqual([]);
-    expect(added).toEqual(["Harrow Pines"]);
-    expect(w.courses.filter((c) => c.name === "Harrow Pines")).toHaveLength(2);
+    expect(added).toEqual(["Pebble Beach Golf Links"]);
+    expect(w.courses.filter((c) => c.name === "Pebble Beach Golf Links")).toHaveLength(2);
     expect(importCourses(w, JSON.stringify({ format: "nope" })).errors).toHaveLength(1);
   });
 });

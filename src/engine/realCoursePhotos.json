@@ -1,0 +1,107 @@
+{
+ "waialae": {
+  "file": "courses/waialae.jpg",
+  "artist": "Alan Light",
+  "license": "CC BY 2.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Waialae_Country_Club,_1989.jpg"
+ },
+ "torrey-pines-south": {
+  "file": "courses/torrey-pines-south.jpg",
+  "artist": "Malarkey83",
+  "license": "CC BY-SA 3.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Torrey_Pines_Golf_Course_-_La_Jolla,_CA_-_panoramio_(3).jpg"
+ },
+ "pebble-beach": {
+  "file": "courses/pebble-beach.jpg",
+  "artist": "Tewy",
+  "license": "CC BY 2.5",
+  "licenseUrl": "https://creativecommons.org/licenses/by/2.5",
+  "page": "https://commons.wikimedia.org/wiki/File:Pebble_Beach_Golf_Links_02.jpg"
+ },
+ "tpc-sawgrass": {
+  "file": "courses/tpc-sawgrass.jpg",
+  "artist": "Craig ONeal",
+  "license": "CC BY-SA 2.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+  "page": "https://commons.wikimedia.org/wiki/File:TPC_Sawgrass_17.jpg"
+ },
+ "innisbrook-copperhead": {
+  "file": "courses/innisbrook-copperhead.jpg",
+  "artist": "Chad Davis",
+  "license": "CC BY-SA 2.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Innisbrook_Golf_Resort.jpg"
+ },
+ "augusta-national": {
+  "file": "courses/augusta-national.jpg",
+  "artist": "Boston Public Library",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "page": "https://commons.wikimedia.org/wiki/File:Augusta_National_Golf_Club_House,_Augusta,_Ga._(8343915624).jpg"
+ },
+ "harbour-town": {
+  "file": "courses/harbour-town.jpg",
+  "artist": "danperry.com",
+  "license": "CC BY 2.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Harbour_Town_Golf_Links_-_5111683620.jpg"
+ },
+ "tpc-louisiana": {
+  "file": "courses/tpc-louisiana.jpg",
+  "artist": "Spatms",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "page": "https://commons.wikimedia.org/wiki/File:TPC_Louisiana_-_Golf_Course.jpg"
+ },
+ "doral-blue-monster": {
+  "file": "courses/doral-blue-monster.jpg",
+  "artist": "Cfmyers",
+  "license": "CC0",
+  "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "page": "https://commons.wikimedia.org/wiki/File:DoralGolfResortNovember2010.jpg"
+ },
+ "aronimink": {
+  "file": "courses/aronimink.jpg",
+  "artist": "Michael Stokes",
+  "license": "CC BY 2.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+  "page": "https://commons.wikimedia.org/wiki/File:BMW_Aronimink_Golf_Final_(460)_(44614428642).jpg"
+ },
+ "muirfield-village": {
+  "file": "courses/muirfield-village.jpg",
+  "artist": "Nheyob",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Muirfield_Village_Golf_Club_(Dublin,_Ohio).jpg"
+ },
+ "shinnecock-hills": {
+  "file": "courses/shinnecock-hills.jpg",
+  "artist": "Roger Rowlett",
+  "license": "CC BY-SA 2.5",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.5",
+  "page": "https://commons.wikimedia.org/wiki/File:Shinnecock-hills.jpg"
+ },
+ "renaissance-club": {
+  "file": "courses/renaissance-club.jpg",
+  "artist": "Don Maclean",
+  "license": "CC0",
+  "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "page": "https://commons.wikimedia.org/wiki/File:2022_Scottish_Open_-_Renaissance_Club_(52963612666).jpg"
+ },
+ "bellerive": {
+  "file": "courses/bellerive.jpg",
+  "artist": "Mizuki, Henry T.",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "page": "https://commons.wikimedia.org/wiki/File:Exterior_view_of_Bellerive_Country_Club,_12925_Ladue_Road.jpg"
+ },
+ "east-lake": {
+  "file": "courses/east-lake.jpg",
+  "artist": "Cem0030",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "page": "https://commons.wikimedia.org/wiki/File:East_Lake_Golf_Club_TOUR_Championship.JPG"
+ }
+}

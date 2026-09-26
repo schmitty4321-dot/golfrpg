@@ -1,4 +1,4 @@
-import { SEASON_WEEKS, eventsInWeek, type World } from "../../season";
+import { seasonWeeks, eventsInWeek, type World } from "../../season";
 import { TIER_LABELS, millions, toPar } from "../format";
 import type { Go } from "../nav";
 import type { Game } from "../useGame";
@@ -29,7 +29,7 @@ export function Calendar({ world, game, go }: { world: World; game: Game; go: Go
           <table>
             <thead><tr><th>Week</th><th>Event</th><th>Type</th><th>Venue</th><th className="num">Purse</th><th>Winner</th><th>Your clients</th></tr></thead>
             <tbody>
-              {Array.from({ length: SEASON_WEEKS }, (_, i) => i + 1).flatMap((week) =>
+              {Array.from({ length: seasonWeeks(world) }, (_, i) => i + 1).flatMap((week) =>
                 eventsInWeek(world, week).map((e) => {
                   const w = winners.get(e.id);
                   const r = mine.get(e.id);

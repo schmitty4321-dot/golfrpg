@@ -1,5 +1,6 @@
+import { CourseCard, CourseFacts, CoursePhoto } from "../components/CourseHeader";
 import { Fragment, useMemo, useState } from "react";
-import { coursePar, courseYards, fieldRoundStats, standingsAfterRound, type PlayerEventResult, type RoundStanding, type TournamentResult } from "../../engine";
+import { fieldRoundStats, standingsAfterRound, type PlayerEventResult, type RoundStanding, type TournamentResult } from "../../engine";
 import { theEvent, type TourEvent, type WeekReport, type World } from "../../season";
 import { Scorecard } from "../components/Scorecard";
 import { ShotTracer } from "../components/ShotTracer";
@@ -65,6 +66,7 @@ export function EventScreen({ world, report, onDone }: { world: World; report: W
         </div>
       )}
       <section className="panel">
+        <CoursePhoto course={c} />
         <div className="panel-head">
           <div>
             <div className="event-title">
@@ -73,7 +75,7 @@ export function EventScreen({ world, report, onDone }: { world: World; report: W
             </div>
             <div className="facts" style={{ marginTop: 6 }}>
               <span>Week {report.week}</span>
-              <span>{c.name} ({c.style}), par {coursePar(c)}, {courseYards(c).toLocaleString("en-US")} yds</span>
+              <CourseFacts course={c} />
               <span>Purse {millions(live.event.purse)}</span>
               <span>{live.result.leaderboard.length} players{hasCut ? ", cut after 36 holes" : ", no cut"}</span>
             </div>
@@ -109,6 +111,9 @@ export function EventScreen({ world, report, onDone }: { world: World; report: W
           </ul>
           <p className="muted small" style={{ marginBottom: 0 }}>Round 1 weather: wind {Math.round(live.result.weather[0]!.windMph.AM)} mph in the morning, {Math.round(live.result.weather[0]!.windMph.PM)} mph in the afternoon{live.result.weather[0]!.rain ? ", with rain" : ""}.</p>
         </section>
+      ) : null}
+      {shown === 0 ? (
+        <CourseCard course={c} />
       ) : finished ? (
         <Final world={world} report={report} live={live} />
       ) : (

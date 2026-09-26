@@ -10,7 +10,7 @@ import {
   seasonChange,
   staffQuality,
   weeklyStaffCost,
-  SEASON_WEEKS,
+  seasonWeeks,
   type CoachRole,
   type Intensity,
   type TrainingFocus,
@@ -84,7 +84,7 @@ export function Training({ world, game, clientId }: { world: World; game: Game; 
           <section className="panel">
             <div className="panel-head">
               <h2>Coaching staff</h2>
-              <span className="secondary small">{money(weekly)}/week · about {money(weekly * SEASON_WEEKS)} a season, paid from his winnings</span>
+              <span className="secondary small">{money(weekly)}/week · about {money(weekly * seasonWeeks(world))} a season, paid from his winnings</span>
             </div>
             <div className="table-wrap">
               <table>

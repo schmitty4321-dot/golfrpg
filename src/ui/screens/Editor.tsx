@@ -19,7 +19,7 @@ import {
   exportPlayers,
   newCourse,
   validateCourse,
-  SEASON_WEEKS,
+  seasonWeeks,
   type PlayerPatch,
   type TourStatus,
   type World,
@@ -412,7 +412,7 @@ function CalendarEditor({ world, game }: { world: World; game: Game }) {
         <table>
           <thead><tr><th>Week</th><th>Event</th><th>Type</th><th>Venue</th><th>Purse ($M)</th><th /></tr></thead>
           <tbody>
-            {Array.from({ length: SEASON_WEEKS }, (_, i) => i + 1).flatMap((week) =>
+            {Array.from({ length: seasonWeeks(world) }, (_, i) => i + 1).flatMap((week) =>
               eventsInWeek(world, week).map((e) => (
                 <tr key={e.id}>
                   <td>{week}</td>

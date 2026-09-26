@@ -9,7 +9,7 @@ import {
   type Course,
   type Rng,
 } from "../engine";
-import { LAST_REGULAR_WEEK } from "./calendar";
+import { finaleWeek, lastRegularWeek } from "./calendar";
 import { pointsList, rankMap } from "./points";
 import type { EventTier, TourEvent, TourStatus, World, WorldPlayer } from "./types";
 
@@ -19,10 +19,10 @@ export const MONDAY_SPOTS = 4;
 const MONDAY_POOL_MAX = 80;
 
 const STATUS_ORDER: Record<TourStatus, number> = { exempt: 0, graduate: 1, conditional: 2, none: 3, amateur: 4 };
-const TIER_ORDER: Record<EventTier, number> = { major: 0, finale: 0, signature: 1, standard: 2, opposite: 3, dev: 4 };
+const TIER_ORDER: Record<EventTier, number> = { major: 0, finale: 0, playoff: 0, signature: 1, standard: 2, opposite: 3, dev: 4 };
 
 /** Fields for these tiers are by invitation or qualification, not by status. */
-export const isInvitational = (tier: EventTier): boolean => tier === "major" || tier === "signature" || tier === "finale";
+export const isInvitational = (tier: EventTier): boolean => tier === "major" || tier === "signature" || tier === "playoff" || tier === "finale";
 
 /** Deterministic seed from several numbers, so each week replays identically. */
 export function mixSeed(...parts: number[]): number {
@@ -71,7 +71,7 @@ export function invitedField(world: World, ctx: WeekContext, event: TourEvent): 
   const pts = (id: string) => ctx.pointsRank.get(id) ?? 9999;
   const ids = all.map((wp) => wp.player.id);
 
-  if (event.tier === "finale") {
+  if (event.tier === "finale" || event.tier === "playoff") {
     return ids.filter((id) => pts(id) <= event.fieldSize).sort((a, b) => pts(a) - pts(b));
   }
   if (event.tier === "signature") {
@@ -170,12 +170,16 @@ export function aiChoice(world: World, ctx: WeekContext, wp: WorldPlayer, events
 
   if (c.status === "none") return rng.chance(0.3) ? { eventId: main.id, route: "monday" } : null;
 
-  const weeksLeft = Math.max(1, LAST_REGULAR_WEEK - world.week + 1);
+  const lastWeek = lastRegularWeek(world);
+  const weeksLeft = Math.max(1, lastWeek - world.week + 1);
   const remaining = wp.targetEvents - c.seasonEvents;
   let p = clamp(remaining / weeksLeft, 0.05, 0.95);
   if (c.status === "conditional") p = 0.9;
   const pr = ctx.pointsRank.get(id) ?? 999;
-  if (world.week >= 24 && pr > 100 && pr <= 160) p = 0.95; // fighting for a card
+  if (world.week >= lastWeek - 11 && pr > 100 && pr <= 160) p = 0.95; // fighting for a card
+  // After the finale the stars are done for the year; the fall is for those still chasing cards.
+  const finale = finaleWeek(world);
+  if (finale !== null && world.week > finale && pr <= 50) p *= 0.15;
   if ((ctx.owgrRank.get(id) ?? 999) <= 15) p *= 0.6;
   p *= clamp(1 + courseFit(wp, courseById(world, main.courseId)) * 0.5, 0.6, 1.4);
   if (main.region !== "NA") p *= 0.6;

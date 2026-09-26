@@ -5,6 +5,7 @@ import {
   HALL_OF_FAME_BAR,
   PRO_AGE,
   SAVE_VERSION,
+  DEV_WEEKS,
   SEASON_WEEKS,
   QSCHOOL_CARDS,
   amateurPotential,
@@ -184,7 +185,7 @@ describe("saves", () => {
     }
     const w = deserializeWorld(JSON.stringify(raw));
     expect(w.version).toBe(SAVE_VERSION);
-    expect(w.schedule.filter((e) => e.tier === "dev").length).toBe(24);
+    expect(w.schedule.filter((e) => e.tier === "dev").length).toBe(DEV_WEEKS.length);
     expect(Object.values(w.players).filter((wp) => wp.career.status === "amateur").length).toBeGreaterThan(40);
     expect(w.history.seasons).toEqual([]);
     playWeek(w);

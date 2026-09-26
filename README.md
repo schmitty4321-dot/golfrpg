@@ -214,6 +214,32 @@ Minimal player database:
 ] }
 ```
 
+### Real courses
+
+Every tour stop is played on its real course (`src/engine/realCourses.json`). The par and
+yardage of every hole come from the PGA TOUR's course stats (pgatour.com, 2026 where the
+event has been played, 2025 for the fall events). Each hole also carries the real field's
+scoring average, and `scripts/fitRealCourses.ts` tunes the hole so a simulated tour field
+plays it to that average. The hardest hole at each venue ends up the hardest in the game, and
+Shinnecock plays about 5 shots harder than TPC River Highlands.
+
+- **Estimated:** fairway widths, greenside bunkers, wind exposure, green speed and rough
+  aren't on a scorecard, so they're estimated from the style of course and what each venue is
+  known for. You can change them in the course editor.
+- **Grass, designer and year:** these come from the PGA TOUR's course overview.
+- **Austin:** the Austin Championship is new and hasn't been played, so Barton Creek uses a
+  stand-in layout until real numbers exist.
+
+The event screen and leaderboards show a photo of the venue and a hole-by-hole card with the
+tour's average on each hole. The photos come from Wikimedia Commons under free licences,
+credited on each photo.
+
+The hole-by-hole scoring mix matches the real tour closely. Per round, the game makes 3.89
+birdies (real 3.81), 2.66 bogeys (real 2.53), 0.26 doubles (real 0.27) and 0.10 eagles (real
+0.10). Winning scores still run about 3 shots lower than the real ones.
+
+Careers started before this change switch to the real tour at the start of their next season.
+
 ### Playing a season
 
 Pick your first client:
@@ -232,10 +258,13 @@ world plays out and you get the leaderboard and his strokes-gained breakdown.
 The game autosaves to `saves/career.json` after every week.
 
 How the season works:
-- **Calendar:** 36 weeks: 4 majors, 8 signature events (72-player no-cut
-  fields), regular events, opposite-field events on big weeks, and a Tour
-  Championship for the top 30. Venues are generated per world, with the
-  hand-built courses hosting two majors.
+- **Calendar:** the real 2026 PGA TOUR season, 41 weeks from the Sony Open to the RSM
+  Classic (off weeks closed up): the four majors, eight signature events, THE PLAYERS
+  (worth major points), opposite-field events on the same weeks as the real ones, two
+  playoff events (top 70, then top 50), the TOUR Championship for the top 30, and the
+  fall events where players outside the top 50 chase their cards. Each event has its
+  real purse and field size. The Zurich Classic is played as individual stroke play, and
+  the Presidents Cup and December's unofficial events are left out.
 - **Getting in:** majors take the top 80 in the world, recent winners and last
   season's top 50, then fill by world ranking. Signature events take the top 50
   on the points list. Regular events fill by status (exempt, graduate,

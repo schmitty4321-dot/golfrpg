@@ -69,8 +69,9 @@ function Majors({ world }: { world: World }) {
           {seasons.map((s) => (
             <tr key={s.season}>
               <td>{s.season}</td>
-              {majors.map((m) => {
-                const w = s.winners.find((x) => x.eventId === m.id);
+              {majors.map((m, k) => {
+                // The k-th major of that season, so older calendars line up too.
+                const w = s.winners.filter((x) => x.tier === "major")[k];
                 return <td key={m.id} className={w && world.clientIds.includes(w.playerId) ? "good-text" : ""}>{w ? `${w.name} (${toPar(w.toPar)})` : "–"}</td>;
               })}
             </tr>

@@ -7,6 +7,7 @@ export const WINNER_POINTS: Record<EventTier, number> = {
   signature: 700,
   standard: 500,
   opposite: 300,
+  playoff: 750,
   finale: 0,
   dev: 500,
 };
@@ -34,9 +35,9 @@ function tiedShare(position: number, count: number, share: (pos: number) => numb
   return s / count;
 }
 
-export function seasonPointsFor(tier: EventTier, position: number, tiedCount: number): number {
+export function seasonPointsFor(tier: EventTier, position: number, tiedCount: number, winnerPoints = WINNER_POINTS[tier]): number {
   const share = tiedShare(position, tiedCount, (p) => SEASON_SHAPE[p - 1] ?? 0);
-  return Math.round(WINNER_POINTS[tier] * share * 10) / 10;
+  return Math.round(winnerPoints * share * 10) / 10;
 }
 
 /** The world ranking points the winner gets, from the strength of the field. */
