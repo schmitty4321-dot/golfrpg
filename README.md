@@ -9,6 +9,10 @@ Golf is an individual sport, so the agency's client list plays the part of FM's 
 
 ## Getting started
 
+**Play online:** https://schmitty4321-dot.github.io/golfrpg/ (rebuilt automatically on every push to `main`).
+
+To run it on your own computer instead:
+
 You need [Node.js](https://nodejs.org) 20 or newer and [Git](https://git-scm.com).
 On Windows, run these in PowerShell:
 
