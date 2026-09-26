@@ -23,7 +23,6 @@ npm install
 npm run dev            # play in your browser: open the address it prints (http://localhost:5173)
 ```
 
-`npm run play` runs the older terminal version of the same game.
 
 Other commands:
 
@@ -69,6 +68,32 @@ npm run calibrate      # 200 events per course vs. real tour reference numbers
   new prospects arrive. `npm run worldcheck` plays many seasons to confirm the tour stays stable
   (overall strength plateaus, average age about 33-34).
 - Saves from before this update are upgraded automatically when loaded.
+- **Step 4 (done): the agency** (`src/season/agency.ts`, `sponsors.ts`, `scouting.ts`, and the Agency and Scouting tabs).
+
+### Running the agency
+
+- **Clients:** you start with one client on a three-season deal and can sign more. Roster size grows
+  with reputation (3 at the start, up to 8). Each client has his own schedule, training, coaches,
+  finances, sponsors, contract and mood. Each week, pick an event or rest for each one, or leave it
+  to "his call".
+- **Rival agencies:** six of them represent most of the tour, the best players almost always.
+  You can only approach a rival's player in the final season of his deal. Free agents can be approached any time.
+- **Signing:** a player weighs your reputation against his standing (a world top-10 player expects an elite
+  agency, and one far out of your league won't take the meeting), plus the commission (5-20%), the length,
+  and his own ambition. A turn-down means a four-week wait. You only see a rough read of the odds.
+- **Contracts and mood:** happiness moves with form, sponsor money, the commission he pays, and whether you
+  kept him out of a big event he wanted to play. In a contract's final season, extend it or he leaves.
+  Happier clients agree more readily.
+- **Scouting:** other players' attributes are hidden. Hire scouts (better ones are more accurate) and queue
+  players. Each scout files two reports a week. Reports show each attribute as a range that always
+  contains the truth, and at 60%+ accuracy they reveal the ceiling, work ethic and other hidden traits.
+- **Sponsors:** offers arrive at the start of a season and after strong weeks, sized by marketability
+  (world ranking, recent wins, youth, home market, your reputation). One deal per category, paid weekly,
+  with win and major bonuses. Your agency takes 20%.
+- **Agency money and reputation:** commission on prize money and endorsements against office and scout
+  costs. Reputation rises with wins, top-fives, top-tens and clients keeping their cards, and fades a
+  little each winter. It decides who will sign, sponsor sizes and roster size.
+- The terminal version has been retired; the browser game is the way to play.
 
 ### Playing a season
 
@@ -161,7 +186,7 @@ playoffs are a little frequent.
    world ranking points, keeping your card.
 3. ✅ **Development and ageing**: training plans, coaches, swing rebuilds (form
    dips now, higher ceiling later), peak age, decline, injuries.
-4. **The agency**: multiple clients, scouting (reports as good as the scout,
+4. ✅ **The agency**: multiple clients, scouting (reports as good as the scout,
    and hidden attributes seen only through them), contracts and commission, sponsors
    and equipment deals, caddies with their own attributes and chemistry,
    morale, media, rivalries and players wanting to leave.
@@ -186,6 +211,6 @@ Features that could set it apart, to fold in along the way:
 src/engine/   attributes, types, rng, skill model, courses (+ generator), round & tournament sim, purse, players
 src/season/   calendar, entries & fields, points & world ranking, weekly sim, world creation & season end, saves
 src/ui/       browser game: App, screens/, components/, useGame (state + autosave)
-scripts/      play.ts (terminal version), demo.ts, calibrate.ts
+scripts/      demo.ts, calibrate.ts, worldcheck.ts
 tests/        vitest suites
 ```

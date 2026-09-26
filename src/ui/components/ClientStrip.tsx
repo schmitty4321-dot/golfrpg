@@ -1,10 +1,11 @@
 import { pointsList, rankMap, STATUS_LABELS, type World } from "../../season";
 import { formWord, money } from "../format";
 
-export function ClientStrip({ world }: { world: World }) {
-  const c = world.players[world.clientId]!;
-  const pr = pointsList(world).indexOf(world.clientId) + 1;
-  const wr = rankMap(world).get(world.clientId) ?? 0;
+export function ClientStrip({ world, clientId }: { world: World; clientId: string }) {
+  const c = world.players[clientId]!;
+  const m = c.client!;
+  const pr = pointsList(world).indexOf(clientId) + 1;
+  const wr = rankMap(world).get(clientId) ?? 0;
   const cond = Math.round(c.player.condition);
   return (
     <section className="panel">
@@ -15,7 +16,9 @@ export function ClientStrip({ world }: { world: World }) {
             {c.player.age} · {c.player.nationality} · <span className="badge badge-accent">{STATUS_LABELS[c.career.status]}</span>
           </div>
         </div>
-        <div className="secondary small">Season {world.season} · Week {Math.min(world.week, 36)} of 36</div>
+        <div className="secondary small">
+          Contract: {Math.round(m.contract.commission * 100)}% until end of season {m.contract.untilSeason}
+        </div>
       </div>
       <div className="stat-row">
         <div className="stat">
@@ -36,14 +39,14 @@ export function ClientStrip({ world }: { world: World }) {
           <span className="stat-label">Form</span>
           <span className="stat-value">{formWord(c.player.form)}</span>
         </div>
+        <div className="stat" style={{ minWidth: 120 }}>
+          <span className="stat-label">Happiness</span>
+          <span className="stat-value">{Math.round(m.happiness)}</span>
+          <div className="meter" aria-hidden><span style={{ width: `${m.happiness}%`, background: m.happiness < 45 ? "var(--serious)" : undefined }} /></div>
+        </div>
         <div className="stat">
           <span className="stat-label">Season earnings</span>
           <span className="stat-value">{money(c.career.seasonEarnings)}</span>
-        </div>
-        <div className="stat">
-          <span className="stat-label">Agency bank</span>
-          <span className="stat-value">{money(world.agencyBank)}</span>
-          <span className="stat-sub">{Math.round(world.commissionRate * 100)}% commission</span>
         </div>
       </div>
       {c.injury && (

@@ -7,7 +7,7 @@ import {
   finishSeason,
   playWeek,
   serializeWorld,
-  type ClientChoice,
+  type ClientChoices,
   type Scenario,
   type SeasonSummary,
   type WeekReport,
@@ -59,10 +59,10 @@ export function useGame() {
   }, [publish]);
 
   const newGame = useCallback(
-    async (scenario: Scenario, seed: number) => {
+    async (scenario: Scenario, seed: number, agencyName?: string) => {
       publish({ busy: "Building the golf world and playing a warm-up season…" });
       await nextFrame();
-      worldRef.current = createWorld({ seed, scenario });
+      worldRef.current = createWorld({ seed, scenario, agencyName });
       reportsRef.current = [];
       publish({ busy: null, review: null });
       await persist();
@@ -71,7 +71,7 @@ export function useGame() {
   );
 
   const play = useCallback(
-    async (choice: ClientChoice, weeks = 1) => {
+    async (choices: ClientChoices, weeks = 1) => {
       const w = worldRef.current;
       if (!w) return;
       if (weeks > 1) {
@@ -79,7 +79,7 @@ export function useGame() {
         await nextFrame();
       }
       for (let i = 0; i < weeks && w.week <= SEASON_WEEKS; i++) {
-        reportsRef.current.push(playWeek(w, i === 0 ? choice : { kind: "auto" }));
+        reportsRef.current.push(playWeek(w, i === 0 ? choices : {}));
       }
       reportsRef.current = reportsRef.current.slice(-60);
       publish({ busy: null });

@@ -36,6 +36,7 @@ const person = (age: number, level: number, potential: number, peakAge = 31): Wo
     development: { potential, progress: {}, seasonStart: { ...p.attributes } },
     injury: null,
     rebuild: null,
+    agent: null,
   };
 };
 const inputs = (over: Partial<DevelopmentInputs> = {}): DevelopmentInputs => ({
@@ -105,29 +106,29 @@ describe("coaches", () => {
   it("charges the client's staff wages every week, and stops when released", () => {
     const w = fresh();
     const coach = w.coaches.find((c) => c.role === "putting")!;
-    hireCoach(w, coach.id);
-    expect(weeklyStaffCost(w)).toBe(coach.weeklyFee);
+    hireCoach(w, "client", coach.id);
+    expect(weeklyStaffCost(w, "client")).toBe(coach.weeklyFee);
     playWeek(w);
-    expect(w.finances.coaching).toBe(coach.weeklyFee);
-    releaseCoach(w, "putting");
+    expect(w.players.client!.client!.finances.coaching).toBe(coach.weeklyFee);
+    releaseCoach(w, "client", "putting");
     playWeek(w);
-    expect(w.finances.coaching).toBe(coach.weeklyFee);
+    expect(w.players.client!.client!.finances.coaching).toBe(coach.weeklyFee);
   });
 });
 
 describe("swing rebuild", () => {
   it("needs a swing coach", () => {
     const w = fresh();
-    expect(canStartRebuild(w).ok).toBe(false);
-    hireCoach(w, w.coaches.find((c) => c.role === "swing")!.id);
-    expect(canStartRebuild(w).ok).toBe(true);
+    expect(canStartRebuild(w, "client").ok).toBe(false);
+    hireCoach(w, "client", w.coaches.find((c) => c.role === "swing")!.id);
+    expect(canStartRebuild(w, "client").ok).toBe(true);
   });
 
   it("costs strokes at first, eases off, and ends", () => {
     const w = fresh();
-    hireCoach(w, w.coaches.filter((c) => c.role === "swing").sort((a, b) => b.quality - a.quality)[0]!.id);
-    startRebuild(w);
-    const c = w.players[w.clientId]!;
+    hireCoach(w, "client", w.coaches.filter((c) => c.role === "swing").sort((a, b) => b.quality - a.quality)[0]!.id);
+    startRebuild(w, "client");
+    const c = w.players.client!;
     const early = c.player.sgAdjust!.approach!;
     expect(early).toBeLessThan(0);
     for (let i = 0; i < 8; i++) endOfWeek(w, new Set(), createRng(i));
@@ -144,21 +145,21 @@ describe("swing rebuild", () => {
 
   it("can be abandoned, removing the penalty", () => {
     const w = fresh();
-    hireCoach(w, w.coaches.find((c) => c.role === "swing")!.id);
-    startRebuild(w);
-    abandonRebuild(w);
-    expect(w.players[w.clientId]!.player.sgAdjust).toBeUndefined();
-    expect(w.players[w.clientId]!.rebuild).toBeNull();
+    hireCoach(w, "client", w.coaches.find((c) => c.role === "swing")!.id);
+    startRebuild(w, "client");
+    abandonRebuild(w, "client");
+    expect(w.players.client!.player.sgAdjust).toBeUndefined();
+    expect(w.players.client!.rebuild).toBeNull();
   });
 
   it("improves the ball-striking when it works", () => {
     const w = fresh();
-    const c = w.players[w.clientId]!;
+    const c = w.players.client!;
     c.player.attributes.coachability = 20;
-    hireCoach(w, w.coaches.filter((x) => x.role === "swing").sort((a, b) => b.quality - a.quality)[0]!.id);
+    hireCoach(w, "client", w.coaches.filter((x) => x.role === "swing").sort((a, b) => b.quality - a.quality)[0]!.id);
     const before = COACH_GROUPS.swing.reduce((s, k) => s + c.player.attributes[k], 0);
     const potBefore = c.development.potential;
-    startRebuild(w);
+    startRebuild(w, "client");
     for (let i = 0; i < REBUILD_WEEKS; i++) endOfWeek(w, new Set(), createRng(100 + i));
     const worked = w.news.some((n) => n.includes("it's worked"));
     if (worked) {
@@ -171,12 +172,12 @@ describe("swing rebuild", () => {
 describe("injuries", () => {
   it("keeps an injured client out of events and heals over time", () => {
     const w = fresh();
-    const c = w.players[w.clientId]!;
+    const c = w.players.client!;
     c.injury = { name: "Wrist strain", weeksLeft: 2 };
-    const [opt] = clientOptions(w);
+    const [opt] = clientOptions(w, "client");
     expect(opt!.access).toBe("injured");
-    const r = playWeek(w, { kind: "enter", eventId: opt!.event.id });
-    expect(r.client.record).toBeNull();
+    const r = playWeek(w, { client: { kind: "enter", eventId: opt!.event.id } });
+    expect(r.clients.client!.record).toBeNull();
     playWeek(w);
     expect(c.injury).toBeNull();
   });
@@ -207,27 +208,53 @@ describe("seasons and saves", () => {
     const w = fresh();
     while (w.week <= SEASON_WEEKS) playWeek(w);
     finishSeason(w);
-    const c = w.players[w.clientId]!;
+    const c = w.players.client!;
     expect(c.development.seasonStart).toEqual(c.player.attributes);
   });
 
-  it("upgrades a version-1 save", () => {
-    const old = JSON.parse(serializeWorld(base)) as Record<string, unknown> & { players: Record<string, Record<string, unknown>> };
-    old.version = 1;
-    delete old.coaches;
-    delete old.staff;
-    delete old.training;
-    delete (old.finances as Record<string, unknown>).coaching;
-    for (const wp of Object.values(old.players)) {
-      delete wp.development;
-      delete wp.injury;
-      delete wp.rebuild;
+  /** Rebuilds the save shape the game used before the agency (version 2), and optionally before development (1). */
+  const oldSave = (version: 1 | 2) => {
+    const raw = JSON.parse(serializeWorld(base)) as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+    const m = raw.players.client.client;
+    raw.clientId = "client";
+    raw.commissionRate = m.contract.commission;
+    raw.finances = { prizeMoney: 0, caddie: 0, travel: 0, coaching: 0, commission: 0 };
+    raw.agencyBank = 12_345;
+    raw.staff = m.staff;
+    raw.training = { focus: "putting", intensity: "heavy" };
+    raw.pastSeasons = [];
+    delete raw.clientIds;
+    delete raw.agency;
+    for (const wp of Object.values(raw.players) as Record<string, unknown>[]) {
+      delete wp.client;
+      delete wp.agent;
+      if (version === 1) {
+        delete wp.development;
+        delete wp.injury;
+        delete wp.rebuild;
+      }
     }
-    const w = deserializeWorld(JSON.stringify(old));
-    expect(w.version).toBe(2);
+    if (version === 1) {
+      delete raw.coaches;
+      delete raw.staff;
+      delete raw.training;
+      delete raw.finances.coaching;
+    }
+    raw.version = version;
+    return JSON.stringify(raw);
+  };
+
+  it.each([1, 2] as const)("upgrades a version-%i save to an agency with one client", (version) => {
+    const w = deserializeWorld(oldSave(version));
+    expect(w.version).toBe(3);
+    expect(w.clientIds).toEqual(["client"]);
+    const m = w.players.client!.client!;
+    expect(m.training.focus).toBe(version === 2 ? "putting" : "balanced");
+    expect(w.agency.bank).toBe(12_345);
     expect(w.coaches).toHaveLength(25);
-    expect(w.training.focus).toBe("balanced");
-    expect(w.players[w.clientId]!.development.potential).toBeGreaterThan(0);
+    expect(w.players.client!.development.potential).toBeGreaterThan(0);
+    expect(Object.values(w.players).some((wp) => wp.agent !== null)).toBe(true);
     playWeek(w);
   });
+
 });

@@ -113,6 +113,54 @@ export interface Development {
   seasonStart: Attributes;
 }
 
+export type SponsorCategory = "equipment" | "apparel" | "watch" | "financial" | "automotive" | "beverage";
+
+export interface Sponsorship {
+  id: string;
+  sponsor: string;
+  category: SponsorCategory;
+  /** Paid in weekly instalments over the season. */
+  annualValue: number;
+  winBonus: number;
+  majorBonus: number;
+  /** Last season (inclusive) the deal runs. */
+  untilSeason: number;
+}
+
+export interface SponsorOffer extends Sponsorship {
+  /** Absolute week after which the offer lapses. */
+  expiresAbsWeek: number;
+}
+
+export interface ClientContract {
+  /** Agency's share of prize money. */
+  commission: number;
+  /** Agency's share of endorsement income. */
+  endorsementCommission: number;
+  signedSeason: number;
+  /** Last season (inclusive) of the deal; he leaves after it unless extended. */
+  untilSeason: number;
+}
+
+/** Everything the agency manages for one client. */
+export interface ClientManagement {
+  contract: ClientContract;
+  training: TrainingPlan;
+  /** Coach id per role. */
+  staff: Partial<Record<CoachRole, string>>;
+  finances: Finances;
+  /** 0-100: how he feels about the agency. Low at contract end and he walks. */
+  happiness: number;
+  sponsors: Sponsorship[];
+  offers: SponsorOffer[];
+}
+
+/** Who represents a player. */
+export interface Representation {
+  agency: string;
+  untilSeason: number;
+}
+
 export interface WorldPlayer {
   player: Player;
   career: Career;
@@ -121,23 +169,66 @@ export interface WorldPlayer {
   development: Development;
   injury: Injury | null;
   rebuild: SwingRebuild | null;
+  /** A rival agency, or null for a free agent. Your clients use `client` instead. */
+  agent: Representation | null;
+  /** Present only for your agency's clients. */
+  client?: ClientManagement;
 }
 
+export interface Scout {
+  id: string;
+  name: string;
+  /** 1-20: how accurate his reports are. */
+  quality: number;
+  weeklyFee: number;
+}
+
+/** What your agency knows about a player. */
+export interface Knowledge {
+  /** 0-1. Clients are known exactly (1). */
+  accuracy: number;
+  reports: number;
+  absWeek: number;
+}
+
+/** The agency's own money for the season. */
+export interface AgencyLedger {
+  prizeCommission: number;
+  endorsementCommission: number;
+  office: number;
+  scouts: number;
+}
+
+export interface Agency {
+  name: string;
+  bank: number;
+  /** 0-100: decides who will sign with you and how big the sponsors are. */
+  reputation: number;
+  scouts: Scout[];
+  /** Ids of the scouts on the payroll. */
+  hiredScouts: string[];
+  /** Players waiting to be scouted, in order. */
+  scoutingQueue: string[];
+  knowledge: Record<string, Knowledge>;
+  ledger: AgencyLedger;
+  /** Player id → absolute week before which he won't hear another offer. */
+  cooldowns: Record<string, number>;
+}
+
+/** One client's money for the season. */
 export interface Finances {
   prizeMoney: number;
+  endorsements: number;
   caddie: number;
   travel: number;
   /** Coaching staff wages, paid by the client. */
   coaching: number;
-  /** Your agency's cut. */
+  /** Your agency's cut of prize money and endorsements. */
   commission: number;
 }
 
-export interface SeasonSummary {
-  season: number;
-  pointsLeaders: { name: string; points: number; wins: number }[];
-  majors: { event: string; winner: string; toPar: number }[];
-  client: {
+export interface ClientSeasonSummary {
+    id: string;
     name: string;
     statusBefore: TourStatus;
     statusAfter: TourStatus;
@@ -150,10 +241,17 @@ export interface SeasonSummary {
     earnings: number;
     owgrRank: number;
     finances: Finances;
-  };
 }
 
-export const SAVE_VERSION = 2;
+export interface SeasonSummary {
+  season: number;
+  pointsLeaders: { name: string; points: number; wins: number }[];
+  majors: { event: string; winner: string; toPar: number }[];
+  clients: ClientSeasonSummary[];
+  agency: { reputationBefore: number; reputationAfter: number; ledger: AgencyLedger; departures: string[] };
+}
+
+export const SAVE_VERSION = 3;
 
 export interface World {
   version: typeof SAVE_VERSION;
@@ -164,19 +262,14 @@ export interface World {
   players: Record<string, WorldPlayer>;
   courses: Course[];
   schedule: TourEvent[];
-  clientId: string;
-  /** Agency commission on the client's prize money. */
-  commissionRate: number;
-  finances: Finances;
-  agencyBank: number;
+  /** Your agency's clients, in the order they signed. */
+  clientIds: string[];
+  agency: Agency;
   pastSeasons: SeasonSummary[];
   /** Most recent headlines, newest first. */
   news: string[];
-  /** Coaches available to hire. */
+  /** Coaches available to hire (a coach can work with several players). */
   coaches: Coach[];
-  /** The client's staff: a coach id per role. */
-  staff: Partial<Record<CoachRole, string>>;
-  training: TrainingPlan;
 }
 
 export const absWeek = (season: number, week: number): number => season * 52 + week;

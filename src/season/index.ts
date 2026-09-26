@@ -7,3 +7,6 @@ export * from "./world";
 export * from "./save";
 export * from "./development";
 export * from "./staff";
+export * from "./agency";
+export * from "./scouting";
+export * from "./sponsors";

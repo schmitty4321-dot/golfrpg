@@ -17,6 +17,7 @@ import {
   type World,
 } from "../../season";
 import { money } from "../format";
+import { Stars } from "../components/Stars";
 import type { Game } from "../useGame";
 
 const FOCUS: { id: TrainingFocus; label: string; blurb: string }[] = [
@@ -35,24 +36,18 @@ const INTENSITY: { id: Intensity; label: string; blurb: string }[] = [
   { id: "heavy", label: "Heavy", blurb: "Faster progress, but tiring and twice the injury risk." },
 ];
 
-export const Stars = ({ value, max = 5 }: { value: number; max?: number }) => (
-  <span aria-label={`${value} out of ${max} stars`} title={`${value} / ${max}`} style={{ letterSpacing: 1, color: "var(--warning)" }}>
-    {"★".repeat(Math.floor(value))}
-    {value % 1 ? "⯪" : ""}
-    <span style={{ color: "var(--bar-track)" }}>{"★".repeat(max - Math.ceil(value))}</span>
-  </span>
-);
 
 const qualityStars = (q: number) => Math.max(0.5, Math.round((q / 20) * 5 * 2) / 2);
 
-export function Training({ world, game }: { world: World; game: Game }) {
-  const wp = world.players[world.clientId]!;
-  const quality = staffQuality(world);
+export function Training({ world, game, clientId }: { world: World; game: Game; clientId: string }) {
+  const wp = world.players[clientId]!;
+  const m = wp.client!;
+  const quality = staffQuality(world, clientId);
   const bestCoach = Math.max(4, ...Object.values(quality));
   const ceiling = ceilingEstimate(wp, bestCoach, createRng(mixSeed(world.seed, world.season, 77)));
   const changes = Object.entries(seasonChange(wp)) as [AttributeKey, number][];
-  const weekly = weeklyStaffCost(world);
-  const rebuildCheck = canStartRebuild(world);
+  const weekly = weeklyStaffCost(world, clientId);
+  const rebuildCheck = canStartRebuild(world, clientId);
   const act = game.act;
 
   return (
@@ -69,7 +64,7 @@ export function Training({ world, game }: { world: World; game: Game }) {
             <div className="panel-head"><h2>Training focus</h2><span className="muted small">Focused areas grow about 2.5× faster than the rest</span></div>
             <div className="choice-grid">
               {FOCUS.map((f) => (
-                <button key={f.id} className="choice" aria-pressed={world.training.focus === f.id} onClick={() => act((w) => (w.training.focus = f.id))}>
+                <button key={f.id} className="choice" aria-pressed={m.training.focus === f.id} onClick={() => act((w) => (w.players[clientId]!.client!.training.focus = f.id))}>
                   <strong>{f.label}</strong>
                   <span className="secondary small">{f.blurb}</span>
                 </button>
@@ -78,7 +73,7 @@ export function Training({ world, game }: { world: World; game: Game }) {
             <div className="panel-head" style={{ marginTop: 16 }}><h2>Intensity</h2></div>
             <div className="choice-grid">
               {INTENSITY.map((f) => (
-                <button key={f.id} className="choice" aria-pressed={world.training.intensity === f.id} onClick={() => act((w) => (w.training.intensity = f.id))}>
+                <button key={f.id} className="choice" aria-pressed={m.training.intensity === f.id} onClick={() => act((w) => (w.players[clientId]!.client!.training.intensity = f.id))}>
                   <strong>{f.label}</strong>
                   <span className="secondary small">{f.blurb}</span>
                 </button>
@@ -96,7 +91,7 @@ export function Training({ world, game }: { world: World; game: Game }) {
                 <thead><tr><th>Role</th><th>Coach</th><th>Quality</th><th className="num">Per week</th><th /></tr></thead>
                 <tbody>
                   {COACH_ROLES.map((role) => (
-                    <StaffRow key={role} role={role} world={world} game={game} />
+                    <StaffRow key={role} role={role} world={world} game={game} clientId={clientId} />
                   ))}
                 </tbody>
               </table>
@@ -128,7 +123,7 @@ export function Training({ world, game }: { world: World; game: Game }) {
                 <p style={{ marginTop: 0 }}>Under way: {wp.rebuild.weeksLeft} of {wp.rebuild.totalWeeks} weeks left. His ball-striking is worse while the new move beds in, easing week by week.</p>
                 <div className="meter" aria-hidden><span style={{ width: `${(1 - wp.rebuild.weeksLeft / wp.rebuild.totalWeeks) * 100}%` }} /></div>
                 <div className="btn-row" style={{ marginTop: 12 }}>
-                  <button className="btn" onClick={() => confirm("Abandon the rebuild? The weeks spent so far are lost.") && act((w) => game.lib.abandonRebuild(w))}>Abandon</button>
+                  <button className="btn" onClick={() => confirm("Abandon the rebuild? The weeks spent so far are lost.") && act((w) => game.lib.abandonRebuild(w, clientId))}>Abandon</button>
                 </div>
               </>
             ) : (
@@ -136,12 +131,12 @@ export function Training({ world, game }: { world: World; game: Game }) {
                 <p style={{ marginTop: 0 }}>
                   A {REBUILD_WEEKS}-week overhaul with his swing coach. He'll lose up to 0.9 strokes a round at first. If it works, his long game and approach improve and his ceiling rises.
                 </p>
-                {world.staff.swing && (
+                {m.staff.swing && (
                   <p className="secondary small">
                     Chance it works with his current coach: {Math.round(rebuildSuccessChance(quality.swing ?? 4, wp.player.attributes.coachability) * 100)}%.
                   </p>
                 )}
-                <button className="btn btn-primary" disabled={!rebuildCheck.ok} onClick={() => act((w) => game.lib.startRebuild(w))}>Start rebuild</button>
+                <button className="btn btn-primary" disabled={!rebuildCheck.ok} onClick={() => act((w) => game.lib.startRebuild(w, clientId))}>Start rebuild</button>
                 {!rebuildCheck.ok && <p className="muted small">{rebuildCheck.reason}</p>}
                 <p className="muted small">Tip: start one near the end of a season and the winter break absorbs most of the dip.</p>
               </>
@@ -172,8 +167,8 @@ export function Training({ world, game }: { world: World; game: Game }) {
   );
 }
 
-function StaffRow({ role, world, game }: { role: CoachRole; world: World; game: Game }) {
-  const current = world.coaches.find((c) => c.id === world.staff[role]);
+function StaffRow({ role, world, game, clientId }: { role: CoachRole; world: World; game: Game; clientId: string }) {
+  const current = world.coaches.find((c) => c.id === world.players[clientId]!.client!.staff[role]);
   const options = world.coaches.filter((c) => c.role === role).sort((a, b) => a.quality - b.quality);
   return (
     <tr>
@@ -184,7 +179,7 @@ function StaffRow({ role, world, game }: { role: CoachRole; world: World; game: 
           value={current?.id ?? ""}
           onChange={(e) => {
             const id = e.target.value;
-            game.act((w) => (id ? game.lib.hireCoach(w, id) : game.lib.releaseCoach(w, role)));
+            game.act((w) => (id ? game.lib.hireCoach(w, clientId, id) : game.lib.releaseCoach(w, clientId, role)));
           }}
         >
           <option value="">No one</option>

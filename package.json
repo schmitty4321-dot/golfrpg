@@ -12,7 +12,6 @@
     "typecheck": "tsc --noEmit",
     "calibrate": "tsx scripts/calibrate.ts",
     "demo": "tsx scripts/demo.ts",
-    "play": "tsx scripts/play.ts",
     "worldcheck": "tsx scripts/worldcheck.ts"
   },
   "devDependencies": {

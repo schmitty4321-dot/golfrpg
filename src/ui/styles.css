@@ -103,7 +103,7 @@ h3 { font-size: 13px; font-weight: 650; color: var(--text-2); text-transform: up
 .brand-mark { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); display: grid; place-items: center; }
 .nav { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; flex: 1; }
 .nav button {
-  background: none; border: 0; color: var(--text-2); padding: 8px 12px; border-radius: 6px; cursor: pointer; white-space: nowrap;
+  background: none; border: 0; color: var(--text-2); padding: 7px 9px; border-radius: 6px; cursor: pointer; white-space: nowrap;
 }
 .nav button:hover { background: var(--surface-2); color: var(--text); }
 .nav button[aria-current="page"] { color: var(--text); background: var(--surface-2); font-weight: 600; }
@@ -230,3 +230,13 @@ select, input[type="text"], input[type="number"] {
 .choice { text-align: left; border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 8px; padding: 10px; cursor: pointer; display: grid; gap: 4px; }
 .choice:hover { background: var(--surface-2); }
 .choice[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 1.5px var(--accent); background: var(--accent-soft); }
+.choice-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+.choice[aria-checked="true"] { border-color: var(--accent); box-shadow: 0 0 0 1.5px var(--accent); background: var(--accent-soft); }
+.choice:disabled { opacity: 0.5; cursor: not-allowed; }
+.attr-bar.range > span { border-radius: 3px; }
+
+/* Scouting ranges need room for "11-15". */
+.attr-groups.wide { grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); }
+.attr.range-row { grid-template-columns: minmax(0, 1fr) 70px 46px; }
+.attr.range-row > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 1100px) { .topbar-season { display: none; } }

@@ -12,10 +12,13 @@ import {
 import { SEASON_WEEKS, buildTour } from "./calendar";
 import { newDevelopment, overall } from "./development";
 import { generateCoaches, offseason, OFFSEASON_WEEKS } from "./staff";
+import { STANDARD_COMMISSION, addReputation, agencySeasonEnd, clients, assignRivalAgents, emptyFinances, newAgency, newManagement } from "./agency";
+import { generateScouts } from "./scouting";
+import { expireSponsors } from "./sponsors";
 import { courseFit, courseById, eventsInWeek, isInvitational, mixSeed, planWeek, priorityCompare, MONDAY_SPOTS } from "./entries";
 import { pointsList, rankMap } from "./points";
 import type { Course } from "../engine";
-import { SAVE_VERSION, absWeek, type Career, type SeasonSummary, type TourEvent, type TourStatus, type World, type WorldPlayer } from "./types";
+import { SAVE_VERSION, absWeek, type Career, type ClientSeasonSummary, type SeasonSummary, type TourEvent, type TourStatus, type World, type WorldPlayer } from "./types";
 import { playWeek } from "./week";
 
 /** How your first client's career starts. */
@@ -67,10 +70,8 @@ const newCareer = (status: TourStatus): Career => ({
   careerWins: 0,
 });
 
-export const emptyFinances = () => ({ prizeMoney: 0, caddie: 0, travel: 0, coaching: 0, commission: 0 });
-
 export function makeWorldPlayer(p: Player, status: TourStatus, rng: Rng): WorldPlayer {
-  return { player: p, career: newCareer(status), targetEvents: 26, development: newDevelopment(p, rng), injury: null, rebuild: null };
+  return { player: p, career: newCareer(status), targetEvents: 26, development: newDevelopment(p, rng), injury: null, rebuild: null, agent: null };
 }
 
 /** A player's quality averaged over the reference courses (for seeding status). */
@@ -87,7 +88,7 @@ function setTargets(world: World): void {
 export interface CreateWorldOptions {
   seed: number;
   scenario: Scenario;
-  commissionRate?: number;
+  agencyName?: string;
 }
 
 /**
@@ -115,15 +116,11 @@ export function createWorld(opts: CreateWorldOptions): World {
     players: Object.fromEntries(byQuality.map((p, i) => [p.id, makeWorldPlayer(p, statusAt(i), rng)])),
     courses,
     schedule,
-    clientId: "",
-    commissionRate: opts.commissionRate ?? 0.1,
-    finances: emptyFinances(),
-    agencyBank: 0,
+    clientIds: [],
+    agency: newAgency(opts.agencyName),
     pastSeasons: [],
     news: [],
     coaches: generateCoaches(opts.seed),
-    staff: {},
-    training: { focus: "balanced", intensity: "normal" },
   };
 
   setTargets(world);
@@ -132,9 +129,13 @@ export function createWorld(opts: CreateWorldOptions): World {
   world.pastSeasons = [];
   world.news = [];
 
+  assignRivalAgents(world, rng);
+  world.agency.scouts = generateScouts(opts.seed);
   const client = createClient(rng, opts.scenario, usedNames);
+  client.client = newManagement(world.season, STANDARD_COMMISSION, 3);
   world.players[client.player.id] = client;
-  world.clientId = client.player.id;
+  world.clientIds = [client.player.id];
+  world.agency.knowledge[client.player.id] = { accuracy: 1, reports: 99, absWeek: 0 };
   setTargets(world);
   return world;
 }
@@ -189,8 +190,8 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   const order = pointsList(world);
   const rankOf = new Map(order.map((id, i) => [id, i + 1]));
   const owgr = rankMap(world);
-  const client = world.clientId ? world.players[world.clientId] : undefined;
-  const clientBefore = client?.career.status;
+  const statusBefore = new Map(world.clientIds.map((id) => [id, world.players[id]!.career.status]));
+  const repBefore = world.agency.reputation;
 
   for (const wp of Object.values(world.players)) {
     const c = wp.career;
@@ -205,7 +206,7 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
 
   // Developmental tour graduates: the best of the players without status, plus new faces.
   const hopefuls = Object.values(world.players)
-    .filter((wp) => wp.career.status === "none" && wp.player.id !== world.clientId)
+    .filter((wp) => wp.career.status === "none" && !wp.client)
     .map((wp) => ({ wp, score: quality(wp.player) + rng.normal(0, 0.6) }))
     .sort((a, b) => b.score - a.score);
   const fromPool = Math.min(20, hopefuls.length);
@@ -221,7 +222,7 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
 
   // Retirements: players without status drift away, and the old guard hangs it up.
   for (const wp of Object.values(world.players)) {
-    if (wp.player.id === world.clientId) continue;
+    if (wp.client) continue;
     const age = wp.player.age;
     const retire =
       age >= 50 ||
@@ -234,7 +235,18 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   }
   while (Object.keys(world.players).length < TARGET_POOL_SIZE) addPlayer(rng.chance(0.5) ? "college" : "fringe", "none");
 
-  const summary = client && clientBefore ? summarise(world, client, clientBefore, rankOf.get(client.player.id) ?? null, owgr.get(client.player.id) ?? 999) : null;
+  const clientSummaries = world.clientIds.map((id) => summariseClient(world, world.players[id]!, statusBefore.get(id) ?? "none", rankOf.get(id) ?? null, owgr.get(id) ?? 999));
+  // A season's body of work counts too: every client who keeps a card, more for the elite.
+  for (const c of clientSummaries) {
+    const r = c.pointsRank ?? 999;
+    addReputation(world.agency, r <= 10 ? 8 : r <= 30 ? 5 : r <= FULL_CARD ? 2.5 : r <= CONDITIONAL_CARD ? 1 : 0);
+  }
+  const ledger = { ...world.agency.ledger };
+  for (const wp of Object.values(world.players)) expireSponsors(world, wp);
+  const departures = world.clientIds.length ? agencySeasonEnd(world, rng) : [];
+  const summary: SeasonSummary | null = world.clientIds.length || clientSummaries.length
+    ? { ...seasonHeadlines(world), clients: clientSummaries, agency: { reputationBefore: repBefore, reputationAfter: world.agency.reputation, ledger, departures } }
+    : null;
   if (summary) world.pastSeasons.push(summary);
 
   for (const wp of Object.values(world.players)) {
@@ -254,14 +266,14 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   pruneHistory(world);
   world.season++;
   world.week = 1;
-  world.finances = emptyFinances();
+  for (const wp of clients(world)) wp.client!.finances = emptyFinances();
+  world.agency.ledger = { prizeCommission: 0, endorsementCommission: 0, office: 0, scouts: 0 };
   setTargets(world);
   return summary;
 }
 
-function summarise(world: World, client: WorldPlayer, statusBefore: TourStatus, pointsRank: number | null, owgrRank: number): SeasonSummary {
+function seasonHeadlines(world: World): Pick<SeasonSummary, "season" | "pointsLeaders" | "majors"> {
   const season = world.season;
-  const results = client.career.results.filter((r) => r.season === season);
   const leaders = pointsList(world)
     .slice(0, 5)
     .map((id) => world.players[id])
@@ -274,11 +286,13 @@ function summarise(world: World, client: WorldPlayer, statusBefore: TourStatus, 
       if (r) majors.push({ event: e.name, winner: wp.player.name, toPar: r.toPar });
     }
   }
+  return { season, pointsLeaders: leaders, majors };
+}
+
+function summariseClient(world: World, client: WorldPlayer, statusBefore: TourStatus, pointsRank: number | null, owgrRank: number): ClientSeasonSummary {
+  const results = client.career.results.filter((r) => r.season === world.season);
   return {
-    season,
-    pointsLeaders: leaders,
-    majors,
-    client: {
+      id: client.player.id,
       name: client.player.name,
       statusBefore,
       statusAfter: client.career.status,
@@ -290,8 +304,7 @@ function summarise(world: World, client: WorldPlayer, statusBefore: TourStatus, 
       cutsMade: results.filter((r) => r.madeCut).length,
       earnings: client.career.seasonEarnings,
       owgrRank,
-      finances: { ...world.finances },
-    },
+      finances: { ...client.client!.finances },
   };
 }
 
@@ -307,9 +320,9 @@ export interface EntryOption {
   fit: number;
 }
 
-/** The client's options for this week, with a projection of whether they'd get in. */
-export function clientOptions(world: World): EntryOption[] {
-  const client = world.players[world.clientId]!;
+/** A client's options for this week, with a projection of whether he'd get in. */
+export function clientOptions(world: World, clientId: string): EntryOption[] {
+  const client = world.players[clientId]!;
   return eventsInWeek(world).map((event) => {
     const course = courseById(world, event.courseId);
     const fit = Math.round(courseFit(client, course) * 100) / 100;
@@ -317,9 +330,9 @@ export function clientOptions(world: World): EntryOption[] {
     if (client.injury) {
       return { ...base, access: "injured" as const, detail: `Injured (${client.injury.name.toLowerCase()}), out for about ${client.injury.weeksLeft} more week${client.injury.weeksLeft === 1 ? "" : "s"}.` };
     }
-    const plan = planWeek(world, { eventId: event.id, route: "entry" });
+    const plan = planWeek(world, new Map([[clientId, { eventId: event.id, route: "entry" as const }]]));
     if (isInvitational(event.tier)) {
-      const invited = plan.invited.get(event.id)!.has(world.clientId);
+      const invited = plan.invited.get(event.id)!.has(clientId);
       return {
         ...base,
         access: invited ? "invited" : "not-invited",
@@ -333,12 +346,17 @@ export function clientOptions(world: World): EntryOption[] {
       .filter(([id, c]) => c?.eventId === event.id && c.route === "entry" && world.players[id]!.career.status !== "none")
       .map(([id]) => world.players[id]!)
       .sort(priorityCompare);
-    const pos = direct.findIndex((wp) => wp.player.id === world.clientId) + 1;
+    const pos = direct.findIndex((wp) => wp.player.id === clientId) + 1;
     const spots = event.fieldSize - MONDAY_SPOTS;
     return pos <= spots
       ? { ...base, access: "in", detail: `In on status (priority ${pos} of ${spots} spots).` }
       : { ...base, access: "alternate", detail: `Alternate (priority ${pos}, ${spots} spots): would go to the Monday qualifier.` };
   });
+}
+
+/** The event a client would pick on his own this week (null = rest). */
+export function clientPreference(world: World, clientId: string): string | null {
+  return planWeek(world, new Map()).choices.get(clientId)?.eventId ?? null;
 }
 
 function inviteRule(e: TourEvent): string {
@@ -357,6 +375,6 @@ function pruneHistory(world: World): void {
   const cutoff = absWeek(world.season + 1, 1) - 104;
   for (const wp of Object.values(world.players)) {
     wp.career.owgr = wp.career.owgr.filter((e) => e.absWeek > cutoff);
-    if (wp.player.id !== world.clientId) wp.career.results = wp.career.results.filter((r) => r.season >= world.season - 1);
+    if (!wp.client) wp.career.results = wp.career.results.filter((r) => r.season >= world.season - 1);
   }
 }

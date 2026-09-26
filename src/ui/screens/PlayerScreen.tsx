@@ -11,8 +11,8 @@ const GROUP_LABELS: Record<keyof typeof ATTRIBUTE_GROUPS, string> = {
   physical: "Physical",
 };
 
-export function PlayerScreen({ world }: { world: World }) {
-  const wp = world.players[world.clientId]!;
+export function PlayerScreen({ world, clientId }: { world: World; clientId: string }) {
+  const wp = world.players[clientId]!;
   const p = wp.player;
   const c = wp.career;
   const season = c.results.filter((r) => r.season === world.season);

@@ -6,16 +6,17 @@ import { SgChart } from "./SgChart";
 
 interface Props {
   result: TournamentResult;
-  clientId: string;
+  /** Your clients, highlighted and always shown. */
+  clientIds: string[];
   /** Show only the first N rows (plus the client) until expanded. */
   limit?: number;
 }
 
-export function Leaderboard({ result, clientId, limit }: Props) {
+export function Leaderboard({ result, clientIds, limit }: Props) {
   const [open, setOpen] = useState<string | null>(null);
   const [all, setAll] = useState(!limit);
   const rows = result.leaderboard;
-  const shown = all ? rows : rows.filter((r, i) => i < (limit ?? rows.length) || r.player.id === clientId);
+  const shown = all ? rows : rows.filter((r, i) => i < (limit ?? rows.length) || clientIds.includes(r.player.id));
   const firstMc = rows.findIndex((r) => !r.madeCut);
 
   return (
@@ -39,7 +40,7 @@ export function Leaderboard({ result, clientId, limit }: Props) {
                 {idx === firstMc && all && (
                   <tr className="divider"><td colSpan={9}>Missed the cut{result.cutLine !== null ? ` (cut ${toPar(result.cutLine)})` : ""}</td></tr>
                 )}
-                <Row r={r} me={r.player.id === clientId} onClick={() => setOpen(open === r.player.id ? null : r.player.id)} />
+                <Row r={r} me={clientIds.includes(r.player.id)} onClick={() => setOpen(open === r.player.id ? null : r.player.id)} />
                 {open === r.player.id && (
                   <tr>
                     <td colSpan={9} style={{ whiteSpace: "normal", background: "var(--surface-2)" }}>

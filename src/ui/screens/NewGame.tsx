@@ -5,17 +5,19 @@ import type { Game } from "../useGame";
 export function NewGame({ game }: { game: Game }) {
   const [scenario, setScenario] = useState<Scenario>("rookie");
   const [seed, setSeed] = useState("");
+  const [name, setName] = useState("");
   const start = () => {
     const n = seed.trim() === "" ? Math.floor(Math.random() * 1e9) : Number(seed) || hash(seed);
-    void game.newGame(scenario, n);
+    void game.newGame(scenario, n, name.trim() || undefined);
   };
   return (
     <main>
       <div className="hero">
         <h1>Fairway Manager</h1>
         <p className="secondary" style={{ margin: 0, maxWidth: 640 }}>
-          You run a golf agency. Sign your first client, plan his schedule week by week, and keep him on tour.
-          Your agency earns 10% of everything he wins.
+          You've just opened a golf agency. Your first client has signed. Plan his schedule, hire his coaches, find him
+          sponsors, then scout the tour for more players and grow the business. You earn a commission on everything
+          your clients win and endorse.
         </p>
       </div>
       <section className="panel">
@@ -29,6 +31,8 @@ export function NewGame({ game }: { game: Game }) {
           ))}
         </div>
         <div className="btn-row" style={{ marginTop: 16, alignItems: "center" }}>
+          <label className="secondary small" htmlFor="agency">Agency name</label>
+          <input id="agency" type="text" placeholder="Your Agency" value={name} onChange={(e) => setName(e.target.value)} style={{ width: 200 }} maxLength={40} />
           <label className="secondary small" htmlFor="seed">World seed</label>
           <input id="seed" type="text" placeholder="random" value={seed} onChange={(e) => setSeed(e.target.value)} style={{ width: 140 }} />
           <button className="btn btn-primary" onClick={start}>Start career</button>

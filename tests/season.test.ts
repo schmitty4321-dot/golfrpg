@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import { coursePar, createRng, generateCourse, simulateTournament, generateTourField } from "../src/engine";
 import {
   CONDITIONAL_CARD,
+  OFFICE_COST,
+  STARTING_BANK,
   FULL_CARD,
   MONDAY_SPOTS,
   SEASON_WEEKS,
@@ -115,8 +117,8 @@ describe("createWorld", () => {
   it("starts in season 1 week 1 with a client of the chosen scenario", () => {
     expect(base.season).toBe(1);
     expect(base.week).toBe(1);
-    expect(base.players[base.clientId]!.career.status).toBe("graduate");
-    expect(base.players[base.clientId]!.player.age).toBe(23);
+    expect(base.players.client!.career.status).toBe("graduate");
+    expect(base.players.client!.player.age).toBe(23);
     expect(createWorld({ seed: 11, scenario: "grinder" }).players.client!.career.status).toBe("none");
   });
 
@@ -181,38 +183,41 @@ describe("playWeek", () => {
   it("rests the client when asked, and they recover", () => {
     const w = fresh();
     w.players.client!.player.condition = 60;
-    const report = playWeek(w, { kind: "rest" });
-    expect(report.client.record).toBeNull();
-    expect(report.client.summary).toMatch(/rested/);
+    const report = playWeek(w, { client: { kind: "rest" } });
+    expect(report.clients.client!.record).toBeNull();
+    expect(report.clients.client!.summary).toMatch(/rested/);
     expect(w.players.client!.player.condition).toBeGreaterThan(60);
   });
 
   it("enters the client and books the money", () => {
     const w = fresh();
-    const [opt] = clientOptions(w);
+    const [opt] = clientOptions(w, "client");
     expect(opt!.access).toBe("in");
-    const report = playWeek(w, { kind: "enter", eventId: opt!.event.id });
-    const rec = report.client.record!;
+    const report = playWeek(w, { client: { kind: "enter", eventId: opt!.event.id } });
+    const rec = report.clients.client!.record!;
     expect(rec.eventId).toBe(opt!.event.id);
-    expect(w.finances.prizeMoney).toBe(rec.earnings);
-    expect(w.finances.commission).toBe(Math.round(rec.earnings * w.commissionRate));
-    expect(w.agencyBank).toBe(w.finances.commission);
-    expect(w.finances.travel).toBeGreaterThan(0);
+    expect(w.players.client!.client!.finances.prizeMoney).toBe(rec.earnings);
+    const m = w.players.client!.client!;
+    expect(m.finances.commission).toBe(Math.round(rec.earnings * m.contract.commission));
+    // The agency banks the commission and pays its weekly office costs.
+    expect(w.agency.bank).toBe(STARTING_BANK + m.finances.commission - OFFICE_COST);
+    expect(w.agency.ledger.prizeCommission).toBe(m.finances.commission);
+    expect(w.players.client!.client!.finances.travel).toBeGreaterThan(0);
   });
 
   it("refuses an event from another week", () => {
     const w = fresh();
     const later = eventsInWeek(w, 5)[0]!;
-    expect(() => playWeek(w, { kind: "enter", eventId: later.id })).toThrow();
+    expect(() => playWeek(w, { client: { kind: "enter", eventId: later.id } })).toThrow();
   });
 
   it("sends a player with no status to the Monday qualifier", () => {
     const w = createWorld({ seed: 11, scenario: "grinder" });
-    const [opt] = clientOptions(w);
+    const [opt] = clientOptions(w, "client");
     expect(opt!.access).toBe("monday");
-    const report = playWeek(w, { kind: "enter", eventId: opt!.event.id });
-    const played = report.client.record !== null;
-    expect(played ? report.results[0]!.field.field.includes("client") : /Monday qualifier/.test(report.client.summary)).toBe(true);
+    const report = playWeek(w, { client: { kind: "enter", eventId: opt!.event.id } });
+    const played = report.clients.client!.record !== null;
+    expect(played ? report.results[0]!.field.field.includes("client") : /Monday qualifier/.test(report.clients.client!.summary)).toBe(true);
   });
 });
 
@@ -246,7 +251,7 @@ describe("finishSeason", () => {
     expect(w.week).toBe(1);
     expect(w.players.client!.player.age).toBe(ageBefore + 1);
     expect(Object.values(w.players).every((wp) => wp.career.seasonPoints === 0 && wp.career.seasonEvents === 0)).toBe(true);
-    expect(w.finances.prizeMoney).toBe(0);
+    expect(w.players.client!.client!.finances.prizeMoney).toBe(0);
   });
 
   it("summarises the client's season", () => {

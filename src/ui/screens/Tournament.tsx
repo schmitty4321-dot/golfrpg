@@ -16,7 +16,7 @@ export function Tournament({ world, game, eventId, setEventId }: { world: World;
       </main>
     );
   }
-  const clientEvents = new Set(game.state.reports.map((r) => r.client.record?.eventId).filter(Boolean));
+  const clientEvents = new Set(game.state.reports.flatMap((r) => Object.values(r.clients).map((c) => c.record?.eventId)).filter(Boolean));
   const selected = all.find((x) => x.event.id === eventId) ?? [...all].reverse().find((x) => clientEvents.has(x.event.id)) ?? all[all.length - 1]!;
   const { event, result } = selected;
   const c = result.course;
@@ -52,7 +52,7 @@ export function Tournament({ world, game, eventId, setEventId }: { world: World;
             </span>
           ))}
         </div>
-        <Leaderboard key={event.id} result={result} clientId={world.clientId} limit={30} />
+        <Leaderboard key={event.id} result={result} clientIds={world.clientIds} limit={30} />
       </section>
     </main>
   );

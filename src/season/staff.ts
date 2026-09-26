@@ -36,30 +36,42 @@ export function generateCoaches(seed: number): Coach[] {
   return coaches;
 }
 
-export function staffQuality(world: World): Partial<Record<CoachRole, number>> {
+function mgmt(world: World, clientId: string) {
+  const wp = world.players[clientId];
+  if (!wp?.client) throw new Error(`${clientId} is not your client`);
+  return { wp, c: wp.client };
+}
+
+export function staffQuality(world: World, clientId: string): Partial<Record<CoachRole, number>> {
+  const { c: m } = mgmt(world, clientId);
   const out: Partial<Record<CoachRole, number>> = {};
   for (const role of COACH_ROLES) {
-    const c = world.coaches.find((x) => x.id === world.staff[role]);
+    const c = world.coaches.find((x) => x.id === m.staff[role]);
     if (c) out[role] = c.quality;
   }
   return out;
 }
 
-export function hireCoach(world: World, coachId: string): void {
+export function hireCoach(world: World, clientId: string, coachId: string): void {
+  const { wp, c: m } = mgmt(world, clientId);
   const c = world.coaches.find((x) => x.id === coachId);
   if (!c) throw new Error(`unknown coach ${coachId}`);
-  world.staff[c.role] = c.id;
-  world.news.unshift(`${world.players[world.clientId]!.player.name} hires ${c.name} as his ${ROLE_LABELS[c.role].toLowerCase()}.`);
+  m.staff[c.role] = c.id;
+  world.news.unshift(`${wp.player.name} hires ${c.name} as his ${ROLE_LABELS[c.role].toLowerCase()}.`);
 }
 
-export function releaseCoach(world: World, role: CoachRole): void {
-  const c = world.coaches.find((x) => x.id === world.staff[role]);
-  delete world.staff[role];
-  if (c) world.news.unshift(`${c.name} is no longer ${world.players[world.clientId]!.player.name}'s ${ROLE_LABELS[role].toLowerCase()}.`);
+export function releaseCoach(world: World, clientId: string, role: CoachRole): void {
+  const { wp, c: m } = mgmt(world, clientId);
+  const c = world.coaches.find((x) => x.id === m.staff[role]);
+  delete m.staff[role];
+  if (c) world.news.unshift(`${c.name} is no longer ${wp.player.name}'s ${ROLE_LABELS[role].toLowerCase()}.`);
 }
 
-export const weeklyStaffCost = (world: World): number =>
-  COACH_ROLES.reduce((s, r) => s + (world.coaches.find((c) => c.id === world.staff[r])?.weeklyFee ?? 0), 0);
+export const weeklyStaffCost = (world: World, clientId: string): number => {
+  const m = world.players[clientId]?.client;
+  if (!m) return 0;
+  return COACH_ROLES.reduce((s, r) => s + (world.coaches.find((c) => c.id === m.staff[r])?.weeklyFee ?? 0), 0);
+};
 
 // ---------------------------------------------------------------- swing rebuild
 
@@ -67,24 +79,24 @@ export const REBUILD_WEEKS = 16;
 /** Strokes a round lost at the start of a rebuild; it eases as the new move beds in. */
 export const REBUILD_PENALTY = 0.9;
 
-export function canStartRebuild(world: World): { ok: boolean; reason?: string } {
-  const wp = world.players[world.clientId]!;
+export function canStartRebuild(world: World, clientId: string): { ok: boolean; reason?: string } {
+  const { wp, c } = mgmt(world, clientId);
   if (wp.rebuild) return { ok: false, reason: "A rebuild is already under way." };
-  if (!world.staff.swing) return { ok: false, reason: "Hire a swing coach first." };
+  if (!c.staff.swing) return { ok: false, reason: "Hire a swing coach first." };
   return { ok: true };
 }
 
-export function startRebuild(world: World): void {
-  const check = canStartRebuild(world);
+export function startRebuild(world: World, clientId: string): void {
+  const check = canStartRebuild(world, clientId);
   if (!check.ok) throw new Error(check.reason);
-  const wp = world.players[world.clientId]!;
+  const wp = world.players[clientId]!;
   wp.rebuild = { weeksLeft: REBUILD_WEEKS, totalWeeks: REBUILD_WEEKS };
   applyRebuildPenalty(wp);
   world.news.unshift(`${wp.player.name} begins a swing rebuild. Expect some rough weeks.`);
 }
 
-export function abandonRebuild(world: World): void {
-  const wp = world.players[world.clientId]!;
+export function abandonRebuild(world: World, clientId: string): void {
+  const { wp } = mgmt(world, clientId);
   wp.rebuild = null;
   delete wp.player.sgAdjust;
   world.news.unshift(`${wp.player.name} abandons his swing rebuild and goes back to the old move.`);
@@ -108,7 +120,7 @@ function progressRebuild(world: World, wp: WorldPlayer, rng: Rng): void {
   if (wp.rebuild.weeksLeft > 0) return applyRebuildPenalty(wp);
   wp.rebuild = null;
   delete wp.player.sgAdjust;
-  const coachQ = world.coaches.find((c) => c.id === world.staff.swing)?.quality ?? 4;
+  const coachQ = world.coaches.find((c) => c.id === wp.client?.staff.swing)?.quality ?? 4;
   if (rng.chance(rebuildSuccessChance(coachQ, wp.player.attributes.coachability))) {
     wp.development.potential = Math.min(19, wp.development.potential + 1);
     const pool = [...COACH_GROUPS.swing];
@@ -150,7 +162,7 @@ function rollInjury(world: World, wp: WorldPlayer, rng: Rng): Injury {
     const k = rng.pick(["drivingDistance", "flexibility"] as const);
     wp.player.attributes[k] = Math.max(1, wp.player.attributes[k] - 1);
   }
-  if (wp.player.id === world.clientId) {
+  if (wp.client) {
     world.news.unshift(`Injury: ${wp.player.name} has a ${name.toLowerCase()} and will miss about ${injury.weeksLeft} week${injury.weeksLeft === 1 ? "" : "s"}.`);
   }
   return injury;
@@ -164,11 +176,10 @@ function rollInjury(world: World, wp: WorldPlayer, rng: Rng): Injury {
  * coaches get paid.
  */
 export function endOfWeek(world: World, competed: Set<string>, rng: Rng): void {
-  const clientQuality = staffQuality(world);
   for (const wp of Object.values(world.players)) {
-    const isClient = wp.player.id === world.clientId;
-    const plan = isClient ? world.training : { focus: "balanced" as const, intensity: "normal" as const };
-    const quality = isClient ? clientQuality : impliedStaff(wp);
+    const isClient = !!wp.client;
+    const plan = wp.client ? wp.client.training : { focus: "balanced" as const, intensity: "normal" as const };
+    const quality = isClient ? staffQuality(world, wp.player.id) : impliedStaff(wp);
     const played = competed.has(wp.player.id);
 
     if (wp.injury) {
@@ -190,8 +201,10 @@ export function endOfWeek(world: World, competed: Set<string>, rng: Rng): void {
       progressRebuild(world, wp, rng);
     }
   }
-  const fees = weeklyStaffCost(world);
-  world.finances.coaching += fees;
+  for (const id of world.clientIds) {
+    const m = world.players[id]?.client;
+    if (m) m.finances.coaching += weeklyStaffCost(world, id);
+  }
 }
 
 function labelOf(key: string): string {
@@ -202,17 +215,19 @@ export const OFFSEASON_WEEKS = 10;
 
 /** The winter break: injuries heal and everyone trains, with no events, fees or new injuries. */
 export function offseason(world: World, weeks: number, rng: Rng): void {
-  const clientQuality = staffQuality(world);
   for (let w = 0; w < weeks; w++) {
     for (const wp of Object.values(world.players)) {
-      const isClient = wp.player.id === world.clientId;
       if (wp.injury && --wp.injury.weeksLeft <= 0) wp.injury = null;
       developWeek(
         wp,
-        { plan: isClient ? world.training : { focus: "balanced", intensity: "normal" }, coachQuality: isClient ? clientQuality : impliedStaff(wp), competed: false },
+        {
+          plan: wp.client ? wp.client.training : { focus: "balanced", intensity: "normal" },
+          coachQuality: wp.client ? staffQuality(world, wp.player.id) : impliedStaff(wp),
+          competed: false,
+        },
         rng,
       );
-      if (isClient) progressRebuild(world, wp, rng);
+      if (wp.client) progressRebuild(world, wp, rng);
     }
   }
 }

@@ -41,7 +41,7 @@ function PointsTable({ world }: { world: World }) {
               <Fragment key={id}>
                 {i === FULL_CARD && <tr className="divider"><td colSpan={7}>Full card line</td></tr>}
                 {i === CONDITIONAL_CARD && <tr className="divider"><td colSpan={7}>Conditional status line</td></tr>}
-                <tr className={id === world.clientId ? "me" : ""}>
+                <tr className={world.clientIds.includes(id) ? "me" : ""}>
                   <td>{i + 1}</td>
                   <td>{wp.player.name} <span className="muted small">{wp.player.nationality}</span></td>
                   <td className="secondary small">{STATUS_LABELS[wp.career.status]}</td>
@@ -70,7 +70,7 @@ function WorldTable({ world }: { world: World }) {
           {rows.map((r, i) => {
             const wp = world.players[r.id]!;
             return (
-              <tr key={r.id} className={r.id === world.clientId ? "me" : ""}>
+              <tr key={r.id} className={world.clientIds.includes(r.id) ? "me" : ""}>
                 <td>{i + 1}</td>
                 <td>{wp.player.name} <span className="muted small">{wp.player.nationality}</span></td>
                 <td>{wp.player.age}</td>
@@ -97,7 +97,7 @@ function MoneyTable({ world }: { world: World }) {
         <thead><tr><th>#</th><th>Player</th><th className="num">Events</th><th className="num">Wins</th><th className="num">Earnings</th></tr></thead>
         <tbody>
           {rows.map((wp, i) => (
-            <tr key={wp.player.id} className={wp.player.id === world.clientId ? "me" : ""}>
+            <tr key={wp.player.id} className={world.clientIds.includes(wp.player.id) ? "me" : ""}>
               <td>{i + 1}</td>
               <td>{wp.player.name}</td>
               <td className="num">{wp.career.seasonEvents}</td>

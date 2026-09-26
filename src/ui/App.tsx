@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
+import { Agency } from "./screens/Agency";
 import { Calendar } from "./screens/Calendar";
+import { ClientPicker } from "./components/ClientPicker";
+import { Scouting } from "./screens/Scouting";
 import { Career } from "./screens/Career";
 import { Finances } from "./screens/Finances";
 import { Home } from "./screens/Home";
@@ -19,6 +22,9 @@ export function App() {
   const { world, busy, loaded, review } = game.state;
   const [tab, setTab] = useState<Tab>("home");
   const [eventId, setEventId] = useState<string | undefined>();
+  const [picked, setPicked] = useState<string | undefined>();
+  // The client shown on the Player and Training tabs: the picked one if still signed, else the first.
+  const clientId = world && picked && world.clientIds.includes(picked) ? picked : world?.clientIds[0];
   const [theme, setTheme] = useState<Theme>(() => {
     try {
       return (localStorage.getItem("theme") as Theme | null) ?? "system";
@@ -62,9 +68,9 @@ export function App() {
           </nav>
         )}
         <div className="topbar-right" style={{ marginLeft: world ? undefined : "auto" }}>
-          {world && <span>Season {world.season} · Week {Math.min(world.week, 36)}</span>}
-          <button className="btn btn-small" onClick={() => setTheme(nextTheme[theme])} title="Switch light / dark / system theme">
-            Theme: {theme}
+          {world && <span className="topbar-season">S{world.season} · Wk {Math.min(world.week, 36)}</span>}
+          <button className="btn btn-small" onClick={() => setTheme(nextTheme[theme])} title={`Theme: ${theme} (click to switch)`} aria-label={`Theme: ${theme}`}>
+            {theme === "dark" ? "Dark" : theme === "light" ? "Light" : "Auto"}
           </button>
         </div>
       </header>
@@ -73,16 +79,28 @@ export function App() {
         <NewGame game={game} />
       ) : tab === "home" ? (
         <Home world={world} game={game} go={go} />
+      ) : tab === "agency" ? (
+        <Agency world={world} game={game} />
+      ) : tab === "scouting" ? (
+        <Scouting world={world} game={game} />
       ) : tab === "tournament" ? (
         <Tournament world={world} game={game} eventId={eventId} setEventId={setEventId} />
       ) : tab === "standings" ? (
         <Standings world={world} />
       ) : tab === "calendar" ? (
         <Calendar world={world} game={game} go={go} />
+      ) : (tab === "player" || tab === "training") && !clientId ? (
+        <main><section className="panel"><p className="empty">You have no clients. Sign one from the Scouting tab.</p></section></main>
       ) : tab === "player" ? (
-        <PlayerScreen world={world} />
+        <>
+          <div style={{ maxWidth: 1240, margin: "0 auto", padding: "20px 20px 0" }}><ClientPicker world={world} value={clientId!} onChange={setPicked} /></div>
+          <PlayerScreen world={world} clientId={clientId!} />
+        </>
       ) : tab === "training" ? (
-        <Training world={world} game={game} />
+        <>
+          <div style={{ maxWidth: 1240, margin: "0 auto", padding: "20px 20px 0" }}><ClientPicker world={world} value={clientId!} onChange={setPicked} /></div>
+          <Training world={world} game={game} clientId={clientId!} />
+        </>
       ) : tab === "finances" ? (
         <Finances world={world} />
       ) : (

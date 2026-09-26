@@ -66,7 +66,7 @@ export function weekContext(world: World): WeekContext {
 /** The ordered list of players invited to a major, signature event or finale. */
 export function invitedField(world: World, ctx: WeekContext, event: TourEvent): string[] {
   // Injured players withdraw, and the next in line takes the spot.
-  const all = Object.values(world.players).filter((wp) => !wp.injury || wp.player.id === world.clientId);
+  const all = Object.values(world.players).filter((wp) => !wp.injury || !!wp.client);
   const owgr = (id: string) => ctx.owgrRank.get(id) ?? 9999;
   const pts = (id: string) => ctx.pointsRank.get(id) ?? 9999;
   const ids = all.map((wp) => wp.player.id);
@@ -166,8 +166,8 @@ export interface WeekPlan {
   choices: Map<string, AiChoice>;
 }
 
-/** Everyone's choices for the week, with the client's choice supplied separately. */
-export function planWeek(world: World, clientChoice: AiChoice | "auto"): WeekPlan {
+/** Everyone's choices for the week; your clients' choices are supplied (or "auto"). */
+export function planWeek(world: World, clientChoices: Map<string, AiChoice | "auto">): WeekPlan {
   const ctx = weekContext(world);
   const events = eventsInWeek(world);
   const invited = new Map<string, Set<string>>();
@@ -177,8 +177,9 @@ export function planWeek(world: World, clientChoice: AiChoice | "auto"): WeekPla
   const choices = new Map<string, AiChoice>();
   for (const wp of Object.values(world.players).sort((a, b) => a.player.id.localeCompare(b.player.id))) {
     const ai = aiChoice(world, ctx, wp, events, invited, rng);
-    const own = wp.player.id === world.clientId && clientChoice !== "auto" && !wp.injury;
-    choices.set(wp.player.id, own ? clientChoice : ai);
+    const mine = clientChoices.get(wp.player.id);
+    const own = mine !== undefined && mine !== "auto" && !wp.injury;
+    choices.set(wp.player.id, own ? mine : ai);
   }
   return { events, invited, choices };
 }
@@ -217,8 +218,8 @@ export function buildFields(world: World, plan: WeekPlan): FieldResult[] {
     // Alternates who missed out try Monday too; the client is always kept in the pool.
     let pool = [...new Set([...mondayEntrants, ...alternates])];
     if (pool.length > MONDAY_POOL_MAX) {
-      const keep = pool.filter((id) => id === world.clientId);
-      const others = shuffle(pool.filter((id) => id !== world.clientId), rng);
+      const keep = pool.filter((id) => world.clientIds.includes(id));
+      const others = shuffle(pool.filter((id) => !world.clientIds.includes(id)), rng);
       pool = [...keep, ...others.slice(0, MONDAY_POOL_MAX - keep.length)];
     }
     const open = event.fieldSize - field.length;
