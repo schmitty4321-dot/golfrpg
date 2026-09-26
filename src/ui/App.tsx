@@ -7,6 +7,7 @@ import { Career } from "./screens/Career";
 import { Finances } from "./screens/Finances";
 import { HistoryScreen } from "./screens/History";
 import { Editor } from "./screens/Editor";
+import { EventScreen } from "./screens/EventScreen";
 import { Home } from "./screens/Home";
 import { NewGame } from "./screens/NewGame";
 import { PlayerScreen } from "./screens/PlayerScreen";
@@ -47,6 +48,8 @@ export function App() {
   }, [theme]);
 
   const go: Go = (t, id) => {
+    // Leaving the event screen is fine: the week's results are already recorded.
+    if (game.state.live) game.dismissLive();
     setTab(t);
     if (id) setEventId(id);
     window.scrollTo(0, 0);
@@ -82,6 +85,16 @@ export function App() {
 
       {!loaded ? null : !world ? (
         <NewGame game={game} />
+      ) : game.state.live ? (
+        <EventScreen
+          key={`${game.state.live.season}-${game.state.live.week}`}
+          world={world}
+          report={game.state.live}
+          onDone={() => {
+            game.dismissLive();
+            go("home");
+          }}
+        />
       ) : tab === "home" ? (
         <Home world={world} game={game} go={go} />
       ) : tab === "agency" ? (

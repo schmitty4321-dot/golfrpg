@@ -15,6 +15,17 @@ export const PAYOUT_PERCENT: readonly number[] = [
  */
 export function tiedPayout(purse: number, position: number, count: number): number {
   let pct = 0;
-  for (let i = position - 1; i < position - 1 + count; i++) pct += PAYOUT_PERCENT[i] ?? 0;
+  for (let i = position - 1; i < position - 1 + count; i++) pct += payoutPercent(i + 1);
   return Math.round((purse * pct) / 100 / count);
+}
+
+/**
+ * Share for a finishing place. Everyone who makes the cut is paid: past the
+ * table's 65 places the share keeps stepping down (never below 0.15%), and
+ * as on tour those extra places are paid on top of the advertised purse.
+ */
+export function payoutPercent(position: number): number {
+  const listed = PAYOUT_PERCENT[position - 1];
+  if (listed !== undefined) return listed;
+  return Math.max(0.15, PAYOUT_PERCENT[PAYOUT_PERCENT.length - 1]! - 0.002 * (position - PAYOUT_PERCENT.length));
 }

@@ -146,6 +146,16 @@ values, not scouting reports.
   generated players top it up so every field is full, and players marked `"status": "amateur"` (or aged 21 and
   under) join the amateur ranks.
 
+### Playing an event round by round
+
+When you press **Play week** and any of your clients is in a field, the event opens on its own screen:
+**Play round 1**, see his scorecard (click any score to watch the shots), where he stands and the leaderboard
+with movement arrows, then **Play round 2**. After 36 holes the cut line is shown. If every client missed
+it, **Sim the rest of the tournament** jumps to the final results; if anyone made it, play **rounds 3 and 4**.
+**Skip to the final results** is always there, and with clients in different events you get a tab per event.
+The week is simulated in one go and revealed a round at a time, so nothing you do on this screen changes
+the outcome, and the save and the rest of the world stay consistent. The auto-sim buttons skip the screen.
+
 ### Shot tracer
 
 Click any score on a scorecard (Leaderboards → click a player), or press **Watch his final round**, to replay

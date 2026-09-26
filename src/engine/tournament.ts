@@ -233,3 +233,74 @@ function strokesGainedVsField(entries: Entry[]): Map<Entry, StrokesGained> {
   }
   return out;
 }
+
+export interface RoundStanding {
+  player: Player;
+  /** Strokes over the rounds played so far. */
+  total: number;
+  toPar: number;
+  /** This round's score (null if he didn't play it, i.e. missed the cut). */
+  today: number | null;
+  rounds: number[];
+  position: number;
+  positionLabel: string;
+  /** Places gained (+) or lost (-) since the previous round; null after round 1. */
+  movement: number | null;
+  /** False once a player has missed the cut. */
+  active: boolean;
+}
+
+/**
+ * The leaderboard as it stood after `round` rounds (1-4), rebuilt from the
+ * final result, so an event can be revealed a round at a time. Players who
+ * missed the cut drop to the bottom from round 3 on.
+ */
+export function standingsAfterRound(result: TournamentResult, round: number): RoundStanding[] {
+  const rows = result.leaderboard.map((r) => {
+    const played = r.rounds.slice(0, round);
+    const total = played.reduce((s, x) => s + x, 0);
+    return {
+      player: r.player,
+      total,
+      toPar: total - result.par * played.length,
+      today: r.rounds.length >= round ? r.rounds[round - 1]! : null,
+      rounds: played,
+      active: r.rounds.length >= round,
+    };
+  });
+  const rank = (list: typeof rows) => {
+    const sorted = [...list].sort((a, b) => Number(b.active) - Number(a.active) || a.total - b.total);
+    const pos = new Map<string, { position: number; label: string }>();
+    sorted.forEach((r) => {
+      const first = sorted.findIndex((x) => x.active === r.active && x.total === r.total);
+      const tied = sorted.filter((x) => x.active === r.active && x.total === r.total).length;
+      pos.set(r.player.id, { position: first + 1, label: r.active ? (tied > 1 ? `T${first + 1}` : `${first + 1}`) : "MC" });
+    });
+    return { sorted, pos };
+  };
+  const now = rank(rows);
+  const before =
+    round > 1
+      ? rank(
+          result.leaderboard.map((r) => {
+            const played = r.rounds.slice(0, round - 1);
+            return { player: r.player, total: played.reduce((s, x) => s + x, 0), toPar: 0, today: null, rounds: played, active: r.rounds.length >= round - 1 };
+          }),
+        ).pos
+      : null;
+  // After the final round the official order (including any playoff) wins.
+  const finalOrder = round >= Math.max(...result.leaderboard.map((r) => r.rounds.length)) ? new Map(result.leaderboard.map((r, i) => [r.player.id, i])) : null;
+  const ordered = finalOrder ? [...now.sorted].sort((a, b) => finalOrder.get(a.player.id)! - finalOrder.get(b.player.id)!) : now.sorted;
+  return ordered.map((r) => {
+    const official = finalOrder ? result.leaderboard.find((x) => x.player.id === r.player.id)! : null;
+    const p = now.pos.get(r.player.id)!;
+    const position = official ? official.position : p.position;
+    const prev = before?.get(r.player.id);
+    return {
+      ...r,
+      position,
+      positionLabel: official ? official.positionLabel : p.label,
+      movement: prev && r.active ? prev.position - position : null,
+    };
+  });
+}

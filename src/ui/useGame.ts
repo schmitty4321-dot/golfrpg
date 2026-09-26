@@ -24,6 +24,8 @@ export interface GameState {
   review: SeasonSummary | null;
   busy: string | null;
   loaded: boolean;
+  /** A week just played with your clients in the field, to reveal round by round. */
+  live: WeekReport | null;
   saveError: boolean;
 }
 
@@ -31,7 +33,7 @@ export interface GameState {
 const nextFrame = () => new Promise((r) => setTimeout(r, 30));
 
 export function useGame() {
-  const [state, setState] = useState<GameState>({ world: null, reports: [], review: null, busy: null, loaded: false, saveError: false });
+  const [state, setState] = useState<GameState>({ world: null, reports: [], review: null, busy: null, loaded: false, saveError: false, live: null });
   const worldRef = useRef<World | null>(null);
   const reportsRef = useRef<WeekReport[]>([]);
 
@@ -83,7 +85,10 @@ export function useGame() {
         reportsRef.current.push(playWeek(w, i === 0 ? choices : {}));
       }
       reportsRef.current = reportsRef.current.slice(-60);
-      publish({ busy: null });
+      const last = reportsRef.current[reportsRef.current.length - 1];
+      // A single week with your clients in the field opens the event screen.
+      const live = weeks === 1 && last && Object.values(last.clients).some((c) => c.record) ? last : null;
+      publish({ busy: null, live });
       await persist();
     },
     [publish, persist],
@@ -99,6 +104,7 @@ export function useGame() {
   }, [publish, persist]);
 
   const dismissReview = useCallback(() => publish({ review: null }), [publish]);
+  const dismissLive = useCallback(() => publish({ live: null }), [publish]);
 
   const importSave = useCallback(
     async (json: string) => {
@@ -130,7 +136,7 @@ export function useGame() {
     [publish, persist],
   );
 
-  return { state, newGame, play, closeSeason, dismissReview, importSave, abandon, exportSave, act, lib: season };
+  return { state, newGame, play, closeSeason, dismissReview, dismissLive, importSave, abandon, exportSave, act, lib: season };
 }
 
 export type Game = ReturnType<typeof useGame>;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SG_CATEGORIES, createRng, generateTourField, getCourse, simulateTournament } from "../src/engine";
+import { SG_CATEGORIES, createRng, generateTourField, getCourse, simulateTournament, standingsAfterRound } from "../src/engine";
 import { flatPlayer } from "./helpers";
 
 const course = getCourse("harrow-pines");
@@ -57,10 +57,14 @@ describe("simulateTournament", () => {
     }
   });
 
-  it("never pays out more than the purse", () => {
+  it("pays everyone who makes the cut, going past the purse only for extra places", () => {
     for (let seed = 0; seed < 10; seed++) {
-      const paid = run(seed).leaderboard.reduce((s, r) => s + r.earnings, 0);
-      expect(paid).toBeLessThanOrEqual(9_000_000 + 100);
+      const t = run(seed);
+      const paid = t.leaderboard.reduce((s, r) => s + r.earnings, 0);
+      const made = t.leaderboard.filter((r) => r.madeCut);
+      for (const r of made) expect(r.earnings).toBeGreaterThan(0);
+      const extraPlaces = Math.max(0, made.length - 65);
+      expect(paid).toBeLessThanOrEqual(9_000_000 * (1 + extraPlaces * 0.0025) + 100);
     }
   });
 
@@ -109,5 +113,41 @@ describe("simulateTournament", () => {
     expect(birdies / rounds).toBeLessThan(4.5);
     expect(doubles / rounds).toBeGreaterThan(0.15);
     expect(doubles / rounds).toBeLessThan(0.6);
+  });
+});
+
+describe("standingsAfterRound", () => {
+  const t = run(21);
+  it("matches the final leaderboard after the last round", () => {
+    const s = standingsAfterRound(t, 4);
+    expect(s.map((r) => r.player.id)).toEqual(t.leaderboard.map((r) => r.player.id));
+    expect(s.map((r) => r.positionLabel)).toEqual(t.leaderboard.map((r) => r.positionLabel));
+  });
+
+  it("orders by strokes so far, with ties and today's score", () => {
+    for (const round of [1, 2, 3]) {
+      const s = standingsAfterRound(t, round).filter((r) => r.active);
+      for (let i = 1; i < s.length; i++) expect(s[i]!.total).toBeGreaterThanOrEqual(s[i - 1]!.total);
+      for (const r of s) {
+        expect(r.rounds).toHaveLength(round);
+        expect(r.today).toBe(r.rounds[round - 1]);
+        const tied = s.filter((x) => x.total === r.total).length;
+        expect(r.positionLabel.startsWith("T")).toBe(tied > 1);
+      }
+    }
+  });
+
+  it("drops players who missed the cut to the bottom from round 3", () => {
+    const s = standingsAfterRound(t, 3);
+    const firstMc = s.findIndex((r) => !r.active);
+    expect(firstMc).toBeGreaterThan(60);
+    expect(s.slice(firstMc).every((r) => !r.active && r.positionLabel === "MC")).toBe(true);
+  });
+
+  it("reports movement from the previous round", () => {
+    expect(standingsAfterRound(t, 1).every((r) => r.movement === null)).toBe(true);
+    const s = standingsAfterRound(t, 2);
+    expect(s.some((r) => (r.movement ?? 0) > 0)).toBe(true);
+    expect(s.some((r) => (r.movement ?? 0) < 0)).toBe(true);
   });
 });
