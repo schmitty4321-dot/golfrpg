@@ -3,6 +3,7 @@ import type { PlayerEventResult, TournamentResult } from "../../engine";
 import { money, toPar } from "../format";
 import { Scorecard } from "./Scorecard";
 import { SgChart } from "./SgChart";
+import { ShotTracer } from "./ShotTracer";
 
 interface Props {
   result: TournamentResult;
@@ -79,11 +80,17 @@ function Row({ r, me, onClick }: { r: PlayerEventResult; me: boolean; onClick: (
 }
 
 function Detail({ r, result }: { r: PlayerEventResult; result: TournamentResult }) {
+  const [watch, setWatch] = useState<{ round: number; hole: number } | null>(null);
   return (
+    <>
+    {watch && <ShotTracer result={result} row={r} round={watch.round} hole={watch.hole} onClose={() => setWatch(null)} />}
     <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", padding: "8px 0" }}>
       <div>
         <h3 style={{ marginBottom: 8 }}>Scorecard · {r.player.name}</h3>
-        <Scorecard course={result.course} rounds={r.holes} />
+        <Scorecard course={result.course} rounds={r.holes} onPick={(round, hole) => setWatch({ round, hole })} />
+        <button className="btn btn-small btn-primary" style={{ marginTop: 8 }} onClick={() => setWatch({ round: r.holes.length - 1, hole: 0 })}>
+          Watch his {r.holes.length === 4 ? "final" : "last"} round
+        </button>
       </div>
       <div>
         <h3 style={{ marginBottom: 8 }}>Strokes gained</h3>
@@ -91,5 +98,6 @@ function Detail({ r, result }: { r: PlayerEventResult; result: TournamentResult 
         <p className="small secondary">Tee times: {r.waves.map((w, i) => `R${i + 1} ${w}`).join(" · ")}</p>
       </div>
     </div>
+    </>
   );
 }

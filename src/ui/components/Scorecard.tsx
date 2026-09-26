@@ -10,7 +10,7 @@ function cellClass(score: number, par: number): string {
 }
 
 /** Hole-by-hole card: circles for birdies and better, squares for bogeys and worse. */
-export function Scorecard({ course, rounds }: { course: Course; rounds: number[][] }) {
+export function Scorecard({ course, rounds, onPick }: { course: Course; rounds: number[][]; onPick?: (round: number, hole: number) => void }) {
   const halves = [course.holes.slice(0, 9), course.holes.slice(9)];
   const sum = (xs: number[]) => xs.reduce((s, x) => s + x, 0);
   return (
@@ -39,7 +39,13 @@ export function Scorecard({ course, rounds }: { course: Course; rounds: number[]
                   <td>R{r + 1}</td>
                   {part.map((s, i) => (
                     <td key={i}>
-                      <span className={cellClass(s, holes[i]!.par)}>{s}</span>
+                      {onPick ? (
+                        <button className="sc-button" onClick={() => onPick(r, half * 9 + i)} title={`Watch hole ${half * 9 + i + 1}, round ${r + 1}`} aria-label={`Hole ${half * 9 + i + 1}, round ${r + 1}: ${s}. Watch the shots.`}>
+                          <span className={cellClass(s, holes[i]!.par)}>{s}</span>
+                        </button>
+                      ) : (
+                        <span className={cellClass(s, holes[i]!.par)}>{s}</span>
+                      )}
                     </td>
                   ))}
                   <td><strong>{sum(part)}</strong></td>
@@ -50,7 +56,7 @@ export function Scorecard({ course, rounds }: { course: Course; rounds: number[]
           </tbody>
         </table>
       ))}
-      <p className="muted small" style={{ margin: 0 }}>Circle: birdie (filled: eagle). Square: bogey (filled: double or worse).</p>
+      <p className="muted small" style={{ margin: 0 }}>Circle: birdie (filled: eagle). Square: bogey (filled: double or worse).{onPick ? " Click a score to watch the shots." : ""}</p>
     </div>
   );
 }

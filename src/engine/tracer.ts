@@ -1,0 +1,485 @@
+/**
+ * Shot tracer: turns a hole score from the simulation into a believable
+ * sequence of shots, and draws the hole they're played on.
+ *
+ * The simulation decides scores, not shots (that's what keeps it fast and
+ * calibrated), so this works backwards: it plans shots that add up to
+ * exactly the score, shaped by the player's game and the hole's layout.
+ * The same inputs always give the same replay.
+ */
+import { TOUR_AVERAGE } from "./attributes";
+import { clamp, createRng, type Rng } from "./rng";
+import type { Course, CourseStyle, Hole, Player } from "./types";
+
+export interface Pt {
+  x: number;
+  y: number;
+}
+
+export interface Circle extends Pt {
+  r: number;
+}
+
+/** A hole drawn in yards: tee at the bottom (0, 0), green at the top. */
+export interface HoleLayout {
+  par: number;
+  yards: number;
+  style: CourseStyle;
+  tee: Pt;
+  /** Centre line from tee to green. */
+  path: Pt[];
+  /** Fairway outline (empty on par 3s). */
+  fairway: Pt[];
+  green: Circle;
+  pin: Pt;
+  bunkers: Circle[];
+  water: Pt[][];
+  trees: Circle[];
+  /** Bounding box of everything drawn. */
+  bounds: { minX: number; maxX: number; minY: number; maxY: number };
+}
+
+export type Lie = "tee" | "fairway" | "rough" | "bunker" | "trees" | "water" | "ob" | "green" | "fringe" | "holed";
+
+export interface Shot {
+  /** Stroke number, counting penalty strokes. */
+  stroke: number;
+  kind: "tee" | "layup" | "recovery" | "approach" | "chip" | "bunker" | "putt" | "penalty";
+  club: string;
+  from: Pt;
+  to: Pt;
+  lie: Lie;
+  /** Distance travelled in yards (putts: feet in `feet`). */
+  yards: number;
+  /** Distance left to the hole afterwards, in feet, once on or around the green. */
+  feet?: number;
+  text: string;
+}
+
+export interface HoleTrace {
+  layout: HoleLayout;
+  shots: Shot[];
+  score: number;
+  result: string;
+}
+
+// ---------------------------------------------------------------- seeds
+
+/** Stable hash of strings and numbers, for repeatable replays. */
+export function traceSeed(...parts: (string | number)[]): number {
+  let h = 2166136261;
+  for (const p of parts) {
+    const s = String(p);
+    for (let i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    h ^= 0x9e37;
+  }
+  return h >>> 0;
+}
+
+// ---------------------------------------------------------------- layout
+
+/** The point `along` yards up the centre line, `side` yards to the right of it. */
+export function pointAt(path: Pt[], along: number, side = 0): Pt {
+  let left = along;
+  for (let i = 0; i < path.length - 1; i++) {
+    const a = path[i]!;
+    const b = path[i + 1]!;
+    const len = Math.hypot(b.x - a.x, b.y - a.y);
+    if (left <= len || i === path.length - 2) {
+      const t = len === 0 ? 0 : Math.min(left, len) / len;
+      const dx = (b.x - a.x) / len;
+      const dy = (b.y - a.y) / len;
+      // Right-hand normal of the direction of play.
+      return { x: a.x + (b.x - a.x) * t + dy * side, y: a.y + (b.y - a.y) * t - dx * side };
+    }
+    left -= len;
+  }
+  return path[path.length - 1]!;
+}
+
+const dist = (a: Pt, b: Pt) => Math.hypot(a.x - b.x, a.y - b.y);
+
+/** Draws a hole from its numbers. Features are placed from a seed of the course and hole, so they never move. */
+export function holeLayout(course: Course, hole: Hole): HoleLayout {
+  const rng = createRng(traceSeed(course.id, hole.number, "layout"));
+  const Y = hole.yards;
+  const path: Pt[] = [{ x: 0, y: 0 }];
+  if (hole.par > 3 && rng.chance(0.65)) {
+    const corner = hole.par === 4 ? rng.int(235, 285) : rng.int(270, 320);
+    const angle = (rng.chance(0.5) ? 1 : -1) * (0.17 + rng.next() * 0.28);
+    path.push({ x: 0, y: corner });
+    path.push({ x: Math.sin(angle) * (Y - corner), y: corner + Math.cos(angle) * (Y - corner) });
+  } else {
+    const drift = hole.par === 3 ? rng.normal(0, 8) : rng.normal(0, 15);
+    path.push({ x: drift, y: Math.sqrt(Math.max(1, Y * Y - drift * drift)) });
+  }
+
+  const w = hole.par === 3 ? 0 : hole.fairwayWidth;
+  const fairway: Pt[] = [];
+  if (hole.par > 3) {
+    const start = 170;
+    const end = Y - 22;
+    const steps = 16;
+    const edge = (s: number) => (w / 2) * (0.85 + 0.15 * Math.sin(s / 37));
+    for (let i = 0; i <= steps; i++) {
+      const s = start + ((end - start) * i) / steps;
+      fairway.push(pointAt(path, s, edge(s)));
+    }
+    for (let i = steps; i >= 0; i--) {
+      const s = start + ((end - start) * i) / steps;
+      fairway.push(pointAt(path, s, -edge(s)));
+    }
+  }
+
+  const greenR = clamp(hole.par === 3 ? 13 - (Y - 180) / 40 : 15, 10, 17);
+  const green = { ...pointAt(path, Y), r: greenR };
+  const pinOff = rng.next() * greenR * 0.55;
+  const pinAng = rng.next() * Math.PI * 2;
+  const pin = { x: green.x + Math.cos(pinAng) * pinOff, y: green.y + Math.sin(pinAng) * pinOff };
+
+  const bunkers: Circle[] = [];
+  const greenside = Math.min(hole.bunkers, 4);
+  for (let i = 0; i < greenside; i++) {
+    const ang = -Math.PI / 2 + (rng.next() - 0.5) * Math.PI * 1.6 + (i % 2 ? Math.PI : 0) * 0.5;
+    bunkers.push({ x: green.x + Math.cos(ang) * (greenR + 5), y: green.y + Math.sin(ang) * (greenR + 5), r: 4 + rng.next() * 3 });
+  }
+  if (hole.par > 3) {
+    for (let i = 0; i < Math.max(0, hole.bunkers - greenside + (hole.bunkers >= 2 ? 1 : 0)) && i < 2; i++) {
+      const s = rng.int(245, 300);
+      bunkers.push({ ...pointAt(path, s, (rng.chance(0.5) ? 1 : -1) * (w / 2 + 3)), r: 5 + rng.next() * 3 });
+    }
+  }
+
+  const water: Pt[][] = [];
+  if (hole.hazard >= 0.35) {
+    const side = rng.chance(0.5) ? 1 : -1;
+    const pond = (s0: number, s1: number, x0: number, x1: number) => {
+      const pts: Pt[] = [];
+      for (let i = 0; i <= 8; i++) pts.push(pointAt(path, s0 + ((s1 - s0) * i) / 8, x0 + Math.sin(i) * 2));
+      for (let i = 8; i >= 0; i--) pts.push(pointAt(path, s0 + ((s1 - s0) * i) / 8, x1 + Math.cos(i) * 2));
+      return pts;
+    };
+    if (hole.par === 3) water.push(pond(Y - greenR - 45, Y - greenR - 6, -28, 28));
+    else water.push(pond(215, 330, side * (w / 2 + 8), side * (w / 2 + 40)));
+  }
+
+  const trees: Circle[] = [];
+  if (course.style === "parkland" || course.style === "resort") {
+    for (let s = 40; s < Y - 10; s += 22 + rng.next() * 18) {
+      for (const side of [-1, 1]) {
+        if (rng.chance(0.7)) trees.push({ ...pointAt(path, s, side * ((w || 30) / 2 + 24 + rng.next() * 14)), r: 5 + rng.next() * 4 });
+      }
+    }
+  }
+
+  const all: Pt[] = [...path, ...fairway, ...trees.map((t) => ({ x: t.x + t.r * Math.sign(t.x || 1), y: t.y })), ...water.flat(), { x: green.x - greenR, y: green.y + greenR }, { x: green.x + greenR, y: green.y + greenR }];
+  const pad = 20;
+  const bounds = {
+    minX: Math.min(...all.map((p) => p.x), -45) - pad,
+    maxX: Math.max(...all.map((p) => p.x), 45) + pad,
+    minY: -pad,
+    maxY: Math.max(...all.map((p) => p.y)) + pad,
+  };
+  return { par: hole.par, yards: Y, style: course.style, tee: { x: 0, y: 0 }, path, fairway, green, pin, bunkers, water, trees, bounds };
+}
+
+// ---------------------------------------------------------------- planning
+
+/** How the strokes on a hole break down; they always sum to the score. */
+export interface ShotPlan {
+  long: number;
+  recoveries: number;
+  penalties: number;
+  missGreen: boolean;
+  chips: number;
+  putts: number;
+}
+
+export const planStrokes = (p: ShotPlan): number => p.long + p.penalties + p.chips + p.putts;
+
+/** Picks a believable way to make a score on a hole. */
+export function planHole(par: number, score: number, hazard: number, rng: Rng): ShotPlan {
+  const g = par - 2;
+  const d = score - par;
+  const plan = (x: Partial<ShotPlan>): ShotPlan => ({ long: g, recoveries: 0, penalties: 0, missGreen: false, chips: 0, putts: 0, ...x });
+  if (score === 1) return plan({ long: 1 });
+  if (d <= -2) {
+    if (score === 2) return plan({ long: 2 });
+    return rng.chance(0.8) ? plan({ long: 2, putts: 1 }) : plan({ long: 2, missGreen: true, chips: 1 });
+  }
+  if (d === -1) {
+    if (par === 5 && rng.chance(0.35)) return plan({ long: 2, putts: 2 });
+    return rng.chance(0.85) ? plan({ putts: 1 }) : plan({ missGreen: true, chips: 1 });
+  }
+  if (d === 0) return rng.chance(0.68) ? plan({ putts: 2 }) : plan({ missGreen: true, chips: 1, putts: 1 });
+
+  // Bogey or worse: start from a way to make bogey, then add trouble.
+  const options: [number, ShotPlan][] = [
+    [0.45, plan({ missGreen: true, chips: 1, putts: 2 })],
+    [0.2, plan({ putts: 3 })],
+    [0.25, plan({ long: g + 1, recoveries: 1, putts: 2 })],
+    [0.1 + hazard * 0.3, plan({ penalties: 1, putts: 2 })],
+  ];
+  let pick = rng.next() * options.reduce((s, [w]) => s + w, 0);
+  let p = options[options.length - 1]![1];
+  for (const [w, o] of options) {
+    if ((pick -= w) <= 0) {
+      p = o;
+      break;
+    }
+  }
+  for (let extra = d - 1; extra > 0; extra--) {
+    const r = rng.next();
+    if (r < 0.1 + hazard * 0.4 && p.penalties < 2) p.penalties++;
+    else if (r < 0.65) {
+      p.long++;
+      p.recoveries++;
+    } else if (r < 0.85 || p.putts >= 3) {
+      if (!p.missGreen) p.missGreen = true;
+      p.chips++;
+    } else p.putts++;
+  }
+  // A lost ball needs a shot from the drop as well as the one that went in: make room for it.
+  if (p.penalties > 0 && p.long < 2) {
+    if (p.putts > 1) p.putts--;
+    else if (p.chips > 0) {
+      p.chips--;
+      if (p.chips === 0) p.missGreen = false;
+    } else p.penalties--;
+    p.long++;
+  }
+  return p;
+}
+
+// ---------------------------------------------------------------- shots
+
+export function clubFor(yards: number, fromTee: boolean): string {
+  if (fromTee && yards >= 255) return "Driver";
+  if (yards >= 228) return "3-wood";
+  if (yards >= 208) return "Hybrid";
+  if (yards >= 196) return "4-iron";
+  if (yards >= 184) return "5-iron";
+  if (yards >= 172) return "6-iron";
+  if (yards >= 160) return "7-iron";
+  if (yards >= 148) return "8-iron";
+  if (yards >= 136) return "9-iron";
+  if (yards >= 120) return "Pitching wedge";
+  if (yards >= 100) return "Gap wedge";
+  if (yards >= 75) return "Sand wedge";
+  return "Lob wedge";
+}
+
+const SCORE_NAMES: Record<number, string> = { [-3]: "Albatross", [-2]: "Eagle", [-1]: "Birdie", 0: "Par", 1: "Bogey", 2: "Double bogey", 3: "Triple bogey" };
+export const scoreName = (score: number, par: number): string =>
+  score === 1 ? "Hole in one" : SCORE_NAMES[score - par] ?? `${score - par > 0 ? "+" : ""}${score - par}`;
+
+export interface TraceInput {
+  course: Course;
+  hole: Hole;
+  score: number;
+  player: Player;
+  windMph?: number;
+  seed: number;
+}
+
+/** The shots behind a hole score. The strokes (shots plus penalties) always equal the score. */
+export function traceHole({ course, hole, score, player, windMph = 0, seed }: TraceInput): HoleTrace {
+  const layout = holeLayout(course, hole);
+  const rng = createRng(seed);
+  const plan = planHole(hole.par, score, hole.hazard, rng);
+  const a = player.attributes;
+  const shots: Shot[] = [];
+  const Y = hole.yards;
+  const w = hole.fairwayWidth || 30;
+  let cur: Pt = layout.tee;
+  let stroke = 0;
+  const pin = layout.pin;
+  const toPinFt = (p: Pt) => Math.round(dist(p, pin) * 3);
+
+  const push = (s: Omit<Shot, "stroke" | "yards" | "from"> & { yards?: number }) => {
+    stroke++;
+    const yards = s.yards ?? Math.round(dist(cur, s.to));
+    shots.push({ ...s, stroke, from: cur, yards });
+    cur = s.to;
+  };
+  const penalty = (text: string, drop: Pt) => {
+    stroke++;
+    shots.push({ stroke, kind: "penalty", club: "", from: cur, to: drop, lie: "rough", yards: 0, text });
+    cur = drop;
+  };
+  /** A spot on the green `feet` from the pin, on the side the ball came from. */
+  const onGreen = (feet: number, from: Pt): Pt => {
+    const ang = Math.atan2(from.y - pin.y, from.x - pin.x) + rng.normal(0, 0.9);
+    const yds = Math.min(feet / 3, layout.green.r * 0.95);
+    return { x: pin.x + Math.cos(ang) * yds, y: pin.y + Math.sin(ang) * yds };
+  };
+  /** Where a missed green ends up: a greenside bunker or the rough around it. */
+  const aroundGreen = (): { at: Pt; lie: Lie } => {
+    const greenside = layout.bunkers.filter((b) => dist(b, layout.green) < layout.green.r + 12);
+    if (greenside.length && rng.chance(0.45)) {
+      const b = rng.pick(greenside);
+      return { at: { x: b.x + rng.normal(0, 1), y: b.y + rng.normal(0, 1) }, lie: "bunker" };
+    }
+    const ang = rng.next() * Math.PI * 2;
+    const r = layout.green.r + 3 + rng.next() * 8;
+    return { at: { x: layout.green.x + Math.cos(ang) * r, y: layout.green.y + Math.sin(ang) * r }, lie: "rough" };
+  };
+  const approachFeet = (): number => {
+    const skill = (a.midIrons + a.distanceControl + a.wedges) / 3 - TOUR_AVERAGE;
+    const base = plan.putts <= 1 ? 4 + rng.next() * 18 : plan.putts === 2 ? 18 + rng.next() * 35 : 38 + rng.next() * 30;
+    return Math.round(clamp(base * (1 - skill * 0.03), 2, 90));
+  };
+  const chipFeet = (): number => (plan.putts <= 1 ? 1 + rng.next() * 6 : plan.putts === 2 ? 6 + rng.next() * 10 : 20 + rng.next() * 15);
+
+  // ---- long shots
+  const driveLen = clamp(292 + (a.drivingDistance - TOUR_AVERAGE) * 6 + rng.normal(0, 9) - windMph * 0.6, 230, 345);
+  const accurate = clamp(0.62 + (a.drivingAccuracy - TOUR_AVERAGE) * 0.03, 0.3, 0.9);
+  const lastLong = plan.long;
+  const finalLong = (club?: string) => {
+    const from = cur;
+    const yards = Math.round(dist(from, pin));
+    const name = club ?? clubFor(yards, stroke === 0);
+    if (plan.chips === 0 && plan.putts === 0) {
+      push({ kind: stroke === 0 ? "tee" : "approach", club: name, to: pin, lie: "holed", text: `${name} from ${yards} yds... and it's in!` });
+    } else if (plan.missGreen) {
+      const g = aroundGreen();
+      push({ kind: stroke === 0 ? "tee" : "approach", club: name, to: g.at, lie: g.lie, feet: toPinFt(g.at), text: `${name} from ${yards} yds misses the green${g.lie === "bunker" ? ", into a bunker" : ""}.` });
+    } else {
+      const ft = approachFeet();
+      const to = onGreen(ft, from);
+      push({ kind: stroke === 0 ? "tee" : "approach", club: name, to, lie: "green", feet: toPinFt(to), text: `${name} from ${yards} yds to ${toPinFt(to)} ft.` });
+    }
+  };
+
+  if (hole.par === 3) {
+    if (plan.penalties > 0) {
+      const into = layout.water[0] ? pointAt(layout.path, Y - layout.green.r - 25, rng.normal(0, 8)) : pointAt(layout.path, Y + 10, (rng.chance(0.5) ? 1 : -1) * 45);
+      const club = clubFor(Y, true);
+      push({ kind: "tee", club, to: into, lie: layout.water[0] ? "water" : "ob", text: `${club} ${layout.water[0] ? "comes up short, in the water" : "sails out of bounds"}.` });
+      for (let i = 0; i < plan.penalties; i++) penalty(i === 0 ? "Penalty stroke: plays from the drop zone." : "Another penalty stroke.", pointAt(layout.path, Y - 70, 0));
+      for (let i = 2; i < lastLong; i++) push({ kind: "recovery", club: "Wedge", to: pointAt(layout.path, Y - 25, rng.normal(0, 6)), lie: "rough", text: "Wedge, short of the green." });
+      finalLong();
+    } else if (plan.recoveries > 0) {
+      const miss = pointAt(layout.path, Y - rng.int(10, 40), (rng.chance(0.5) ? 1 : -1) * (layout.green.r + 20));
+      const club = clubFor(Y, true);
+      push({ kind: "tee", club, to: miss, lie: layout.trees.length ? "trees" : "rough", text: `${club} misses badly, ${layout.trees.length ? "into the trees" : "into thick rough"}.` });
+      for (let i = 2; i < lastLong; i++) push({ kind: "recovery", club: "Wedge", to: pointAt(layout.path, Y - 30, rng.normal(0, 5)), lie: "rough", text: "Pitches out." });
+      finalLong();
+    } else {
+      finalLong(clubFor(Y, true));
+    }
+  } else {
+    // Tee shot.
+    let tee: Pt;
+    let lie: Lie;
+    let teeText: string;
+    const teeClub = Y < 360 || (w < 24 && a.courseManagement >= 13) ? "3-wood" : "Driver";
+    const len = Math.min(teeClub === "3-wood" ? driveLen - 25 : driveLen, Y - 70);
+    if (plan.penalties > 0) {
+      const wet = layout.water.length > 0;
+      tee = wet ? pointAt(layout.path, len - 20, (layout.water[0]![0]!.x > 0 ? 1 : -1) * (w / 2 + 22)) : pointAt(layout.path, len, (rng.chance(0.5) ? 1 : -1) * (w / 2 + 50));
+      lie = wet ? "water" : "ob";
+      teeText = `${teeClub} ${wet ? "finds the water" : "goes out of bounds"}.`;
+    } else if (plan.recoveries > 0) {
+      const side = rng.chance(0.5) ? 1 : -1;
+      tee = pointAt(layout.path, len - 10, side * (w / 2 + (layout.trees.length ? 24 : 14)));
+      lie = layout.trees.length ? "trees" : "rough";
+      teeText = `${teeClub}, ${Math.round(len - 10)} yds, ${lie === "trees" ? "blocked out in the trees" : "buried in deep rough"}.`;
+    } else if (rng.chance(accurate)) {
+      tee = pointAt(layout.path, len, rng.normal(0, w / 6));
+      lie = "fairway";
+      teeText = `${teeClub}, ${Math.round(len)} yds, finds the fairway.`;
+    } else {
+      const fb = layout.bunkers.filter((b) => dist(b, layout.green) > layout.green.r + 12);
+      if (fb.length && rng.chance(0.35)) {
+        tee = { ...rng.pick(fb) };
+        lie = "bunker";
+        teeText = `${teeClub} runs into a fairway bunker.`;
+      } else {
+        tee = pointAt(layout.path, len, (rng.chance(0.5) ? 1 : -1) * (w / 2 + 4 + rng.next() * 8));
+        lie = "rough";
+        teeText = `${teeClub}, ${Math.round(len)} yds, just in the rough.`;
+      }
+    }
+    if (lastLong === 1) {
+      // A drivable par 4 (rare): the tee shot is the approach.
+      finalLong(teeClub);
+    } else {
+      push({ kind: "tee", club: teeClub, to: tee, lie, text: teeText, yards: Math.round(len) });
+      for (let i = 0; i < plan.penalties; i++) {
+        penalty(i === 0 ? `Penalty stroke: drops ${lie === "water" ? "beside the water" : "back in play"}.` : "Another penalty stroke.", pointAt(layout.path, Math.max(150, len - 40), (lie === "water" ? 1 : 0) * Math.sign(tee.x) * (w / 2)));
+      }
+      let recoveriesLeft = plan.recoveries;
+      for (let k = 2; k < lastLong; k++) {
+        const alongNow = Math.min(Y - 30, Math.max(0, projectAlong(layout.path, cur)));
+        if (recoveriesLeft > 0) {
+          recoveriesLeft--;
+          const to = pointAt(layout.path, Math.min(Y - 90, alongNow + 40 + rng.next() * 60), rng.normal(0, w / 8));
+          push({ kind: "recovery", club: "9-iron", to, lie: "fairway", text: "Punches out to the fairway." });
+        } else {
+          const target = Math.max(alongNow + 60, Y - rng.int(85, 115));
+          const to = pointAt(layout.path, Math.min(target, Y - 60), rng.normal(0, w / 7));
+          const club = clubFor(dist(cur, to), false);
+          push({ kind: "layup", club, to, lie: "fairway", text: `${club} lays up, ${Math.round(Y - projectAlong(layout.path, to))} yds out.` });
+        }
+      }
+      finalLong();
+    }
+  }
+
+  // ---- chips and bunker shots
+  for (let i = 0; i < plan.chips; i++) {
+    const last = i === plan.chips - 1;
+    const fromBunker = shots[shots.length - 1]?.lie === "bunker";
+    const club = fromBunker ? "Sand wedge" : "Chip";
+    if (last && plan.putts === 0) {
+      push({ kind: fromBunker ? "bunker" : "chip", club, to: pin, lie: "holed", text: fromBunker ? "Splashes out... and it drops!" : "Chips in!" });
+    } else if (last) {
+      const ft = Math.round(chipFeet());
+      const to = onGreen(ft, cur);
+      push({ kind: fromBunker ? "bunker" : "chip", club, to, lie: "green", feet: toPinFt(to), text: `${fromBunker ? "Bunker shot" : "Chip"} to ${toPinFt(to)} ft.` });
+    } else {
+      const g = aroundGreen();
+      push({ kind: fromBunker ? "bunker" : "chip", club, to: g.at, lie: g.lie, feet: toPinFt(g.at), text: `${fromBunker ? "Leaves it in the bunker" : "Duffs the chip"}, still off the green.` });
+    }
+  }
+
+  // ---- putts
+  for (let i = 0; i < plan.putts; i++) {
+    const last = i === plan.putts - 1;
+    const ft = toPinFt(cur);
+    if (last) {
+      push({ kind: "putt", club: "Putter", to: pin, lie: "holed", yards: Math.round(ft / 3), feet: 0, text: ft <= 3 ? "Taps in." : `Holes the ${ft}-footer.` });
+    } else {
+      const leave = plan.putts - i === 3 ? 5 + rng.next() * 6 : 1 + rng.next() * 3;
+      const to = onGreen(leave, cur);
+      push({ kind: "putt", club: "Putter", to, lie: "green", yards: Math.round(ft / 3), feet: toPinFt(to), text: `Putts from ${ft} ft, leaves ${toPinFt(to)} ft.` });
+    }
+  }
+
+  return { layout, shots, score, result: scoreName(score, hole.par) };
+}
+
+/** How far up the hole a point is (distance along the centre line). */
+export function projectAlong(path: Pt[], p: Pt): number {
+  let best = 0;
+  let bestD = Infinity;
+  let acc = 0;
+  for (let i = 0; i < path.length - 1; i++) {
+    const a = path[i]!;
+    const b = path[i + 1]!;
+    const len = Math.hypot(b.x - a.x, b.y - a.y);
+    const t = clamp(((p.x - a.x) * (b.x - a.x) + (p.y - a.y) * (b.y - a.y)) / (len * len), 0, 1);
+    const q = { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
+    const d = dist(p, q);
+    if (d < bestD) {
+      bestD = d;
+      best = acc + t * len;
+    }
+    acc += len;
+  }
+  return best;
+}

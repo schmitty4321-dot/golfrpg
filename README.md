@@ -146,6 +146,20 @@ values, not scouting reports.
   generated players top it up so every field is full, and players marked `"status": "amateur"` (or aged 21 and
   under) join the amateur ranks.
 
+### Shot tracer
+
+Click any score on a scorecard (Leaderboards → click a player), or press **Watch his final round**, to replay
+it shot by shot on a top-down drawing of the hole: tee, fairway, rough, bunkers, water, trees, green and pin,
+drawn from the course's own numbers (length, fairway width, bunkers, hazard, style). Shots animate one at
+a time with commentary ("Driver, 302 yds, finds the fairway", "Sand wedge from 91 yds misses the green",
+"Chip to 6 ft", "Holes the 6-footer"), and you can pick a round, jump to a hole, or show key holes only.
+
+The simulation decides scores, not shots; that's what keeps it fast and calibrated. So the tracer
+(`src/engine/tracer.ts`) works backwards: it plans a believable way to make that exact score (a two-putt
+par, an up-and-down, a ball in the water and a drop) and places each shot using the player's game (long
+hitters hit it further, good iron players hit it closer) and the hole's layout. A replay always adds up to
+the real score, which is tested for every score on every hole, and the same round always replays the same way.
+
 Minimal player database:
 
 ```json
