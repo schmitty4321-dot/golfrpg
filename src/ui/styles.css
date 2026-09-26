@@ -364,4 +364,41 @@ select, input[type="text"], input[type="number"] {
 .call-options .choice { display: grid; gap: 2px; text-align: left; }
 .hbh-board { width: 100%; font-size: 13px; }
 .hbh-board td { padding: 3px 6px; }
-@media (max-width: 700px) { .hbh-card { grid-template-columns: repeat(9, 22px); } }
+
+/* ---------- hole by hole: phones ---------- */
+.hbh-hole { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; margin: 0 0 10px; }
+.odds-short { display: none; }
+.hbh-lb summary { cursor: pointer; font-weight: 600; margin: 12px 0 4px; }
+@media (max-width: 700px) {
+  /* While walking the round, the event header shrinks to its title and buttons. */
+  .event-head-compact { padding: 10px 12px; }
+  .event-head-compact .course-photo, .event-head-compact .facts { display: none; }
+  .event-head-compact h1 { font-size: 17px !important; }
+  .event-head-compact .panel-head { margin-bottom: 6px; }
+  .event-head-compact .btn { padding: 4px 10px; font-size: 13px; }
+
+  .hbh { padding: 12px; }
+  .hbh .panel-head { margin-bottom: 8px; }
+  .hbh .panel-head h2 { font-size: 16px; }
+  .hbh-hole { position: sticky; top: 52px; z-index: 3; background: var(--surface); margin: 0 -12px 8px; padding: 6px 12px; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .hbh-body { display: block; }
+  .hbh-drawing .hole-svg { display: block; max-height: 36vh; width: auto; max-width: 100%; margin: 0 auto; }
+  .hbh-drawing .hole-credit { justify-content: center; font-size: 11px; }
+
+  .call { padding: 6px 8px 8px; }
+  .call legend { font-size: 14px; }
+  .call-options { grid-template-columns: repeat(auto-fit, minmax(72px, 1fr)); gap: 4px; }
+  .call-options .choice { padding: 6px 6px; text-align: center; }
+  .call-options .choice strong { font-size: 13px; }
+  .call-blurb, .odds-long { display: none; }
+  .odds-short { display: grid; font-size: 12px; line-height: 1.3; }
+  .call-legend .odds-short { display: inline; font-size: 12px; }
+  .hbh-card { grid-template-columns: repeat(18, minmax(0, 1fr)); gap: 0; font-size: 11px; width: 100%; }
+  .hbh-card > span { line-height: 18px; }
+
+  /* The buttons stay under your thumb. */
+  .hbh-actions { position: sticky; bottom: 0; z-index: 3; background: var(--surface); margin: 8px -12px 0; padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); flex-wrap: nowrap; }
+  .hbh-actions .btn { flex: 1 1 0; padding: 8px 6px; font-size: 14px; white-space: nowrap; }
+  .shot-list { font-size: 14px; }
+  .shot-list li { padding: 3px 0; }
+}

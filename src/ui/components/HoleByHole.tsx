@@ -33,6 +33,33 @@ function situation(t: LiveTournament): HoleSituation {
 
 const pct = (x: number) => `${Math.round(x * 100)}%`;
 
+/** A call's odds: full words on a wide screen, just the numbers on a phone (the legend explains them). */
+function Odds({ o }: { o: { expected: number; birdie: number; bogey: number } }) {
+  return (
+    <span className="small secondary odds">
+      <span className="odds-long">Avg {o.expected.toFixed(2)} · Birdie {pct(o.birdie)} · Bogey+ {pct(o.bogey)}</span>
+      <span className="odds-short">
+        <span>{o.expected.toFixed(2)}</span>
+        <span>{pct(o.birdie)} / {pct(o.bogey)}</span>
+      </span>
+    </span>
+  );
+}
+
+/** True on phone-width screens. */
+function useNarrow(): boolean {
+  const query = "(max-width: 700px)";
+  const [narrow, setNarrow] = useState(() => typeof window !== "undefined" && window.matchMedia?.(query).matches);
+  useEffect(() => {
+    const m = window.matchMedia?.(query);
+    if (!m) return;
+    const on = () => setNarrow(m.matches);
+    m.addEventListener("change", on);
+    return () => m.removeEventListener("change", on);
+  }, []);
+  return narrow;
+}
+
 /**
  * Your client's round, a hole at a time. On key holes you make the calls
  * (off the tee, going for a par 5, attacking a pin, the putts on the closing
@@ -47,6 +74,7 @@ export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTourname
   const [played, setPlayed] = useState<Played | null>(null);
   const [step, setStep] = useState(0);
   const [photo, setPhoto] = useState(true);
+  const narrow = useNarrow();
 
   const index = cur ? cur.holes.length : course.holes.length;
   const upcoming = cur ? course.holes[index]! : null;
@@ -144,8 +172,18 @@ export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTourname
         </div>
       </div>
 
-      <div className="tracer-body">
-        <div>
+      {showHole && (
+        <p className="hbh-hole">
+          <strong>Hole {(shown?.index ?? 0) + 1}</strong>
+          <span>Par {showHole.par}</span>
+          <span>{showHole.yards} yds</span>
+          {showHole.tourAverage !== undefined && <span title="Tour average to par">Avg {toPar(Math.round((showHole.tourAverage - showHole.par) * 100) / 100)}</span>}
+          <span>Wind {Math.round(wind())} mph</span>
+        </p>
+      )}
+
+      <div className="tracer-body hbh-body">
+        <div className="hbh-drawing">
           {shown && <HoleDrawing trace={shown.trace} step={played ? step : 0} photo={photo} map={map} />}
           <div className="hole-credit">
             {map?.aerial && (
@@ -163,14 +201,6 @@ export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTourname
         </div>
 
         <div>
-          {showHole && (
-            <p className="hbh-hole">
-              <strong>Hole {(shown?.index ?? 0) + 1}</strong> · Par {showHole.par} · {showHole.yards} yds
-              {showHole.tourAverage !== undefined && ` · Tour average ${toPar(Math.round((showHole.tourAverage - showHole.par) * 100) / 100)}`}
-              {` · Wind ${Math.round(wind())} mph`}
-            </p>
-          )}
-
           {played ? (
             <>
               <p style={{ marginTop: 0 }}>
@@ -185,8 +215,8 @@ export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTourname
                   </li>
                 ))}
               </ol>
-              <div className="btn-row">
-                {step < played.trace.shots.length && <button className="btn btn-small" onClick={() => setStep(played.trace.shots.length)}>Show all shots</button>}
+              <div className="btn-row hbh-actions">
+                {step < played.trace.shots.length && <button className="btn" onClick={() => setStep(played.trace.shots.length)}>Show all shots</button>}
                 {cur ? (
                   <button className="btn btn-primary" onClick={() => { setPlayed(null); setStep(0); }}>Next hole</button>
                 ) : (
@@ -208,15 +238,15 @@ export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTourname
                       <div className="call-options">
                         <button className="choice" aria-pressed={chosen === undefined} onClick={() => pick(d.kind, undefined)}>
                           <strong>His call</strong>
-                          {own && <span className="small secondary">Avg {own.expected.toFixed(2)} · Birdie {pct(own.birdie)} · Bogey+ {pct(own.bogey)}</span>}
+                          {own && <Odds o={own} />}
                         </button>
                         {d.options.map((o) => {
                           const od = odds?.byOption[`${d.kind}:${o.value}`];
                           return (
                             <button key={o.value} className="choice" aria-pressed={chosen === o.value} onClick={() => pick(d.kind, o.value)} title={o.blurb}>
                               <strong>{o.label}</strong>
-                              {od && <span className="small secondary">Avg {od.expected.toFixed(2)} · Birdie {pct(od.birdie)} · Bogey+ {pct(od.bogey)}</span>}
-                              <span className="small muted">{o.blurb}</span>
+                              {od && <Odds o={od} />}
+                              <span className="small muted call-blurb">{o.blurb}</span>
                             </button>
                           );
                         })}
@@ -225,16 +255,25 @@ export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTourname
                   );
                 })
               )}
-              <div className="btn-row">
+              {decisions.length > 0 && (
+                <p className="muted small call-legend">
+                  <span className="odds-long">Averages and chances are for this hole, from his game today and the conditions.</span>
+                  <span className="odds-short">Each option: average score, then birdie / bogey-or-worse chances on this hole.</span>
+                </p>
+              )}
+              <div className="btn-row hbh-actions">
                 <button className="btn btn-primary" onClick={play}>Play hole {index + 1}</button>
-                <button className="btn" onClick={playToDecision}>Play to the next decision</button>
-                <button className="btn" onClick={finishRound}>Finish the round</button>
+                <button className="btn" onClick={playToDecision}>{narrow ? "To next call" : "Play to the next decision"}</button>
+                <button className="btn" onClick={finishRound}>{narrow ? "Finish round" : "Finish the round"}</button>
               </div>
-              <p className="muted small">Averages and chances are for this hole, from his game today and the conditions.</p>
             </>
           ) : null}
 
-          <h3 style={{ marginBottom: 4 }}>Leaderboard <span className="muted small">(everyone through the same hole)</span></h3>
+          <details className="hbh-lb" open={!narrow}>
+            <summary>
+              Leaderboard {me && <span className="muted small">· {name.split(" ").pop()} {tied ? "T" : ""}{myPos}, {toPar(me.toPar)}</span>}
+              <span className="muted small"> (everyone through the same hole)</span>
+            </summary>
           <table className="hbh-board">
             <tbody>
               {board.slice(0, 8).concat(me && board.indexOf(me) >= 8 ? [me] : []).map((r) => (
@@ -247,6 +286,7 @@ export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTourname
               ))}
             </tbody>
           </table>
+          </details>
         </div>
       </div>
     </section>

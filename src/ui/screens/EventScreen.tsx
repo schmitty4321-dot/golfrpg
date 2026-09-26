@@ -51,9 +51,9 @@ function EventTabs({ names, which, setWhich }: { names: string[]; which: number;
   );
 }
 
-function EventHeader({ event, course, week, players, hasCut, status, children }: { event: TourEvent; course: Course; week: number; players: number; hasCut: boolean; status: string; children: ReactNode }) {
+function EventHeader({ event, course, week, players, hasCut, status, compact, children }: { event: TourEvent; course: Course; week: number; players: number; hasCut: boolean; status: string; compact?: boolean; children: ReactNode }) {
   return (
-    <section className="panel">
+    <section className={`panel${compact ? " event-head-compact" : ""}`}>
       <CoursePhoto course={course} />
       <div className="panel-head">
         <div>
@@ -94,7 +94,7 @@ function LiveWeekView({ world, game, lw }: { world: World; game: Game; lw: LiveW
   return (
     <main>
       <EventTabs names={lw.events.map((e) => e.event.name)} which={which} setWhich={setWhich} />
-      <EventHeader event={ev.event} course={t.config.course} week={world.week} players={t.config.field.length} hasCut={t.config.cutTop !== undefined} status={status}>
+      <EventHeader event={ev.event} course={t.config.course} week={world.week} players={t.config.field.length} hasCut={t.config.cutTop !== undefined} status={status} compact={inHbh}>
         {!inHbh && !done(ev) && stillIn && (
           <>
             <button className="btn btn-primary" onClick={() => game.liveAct(() => { startLiveRound(t); autoFinishRound(t); })}>Play round {next}</button>
