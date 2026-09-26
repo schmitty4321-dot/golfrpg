@@ -1,0 +1,19 @@
+{
+  "name": "fairway-manager",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Golf management RPG: run a player agency in the spirit of Football Manager / OOTP.",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "calibrate": "tsx scripts/calibrate.ts",
+    "demo": "tsx scripts/demo.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.3",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.2"
+  }
+}
