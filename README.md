@@ -16,12 +16,15 @@ On Windows, run these in PowerShell:
 git clone https://github.com/schmitty4321-dot/golfrpg.git
 cd golfrpg
 npm install
-npm run play           # play a season in the terminal
+npm run dev            # play in your browser: open the address it prints (http://localhost:5173)
 ```
+
+`npm run play` runs the older terminal version of the same game.
 
 Other commands:
 
 ```bash
+npm run build          # build the browser game into dist/ (open with npm run preview)
 npm test               # unit tests
 npm run typecheck
 npm run demo -- 42     # simulate one tournament (seed 42) and print the leaderboard
@@ -31,7 +34,12 @@ npm run calibrate      # 200 events per course vs. real tour reference numbers
 ## Status
 
 - **Step 1 (done): the tournament engine** (`src/engine/`).
-- **Step 2 (done): one season, one golfer** (`src/season/`, played with `npm run play`).
+- **Step 2 (done): one season, one golfer** (`src/season/`).
+- **Browser interface (done)** (`src/ui/`): React + Vite. It has a weekly "where does he play?"
+  screen with entry status and course fit, leaderboards with hole-by-hole scorecards and a
+  strokes-gained chart, points, world and money lists with the card lines, a season calendar
+  with winners, the player card, finances, and an end-of-season review. It saves itself in
+  the browser (IndexedDB), can export and import save files, and supports light and dark themes.
 
 ### Playing a season
 
@@ -148,6 +156,7 @@ Features that could set it apart, to fold in along the way:
 ```
 src/engine/   attributes, types, rng, skill model, courses (+ generator), round & tournament sim, purse, players
 src/season/   calendar, entries & fields, points & world ranking, weekly sim, world creation & season end, saves
-scripts/      play.ts (the game), demo.ts, calibrate.ts
+src/ui/       browser game: App, screens/, components/, useGame (state + autosave)
+scripts/      play.ts (terminal version), demo.ts, calibrate.ts
 tests/        vitest suites
 ```
