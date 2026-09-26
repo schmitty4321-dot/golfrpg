@@ -408,6 +408,17 @@ Features that could set it apart, to fold in along the way:
 - Rule and equipment eras (ball rollback, distance changes) that shift which archetypes win.
 - Scenario starts ("32-year-old journeyman, one year left on his card").
 
+### To do
+
+- **Header photos for the other 30 courses.** The event screen shows a photo of the venue for 15 courses
+  (Wikimedia Commons, credited). Still missing: PGA West (Stadium), TPC Scottsdale, Riviera, PGA National
+  (Champion), Bay Hill, Grand Reserve, Memorial Park, TPC San Antonio (Oaks), Quail Hollow, the Dunes Club,
+  TPC Craig Ranch, Colonial, Osprey Valley (North), TPC River Highlands, TPC Deere Run, Hurstbourne, Royal
+  Birkdale, Corales, TPC Twin Cities, Detroit Golf Club, Sedgefield, TPC Southwind, Walnut Cove, Black Desert,
+  Yokohama, Port Royal, Vidanta Vallarta, El Cardonal and Barton Creek (Fazio Canyons). Use freely licensed
+  photos only (Commons categories were the reliable source; keyword search returned wrong courses), check each
+  one is really the venue, and add it to `src/engine/realCoursePhotos.json` and `public/courses/`.
+
 ## Layout
 
 ```
