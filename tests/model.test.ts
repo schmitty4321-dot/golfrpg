@@ -132,3 +132,12 @@ describe("temporary adjustments", () => {
     expect(b.putting).toBeCloseTo(a.putting, 9);
   });
 });
+
+describe("names", () => {
+  it("stays unique even when the name pools run dry", () => {
+    const rng = createRng(9);
+    const used = new Set<string>();
+    const names = Array.from({ length: 3000 }, () => generatePlayer(rng, { tier: "tour", nationality: "Ireland", usedNames: used }).name);
+    expect(new Set(names).size).toBe(names.length);
+  });
+});

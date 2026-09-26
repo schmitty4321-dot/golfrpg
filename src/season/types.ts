@@ -334,6 +334,8 @@ export interface World {
   /** Coaches available to hire (a coach can work with several players). */
   coaches: Coach[];
   history: History;
+  /** Set once anything has been changed in the editor, like an "edited" save in FM. */
+  edited?: boolean;
 }
 
 export const absWeek = (season: number, week: number): number => season * 52 + week;

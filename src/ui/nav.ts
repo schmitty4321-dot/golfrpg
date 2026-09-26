@@ -1,6 +1,7 @@
-export type Tab = "home" | "agency" | "scouting" | "tournament" | "standings" | "calendar" | "player" | "training" | "finances" | "history" | "career";
+export type Tab = "home" | "agency" | "scouting" | "tournament" | "standings" | "calendar" | "player" | "training" | "finances" | "history" | "editor" | "career";
 
-export const TABS: { id: Tab; label: string }[] = [
+/** Tabs in the bar; `more: true` ones live in the "More" menu to keep the bar on one line. */
+export const TABS: { id: Tab; label: string; more?: boolean }[] = [
   { id: "home", label: "This week" },
   { id: "agency", label: "Agency" },
   { id: "scouting", label: "Scouting" },
@@ -10,8 +11,9 @@ export const TABS: { id: Tab; label: string }[] = [
   { id: "player", label: "Player" },
   { id: "training", label: "Training" },
   { id: "finances", label: "Finances" },
-  { id: "history", label: "History" },
-  { id: "career", label: "Save" },
+  { id: "history", label: "History", more: true },
+  { id: "editor", label: "Editor", more: true },
+  { id: "career", label: "Save", more: true },
 ];
 
 /** Navigate to a tab, optionally opening a specific event's leaderboard. */

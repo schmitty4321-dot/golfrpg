@@ -18,6 +18,7 @@ import { STANDARD_COMMISSION, addReputation, agencySeasonEnd, clients, assignRiv
 import { generateScouts } from "./scouting";
 import { AMATEUR_CLASS_SIZE, PRO_AGE, amateurPotential, amateurRanking, generateAmateur } from "./amateurs";
 import { closeSeasonRecord, considerForHallOfFame, newHistory } from "./history";
+import { databasePlayer, type DatabasePlayer } from "./editor";
 import { expireSponsors } from "./sponsors";
 import { canPlayDev, devPriority, courseFit, courseById, eventsInWeek, isInvitational, mixSeed, planWeek, priorityCompare, MONDAY_SPOTS } from "./entries";
 import { pointsList, rankMap } from "./points";
@@ -107,6 +108,12 @@ export interface CreateWorldOptions {
   seed: number;
   scenario: Scenario;
   agencyName?: string;
+  /**
+   * Players from a database file. They replace generated players: pros
+   * fill the tour first (topped up with generated players if there are too
+   * few for full fields), amateurs join the amateur ranks.
+   */
+  database?: DatabasePlayer[];
 }
 
 /**
@@ -117,10 +124,21 @@ export interface CreateWorldOptions {
 export function createWorld(opts: CreateWorldOptions): World {
   const rng = createRng(opts.seed);
   const { courses, schedule } = buildTour(opts.seed);
-  const usedNames = new Set<string>();
-  const players: Player[] = [];
-  for (const [tier, n] of POOL) for (let i = 0; i < n; i++) players.push(generatePlayer(rng, { tier, usedNames }));
-  prefixIds(players, "w");
+  const usedNames = new Set<string>(opts.database?.map((p) => p.name) ?? []);
+  const isDbAmateur = (p: DatabasePlayer) => p.status === "amateur" || (p.status === undefined && p.age <= 21);
+  const dbPros = (opts.database ?? []).filter((p) => !isDbAmateur(p));
+  const dbAmateurs = (opts.database ?? []).filter(isDbAmateur);
+  const players: Player[] = dbPros.map((p, i) => databasePlayer(p, `d${i + 1}`));
+  // Top up with generated players, keeping the usual mix, until fields can fill.
+  const generated: Player[] = [];
+  for (const [tier, n] of POOL) for (let i = 0; i < n; i++) generated.push(generatePlayer(rng, { tier, usedNames }));
+  const needed = Math.max(0, TARGET_POOL_SIZE - players.length);
+  // An even spread across the tiers, so a small database still gets stars, journeymen and hopefuls around it.
+  const step = Math.max(1, Math.floor(generated.length / Math.max(1, needed)));
+  const filler = opts.database ? generated.filter((_, i) => i % step === 0).slice(0, needed) : generated;
+  prefixIds(filler, "w");
+  players.push(...filler);
+  const dbPotential = new Map(dbPros.map((p, i) => [`d${i + 1}`, p.potential]));
 
   // Seed statuses from quality, with some noise: the best 125 are exempt, and so on.
   const byQuality = [...players].sort((a, b) => quality(b) + rng.normal(0, 0.3) - (quality(a) + rng.normal(0, 0.3)));
@@ -141,8 +159,14 @@ export function createWorld(opts: CreateWorldOptions): World {
     coaches: generateCoaches(opts.seed),
     history: newHistory(),
   };
-  // Three classes of amateurs already coming through.
-  for (let i = 0; i < AMATEUR_CLASS_SIZE * 3; i++) {
+  for (const [id, pot] of dbPotential) if (pot !== undefined) world.players[id]!.development.potential = pot;
+  // Amateurs from the database, then generated classes to fill three years' worth.
+  dbAmateurs.forEach((p, i) => {
+    const wp = makeAmateur(databasePlayer(p, `da${i + 1}`), rng);
+    if (p.potential !== undefined) wp.development.potential = p.potential;
+    world.players[wp.player.id] = wp;
+  });
+  for (let i = dbAmateurs.length; i < AMATEUR_CLASS_SIZE * 3; i++) {
     const p = generateAmateur(rng, `a${i + 1}`, 16 + (i % 6), usedNames);
     world.players[p.id] = makeAmateur(p, rng);
   }

@@ -1,14 +1,15 @@
 import { useState } from "react";
-import { SCENARIOS, type Scenario } from "../../season";
+import { SCENARIOS, parsePlayerDatabase, type DatabasePlayer, type Scenario } from "../../season";
 import type { Game } from "../useGame";
 
 export function NewGame({ game }: { game: Game }) {
   const [scenario, setScenario] = useState<Scenario>("rookie");
   const [seed, setSeed] = useState("");
   const [name, setName] = useState("");
+  const [db, setDb] = useState<{ players: DatabasePlayer[]; errors: string[]; file: string } | null>(null);
   const start = () => {
     const n = seed.trim() === "" ? Math.floor(Math.random() * 1e9) : Number(seed) || hash(seed);
-    void game.newGame(scenario, n, name.trim() || undefined);
+    void game.newGame(scenario, n, name.trim() || undefined, db?.players.length ? db.players : undefined);
   };
   return (
     <main>
@@ -38,6 +39,27 @@ export function NewGame({ game }: { game: Game }) {
           <button className="btn btn-primary" onClick={start}>Start career</button>
         </div>
         <p className="muted small">The same seed always builds the same world: players, courses and calendar.</p>
+        <div className="btn-row" style={{ alignItems: "center", marginTop: 8 }}>
+          <label className="secondary small" htmlFor="db">Player database (optional)</label>
+          <input
+            id="db"
+            type="file"
+            accept="application/json,.json"
+            onChange={async (e) => {
+              const f = e.target.files?.[0];
+              if (!f) return setDb(null);
+              setDb({ ...parsePlayerDatabase(await f.text()), file: f.name });
+            }}
+          />
+        </div>
+        {db && (
+          <p className={`small ${db.players.length ? "" : "bad-text"}`} role="status">
+            {db.players.length
+              ? `${db.file}: ${db.players.length} players will be used, and generated players fill any gaps so every field is full.`
+              : "No usable players in that file."}
+            {db.errors.length > 0 && ` ${db.errors.length} entr${db.errors.length === 1 ? "y was" : "ies were"} skipped (${db.errors[0]}${db.errors.length > 1 ? " …" : ""}).`}
+          </p>
+        )}
       </section>
     </main>
   );

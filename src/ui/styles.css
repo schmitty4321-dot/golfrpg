@@ -240,3 +240,19 @@ select, input[type="text"], input[type="number"] {
 .attr.range-row { grid-template-columns: minmax(0, 1fr) 70px 46px; }
 .attr.range-row > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 @media (max-width: 1100px) { .topbar-season { display: none; } }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px 14px; }
+.form-grid label { display: grid; gap: 4px; font-size: 12px; color: var(--text-2); }
+.attr input[type="number"] { width: 64px; padding: 3px 6px; }
+.hole-table td { padding: 3px 4px; }
+.hole-table input[type="number"] { width: 72px; padding: 3px 6px; }
+.hole-table select { padding: 3px 6px; }
+.more { position: relative; }
+.nav .more > button { white-space: nowrap; }
+.more-menu {
+  position: fixed; z-index: 20; min-width: 150px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 4px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18); display: grid;
+}
+.more-menu button { text-align: left; background: none; border: 0; color: var(--text); padding: 8px 10px; border-radius: 6px; cursor: pointer; }
+.more-menu button:hover, .more-menu button[aria-current="page"] { background: var(--surface-2); }
+@media (max-width: 600px) { .brand-name { display: none; } }

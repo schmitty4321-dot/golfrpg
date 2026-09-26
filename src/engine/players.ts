@@ -78,10 +78,15 @@ function uniqueName(rng: Rng, nation: { first: string[]; last: string[] }, used?
       return name;
     }
   }
-  // Pool exhausted: fall back to a middle initial, which is always unique enough.
-  const name = `${rng.pick(nation.first)} ${String.fromCharCode(65 + rng.int(0, 25))}. ${rng.pick(nation.last)}`;
-  used?.add(name);
-  return name;
+  // Pool exhausted: add a middle initial, still checking it's unique.
+  for (let i = 0; ; i++) {
+    const initial = String.fromCharCode(65 + ((rng.int(0, 25) + i) % 26));
+    const name = `${rng.pick(nation.first)} ${initial}. ${rng.pick(nation.last)}${i > 200 ? ` ${i}` : ""}`;
+    if (!used?.has(name)) {
+      used?.add(name);
+      return name;
+    }
+  }
 }
 
 export function generatePlayer(rng: Rng, opts: GenerateOptions): Player {

@@ -6,6 +6,7 @@ import { Scouting } from "./screens/Scouting";
 import { Career } from "./screens/Career";
 import { Finances } from "./screens/Finances";
 import { HistoryScreen } from "./screens/History";
+import { Editor } from "./screens/Editor";
 import { Home } from "./screens/Home";
 import { NewGame } from "./screens/NewGame";
 import { PlayerScreen } from "./screens/PlayerScreen";
@@ -14,6 +15,7 @@ import { Standings } from "./screens/Standings";
 import { Tournament } from "./screens/Tournament";
 import { Training } from "./screens/Training";
 import { TABS, type Go, type Tab } from "./nav";
+import { MoreMenu } from "./components/MoreMenu";
 import { useGame } from "./useGame";
 
 type Theme = "system" | "light" | "dark";
@@ -59,16 +61,18 @@ export function App() {
           <span className="brand-mark" aria-hidden>
             <svg width="12" height="14" viewBox="0 0 12 14"><path d="M2 1v13" stroke="#fff" strokeWidth="1.6" /><path d="M2 1l8 3.2L2 7.4z" fill="#fff" /></svg>
           </span>
-          Fairway Manager
+          <span className="brand-name">Fairway Manager</span>
         </div>
         {world && (
           <nav className="nav" aria-label="Main">
-            {TABS.map((t) => (
+            {TABS.filter((t) => !t.more).map((t) => (
               <button key={t.id} aria-current={tab === t.id ? "page" : undefined} onClick={() => go(t.id)}>{t.label}</button>
             ))}
+            <MoreMenu tab={tab} go={go} />
           </nav>
         )}
         <div className="topbar-right" style={{ marginLeft: world ? undefined : "auto" }}>
+          {world?.edited && <span className="badge" title="This world has been changed in the editor">Edited</span>}
           {world && <span className="topbar-season">S{world.season} · Wk {Math.min(world.week, 36)}</span>}
           <button className="btn btn-small" onClick={() => setTheme(nextTheme[theme])} title={`Theme: ${theme} (click to switch)`} aria-label={`Theme: ${theme}`}>
             {theme === "dark" ? "Dark" : theme === "light" ? "Light" : "Auto"}
@@ -102,6 +106,8 @@ export function App() {
           <div style={{ maxWidth: 1240, margin: "0 auto", padding: "20px 20px 0" }}><ClientPicker world={world} value={clientId!} onChange={setPicked} /></div>
           <Training world={world} game={game} clientId={clientId!} />
         </>
+      ) : tab === "editor" ? (
+        <Editor world={world} game={game} />
       ) : tab === "history" ? (
         <HistoryScreen world={world} />
       ) : tab === "finances" ? (

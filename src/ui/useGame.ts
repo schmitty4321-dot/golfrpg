@@ -8,6 +8,7 @@ import {
   playWeek,
   serializeWorld,
   type ClientChoices,
+  type DatabasePlayer,
   type Scenario,
   type SeasonSummary,
   type WeekReport,
@@ -59,10 +60,10 @@ export function useGame() {
   }, [publish]);
 
   const newGame = useCallback(
-    async (scenario: Scenario, seed: number, agencyName?: string) => {
+    async (scenario: Scenario, seed: number, agencyName?: string, database?: DatabasePlayer[]) => {
       publish({ busy: "Building the golf world and playing a warm-up season…" });
       await nextFrame();
-      worldRef.current = createWorld({ seed, scenario, agencyName });
+      worldRef.current = createWorld({ seed, scenario, agencyName, database });
       reportsRef.current = [];
       publish({ busy: null, review: null });
       await persist();

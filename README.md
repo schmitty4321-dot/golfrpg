@@ -123,6 +123,37 @@ npm run calibrate      # 200 events per course vs. real tour reference numbers
 - **Hall of Fame:** players are elected on retirement, on wins, majors and points titles, and there's a list of
   active players on course for it. Established pros start with a career behind them, sized to their standing.
 - Courses play slightly harder than before, so scoring stays realistic once the world matures.
+- **Editors (done)** (`src/season/editor.ts`, and More → Editor in the game).
+
+### Editors
+
+Changing anything marks the world **Edited**, like Football Manager's in-game editor. The editor shows true
+values, not scouting reports.
+
+- **Players:** edit anyone's name, nationality, age, peak age, status, ceiling, home greens, comfort on each
+  style of course, and every attribute including the hidden ones. You can also create new players, who
+  join the tour straight away. Invalid values are explained, not silently fixed.
+- **Courses:** edit any course hole by hole (par, yards, fairway width, hazard, bunkers, wind exposure) and
+  course-wide (style, grass, green speed, rough, wind, firmness). A live panel shows how it plays: expected
+  score for a tour-average player, and what it rewards (length, accuracy, irons, short game, putting)
+  compared with a typical venue. You can also design a new course from a generated layout of any style,
+  or duplicate one.
+- **Calendar:** rename events, change purses, and move any event to any venue. That's how you host your own event
+  at a course you designed.
+- **Sharing:** export the player database or courses as JSON files, import other people's courses, and
+  start a new career from a player database (New Career → Player database). Hand-made player files only
+  need names: missing attributes default to a tour average (12). Pros from the file fill the tour first,
+  generated players top it up so every field is full, and players marked `"status": "amateur"` (or aged 21 and
+  under) join the amateur ranks.
+
+Minimal player database:
+
+```json
+{ "format": "fairway-manager-players", "version": 1, "players": [
+  { "name": "Tiger Lawson", "nationality": "USA", "age": 29, "potential": 17,
+    "attributes": { "drivingDistance": 18, "midIrons": 19, "shortPutts": 18, "sundayNerves": 20 } }
+] }
+```
 
 ### Playing a season
 
@@ -219,7 +250,7 @@ playoffs are a little frequent.
    and hidden attributes seen only through them), contracts and commission, sponsors
    and equipment deals, caddies with their own attributes and chemistry,
    morale, media, rivalries and players wanting to leave.
-5. ✅ **The world and its history** (editors still to come): pathways (amateur, college, Q-School,
+5. ✅ **The world and its history**: pathways (amateur, college, Q-School,
    developmental tour, main tour, exemptions, conditional status), a generated
    amateur class each year with regional strengths, records, major winners,
    Hall of Fame voting, head-to-head stats, and full database and course editors so the
