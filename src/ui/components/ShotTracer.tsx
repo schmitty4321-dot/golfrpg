@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useHoleMap } from "../holeMaps";
+import { aerialMatrix, useHoleMap } from "../holeMaps";
 import { traceHole, traceSeed, type HoleTrace, type PlayerEventResult, type Pt, type Shot, type TournamentResult } from "../../engine";
 
 interface Props {
@@ -36,6 +36,7 @@ export function ShotTracer({ result, row, round: startRound, hole: startHole, on
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(true);
   const [keyOnly, setKeyOnly] = useState(false);
+  const [photo, setPhoto] = useState(true);
   const course = result.course;
   const card = row.holes[round]!;
   const h = course.holes[hole]!;
@@ -46,6 +47,8 @@ export function ShotTracer({ result, row, round: startRound, hole: startHole, on
     [course, h, card, hole, row.player, wind, result.name, round],
   );
   const holesToShow = course.holes.map((_, i) => i).filter((i) => !keyOnly || card[i] !== course.holes[i]!.par || i === hole);
+  const map = useHoleMap(trace.layout.real);
+  const hasAerial = !!map?.aerial;
 
   // Auto-play: reveal a shot every 900 ms, then move to the next hole.
   useEffect(() => {
@@ -98,8 +101,21 @@ export function ShotTracer({ result, row, round: startRound, hole: startHole, on
 
         <div className="tracer-body">
           <div>
-            <HoleDrawing trace={trace} step={step} />
-            {trace.layout.real && <p className="muted small" style={{ margin: "4px 0 0" }}>Hole map © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors</p>}
+            <HoleDrawing trace={trace} step={step} photo={photo} map={map} />
+            {trace.layout.real && (
+              <div className="hole-credit">
+                {hasAerial && (
+                  <div className="tabs" role="tablist" aria-label="Hole view" style={{ margin: 0 }}>
+                    <button role="tab" aria-selected={photo} onClick={() => setPhoto(true)}>Photo</button>
+                    <button role="tab" aria-selected={!photo} onClick={() => setPhoto(false)}>Map</button>
+                  </div>
+                )}
+                <span className="muted small">
+                  {photo && hasAerial ? "Aerial photo: USDA NAIP / USGS (public domain) · " : ""}Hole map ©{" "}
+                  <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors
+                </span>
+              </div>
+            )}
           </div>
           <div>
             <p style={{ marginTop: 0 }}>
@@ -130,7 +146,7 @@ export function ShotTracer({ result, row, round: startRound, hole: startHole, on
   );
 }
 
-function HoleDrawing({ trace, step }: { trace: HoleTrace; step: number }) {
+function HoleDrawing({ trace, step, photo, map }: { trace: HoleTrace; step: number; photo: boolean; map: ReturnType<typeof useHoleMap> }) {
   const L = trace.layout;
   const { minX, maxX, minY, maxY } = L.bounds;
   const W = maxX - minX;
@@ -153,14 +169,25 @@ function HoleDrawing({ trace, step }: { trace: HoleTrace; step: number }) {
     return `M${a.x},${a.y} Q${mx + nx * bend},${my + ny * bend} ${b.x},${b.y}`;
   };
   const bg = L.style === "desert" ? "var(--c-desert)" : L.style === "links" ? "var(--c-links)" : "var(--c-rough)";
-  const map = useHoleMap(L.real);
   const shapes = (list: number[][][] | undefined, fill: string, key: string) =>
     list?.map((q, i) => <polygon key={`${key}${i}`} points={poly(q.map(([x, y]) => ({ x: x!, y: y! })))} fill={fill} />);
   return (
     <svg className="hole-svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Hole diagram: par ${L.par}, ${L.yards} yards. ${trace.shots.slice(0, step).map((s) => s.text).join(" ")}`}>
       <defs><clipPath id="hole-clip"><rect x={0} y={0} width={W} height={H} /></clipPath></defs>
       <rect x={0} y={0} width={W} height={H} fill={bg} />
-      {map ? (
+      {map?.aerial && photo ? (
+        <g clipPath="url(#hole-clip)">
+          <image
+            href={`${import.meta.env.BASE_URL}${map.aerial.file}`}
+            x={map.aerial.box[0]}
+            y={-map.aerial.box[3]}
+            width={map.aerial.box[1] - map.aerial.box[0]}
+            height={map.aerial.box[3] - map.aerial.box[2]}
+            preserveAspectRatio="none"
+            transform={`matrix(${aerialMatrix(map.frame, minX, maxY).join(" ")})`}
+          />
+        </g>
+      ) : map ? (
         <>
           {/* The real hole, from its OpenStreetMap outlines (clipped: neighbouring holes run off the edge). */}
           <g clipPath="url(#hole-clip)">

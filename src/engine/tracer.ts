@@ -397,7 +397,7 @@ export function traceHole({ course, hole, score, player, windMph = 0, seed }: Tr
     shots.push({ stroke, kind: "penalty", club: "", from: cur, to: drop, lie: "rough", yards: 0, text });
     cur = drop;
   };
-  /** Where a ball that finds the water ends up: in the hole's real water near `target`, when it has any. */
+  /** Where a ball that finds the water ends up: in the hole's real water near `target`, when there's some close by. */
   const inWater = (target: Pt): Pt | null => {
     let best: Pt | null = null;
     let bestD = Infinity;
@@ -413,7 +413,7 @@ export function traceHole({ course, hole, score, player, windMph = 0, seed }: Tr
         }
       }
     }
-    return best;
+    return bestD <= 70 ? best : null;
   };
   /** A spot on the green `feet` from the pin, on the side the ball came from. */
   const onGreen = (feet: number, from: Pt): Pt => {

@@ -158,10 +158,12 @@ for cid,v in sel.items():
                 if span>80: fw=round(max(18,min(55,a/span)))
         eng[str(i+1)]={'path':rnd(path),'green':[round(gc[0],1),round(gc[1],1),round(gr,1)],'bunkers':bunk,'water':water,'trees':trees,**({'fw':fw} if fw else {})}
         draw['bounds']=[round(bx[0]),round(bx[1]),by[0],round(by[1])]
+        # How this hole sits on the course map: origin (course yards), rotation, scale.
+        draw['frame']=[round(o[0],2),round(o[1],2),round(th,5),round(s,5)]
         holes_out[str(i+1)]=draw
     if eng:
         engine[cid]=eng
-        json.dump({'attribution':'© OpenStreetMap contributors (ODbL)','holes':holes_out},open(f'{OUTDIR}/{cid}.json','w'),separators=(',',':'))
+        json.dump({'attribution':'© OpenStreetMap contributors (ODbL)','origin':[lat0,lon0],'holes':holes_out},open(f'{OUTDIR}/{cid}.json','w'),separators=(',',':'))
     report[cid]={'matched':len(pick),'shift':shift,'avgcost':round(total/18,1)}
     print(f"{cid:28} matched {len(pick):2}/18 shift={shift} avgcost={total/18:5.1f} draw={os.path.getsize(f'{OUTDIR}/{cid}.json')//1024 if eng else 0}KB",flush=True)
 ENG=os.path.join(ROOT,'src/engine/realHoles.json')

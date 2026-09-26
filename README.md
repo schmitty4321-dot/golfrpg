@@ -233,9 +233,15 @@ and cart paths. Neighbouring holes show around the edges, as they do from above.
   Corales, Sedgefield, Vidanta Vallarta, the Dunes Club, Walnut Cove, El Cardonal and Yokohama
   have none yet.
 
+**Aerial photos:** on the 31 real courses in the US and Puerto Rico, the replay shows the hole on a real
+aerial photo by default. Switch between **Photo** and **Map** under the drawing. The photos are
+USDA NAIP imagery from the USGS National Map, which is public domain. There's one photo per course
+(about 1 pixel per yard, `public/aerial/`), rotated and scaled under each hole by the same transform
+as its outlines (`scripts/osm/aerial.py`).
+
 The shot logic uses a compact summary bundled with the game (`src/engine/realHoles.json`). The
 full outlines load one course at a time, when a replay opens (`public/holes/`). To rebuild both:
-`python3 scripts/osm/fetch.py && python3 scripts/osm/buildholes.py`. The course list is in
+`python3 scripts/osm/fetch.py && python3 scripts/osm/buildholes.py && python3 scripts/osm/aerial.py`. The course list is in
 `scripts/osm/courses.json`. Map data © OpenStreetMap contributors, under the ODbL.
 
 ### Player stats

@@ -351,3 +351,5 @@ select, input[type="text"], input[type="number"] {
 /* Keep the player's name in view while scrolling a wide stats table. */
 .stats-table th:nth-child(2), .stats-table td:nth-child(2) { position: sticky; left: 0; z-index: 1; background: var(--surface); box-shadow: 1px 0 0 var(--border); }
 .stats-table tr.me td:nth-child(2) { background: var(--highlight); }
+.hole-credit { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin-top: 6px; }
+.hole-credit .tabs button { padding: 2px 10px; font-size: 12px; }
