@@ -14,8 +14,9 @@ import {
   type LiveTournament,
 } from "../../engine";
 import { useHoleMap } from "../holeMaps";
-import { HoleDrawing, LIE_WORDS, scoreClass } from "./ShotTracer";
+import { HoleDrawing, LIE_WORDS } from "./ShotTracer";
 import { toPar } from "../format";
+import { LiveScorecard } from "./LiveScorecard";
 
 interface Played {
   index: number;
@@ -110,6 +111,15 @@ export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTourname
     return { index: i, trace };
   }
 
+  /** Watch a hole already played this round again. */
+  function replay(i: number) {
+    const hole = course.holes[i]!;
+    const call = entry.calls?.[t.round - 1]?.[i] ?? null;
+    const trace = traceHole({ course, hole, score: today[i]!, player, windMph: wind(), seed: traceSeed(t.config.name, player.id, t.round - 1, i), call });
+    setPlayed({ index: i, trace });
+    setStep(0);
+  }
+
   function play() {
     const call = Object.keys(calls).length ? calls : null;
     const p = playOne(call);
@@ -163,14 +173,9 @@ export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTourname
             {me && ` · ${toPar(me.toPar)} overall · ${tied ? "T" : ""}${myPos}${myPos === 1 ? " (leading)" : ""}`}
           </span>
         </div>
-        <div className="hbh-card" aria-label="Today's scorecard">
-          {course.holes.map((h, i) => (
-            <span key={i} className={i < today.length ? scoreClass(today[i]!, h.par) : "muted"} title={`Hole ${i + 1}, par ${h.par}`}>
-              {i < today.length ? today[i] : "·"}
-            </span>
-          ))}
-        </div>
       </div>
+
+      <LiveScorecard course={course} scores={today} current={cur ? index : null} onPick={replay} />
 
       {showHole && (
         <p className="hbh-hole">
