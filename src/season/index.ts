@@ -10,3 +10,5 @@ export * from "./staff";
 export * from "./agency";
 export * from "./scouting";
 export * from "./sponsors";
+export * from "./amateurs";
+export * from "./history";

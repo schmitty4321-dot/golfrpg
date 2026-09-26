@@ -180,7 +180,8 @@ export function endOfWeek(world: World, competed: Set<string>, rng: Rng): void {
     const isClient = !!wp.client;
     const plan = wp.client ? wp.client.training : { focus: "balanced" as const, intensity: "normal" as const };
     const quality = isClient ? staffQuality(world, wp.player.id) : impliedStaff(wp);
-    const played = competed.has(wp.player.id);
+    // Amateurs are playing college and amateur events most weeks.
+    const played = competed.has(wp.player.id) || wp.career.status === "amateur";
 
     if (wp.injury) {
       wp.injury.weeksLeft--;

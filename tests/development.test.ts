@@ -17,6 +17,7 @@ import {
   releaseCoach,
   seasonChange,
   serializeWorld,
+  SAVE_VERSION,
   startRebuild,
   abandonRebuild,
   weeklyStaffCost,
@@ -246,7 +247,9 @@ describe("seasons and saves", () => {
 
   it.each([1, 2] as const)("upgrades a version-%i save to an agency with one client", (version) => {
     const w = deserializeWorld(oldSave(version));
-    expect(w.version).toBe(3);
+    expect(w.version).toBe(SAVE_VERSION);
+    expect(w.schedule.some((e) => e.tier === "dev")).toBe(true);
+    expect(Object.values(w.players).some((wp) => wp.career.status === "amateur")).toBe(true);
     expect(w.clientIds).toEqual(["client"]);
     const m = w.players.client!.client!;
     expect(m.training.focus).toBe(version === 2 ? "putting" : "balanced");

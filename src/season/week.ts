@@ -5,6 +5,7 @@ import { owgrPointsFor, owgrWinnerPoints, seasonPointsFor, tieCounts } from "./p
 import { OFFICE_COST, addReputation, clients, reputationFor, updateHappiness } from "./agency";
 import { scoutingWeek, weeklyScoutCost } from "./scouting";
 import { sponsorBonus, sponsorWeek } from "./sponsors";
+import { recordEvent } from "./history";
 import { endOfWeek } from "./staff";
 import { absWeek, type EventRecord, type TourEvent, type World } from "./types";
 
@@ -105,13 +106,19 @@ export function playWeek(world: World, choices: ClientChoices = {}): WeekReport 
         via: f.mondayQualifiers.includes(r.player.id) ? "monday" : "field",
       };
       c.results.push(record);
-      c.seasonPoints += record.seasonPoints;
+      // Developmental tour points go on their own list.
+      if (f.event.tier === "dev") c.devPoints += record.seasonPoints;
+      else c.seasonPoints += record.seasonPoints;
       c.seasonEarnings += r.earnings;
       c.careerEarnings += r.earnings;
-      c.seasonEvents++;
-      if (r.position === 1) {
+      c.careerEvents++;
+      if (r.madeCut) c.careerCuts++;
+      if (r.madeCut && r.position <= 10) c.careerTop10s++;
+      if (f.event.tier !== "dev") c.seasonEvents++;
+      if (r.position === 1 && f.event.tier !== "dev") {
         c.seasonWins++;
         c.careerWins++;
+        if (f.event.tier === "major") c.careerMajors++;
       }
       if (record.owgrPoints > 0) c.owgr.push({ absWeek: absWeek(world.season, world.week), points: record.owgrPoints });
 
@@ -141,7 +148,12 @@ export function playWeek(world: World, choices: ClientChoices = {}): WeekReport 
       }
     }
 
+    recordEvent(world, f.event, result);
     const w = result.leaderboard[0]!;
+    if (f.event.tier === "dev" && !world.players[w.player.id]?.client) {
+      report.results.push({ event: f.event, result, field: f });
+      return; // dev tour winners don't make the headlines unless they're yours
+    }
     world.news.unshift(`Week ${world.week}: ${w.player.name} wins ${theEvent(f.event.name)} at ${w.toPar > 0 ? "+" : ""}${w.toPar}.`);
     report.results.push({ event: f.event, result, field: f });
   });

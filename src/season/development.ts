@@ -63,9 +63,13 @@ const STRENGTH_ROOM = 4;
 /** A hidden ceiling for a player, by age: young players have room to grow. */
 export function initialPotential(p: Player, rng: Rng): number {
   const now = overall(p);
-  const room = p.age <= 22 ? Math.abs(rng.normal(2.5, 1.5)) : p.age <= 27 ? Math.abs(rng.normal(1, 1)) : Math.max(0, rng.normal(0.3, 0.5));
-  return Math.round(Math.min(18.5, now + room) * 10) / 10;
+  const room = p.age <= 22 ? Math.min(4.5, Math.abs(rng.normal(2.5, 1.3))) : p.age <= 27 ? Math.min(2.5, Math.abs(rng.normal(1, 0.8))) : Math.max(0, rng.normal(0.3, 0.5));
+  // A generational talent is about 17: the very best seasons on record, not beyond.
+  return Math.round(Math.min(Math.max(now, MAX_POTENTIAL), now + room) * 10) / 10;
 }
+
+/** Ceilings top out here unless a player already starts above it. */
+export const MAX_POTENTIAL = 17;
 
 export function newDevelopment(p: Player, rng: Rng): Development {
   return { potential: initialPotential(p, rng), progress: {}, seasonStart: { ...p.attributes } };

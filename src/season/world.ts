@@ -4,21 +4,25 @@ import {
   createRng,
   expectedStrokesGained,
   generatePlayer,
+  getCourse,
+  simulateTournament,
   totalSg,
   type Player,
   type PlayerTier,
   type Rng,
 } from "../engine";
-import { SEASON_WEEKS, buildTour } from "./calendar";
+import { DEV_GRADUATES, SEASON_WEEKS, buildTour } from "./calendar";
 import { newDevelopment, overall } from "./development";
 import { generateCoaches, offseason, OFFSEASON_WEEKS } from "./staff";
 import { STANDARD_COMMISSION, addReputation, agencySeasonEnd, clients, assignRivalAgents, emptyFinances, newAgency, newManagement } from "./agency";
 import { generateScouts } from "./scouting";
+import { AMATEUR_CLASS_SIZE, PRO_AGE, amateurPotential, amateurRanking, generateAmateur } from "./amateurs";
+import { closeSeasonRecord, considerForHallOfFame, newHistory } from "./history";
 import { expireSponsors } from "./sponsors";
-import { courseFit, courseById, eventsInWeek, isInvitational, mixSeed, planWeek, priorityCompare, MONDAY_SPOTS } from "./entries";
+import { canPlayDev, devPriority, courseFit, courseById, eventsInWeek, isInvitational, mixSeed, planWeek, priorityCompare, MONDAY_SPOTS } from "./entries";
 import { pointsList, rankMap } from "./points";
 import type { Course } from "../engine";
-import { SAVE_VERSION, absWeek, type Career, type ClientSeasonSummary, type SeasonSummary, type TourEvent, type TourStatus, type World, type WorldPlayer } from "./types";
+import { SAVE_VERSION, absWeek, type Career, type ClientSeasonSummary, type SeasonRecord, type SeasonSummary, type TourEvent, type TourStatus, type World, type WorldPlayer } from "./types";
 import { playWeek } from "./week";
 
 /** How your first client's career starts. */
@@ -47,13 +51,15 @@ const POOL: [PlayerTier, number][] = [
   ["elite", 12],
   ["tour", 150],
   ["fringe", 60],
-  ["college", 40],
+  ["fringe", 50],
+  ["college", 70],
 ];
 const TARGET_POOL_SIZE = POOL.reduce((s, [, n]) => s + n, 0);
 /** Card thresholds on the season points list. */
 export const FULL_CARD = 125;
 export const CONDITIONAL_CARD = 150;
-const GRADUATES = 30;
+/** Q-School hands out this many cards. */
+export const QSCHOOL_CARDS = 5;
 
 const newCareer = (status: TourStatus): Career => ({
   status,
@@ -68,7 +74,19 @@ const newCareer = (status: TourStatus): Career => ({
   results: [],
   careerEarnings: 0,
   careerWins: 0,
+  devPoints: 0,
+  careerMajors: 0,
+  careerEvents: 0,
+  careerTop10s: 0,
+  careerCuts: 0,
+  pointsTitles: 0,
 });
+
+export function makeAmateur(p: Player, rng: Rng): WorldPlayer {
+  const wp = makeWorldPlayer(p, "amateur", rng);
+  wp.development.potential = amateurPotential(overall(p), rng);
+  return wp;
+}
 
 export function makeWorldPlayer(p: Player, status: TourStatus, rng: Rng): WorldPlayer {
   return { player: p, career: newCareer(status), targetEvents: 26, development: newDevelopment(p, rng), injury: null, rebuild: null, agent: null };
@@ -121,13 +139,21 @@ export function createWorld(opts: CreateWorldOptions): World {
     pastSeasons: [],
     news: [],
     coaches: generateCoaches(opts.seed),
+    history: newHistory(),
   };
+  // Three classes of amateurs already coming through.
+  for (let i = 0; i < AMATEUR_CLASS_SIZE * 3; i++) {
+    const p = generateAmateur(rng, `a${i + 1}`, 16 + (i % 6), usedNames);
+    world.players[p.id] = makeAmateur(p, rng);
+  }
 
   setTargets(world);
   while (world.week <= SEASON_WEEKS) playWeek(world);
   finishSeason(world, rng);
   world.pastSeasons = [];
   world.news = [];
+  // The warm-up season stays in the history books as season 0, so records mean something from day one.
+  seedCareerHistory(world, rng);
 
   assignRivalAgents(world, rng);
   world.agency.scouts = generateScouts(opts.seed);
@@ -193,8 +219,13 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   const statusBefore = new Map(world.clientIds.map((id) => [id, world.players[id]!.career.status]));
   const repBefore = world.agency.reputation;
 
+  const seasonRec = closeSeasonRecord(world);
+  const devOrder = devPointsList(world);
+
+  // Cards from the main tour's points list; winners are exempt for two more seasons.
   for (const wp of Object.values(world.players)) {
     const c = wp.career;
+    if (c.status === "amateur") continue;
     const r = rankOf.get(wp.player.id) ?? null;
     if (c.seasonWins > 0) c.exemptThrough = Math.max(c.exemptThrough ?? 0, season + 2);
     const exemptByWin = (c.exemptThrough ?? -1) >= season + 1;
@@ -204,25 +235,41 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
     c.priorPointsRank = r;
   }
 
-  // Developmental tour graduates: the best of the players without status, plus new faces.
-  const hopefuls = Object.values(world.players)
-    .filter((wp) => wp.career.status === "none" && !wp.client)
-    .map((wp) => ({ wp, score: quality(wp.player) + rng.normal(0, 0.6) }))
-    .sort((a, b) => b.score - a.score);
-  const fromPool = Math.min(20, hopefuls.length);
-  for (const { wp } of hopefuls.slice(0, fromPool)) wp.career.status = "graduate";
-  const usedNames = new Set(Object.values(world.players).map((wp) => wp.player.name));
-  let n = Object.keys(world.players).length;
-  const addPlayer = (tier: PlayerTier, status: TourStatus) => {
-    const p = generatePlayer(rng, { tier, usedNames });
-    p.id = `s${season}n${++n}`;
-    world.players[p.id] = makeWorldPlayer(p, status, rng);
+  // The developmental tour's top 25 move up.
+  const promote = (wp: WorldPlayer, via: "dev" | "qschool") => {
+    if (wp.career.status === "exempt" || wp.career.status === "graduate") return;
+    wp.career.status = "graduate";
+    seasonRec.graduates.push({ playerId: wp.player.id, name: wp.player.name, via });
   };
-  for (let i = fromPool; i < GRADUATES; i++) addPlayer("fringe", "graduate");
+  for (const id of devOrder.slice(0, DEV_GRADUATES)) promote(world.players[id]!, "dev");
+
+  // Q-School: one last chance for everyone else.
+  const q = runQSchool(world, rng, rankOf, devOrder);
+  seasonRec.qSchool = q.slice(0, 10);
+  for (const row of q.filter((x) => x.position <= QSCHOOL_CARDS)) promote(world.players[row.playerId]!, "qschool");
+  if (seasonRec.graduates.length) world.news.unshift(`${seasonRec.graduates.length} players earn main-tour cards: ${DEV_GRADUATES} from the developmental tour and the rest through Q-School.`);
+
+  // Amateurs: crown a champion, some turn pro, and a new class arrives.
+  const amRanking = amateurRanking(world);
+  const champ = amRanking[0] ? world.players[amRanking[0]] : undefined;
+  if (champ) seasonRec.amateurChampion = { playerId: champ.player.id, name: champ.player.name };
+  amRanking.forEach((id, i) => {
+    const wp = world.players[id]!;
+    const ready = wp.player.age + 1 >= PRO_AGE || (!wp.client && wp.player.age + 1 >= 20 && i < 10 && rng.chance(0.5));
+    if (ready && !(wp.client && wp.player.age + 1 < PRO_AGE)) {
+      wp.career.status = "none";
+      if (i < 10) world.news.unshift(`Top amateur ${wp.player.name} turns professional.`);
+    }
+  });
+  const usedNames = new Set(Object.values(world.players).map((wp) => wp.player.name));
+  for (let i = 0; i < AMATEUR_CLASS_SIZE; i++) {
+    const p = generateAmateur(rng, `s${season}a${i + 1}`, rng.pick([16, 17, 17, 18, 18, 19]), usedNames);
+    world.players[p.id] = makeAmateur(p, rng);
+  }
 
   // Retirements: players without status drift away, and the old guard hangs it up.
   for (const wp of Object.values(world.players)) {
-    if (wp.client) continue;
+    if (wp.client || wp.career.status === "amateur") continue;
     const age = wp.player.age;
     const retire =
       age >= 50 ||
@@ -230,10 +277,19 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
       (age >= 46 && (wp.career.exemptThrough ?? 0) <= season && rng.chance(0.3));
     if (retire) {
       if (wp.career.careerWins > 0) world.news.unshift(`${wp.player.name} retires at ${age}, with ${wp.career.careerWins} career win${wp.career.careerWins === 1 ? "" : "s"}.`);
+      considerForHallOfFame(world, wp);
       delete world.players[wp.player.id];
     }
   }
-  while (Object.keys(world.players).length < TARGET_POOL_SIZE) addPlayer(rng.chance(0.5) ? "college" : "fringe", "none");
+  // Late developers and walk-ons keep the professional ranks full.
+  const pros = () => Object.values(world.players).filter((wp) => wp.career.status !== "amateur").length;
+  let n = 0;
+  while (pros() < TARGET_POOL_SIZE) {
+    const p = generatePlayer(rng, { tier: "fringe", usedNames });
+    p.id = `s${season}w${++n}`;
+    p.age = rng.int(22, 28);
+    world.players[p.id] = makeWorldPlayer(p, "none", rng);
+  }
 
   const clientSummaries = world.clientIds.map((id) => summariseClient(world, world.players[id]!, statusBefore.get(id) ?? "none", rankOf.get(id) ?? null, owgr.get(id) ?? 999));
   // A season's body of work counts too: every client who keeps a card, more for the elite.
@@ -255,6 +311,7 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
     c.seasonEarnings = 0;
     c.seasonEvents = 0;
     c.seasonWins = 0;
+    c.devPoints = 0;
     c.lastRegion = null;
     wp.player.age++;
     wp.player.condition = Math.max(wp.player.condition, 90);
@@ -331,6 +388,21 @@ export function clientOptions(world: World, clientId: string): EntryOption[] {
       return { ...base, access: "injured" as const, detail: `Injured (${client.injury.name.toLowerCase()}), out for about ${client.injury.weeksLeft} more week${client.injury.weeksLeft === 1 ? "" : "s"}.` };
     }
     const plan = planWeek(world, new Map([[clientId, { eventId: event.id, route: "entry" as const }]]));
+    if (client.career.status === "amateur" && !(event.tier === "major" && plan.invited.get(event.id)!.has(clientId))) {
+      return { ...base, access: "not-invited" as const, detail: "Amateurs don't play professional events. Turn him pro first." };
+    }
+    if (event.tier === "dev") {
+      if (!canPlayDev(client)) return { ...base, access: "not-invited" as const, detail: "The developmental tour is for pros without a main-tour card." };
+      const entrants = [...plan.choices.entries()]
+        .filter(([, c]) => c?.eventId === event.id)
+        .map(([id]) => world.players[id]!)
+        .filter(canPlayDev)
+        .sort(devPriority);
+      const pos = entrants.findIndex((wp) => wp.player.id === clientId) + 1;
+      return pos <= event.fieldSize
+        ? { ...base, access: "in" as const, detail: `Developmental tour: in (priority ${pos} of ${event.fieldSize}). Top ${DEV_GRADUATES} on its points list earn cards.` }
+        : { ...base, access: "alternate" as const, detail: `Developmental tour: alternate (priority ${pos} of ${event.fieldSize}).` };
+    }
     if (isInvitational(event.tier)) {
       const invited = plan.invited.get(event.id)!.has(clientId);
       return {
@@ -376,5 +448,70 @@ function pruneHistory(world: World): void {
   for (const wp of Object.values(world.players)) {
     wp.career.owgr = wp.career.owgr.filter((e) => e.absWeek > cutoff);
     if (!wp.client) wp.career.results = wp.career.results.filter((r) => r.season >= world.season - 1);
+  }
+}
+
+/** Developmental tour points list, best first. */
+export function devPointsList(world: World): string[] {
+  return Object.values(world.players)
+    .filter((wp) => wp.career.devPoints > 0)
+    .sort((a, b) => b.career.devPoints - a.career.devPoints)
+    .map((wp) => wp.player.id);
+}
+
+/** Q-School runs here, at the desert course that's hosted it for years. */
+const QSCHOOL_COURSE = "saguaro-wells";
+const QSCHOOL_FIELD = 156;
+
+/**
+ * Q-School: players who missed out on the main tour (points 126-200), the
+ * developmental tour's next tier, your clients without a card, and a
+ * handful of hopefuls. 72 holes; the top five earn cards.
+ */
+export function runQSchool(world: World, rng: Rng, rankOf: Map<string, number>, devOrder: string[]): SeasonRecord["qSchool"] {
+  const eligible = (wp: WorldPlayer) => (wp.career.status === "none" || wp.career.status === "conditional") && wp.player.age < 45 && !wp.injury;
+  const picked = new Set<string>();
+  const add = (id: string | undefined) => {
+    const wp = id ? world.players[id] : undefined;
+    if (wp && eligible(wp) && picked.size < QSCHOOL_FIELD) picked.add(wp.player.id);
+  };
+  for (const id of world.clientIds) add(id);
+  for (const [id, r] of [...rankOf.entries()].sort((a, b) => a[1] - b[1])) if (r > FULL_CARD && r <= 200) add(id);
+  for (const id of devOrder.slice(DEV_GRADUATES, 100)) add(id);
+  for (const wp of Object.values(world.players).sort((a, b) => a.player.id.localeCompare(b.player.id))) if (rng.chance(0.3)) add(wp.player.id);
+  if (picked.size < 10) return [];
+  const course = getCourse(QSCHOOL_COURSE);
+  const result = simulateTournament({
+    name: "Q-School",
+    course,
+    field: [...picked].map((id) => world.players[id]!.player),
+    purse: 0,
+    seed: mixSeed(world.seed, world.season, 777),
+    cutTop: 65,
+  });
+  return result.leaderboard.filter((r) => r.madeCut).map((r) => ({ playerId: r.player.id, name: r.player.name, toPar: r.toPar, position: r.position }));
+}
+
+/**
+ * The world didn't start the day you arrived: give established pros the
+ * wins, majors and starts a career of their standing would have produced,
+ * so veterans look like veterans and the Hall of Fame has contenders.
+ */
+function seedCareerHistory(world: World, rng: Rng): void {
+  for (const wp of Object.values(world.players)) {
+    if (wp.career.status === "amateur") continue;
+    const years = Math.max(0, wp.player.age - 23);
+    if (years === 0) continue;
+    const q = quality(wp.player);
+    const winsPerYear = q > 2 ? 1.6 : q > 1.2 ? 0.7 : q > 0.5 ? 0.25 : q > 0 ? 0.08 : 0.01;
+    let wins = 0;
+    for (let y = 0; y < years; y++) wins += rng.next() < winsPerYear % 1 ? Math.ceil(winsPerYear) : Math.floor(winsPerYear);
+    const c = wp.career;
+    c.careerWins += wins;
+    c.careerMajors += Math.round(wins * (0.1 + rng.next() * 0.15));
+    c.careerEvents += years * 24;
+    c.careerCuts += Math.round(years * 24 * Math.min(0.9, 0.5 + q * 0.12));
+    c.careerTop10s += Math.round(years * 24 * Math.min(0.4, Math.max(0.02, 0.06 + q * 0.07)));
+    c.careerEarnings += Math.round(years * Math.max(150_000, 1_200_000 + q * 1_800_000));
   }
 }

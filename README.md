@@ -94,6 +94,35 @@ npm run calibrate      # 200 events per course vs. real tour reference numbers
   costs. Reputation rises with wins, top-fives, top-tens and clients keeping their cards, and fades a
   little each winter. It decides who will sign, sponsor sizes and roster size.
 - The terminal version has been retired; the browser game is the way to play.
+- **Step 5 (done): pathways and history** (`src/season/amateurs.ts`, `history.ts`, the developmental
+  tour in `calendar.ts`, and the History tab).
+
+### Pathways into the tour
+
+- **Developmental tour:** 24 events a season (144-player fields, about $1M purses) for professionals without a
+  main-tour card. It has its own points list, and the **top 25 earn cards** for next season.
+- **Q-School:** after the season, players who finished 126-200 on the points list, the developmental tour's
+  next tier, your clients without a card, and a handful of hopefuls play 72 holes. The **top five (and ties)
+  earn cards**.
+- **Amateurs:** a new class of 24 arrives every year from around the world, and each country's golf culture
+  shows (Scandinavian ball-strikers, Korean and Japanese touch on the greens, Australian and Irish
+  wind players). They play college golf and develop every week, but never play professional events, except
+  the amateur champion, who is invited to the next season's majors. They turn pro by 22 (earlier if they're
+  top prospects), or when you tell them to if they're your client. They have no agents, so a young
+  agency can sign one early, develop him, and choose when he turns pro. They can't take sponsor money.
+- **A stable world:** new amateurs' ceilings come from a fixed spread, so the tour's talent level plateaus
+  instead of drifting over the decades (`npm run worldcheck -- 20`).
+
+### History
+
+- **Season by season:** points champion, money leader, developmental tour champion, amateur champion,
+  Q-School medallist and cards earned. The hidden warm-up season is kept as season 0.
+- **Major champions** by year, with your clients' wins highlighted.
+- **Record book:** lowest round, lowest 72 holes, biggest winning margin, most wins in a season, and youngest
+  and oldest winners, all on the main tour.
+- **Hall of Fame:** players are elected on retirement, on wins, majors and points titles, and there's a list of
+  active players on course for it. Established pros start with a career behind them, sized to their standing.
+- Courses play slightly harder than before, so scoring stays realistic once the world matures.
 
 ### Playing a season
 
@@ -190,7 +219,7 @@ playoffs are a little frequent.
    and hidden attributes seen only through them), contracts and commission, sponsors
    and equipment deals, caddies with their own attributes and chemistry,
    morale, media, rivalries and players wanting to leave.
-5. **The world and its history**: pathways (amateur, college, Q-School,
+5. ✅ **The world and its history** (editors still to come): pathways (amateur, college, Q-School,
    developmental tour, main tour, exemptions, conditional status), a generated
    amateur class each year with regional strengths, records, major winners,
    Hall of Fame voting, head-to-head stats, and full database and course editors so the

@@ -1,22 +1,30 @@
 import { Fragment, useState } from "react";
-import { CONDITIONAL_CARD, FULL_CARD, pointsList, worldRanking, STATUS_LABELS, type World } from "../../season";
+import { CONDITIONAL_CARD, DEV_GRADUATES, FULL_CARD, PRO_AGE, amateurRanking, devPointsList, pointsList, worldRanking, STATUS_LABELS, type World } from "../../season";
 import { money } from "../format";
 
-type View = "points" | "world" | "money";
+type View = "points" | "dev" | "amateurs" | "world" | "money";
 
 export function Standings({ world }: { world: World }) {
   const [view, setView] = useState<View>("points");
   return (
     <main>
       <section className="panel">
-        <div className="tabs" role="tablist">
-          {(["points", "world", "money"] as View[]).map((v) => (
-            <button key={v} role="tab" aria-selected={view === v} onClick={() => setView(v)}>
-              {v === "points" ? "Points list" : v === "world" ? "World ranking" : "Money list"}
-            </button>
+        <div className="tabs" role="tablist" style={{ flexWrap: "wrap" }}>
+          {(
+            [
+              ["points", "Points list"],
+              ["dev", "Developmental tour"],
+              ["amateurs", "Amateurs"],
+              ["world", "World ranking"],
+              ["money", "Money list"],
+            ] as [View, string][]
+          ).map(([v, label]) => (
+            <button key={v} role="tab" aria-selected={view === v} onClick={() => setView(v)}>{label}</button>
           ))}
         </div>
         {view === "points" && <PointsTable world={world} />}
+        {view === "dev" && <DevTable world={world} />}
+        {view === "amateurs" && <AmateurTable world={world} />}
         {view === "world" && <WorldTable world={world} />}
         {view === "money" && <MoneyTable world={world} />}
       </section>
@@ -105,6 +113,64 @@ function MoneyTable({ world }: { world: World }) {
               <td className="num">{money(wp.career.seasonEarnings)}</td>
             </tr>
           ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function DevTable({ world }: { world: World }) {
+  const list = devPointsList(world);
+  if (list.length === 0) return <p className="empty">No developmental tour points yet this season.</p>;
+  return (
+    <div className="table-wrap">
+      <p className="secondary" style={{ marginTop: 0 }}>The top {DEV_GRADUATES} earn main-tour cards for next season. Everyone else can try Q-School.</p>
+      <table>
+        <thead><tr><th>#</th><th>Player</th><th className="num">Age</th><th className="num">Points</th><th className="num">Earnings</th></tr></thead>
+        <tbody>
+          {list.map((id, i) => {
+            const wp = world.players[id]!;
+            return (
+              <Fragment key={id}>
+                {i === DEV_GRADUATES && <tr className="divider"><td colSpan={5}>Card line</td></tr>}
+                <tr className={world.clientIds.includes(id) ? "me" : ""}>
+                  <td>{i + 1}</td>
+                  <td>{wp.player.name} <span className="muted small">{wp.player.nationality}</span></td>
+                  <td className="num">{wp.player.age}</td>
+                  <td className="num">{Math.round(wp.career.devPoints)}</td>
+                  <td className="num">{money(wp.career.seasonEarnings)}</td>
+                </tr>
+              </Fragment>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function AmateurTable({ world }: { world: World }) {
+  const list = amateurRanking(world);
+  return (
+    <div className="table-wrap">
+      <p className="secondary" style={{ marginTop: 0 }}>
+        College and amateur golf. The season's No. 1 is invited to the next season's majors. Amateurs turn pro by {PRO_AGE}; scout them early.
+      </p>
+      <table>
+        <thead><tr><th>#</th><th>Player</th><th className="num">Age</th><th>From</th><th>Represented</th></tr></thead>
+        <tbody>
+          {list.map((id, i) => {
+            const wp = world.players[id]!;
+            return (
+              <tr key={id} className={world.clientIds.includes(id) ? "me" : ""}>
+                <td>{i + 1}</td>
+                <td>{wp.player.name}</td>
+                <td className="num">{wp.player.age}</td>
+                <td>{wp.player.nationality}</td>
+                <td className="small">{wp.client ? "Your client" : "Free"}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

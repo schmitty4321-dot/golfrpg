@@ -38,7 +38,8 @@ export function marketability(world: World, wp: WorldPlayer): number {
 /** Tries to generate a new offer for a client; at most one per category at a time. */
 export function maybeOffer(world: World, wp: WorldPlayer, rng: Rng, chance: number): SponsorOffer | null {
   const c = wp.client;
-  if (!c || !rng.chance(chance)) return null;
+  // Amateurs can't take endorsement money.
+  if (!c || wp.career.status === "amateur" || !rng.chance(chance)) return null;
   const taken = new Set([...c.sponsors, ...c.offers].map((s) => s.category));
   const open = (Object.keys(BRANDS) as SponsorCategory[]).filter((k) => !taken.has(k));
   if (open.length === 0) return null;

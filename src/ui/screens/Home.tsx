@@ -4,6 +4,7 @@ import {
   FULL_CARD,
   REGION_NAMES,
   SEASON_WEEKS,
+  PRO_AGE,
   STATUS_LABELS,
   clientOptions,
   clientPreference,
@@ -142,7 +143,7 @@ function ThisWeek({ world, game }: { world: World; game: Game }) {
         <span className="muted small">{remaining} weeks left</span>
       </div>
       {world.clientIds.map((id) => (
-        <ClientWeek key={`${id}-${world.week}`} world={world} id={id} choice={choices[id] ?? { kind: "auto" }} onChoose={(c) => set(id, c)} />
+        <ClientWeek key={`${id}-${world.week}`} world={world} game={game} id={id} choice={choices[id] ?? { kind: "auto" }} onChoose={(c) => set(id, c)} />
       ))}
       <div className="btn-row" style={{ marginTop: 14 }}>
         <button className="btn btn-primary" onClick={() => play(1)}>Play week {world.week}</button>
@@ -157,7 +158,7 @@ function ThisWeek({ world, game }: { world: World; game: Game }) {
   );
 }
 
-function ClientWeek({ world, id, choice, onChoose }: { world: World; id: string; choice: ClientChoice; onChoose: (c: ClientChoice) => void }) {
+function ClientWeek({ world, game, id, choice, onChoose }: { world: World; game: Game; id: string; choice: ClientChoice; onChoose: (c: ClientChoice) => void }) {
   const wp = world.players[id]!;
   const options = clientOptions(world, id);
   const pref = clientPreference(world, id);
@@ -174,6 +175,15 @@ function ClientWeek({ world, id, choice, onChoose }: { world: World; id: string;
           </div>
         </div>
       </div>
+      {wp.career.status === "amateur" && (
+        <div className="access">
+          <span className="dot" style={{ background: "var(--pos)" }} aria-hidden />
+          <span>
+            Amateur: playing college golf, and developing every week. He must turn pro by {PRO_AGE}; as a pro he starts on the developmental tour.{" "}
+            <button className="linkish" onClick={() => confirm(`Turn ${wp.player.name} professional now?`) && game.act((w) => game.lib.turnPro(w, id))}>Turn pro now</button>
+          </span>
+        </div>
+      )}
       <div className="choice-list" role="radiogroup" aria-label={`${wp.player.name}'s week`}>
         <button className="choice" role="radio" aria-checked={sel({ kind: "auto" })} onClick={() => onChoose({ kind: "auto" })}>
           <strong>His call</strong>

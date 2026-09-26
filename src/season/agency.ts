@@ -1,4 +1,5 @@
 import { clamp, createRng, type Rng } from "../engine";
+import { amateurRanking } from "./amateurs";
 import { mixSeed } from "./entries";
 import { rankMap } from "./points";
 import { absWeek, type Agency, type ClientManagement, type World, type WorldPlayer } from "./types";
@@ -60,6 +61,10 @@ export function assignRivalAgents(world: World, rng: Rng): void {
   for (const wp of Object.values(world.players)) {
     if (wp.client) continue;
     const rank = ranks.get(wp.player.id) ?? 999;
+    if (wp.career.status === "amateur") {
+      wp.agent = null; // amateurs don't have agents
+      continue;
+    }
     // The best players are almost never without an agent.
     const represented = rng.chance(rank <= 50 ? 0.97 : wp.career.status === "none" ? 0.35 : 0.8);
     wp.agent = represented ? { agency: rng.pick(RIVAL_AGENCIES), untilSeason: world.season + rng.int(0, 2) } : null;
@@ -93,6 +98,16 @@ export function requiredReputation(worldRank: number): number {
   return 4;
 }
 
+/** The reputation a player expects: by world rank, or for amateurs by the amateur ranking. */
+export function expectedReputation(world: World, id: string): number {
+  const wp = world.players[id];
+  if (wp?.career.status === "amateur") {
+    const r = amateurRanking(world).indexOf(id) + 1;
+    return r > 0 && r <= 5 ? 35 : r > 0 && r <= 20 ? 20 : 8;
+  }
+  return requiredReputation(rankMap(world).get(id) ?? 999);
+}
+
 /** Why a player can't be approached right now, if he can't. */
 /** A player this far above your agency's standing won't take the meeting. */
 export const OUT_OF_LEAGUE = 30;
@@ -101,7 +116,7 @@ export function approachBlock(world: World, id: string): string | null {
   const wp = world.players[id];
   if (!wp) return "Unknown player.";
   if (wp.client) return "He's already your client.";
-  const needed = requiredReputation(rankMap(world).get(id) ?? 999);
+  const needed = expectedReputation(world, id);
   if (needed - world.agency.reputation > OUT_OF_LEAGUE) {
     return `He only talks to agencies with a bigger name (reputation around ${needed}; yours is ${Math.round(world.agency.reputation)}).`;
   }
@@ -119,9 +134,8 @@ export function approachBlock(world: World, id: string): string | null {
 /** The chance a player accepts an offer (before the dice roll). */
 export function acceptChance(world: World, id: string, offer: Offer): number {
   const wp = world.players[id]!;
-  const rank = rankMap(world).get(id) ?? 999;
   const a = wp.player.attributes;
-  let score = world.agency.reputation - requiredReputation(rank);
+  let score = world.agency.reputation - expectedReputation(world, id);
   score += (STANDARD_COMMISSION - offer.commission) * 100 * 3; // each point under 10% helps
   // Ambitious players want a big-name agency; young ones like security, veterans like flexibility.
   score -= Math.max(0, a.ambition - 12) * 1.5;
@@ -165,7 +179,7 @@ export function extendContract(world: World, id: string, offer: Offer): OfferRes
   if (!wp?.client) return { accepted: false, chance: 0, message: "He isn't your client." };
   const until = world.agency.cooldowns[id];
   if (until !== undefined && until > absWeek(world.season, world.week)) return { accepted: false, chance: 0, message: "He's not ready to talk again yet." };
-  const score = wp.client.happiness - 55 + (wp.client.contract.commission - offer.commission) * 100 * 3 - Math.max(0, requiredReputation(rankMap(world).get(id) ?? 999) - world.agency.reputation) * 0.5;
+  const score = wp.client.happiness - 55 + (wp.client.contract.commission - offer.commission) * 100 * 3 - Math.max(0, expectedReputation(world, id) - world.agency.reputation) * 0.5;
   const chance = clamp(1 / (1 + Math.exp(-score / 7)), 0.02, 0.98);
   const rng = createRng(mixSeed(world.seed, world.season, world.week, 600, Number(id.replace(/\D/g, "")) || 1));
   if (!rng.chance(chance)) {
@@ -209,6 +223,7 @@ export function updateHappiness(wp: WorldPlayer, week: { played: boolean; sgVsEx
 /** Reputation earned from a client's finish. */
 export function reputationFor(position: number, madeCut: boolean, tier: string): number {
   if (!madeCut) return 0;
+  if (tier === "dev") return position === 1 ? 1 : position <= 5 ? 0.3 : 0;
   const major = tier === "major";
   if (position === 1) return major ? 10 : 4;
   if (position <= 5) return major ? 3 : 1.2;
@@ -240,7 +255,7 @@ export function agencySeasonEnd(world: World, rng: Rng): string[] {
     if (wp.client) continue;
     if (wp.agent && wp.agent.untilSeason <= world.season) {
       wp.agent = rng.chance(0.65) ? { agency: rng.pick(RIVAL_AGENCIES), untilSeason: world.season + 1 + rng.int(0, 2) } : null;
-    } else if (!wp.agent && wp.career.status !== "none" && rng.chance((ranks.get(wp.player.id) ?? 999) <= 50 ? 0.9 : 0.35)) {
+    } else if (!wp.agent && wp.career.status !== "none" && wp.career.status !== "amateur" && rng.chance((ranks.get(wp.player.id) ?? 999) <= 50 ? 0.9 : 0.35)) {
       wp.agent = { agency: rng.pick(RIVAL_AGENCIES), untilSeason: world.season + 1 + rng.int(0, 2) };
     }
   }

@@ -89,6 +89,7 @@ export function majorSetup(course: Course): Course {
   };
 }
 const EVENT_SUFFIX: Record<EventTier, string[]> = {
+  dev: ["Open", "Classic", "Championship", "Challenge"],
   major: [],
   signature: ["Invitational", "Championship", "Memorial"],
   standard: ["Classic", "Open", "Championship", "Pro-Am"],
@@ -99,6 +100,7 @@ const PLACE_A = ["Cedar", "Willow", "Eagle", "Stone", "Silver", "Oak", "Heron", 
 const PLACE_B = ["Creek", "Hollow", "Ridge", "Valley", "Dunes", "Point", "Bluff", "Springs", "National", "Hills", "Lakes", "Crossing", "Bay", "Links", "Glen", "Meadows"];
 
 const PURSE: Record<EventTier, [number, number]> = {
+  dev: [900_000, 1_200_000],
   major: [18_000_000, 21_000_000],
   signature: [20_000_000, 20_000_000],
   standard: [7_400_000, 9_600_000],
@@ -106,6 +108,7 @@ const PURSE: Record<EventTier, [number, number]> = {
   finale: [25_000_000, 25_000_000],
 };
 const FIELD: Record<EventTier, [number, number | null]> = {
+  dev: [144, 65],
   major: [156, 65],
   signature: [72, null],
   standard: [144, 65],
@@ -164,6 +167,43 @@ export function buildTour(seed: number): { courses: Course[]; schedule: TourEven
       fieldSize,
       cutTop,
       region,
+    };
+  });
+  const dev = buildDevTour(seed);
+  return { courses: [...courses, ...dev.courses], schedule: [...schedule, ...dev.schedule] };
+}
+
+/** Weeks the developmental tour plays: most weeks, but not the majors or the finale. */
+export const DEV_WEEKS = [2, 3, 5, 6, 7, 9, 10, 12, 13, 15, 16, 17, 19, 21, 22, 23, 24, 26, 27, 29, 30, 31, 33, 34];
+/** The top of the developmental tour's points list earns main-tour cards. */
+export const DEV_GRADUATES = 25;
+
+const DEV_TOWNS = ["Boise", "Wichita", "Knoxville", "Omaha", "Savannah", "Tulsa", "Spokane", "Fresno", "Lincoln", "Chattanooga", "Des Moines", "Albuquerque", "Greenville", "Lafayette", "Macon", "Reno", "Billings", "Tallahassee", "Charleston", "Pueblo", "Evansville", "Duluth", "Bakersfield", "Wilmington"];
+
+/**
+ * The developmental tour: smaller purses, weaker fields, and a points list
+ * whose top 25 move up. Built from its own random stream so adding it
+ * never changes a world's main tour.
+ */
+export function buildDevTour(seed: number): { courses: Course[]; schedule: TourEvent[] } {
+  const rng = createRng(seed ^ 0xde7);
+  const courses: Course[] = [];
+  const styles: CourseStyle[] = ["parkland", "parkland", "resort", "desert", "links"];
+  const schedule = DEV_WEEKS.map((week, i): TourEvent => {
+    const town = DEV_TOWNS[i % DEV_TOWNS.length]!;
+    const course = generateCourse(rng, `dev-${i + 1}`, `${town} Country Club`, rng.pick(styles));
+    courses.push(course);
+    const [lo, hi] = PURSE.dev;
+    return {
+      id: `d${String(i + 1).padStart(2, "0")}`,
+      name: `${town} ${rng.pick(EVENT_SUFFIX.dev)}`,
+      week,
+      tier: "dev",
+      courseId: course.id,
+      purse: Math.round((lo + rng.next() * (hi - lo)) / 50_000) * 50_000,
+      fieldSize: FIELD.dev[0],
+      cutTop: FIELD.dev[1],
+      region: "NA",
     };
   });
   return { courses, schedule };

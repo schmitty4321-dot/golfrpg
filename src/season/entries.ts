@@ -18,8 +18,8 @@ export const MONDAY_SPOTS = 4;
 /** Most players who try a Monday qualifier in one week. */
 const MONDAY_POOL_MAX = 80;
 
-const STATUS_ORDER: Record<TourStatus, number> = { exempt: 0, graduate: 1, conditional: 2, none: 3 };
-const TIER_ORDER: Record<EventTier, number> = { major: 0, finale: 0, signature: 1, standard: 2, opposite: 3 };
+const STATUS_ORDER: Record<TourStatus, number> = { exempt: 0, graduate: 1, conditional: 2, none: 3, amateur: 4 };
+const TIER_ORDER: Record<EventTier, number> = { major: 0, finale: 0, signature: 1, standard: 2, opposite: 3, dev: 4 };
 
 /** Fields for these tiers are by invitation or qualification, not by status. */
 export const isInvitational = (tier: EventTier): boolean => tier === "major" || tier === "signature" || tier === "finale";
@@ -87,15 +87,19 @@ export function invitedField(world: World, ctx: WeekContext, event: TourEvent): 
       .slice(0, event.fieldSize)
       .map((wp) => wp.player.id);
   }
-  // Major: top 80 in the world, recent winners and last season's top 50, then fill by world ranking.
-  const guaranteed = ids.filter(
+  // Major: top 80 in the world, recent winners, last season's top 50 and the amateur champion,
+  // then fill by world ranking. Other amateurs aren't invited.
+  const amateurChamp = world.history.seasons.find((s) => s.season === world.season - 1)?.amateurChampion?.playerId;
+  const pros = ids.filter((id) => world.players[id]!.career.status !== "amateur" || id === amateurChamp);
+  const guaranteed = pros.filter(
     (id) =>
       owgr(id) <= 80 ||
       ctx.recentWinners.has(id) ||
+      id === amateurChamp ||
       (world.players[id]!.career.priorPointsRank ?? 999) <= 50,
   );
   const set = new Set(guaranteed.sort((a, b) => owgr(a) - owgr(b)).slice(0, event.fieldSize));
-  for (const id of [...ids].sort((a, b) => owgr(a) - owgr(b))) {
+  for (const id of [...pros].sort((a, b) => owgr(a) - owgr(b))) {
     if (set.size >= event.fieldSize) break;
     set.add(id);
   }
@@ -107,6 +111,18 @@ export function priorityCompare(a: WorldPlayer, b: WorldPlayer): number {
   return (
     STATUS_ORDER[a.career.status] - STATUS_ORDER[b.career.status] ||
     b.career.seasonPoints - a.career.seasonPoints ||
+    (a.career.priorPointsRank ?? 999) - (b.career.priorPointsRank ?? 999) ||
+    a.player.id.localeCompare(b.player.id)
+  );
+}
+
+/** The developmental tour is for professionals without a main-tour card. */
+export const canPlayDev = (wp: WorldPlayer): boolean => wp.career.status === "none" || wp.career.status === "conditional";
+
+/** Developmental tour priority: its own points list, then last season's main-tour finish. */
+export function devPriority(a: WorldPlayer, b: WorldPlayer): number {
+  return (
+    b.career.devPoints - a.career.devPoints ||
     (a.career.priorPointsRank ?? 999) - (b.career.priorPointsRank ?? 999) ||
     a.player.id.localeCompare(b.player.id)
   );
@@ -132,7 +148,15 @@ export function aiChoice(world: World, ctx: WeekContext, wp: WorldPlayer, events
   const main = events[0];
   if (!main || wp.injury) return null;
   const opposite = events.find((e) => e.tier === "opposite");
+  const dev = events.find((e) => e.tier === "dev");
   const c = wp.career;
+
+  // Amateurs play college golf; they're only seen at a major they're invited to.
+  if (c.status === "amateur") return main.tier === "major" && invited.get(main.id)?.has(id) ? { eventId: main.id, route: "entry" } : null;
+  // Players without a card live on the developmental tour, with the odd Monday qualifier.
+  if (c.status === "none" && dev && !(invited.get(main.id)?.has(id))) {
+    if (wp.player.condition >= 60 && rng.chance(0.8)) return { eventId: dev.id, route: "entry" };
+  }
 
   if (isInvitational(main.tier)) {
     if (invited.get(main.id)?.has(id)) {
@@ -203,6 +227,16 @@ export function buildFields(world: World, plan: WeekPlan): FieldResult[] {
       const inv = plan.invited.get(event.id)!;
       const field = entrants.map(([id]) => id).filter((id) => inv.has(id));
       return { event, field, alternates: [], mondayQualifiers: [], mondayPool: [] };
+    }
+    if (event.tier === "dev") {
+      const eligible = entrants.map(([id]) => world.players[id]!).filter((wp) => canPlayDev(wp)).sort(devPriority);
+      return {
+        event,
+        field: eligible.slice(0, event.fieldSize).map((wp) => wp.player.id),
+        alternates: eligible.slice(event.fieldSize).map((wp) => wp.player.id),
+        mondayQualifiers: [],
+        mondayPool: [],
+      };
     }
 
     const direct = entrants

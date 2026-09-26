@@ -1,26 +1,33 @@
 /**
- * Plays many seasons and prints how the tour's strength and age move, to
- * check that development and ageing keep the world stable.
+ * Plays many seasons and prints how the tour's strength, age and pathways
+ * move, to check that development, ageing and promotion keep the world stable.
  *   npm run worldcheck -- [seasons]
  */
 import { SEASON_WEEKS, createWorld, finishSeason, overall, playWeek } from "../src/season";
 
 const seasons = Number(process.argv[2] ?? 12);
 const w = createWorld({ seed: 5, scenario: "rookie" });
-const avg = (xs: number[]) => (xs.reduce((a, b) => a + b, 0) / xs.length).toFixed(2);
-console.log("Season  Exempt avg  Top-10 avg  Mean age  Oldest  Injured/wk");
+const avg = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0).toFixed(2);
+console.log("Season  Exempt  Top-10  Age    Pros  Amateurs  Dev field  Grads  Injured/wk  ms");
 for (let s = 0; s < seasons; s++) {
+  const t = Date.now();
   const ps = Object.values(w.players);
-  const exempt = ps.filter((p) => p.career.status === "exempt").map((p) => overall(p.player));
-  const top = ps.map((p) => overall(p.player)).sort((a, b) => b - a).slice(0, 10);
-  const ages = ps.map((p) => p.player.age);
+  const pros = ps.filter((p) => p.career.status !== "amateur");
+  const exempt = pros.filter((p) => p.career.status === "exempt").map((p) => overall(p.player));
+  const top = pros.map((p) => overall(p.player)).sort((a, b) => b - a).slice(0, 10);
   let injured = 0;
+  const devFields: number[] = [];
   while (w.week <= SEASON_WEEKS) {
-    playWeek(w);
+    const r = playWeek(w);
+    for (const x of r.results) if (x.event.tier === "dev") devFields.push(x.field.field.length);
     injured += Object.values(w.players).filter((p) => p.injury).length;
   }
-  console.log(
-    `${String(w.season).padEnd(8)}${avg(exempt).padEnd(12)}${avg(top).padEnd(12)}${avg(ages).padEnd(10)}${String(Math.max(...ages)).padEnd(8)}${(injured / SEASON_WEEKS).toFixed(1)}`,
-  );
   finishSeason(w);
+  const rec = w.history.seasons.find((x) => x.season === w.season - 1)!;
+  console.log(
+    `${String(w.season - 1).padEnd(8)}${avg(exempt).padEnd(8)}${avg(top).padEnd(8)}${avg(pros.map((p) => p.player.age)).padEnd(7)}${String(pros.length).padEnd(6)}${String(ps.length - pros.length).padEnd(10)}${avg(devFields).padEnd(11)}${String(rec.graduates.length).padEnd(7)}${(injured / SEASON_WEEKS).toFixed(1).padEnd(12)}${Date.now() - t}`,
+  );
 }
+const r = w.history.records;
+console.log("\nRecords:", Object.entries(r).map(([k, v]) => `${k}=${v ? `${v.value} (${v.name}, S${v.season})` : "-"}`).join("; "));
+console.log("Hall of Fame:", w.history.hallOfFame.map((h) => `${h.name} ${h.wins}W/${h.majors}M`).join(", ") || "none yet");

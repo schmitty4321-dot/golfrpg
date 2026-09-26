@@ -1,7 +1,9 @@
-import { STATUS_LABELS, type SeasonSummary } from "../../season";
+import { STATUS_LABELS, type SeasonSummary, type World } from "../../season";
 import { money, plural, toPar } from "../format";
 
-export function SeasonReview({ summary, onClose }: { summary: SeasonSummary; onClose: () => void }) {
+export function SeasonReview({ world, summary, onClose }: { world: World; summary: SeasonSummary; onClose: () => void }) {
+  const rec = world.history.seasons.find((s) => s.season === summary.season);
+  const mine = (id: string) => world.clientIds.includes(id) || summary.clients.some((c) => c.id === id);
   const l = summary.agency.ledger;
   const profit = l.prizeCommission + l.endorsementCommission - l.office - l.scouts;
   return (
@@ -62,6 +64,29 @@ export function SeasonReview({ summary, onClose }: { summary: SeasonSummary; onC
             </table>
           </div>
         </div>
+        {rec && (rec.graduates.length > 0 || rec.qSchool.length > 0) && (
+          <div className="grid-2" style={{ gridTemplateColumns: "1fr 1fr" }}>
+            <div>
+              <h3 style={{ marginBottom: 6 }}>Q-School</h3>
+              <table>
+                <tbody>
+                  {rec.qSchool.map((q) => (
+                    <tr key={q.playerId} className={mine(q.playerId) ? "me" : ""}>
+                      <td>{q.position}</td><td>{q.name}</td><td className="num">{toPar(q.toPar)}</td><td className="small">{q.position <= 5 ? "Card" : ""}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div>
+              <h3 style={{ marginBottom: 6 }}>New cards for next season ({rec.graduates.length})</h3>
+              <p className="small secondary" style={{ marginTop: 0 }}>
+                {rec.graduates.map((g) => (mine(g.playerId) ? `★ ${g.name}` : g.name)).join(", ")}
+              </p>
+              {rec.amateurChampion && <p className="small">Amateur champion: <strong>{rec.amateurChampion.name}</strong> (invited to next season's majors)</p>}
+            </div>
+          </div>
+        )}
         <div><button className="btn btn-primary" onClick={onClose}>Start season {summary.season + 1}</button></div>
       </div>
     </div>

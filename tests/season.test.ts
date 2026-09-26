@@ -30,11 +30,12 @@ import {
 describe("tour calendar", () => {
   const { courses, schedule } = buildTour(1);
 
-  it("has four majors, a finale, and at most two events a week", () => {
+  it("has four majors, a finale, and at most two main-tour events a week", () => {
     expect(schedule.filter((e) => e.tier === "major")).toHaveLength(4);
     expect(schedule.filter((e) => e.tier === "finale").map((e) => e.week)).toEqual([SEASON_WEEKS]);
     for (let w = 1; w <= SEASON_WEEKS; w++) {
-      const n = schedule.filter((e) => e.week === w).length;
+      expect(schedule.filter((e) => e.week === w && e.tier === "dev").length).toBeLessThanOrEqual(1);
+      const n = schedule.filter((e) => e.week === w && e.tier !== "dev").length;
       expect(n).toBeGreaterThanOrEqual(1);
       expect(n).toBeLessThanOrEqual(2);
     }
@@ -123,7 +124,7 @@ describe("createWorld", () => {
   });
 
   it("carries a warm-up season: rankings, last season's points ranks and a spread of statuses", () => {
-    const counts = { exempt: 0, graduate: 0, conditional: 0, none: 0 };
+    const counts = { exempt: 0, graduate: 0, conditional: 0, none: 0, amateur: 0 };
     for (const wp of Object.values(base.players)) counts[wp.career.status]++;
     expect(counts.exempt).toBeGreaterThanOrEqual(FULL_CARD);
     expect(counts.graduate).toBeGreaterThanOrEqual(30);
@@ -234,7 +235,8 @@ describe("finishSeason", () => {
       const wp = w.players[id];
       if (!wp) continue; // retired
       if (i < FULL_CARD) expect(wp.career.status).toBe("exempt");
-      else if (i < CONDITIONAL_CARD && !winners.includes(id)) expect(["conditional", "exempt"]).toContain(wp.career.status);
+      // 126-150 get conditional status, unless Q-School or a win gave them more.
+      else if (i < CONDITIONAL_CARD && !winners.includes(id)) expect(["conditional", "graduate", "exempt"]).toContain(wp.career.status);
     }
   });
 

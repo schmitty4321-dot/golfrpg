@@ -1,6 +1,7 @@
 import type { AttributeKey, Attributes, Course, Player } from "../engine";
 
-export type EventTier = "major" | "signature" | "standard" | "opposite" | "finale";
+/** "dev" events are the developmental tour, a level below the main tour. */
+export type EventTier = "major" | "signature" | "standard" | "opposite" | "finale" | "dev";
 export type Region = "NA" | "EU" | "ASIA" | "AUS";
 
 export const REGION_NAMES: Record<Region, string> = {
@@ -29,15 +30,17 @@ export interface TourEvent {
  * - exempt: fully exempt (top 125 last season, or a recent winner)
  * - graduate: came up from the developmental tour
  * - conditional: finished 126-150, gets in when fields aren't full
- * - none: no status; can only Monday qualify
+ * - none: no main-tour status; plays the developmental tour and Monday qualifiers
+ * - amateur: not yet a professional; plays college and amateur golf
  */
-export type TourStatus = "exempt" | "graduate" | "conditional" | "none";
+export type TourStatus = "exempt" | "graduate" | "conditional" | "none" | "amateur";
 
 export const STATUS_LABELS: Record<TourStatus, string> = {
   exempt: "Fully exempt",
   graduate: "Developmental tour graduate",
   conditional: "Conditional status",
   none: "No status",
+  amateur: "Amateur",
 };
 
 export interface EventRecord {
@@ -74,6 +77,15 @@ export interface Career {
   results: EventRecord[];
   careerEarnings: number;
   careerWins: number;
+  /** Developmental tour points this season. */
+  devPoints: number;
+  /** Career counters that survive the pruning of old results. */
+  careerMajors: number;
+  careerEvents: number;
+  careerTop10s: number;
+  careerCuts: number;
+  /** Seasons finished top of the main tour's points list. */
+  pointsTitles: number;
 }
 
 export type TrainingFocus = "balanced" | "longGame" | "approach" | "shortGame" | "putting" | "mental" | "fitness";
@@ -251,7 +263,58 @@ export interface SeasonSummary {
   agency: { reputationBefore: number; reputationAfter: number; ledger: AgencyLedger; departures: string[] };
 }
 
-export const SAVE_VERSION = 3;
+/** One entry in a record book. */
+export interface RecordEntry {
+  value: number;
+  playerId: string;
+  name: string;
+  event: string;
+  season: number;
+}
+
+export interface Records {
+  /** Lowest single round (strokes), main tour. */
+  lowestRound: RecordEntry | null;
+  /** Lowest 72-hole score to par, main tour. */
+  lowest72: RecordEntry | null;
+  /** Largest winning margin in strokes. */
+  biggestMargin: RecordEntry | null;
+  /** Most main-tour wins in a season. */
+  mostWinsSeason: RecordEntry | null;
+  /** Youngest and oldest winners (age). */
+  youngestWinner: RecordEntry | null;
+  oldestWinner: RecordEntry | null;
+}
+
+export interface SeasonRecord {
+  season: number;
+  pointsChampion: { playerId: string; name: string; points: number; wins: number } | null;
+  moneyLeader: { playerId: string; name: string; earnings: number } | null;
+  devChampion: { playerId: string; name: string; points: number } | null;
+  amateurChampion: { playerId: string; name: string } | null;
+  winners: { eventId: string; event: string; tier: EventTier; playerId: string; name: string; toPar: number }[];
+  qSchool: { playerId: string; name: string; toPar: number; position: number }[];
+  /** Who earned a main-tour card for next season, and how. */
+  graduates: { playerId: string; name: string; via: "dev" | "qschool" }[];
+}
+
+export interface HallOfFamer {
+  playerId: string;
+  name: string;
+  nationality: string;
+  wins: number;
+  majors: number;
+  pointsTitles: number;
+  inducted: number;
+}
+
+export interface History {
+  seasons: SeasonRecord[];
+  records: Records;
+  hallOfFame: HallOfFamer[];
+}
+
+export const SAVE_VERSION = 4;
 
 export interface World {
   version: typeof SAVE_VERSION;
@@ -270,6 +333,7 @@ export interface World {
   news: string[];
   /** Coaches available to hire (a coach can work with several players). */
   coaches: Coach[];
+  history: History;
 }
 
 export const absWeek = (season: number, week: number): number => season * 52 + week;

@@ -8,6 +8,7 @@ export const WINNER_POINTS: Record<EventTier, number> = {
   standard: 500,
   opposite: 300,
   finale: 0,
+  dev: 500,
 };
 
 /** Share of the winner's season points by position (modelled on a FedEx Cup table). */

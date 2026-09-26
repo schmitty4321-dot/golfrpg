@@ -5,6 +5,7 @@ import { ClientPicker } from "./components/ClientPicker";
 import { Scouting } from "./screens/Scouting";
 import { Career } from "./screens/Career";
 import { Finances } from "./screens/Finances";
+import { HistoryScreen } from "./screens/History";
 import { Home } from "./screens/Home";
 import { NewGame } from "./screens/NewGame";
 import { PlayerScreen } from "./screens/PlayerScreen";
@@ -101,13 +102,15 @@ export function App() {
           <div style={{ maxWidth: 1240, margin: "0 auto", padding: "20px 20px 0" }}><ClientPicker world={world} value={clientId!} onChange={setPicked} /></div>
           <Training world={world} game={game} clientId={clientId!} />
         </>
+      ) : tab === "history" ? (
+        <HistoryScreen world={world} />
       ) : tab === "finances" ? (
         <Finances world={world} />
       ) : (
         <Career world={world} game={game} />
       )}
 
-      {review && <SeasonReview summary={review} onClose={() => { game.dismissReview(); go("home"); }} />}
+      {review && world && <SeasonReview world={world} summary={review} onClose={() => { game.dismissReview(); go("home"); }} />}
       {busy && (
         <div className="busy" role="status">
           <div><span className="spinner" aria-hidden />{busy}</div>

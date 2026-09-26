@@ -72,7 +72,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
           <div className="stat"><span className="stat-label">World rank</span><span className="stat-value">{rank ? `#${rank}` : "—"}</span></div>
           <div className="stat"><span className="stat-label">Points list</span><span className="stat-value">{pr ? `#${pr}` : "—"}</span></div>
           <div className="stat"><span className="stat-label">This season</span><span className="stat-value">{plural(season.length, "start")}</span><span className="stat-sub">{season.filter((r) => r.madeCut).length} cuts{best ? `, best ${best.label}` : ""}</span></div>
-          <div className="stat"><span className="stat-label">Career</span><span className="stat-value">{plural(wp.career.careerWins, "win")}</span><span className="stat-sub">{money(wp.career.careerEarnings)}</span></div>
+          <div className="stat"><span className="stat-label">Career</span><span className="stat-value">{plural(wp.career.careerWins, "win")}</span><span className="stat-sub">{plural(wp.career.careerMajors, "major")} · {money(wp.career.careerEarnings)}</span></div>
         </div>
 
         <section>
@@ -157,8 +157,12 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
                 <p className="muted small">Players weigh your reputation against their standing, the commission, the length, and their own ambition. Turn-downs mean a four-week wait.</p>
               </>
             )}
-            {result && <p style={{ marginBottom: 0 }}><strong>{result}</strong></p>}
           </section>
+        )}
+        {result && (
+          <p className={wp.client ? "good-text" : ""} style={{ margin: 0 }} role="status">
+            <strong>{result}</strong>
+          </p>
         )}
       </div>
     </div>

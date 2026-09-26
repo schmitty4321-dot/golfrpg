@@ -68,7 +68,8 @@ describe("signing players", () => {
     const worst = free[free.length - 1]!.player.id;
     expect(acceptChance(w, worst, { commission: 0.1, years: 2 })).toBeGreaterThan(acceptChance(w, best, { commission: 0.1, years: 2 }));
     // A star won't look at a brand-new agency whatever the terms...
-    expect(acceptChance(w, best, { commission: 0.05, years: 2 })).toBeLessThan(0.1);
+    const star = Object.values(w.players).find((wp) => (ranks.get(wp.player.id) ?? 999) <= 5)!.player.id;
+    expect(acceptChance(w, star, { commission: 0.05, years: 2 })).toBeLessThan(0.1);
     // ...but for a player within reach, a lower commission makes the difference.
     const mid = free.find((wp) => {
       const c = acceptChance(w, wp.player.id, { commission: 0.1, years: 2 });

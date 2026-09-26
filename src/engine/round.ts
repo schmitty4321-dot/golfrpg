@@ -25,7 +25,7 @@ export const HOLE_SD = 0.45;
  * Expected score before blow-ups for a tour-average player on a standard
  * hole of each par. Blow-ups add roughly 0.04 a hole on top.
  */
-export const BASE = { par3: 2.97, par4: 3.94, par5: 4.56 };
+export const BASE = { par3: 2.995, par4: 3.965, par5: 4.585 };
 
 /** Scoring average of a tour-average player on this hole, calm and dry. */
 export function holeBaseline(hole: Hole, course: Course, weather: RoundWeather): number {
