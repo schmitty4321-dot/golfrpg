@@ -11,6 +11,7 @@ import { TOUR_AVERAGE } from "./attributes";
 import { clamp, createRng, type Rng } from "./rng";
 import type { Course, CourseStyle, Hole, Player } from "./types";
 import { tendencies } from "./tendencies";
+import realHoles from "./realHoles.json";
 
 export interface Pt {
   x: number;
@@ -38,7 +39,29 @@ export interface HoleLayout {
   trees: Circle[];
   /** Bounding box of everything drawn. */
   bounds: { minX: number; maxX: number; minY: number; maxY: number };
+  /** Set when the hole is drawn from its real map (OpenStreetMap). */
+  real?: { courseId: string; hole: number };
+  /** Real fairway width in yards, measured from the map, when known. */
+  fairwayWidth?: number;
 }
+
+/**
+ * The real holes, from OpenStreetMap: the centre line, green, bunkers, water
+ * and trees, in yards with the tee at (0, 0) and the green up the y axis
+ * (built by scripts/osm; the full outlines for drawing are in public/holes).
+ */
+interface RealHole {
+  path: number[][];
+  green: number[];
+  bunkers: number[][];
+  water: number[][][];
+  trees: number[][];
+  fw?: number;
+}
+const REAL_HOLES = realHoles as unknown as Record<string, Record<string, RealHole>>;
+
+/** Whether a course has real hole maps (and so a drawing to load). */
+export const hasRealHoles = (courseId: string): boolean => !!REAL_HOLES[courseId];
 
 export type Lie = "tee" | "fairway" | "rough" | "bunker" | "trees" | "water" | "ob" | "green" | "fringe" | "holed";
 
@@ -109,9 +132,49 @@ const layoutCache = new WeakMap<Hole, HoleLayout>();
 export function holeLayout(course: Course, hole: Hole): HoleLayout {
   const cached = layoutCache.get(hole);
   if (cached) return cached;
-  const layout = buildLayout(course, hole);
+  const real = REAL_HOLES[course.id]?.[String(hole.number)];
+  const layout = real ? realLayout(course, hole, real) : buildLayout(course, hole);
   layoutCache.set(hole, layout);
   return layout;
+}
+
+function realLayout(course: Course, hole: Hole, real: RealHole): HoleLayout {
+  const rng = createRng(traceSeed(course.id, hole.number, "layout"));
+  const pt = (p: number[]): Pt => ({ x: p[0]!, y: p[1]! });
+  const path = real.path.map(pt);
+  const [gx, gy, gr] = real.green as [number, number, number];
+  const green = { x: gx, y: gy, r: gr };
+  const pinOff = rng.next() * gr * 0.55;
+  const pinAng = rng.next() * Math.PI * 2;
+  const pin = { x: gx + Math.cos(pinAng) * pinOff, y: gy + Math.sin(pinAng) * pinOff };
+  const w = real.fw ?? (hole.par === 3 ? 0 : hole.fairwayWidth);
+  // A plain fairway along the line, shown until the real outlines have loaded.
+  const fairway: Pt[] = [];
+  if (hole.par > 3) {
+    const len = path.slice(1).reduce((sum, p, i) => sum + dist(p, path[i]!), 0);
+    const steps = 16;
+    for (let i = 0; i <= steps; i++) fairway.push(pointAt(path, 170 + ((len - 192) * i) / steps, w / 2));
+    for (let i = steps; i >= 0; i--) fairway.push(pointAt(path, 170 + ((len - 192) * i) / steps, -w / 2));
+  }
+  const xs = path.map((p) => p.x);
+  const ys = path.map((p) => p.y);
+  return {
+    par: hole.par,
+    yards: hole.yards,
+    style: course.style,
+    tee: { x: 0, y: 0 },
+    path,
+    fairway,
+    green,
+    pin,
+    bunkers: real.bunkers.map(([x, y, r]) => ({ x: x!, y: y!, r: r! })),
+    water: real.water.map((poly) => poly.map(pt)),
+    trees: real.trees.map(([x, y, r]) => ({ x: x!, y: y!, r: r! })),
+    // The same frame the drawing data uses (see scripts/osm/buildholes.py).
+    bounds: { minX: Math.min(Math.min(...xs) - 55, -60), maxX: Math.max(Math.max(...xs) + 55, 60), minY: -25, maxY: Math.max(...ys) + 35 },
+    real: { courseId: course.id, hole: hole.number },
+    ...(real.fw ? { fairwayWidth: real.fw } : {}),
+  };
 }
 
 function buildLayout(course: Course, hole: Hole): HoleLayout {
@@ -317,7 +380,7 @@ export function traceHole({ course, hole, score, player, windMph = 0, seed }: Tr
   }
   const shots: Shot[] = [];
   const Y = hole.yards;
-  const w = hole.fairwayWidth || 30;
+  const w = layout.fairwayWidth ?? (hole.fairwayWidth || 30);
   let cur: Pt = layout.tee;
   let stroke = 0;
   const pin = layout.pin;
@@ -333,6 +396,24 @@ export function traceHole({ course, hole, score, player, windMph = 0, seed }: Tr
     stroke++;
     shots.push({ stroke, kind: "penalty", club: "", from: cur, to: drop, lie: "rough", yards: 0, text });
     cur = drop;
+  };
+  /** Where a ball that finds the water ends up: in the hole's real water near `target`, when it has any. */
+  const inWater = (target: Pt): Pt | null => {
+    let best: Pt | null = null;
+    let bestD = Infinity;
+    for (const poly of layout.water) {
+      const c = { x: poly.reduce((s, p) => s + p.x, 0) / poly.length, y: poly.reduce((s, p) => s + p.y, 0) / poly.length };
+      for (const v of poly) {
+        const d = dist(v, target);
+        if (d < bestD) {
+          bestD = d;
+          // A few yards in from the edge.
+          const k = Math.min(1, 6 / Math.max(1, dist(v, c)));
+          best = { x: v.x + (c.x - v.x) * k, y: v.y + (c.y - v.y) * k };
+        }
+      }
+    }
+    return best;
   };
   /** A spot on the green `feet` from the pin, on the side the ball came from. */
   const onGreen = (feet: number, from: Pt): Pt => {
@@ -398,7 +479,8 @@ export function traceHole({ course, hole, score, player, windMph = 0, seed }: Tr
 
   if (hole.par === 3) {
     if (plan.penalties > 0) {
-      const into = layout.water[0] ? pointAt(layout.path, Y - layout.green.r - 25, rng.normal(0, 8)) : pointAt(layout.path, Y + 10, (rng.chance(0.5) ? 1 : -1) * 45);
+      const aim = pointAt(layout.path, Y - layout.green.r - 25, rng.normal(0, 8));
+      const into = layout.water[0] ? (layout.real ? inWater(layout.green) ?? aim : aim) : pointAt(layout.path, Y + 10, (rng.chance(0.5) ? 1 : -1) * 45);
       const club = clubFor(Y, true);
       push({ kind: "tee", club, to: into, lie: layout.water[0] ? "water" : "ob", text: `${club} ${layout.water[0] ? "comes up short, in the water" : "sails out of bounds"}.` });
       for (let i = 0; i < plan.penalties; i++) penalty(i === 0 ? "Penalty stroke: plays from the drop zone." : "Another penalty stroke.", pointAt(layout.path, Y - 70, 0));
@@ -422,7 +504,8 @@ export function traceHole({ course, hole, score, player, windMph = 0, seed }: Tr
     const len = Math.min(teeClub === "3-wood" ? driveLen - 25 : driveLen, Y - 70);
     if (plan.penalties > 0) {
       const wet = layout.water.length > 0;
-      tee = wet ? pointAt(layout.path, len - 20, (layout.water[0]![0]!.x > 0 ? 1 : -1) * (w / 2 + 22)) : pointAt(layout.path, len, missSide() * (w / 2 + 50));
+      const landing = pointAt(layout.path, len - 20, (layout.water[0]?.[0]?.x ?? 0) > 0 ? w / 2 + 22 : -(w / 2 + 22));
+      tee = wet ? (layout.real ? inWater(pointAt(layout.path, len)) ?? landing : landing) : pointAt(layout.path, len, missSide() * (w / 2 + 50));
       lie = wet ? "water" : "ob";
       teeText = `${teeClub} ${wet ? "finds the water" : "goes out of bounds"}.`;
     } else if (plan.recoveries > 0) {

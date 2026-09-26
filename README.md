@@ -214,6 +214,30 @@ Minimal player database:
 ] }
 ```
 
+### Real hole maps (OpenStreetMap)
+
+On 35 of the real courses, the shot tracer draws each hole from its real outlines instead of a
+generated layout. The outlines come from OpenStreetMap, where volunteers trace courses from aerial
+photos: the hole's line from tee to green, tees, fairways, greens, bunkers, water, woods, trees
+and cart paths. Neighbouring holes show around the edges, as they do from above.
+
+- **Shots follow the real hole:** balls fly along the real line of play, bunker shots come out of
+  the real bunkers, and a ball that finds the water lands in the real pond, such as the lake
+  around Sawgrass's island green.
+- **Fairway width:** the shot spread uses the real fairway width, measured from the map where
+  the fairway is mapped.
+- **Matching:** each scorecard hole is matched to a mapped hole by number, par and length. This
+  copes with events that play the nines the other way round, and with areas that hold more than
+  one course, such as Augusta's par-3 course or Sawgrass's Valley course.
+- **Not mapped:** holes that aren't mapped (or don't match) keep the generated layout. Hurstbourne,
+  Corales, Sedgefield, Vidanta Vallarta, the Dunes Club, Walnut Cove, El Cardonal and Yokohama
+  have none yet.
+
+The shot logic uses a compact summary bundled with the game (`src/engine/realHoles.json`). The
+full outlines load one course at a time, when a replay opens (`public/holes/`). To rebuild both:
+`python3 scripts/osm/fetch.py && python3 scripts/osm/buildholes.py`. The course list is in
+`scripts/osm/courses.json`. Map data © OpenStreetMap contributors, under the ODbL.
+
 ### Player stats
 
 The **Stats** tab ranks every main-tour player on any stat. Click a column header to sort, and

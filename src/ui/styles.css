@@ -35,6 +35,8 @@
   --c-bunker: #efe2b8;
   --c-water: #6aaedc;
   --c-trees: #4c8538;
+  --c-rough-deep: #7eab5c;
+  --c-cartpath: rgba(255, 255, 255, 0.55);
   --c-flag: #e34948;
   --c-flagpole: #333;
 }
@@ -70,6 +72,8 @@
     --c-bunker: #9a8a60;
     --c-water: #2a5f88;
     --c-trees: #1e3719;
+    --c-rough-deep: #3d6a33;
+    --c-cartpath: rgba(255, 255, 255, 0.25);
     --c-flag: #e66767;
     --c-flagpole: #ddd;
   }
@@ -105,6 +109,8 @@
   --c-bunker: #9a8a60;
   --c-water: #2a5f88;
   --c-trees: #1e3719;
+  --c-rough-deep: #3d6a33;
+  --c-cartpath: rgba(255, 255, 255, 0.25);
   --c-flag: #e66767;
   --c-flagpole: #ddd;
 }

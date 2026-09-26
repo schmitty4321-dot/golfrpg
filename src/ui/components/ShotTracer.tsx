@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useHoleMap } from "../holeMaps";
 import { traceHole, traceSeed, type HoleTrace, type PlayerEventResult, type Pt, type Shot, type TournamentResult } from "../../engine";
 
 interface Props {
@@ -96,7 +97,10 @@ export function ShotTracer({ result, row, round: startRound, hole: startHole, on
         </div>
 
         <div className="tracer-body">
-          <HoleDrawing trace={trace} step={step} />
+          <div>
+            <HoleDrawing trace={trace} step={step} />
+            {trace.layout.real && <p className="muted small" style={{ margin: "4px 0 0" }}>Hole map © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors</p>}
+          </div>
           <div>
             <p style={{ marginTop: 0 }}>
               <strong>{step >= trace.shots.length ? trace.result : "…"}</strong>
@@ -149,17 +153,42 @@ function HoleDrawing({ trace, step }: { trace: HoleTrace; step: number }) {
     return `M${a.x},${a.y} Q${mx + nx * bend},${my + ny * bend} ${b.x},${b.y}`;
   };
   const bg = L.style === "desert" ? "var(--c-desert)" : L.style === "links" ? "var(--c-links)" : "var(--c-rough)";
+  const map = useHoleMap(L.real);
+  const shapes = (list: number[][][] | undefined, fill: string, key: string) =>
+    list?.map((q, i) => <polygon key={`${key}${i}`} points={poly(q.map(([x, y]) => ({ x: x!, y: y! })))} fill={fill} />);
   return (
     <svg className="hole-svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Hole diagram: par ${L.par}, ${L.yards} yards. ${trace.shots.slice(0, step).map((s) => s.text).join(" ")}`}>
+      <defs><clipPath id="hole-clip"><rect x={0} y={0} width={W} height={H} /></clipPath></defs>
       <rect x={0} y={0} width={W} height={H} fill={bg} />
-      {L.style === "desert" && <path d={`M${X(L.tee)},${Y(L.tee)} ${L.path.map((p) => `L${X(p)},${Y(p)}`).join(" ")}`} stroke="var(--c-rough)" strokeWidth={70} fill="none" strokeLinecap="round" strokeLinejoin="round" />}
-      {L.trees.map((t, i) => <circle key={`t${i}`} cx={X(t)} cy={Y(t)} r={t.r} fill="var(--c-trees)" />)}
-      {L.water.map((w, i) => <polygon key={`w${i}`} points={poly(w)} fill="var(--c-water)" />)}
-      {L.fairway.length > 0 && <polygon points={poly(L.fairway)} fill="var(--c-fairway)" />}
-      <circle cx={X(L.green)} cy={Y(L.green)} r={L.green.r + 3} fill="var(--c-fairway)" />
-      <circle cx={X(L.green)} cy={Y(L.green)} r={L.green.r} fill="var(--c-green)" />
-      {L.bunkers.map((b, i) => <circle key={`b${i}`} cx={X(b)} cy={Y(b)} r={b.r} fill="var(--c-bunker)" />)}
-      <rect x={X(L.tee) - 5} y={Y(L.tee) - 4} width={10} height={8} rx={1.5} fill="var(--c-fairway)" />
+      {map ? (
+        <>
+          {/* The real hole, from its OpenStreetMap outlines (clipped: neighbouring holes run off the edge). */}
+          <g clipPath="url(#hole-clip)">
+          {shapes(map.wood, "var(--c-trees)", "wd")}
+          {shapes(map.rough, "var(--c-rough-deep)", "rg")}
+          {shapes(map.water, "var(--c-water)", "wa")}
+          {shapes(map.fairway, "var(--c-fairway)", "fw")}
+          {shapes(map.tee, "var(--c-fairway)", "te")}
+          {shapes(map.green, "var(--c-green)", "gr")}
+          {shapes(map.bunker, "var(--c-bunker)", "bu")}
+          {map.path.map((q, i) => (
+            <polyline key={`pa${i}`} points={poly(q.map(([x, y]) => ({ x: x!, y: y! })))} fill="none" stroke="var(--c-cartpath)" strokeWidth={1.2} />
+          ))}
+          {map.tree.map(([x, y], i) => <circle key={`tr${i}`} cx={X({ x: x!, y: y! })} cy={Y({ x: x!, y: y! })} r={4} fill="var(--c-trees)" />)}
+          </g>
+        </>
+      ) : (
+        <>
+          {L.style === "desert" && <path d={`M${X(L.tee)},${Y(L.tee)} ${L.path.map((p) => `L${X(p)},${Y(p)}`).join(" ")}`} stroke="var(--c-rough)" strokeWidth={70} fill="none" strokeLinecap="round" strokeLinejoin="round" />}
+          {L.trees.map((t, i) => <circle key={`t${i}`} cx={X(t)} cy={Y(t)} r={t.r} fill="var(--c-trees)" />)}
+          {L.water.map((w, i) => <polygon key={`w${i}`} points={poly(w)} fill="var(--c-water)" />)}
+          {L.fairway.length > 0 && <polygon points={poly(L.fairway)} fill="var(--c-fairway)" />}
+          <circle cx={X(L.green)} cy={Y(L.green)} r={L.green.r + 3} fill="var(--c-fairway)" />
+          <circle cx={X(L.green)} cy={Y(L.green)} r={L.green.r} fill="var(--c-green)" />
+          {L.bunkers.map((b, i) => <circle key={`b${i}`} cx={X(b)} cy={Y(b)} r={b.r} fill="var(--c-bunker)" />)}
+          <rect x={X(L.tee) - 5} y={Y(L.tee) - 4} width={10} height={8} rx={1.5} fill="var(--c-fairway)" />
+        </>
+      )}
       {/* Flag */}
       <line x1={X(L.pin)} y1={Y(L.pin)} x2={X(L.pin)} y2={Y(L.pin) - 14} stroke="var(--c-flagpole)" strokeWidth={1} />
       <polygon points={`${X(L.pin)},${Y(L.pin) - 14} ${X(L.pin) + 8},${Y(L.pin) - 11} ${X(L.pin)},${Y(L.pin) - 8}`} fill="var(--c-flag)" />
