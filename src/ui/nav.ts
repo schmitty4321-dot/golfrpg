@@ -1,4 +1,4 @@
-export type Tab = "home" | "agency" | "scouting" | "tournament" | "standings" | "calendar" | "player" | "training" | "finances" | "history" | "editor" | "career";
+export type Tab = "home" | "agency" | "scouting" | "tournament" | "standings" | "stats" | "calendar" | "player" | "training" | "finances" | "history" | "editor" | "career";
 
 /** Tabs in the bar; `more: true` ones live in the "More" menu to keep the bar on one line. */
 export const TABS: { id: Tab; label: string; more?: boolean }[] = [
@@ -7,6 +7,7 @@ export const TABS: { id: Tab; label: string; more?: boolean }[] = [
   { id: "scouting", label: "Scouting" },
   { id: "tournament", label: "Leaderboards" },
   { id: "standings", label: "Standings" },
+  { id: "stats", label: "Stats" },
   { id: "calendar", label: "Calendar" },
   { id: "player", label: "Player" },
   { id: "training", label: "Training" },

@@ -13,6 +13,7 @@ import { NewGame } from "./screens/NewGame";
 import { PlayerScreen } from "./screens/PlayerScreen";
 import { SeasonReview } from "./screens/SeasonReview";
 import { Standings } from "./screens/Standings";
+import { Stats } from "./screens/Stats";
 import { Tournament } from "./screens/Tournament";
 import { Training } from "./screens/Training";
 import { TABS, type Go, type Tab } from "./nav";
@@ -105,6 +106,8 @@ export function App() {
         <Tournament world={world} game={game} eventId={eventId} setEventId={setEventId} />
       ) : tab === "standings" ? (
         <Standings world={world} />
+      ) : tab === "stats" ? (
+        <Stats world={world} game={game} />
       ) : tab === "calendar" ? (
         <Calendar world={world} game={game} go={go} />
       ) : (tab === "player" || tab === "training") && !clientId ? (

@@ -1,5 +1,6 @@
 import { ATTRIBUTE_GROUPS, ATTRIBUTE_LABELS } from "../../engine";
-import { STATUS_LABELS, seasonChange, type World } from "../../season";
+import { STATUS_LABELS, abilityView, seasonChange, type World } from "../../season";
+import { AbilityBars } from "../components/AbilityBars";
 import { TendenciesPanel } from "../components/TendenciesPanel";
 import { formWord, money, signed, toPar } from "../format";
 
@@ -18,6 +19,7 @@ export function PlayerScreen({ world, clientId }: { world: World; clientId: stri
   const c = wp.career;
   const season = c.results.filter((r) => r.season === world.season);
   const change = seasonChange(wp);
+  const ability = abilityView(world, clientId);
   return (
     <main>
       <section className="panel">
@@ -33,6 +35,11 @@ export function PlayerScreen({ world, clientId }: { world: World; clientId: stri
           <div className="stat"><span className="stat-label">Form</span><span className="stat-value">{formWord(p.form)}</span></div>
           <div className="stat"><span className="stat-label">Condition</span><span className="stat-value">{Math.round(p.condition)}%</span></div>
         </div>
+        <AbilityBars
+          current={ability.current}
+          potential={ability.potential}
+          note={ability.coachQuality >= 14 ? "Potential is his coaches' estimate." : "Potential is his coaches' estimate; better coaches judge it more closely."}
+        />
       </section>
 
       <section className="panel">

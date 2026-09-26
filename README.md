@@ -214,6 +214,31 @@ Minimal player database:
 ] }
 ```
 
+### Player stats
+
+The **Stats** tab ranks every main-tour player on any stat. Click a column header to sort, and
+click it again to reverse the order. The stat groups are:
+
+| Group | Stats |
+|---|---|
+| Results | events, rounds, wins, top 10s, cuts made, earnings, points, scoring average |
+| Strokes gained | total, off the tee, approach, around the green and putting, per round against the field |
+| Off the tee | distance, fairways hit, misses left and right |
+| Approach | greens in regulation, from the fairway and from the rough, proximity, going for it |
+| Around the green | scrambling, sand saves |
+| Putting | putts per round and per green in regulation, one-putts, three-putts, first-putt distance, distance of putts made, longest putt made |
+| Scoring | birdies, eagles, pars, bogeys, doubles, penalties |
+
+It covers this season or last season. You can search by name, show only your clients, or show
+only qualified players (40% of the most rounds anyone has played). Click a name to open that
+player's profile. Shot stats come from the same replays as the round stats and the shot tracer,
+added up event by event (`src/season/stats.ts`). Developmental tour events aren't counted.
+
+The **Player** tab shows current ability and potential as bars on the 1-20 attribute scale.
+Current ability is the exact average of his golf attributes. Potential is his coaches' estimate
+of his ceiling, the same one the Training tab shows as stars, and it gets more accurate with
+better coaches.
+
 ### Real courses
 
 Every tour stop is played on its real course (`src/engine/realCourses.json`). The par and

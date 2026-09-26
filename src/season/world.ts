@@ -1,3 +1,4 @@
+import { closeSeasonStats } from "./stats";
 import {
   COURSES,
   clamp,
@@ -336,6 +337,7 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
     c.seasonEvents = 0;
     c.seasonWins = 0;
     c.devPoints = 0;
+    closeSeasonStats(c, world.season);
     c.lastRegion = null;
     wp.player.age++;
     wp.player.condition = Math.max(wp.player.condition, 90);

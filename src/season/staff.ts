@@ -1,5 +1,6 @@
 import { clamp, createRng, type Rng } from "../engine";
-import { COACH_GROUPS, INTENSITY, developWeek, impliedStaff } from "./development";
+import { COACH_GROUPS, INTENSITY, developWeek, impliedStaff, overall, potentialEstimate } from "./development";
+import { mixSeed } from "./entries";
 import type { Coach, CoachRole, Injury, World, WorldPlayer } from "./types";
 
 export const COACH_ROLES: CoachRole[] = ["swing", "shortGame", "putting", "mental", "fitness"];
@@ -231,4 +232,17 @@ export function offseason(world: World, weeks: number, rng: Rng): void {
       if (wp.client) progressRebuild(world, wp, rng);
     }
   }
+}
+
+/**
+ * A client's current level and what his coaches think he can reach, both as
+ * overall levels (1-20). The estimate is only as good as his best coach, and
+ * holds for the season (the same one the Training tab shows as stars).
+ */
+export function abilityView(world: World, clientId: string): { current: number; potential: number; coachQuality: number } {
+  const wp = world.players[clientId]!;
+  const coachQuality = Math.max(4, ...Object.values(staffQuality(world, clientId)));
+  const estimate = potentialEstimate(wp, coachQuality, createRng(mixSeed(world.seed, world.season, 77)));
+  const current = overall(wp.player);
+  return { current, potential: Math.max(current, estimate), coachQuality };
 }

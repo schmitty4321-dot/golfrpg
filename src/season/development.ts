@@ -179,11 +179,18 @@ export function seasonChange(wp: WorldPlayer): Partial<Record<AttributeKey, numb
   return out;
 }
 
+/** What his coaches think his ceiling is, as an overall level (1-20), blurred by their quality. */
+export function potentialEstimate(wp: WorldPlayer, coachQuality: number, rng: Rng): number {
+  const noise = rng.normal(0, Math.max(0.3, (20 - coachQuality) / 10));
+  return clamp(wp.development.potential + noise, 1, 20);
+}
+
+/** The same estimate as 1-5 stars. */
+export const ceilingStars = (level: number): number => clamp(Math.round(((level - 8) / 10) * 5 * 2) / 2, 0.5, 5);
+
 /** What his coaches think his ceiling is: 1-5 stars, blurred by their quality. */
 export function ceilingEstimate(wp: WorldPlayer, coachQuality: number, rng: Rng): number {
-  const noise = rng.normal(0, Math.max(0.3, (20 - coachQuality) / 10));
-  const level = wp.development.potential + noise;
-  return clamp(Math.round(((level - 8) / 10) * 5 * 2) / 2, 0.5, 5);
+  return ceilingStars(potentialEstimate(wp, coachQuality, rng));
 }
 
 export const snapshot = (a: Attributes): Attributes => ({ ...a });

@@ -319,3 +319,29 @@ select, input[type="text"], input[type="number"] {
 .course-card td, .course-card th { padding: 4px 6px; }
 .course-card tbody + tbody tr:first-child th { padding-top: 12px; }
 .course-card .hardest { color: var(--critical-text); font-weight: 600; }
+
+/* ---------- stats ---------- */
+.stats-filters { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin-bottom: 12px; font-size: 13px; }
+.stats-filters input[type="search"] { min-width: 180px; }
+.stats-table th.sortable { padding: 0; }
+.stats-table th.sortable button { all: unset; cursor: pointer; display: block; padding: 6px 8px; white-space: nowrap; text-align: right; width: 100%; box-sizing: border-box; }
+.stats-table th.sortable button:hover { color: var(--text); }
+.stats-table th.sortable button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.stats-table th.sorted, .stats-table td.sorted { background: var(--accent-soft); color: var(--text); }
+.stats-table .sort-arrow { display: inline-block; width: 1em; font-size: 9px; }
+.nowrap { white-space: nowrap; }
+
+/* ---------- ability ---------- */
+.ability { margin-top: 14px; }
+.ability-row { display: grid; grid-template-columns: 120px minmax(0, 1fr) 44px auto; align-items: center; gap: 10px; padding: 3px 0; }
+.ability-label { font-weight: 550; }
+.ability-bar { position: relative; height: 12px; background: var(--bar-track); border-radius: 6px; overflow: hidden; }
+.ability-bar > span { position: absolute; top: 0; bottom: 0; left: 0; border-radius: 6px; }
+.ability-now { background: var(--accent); }
+.ability-pot { background: var(--accent); opacity: 0.35; }
+.ability-bar > .ability-avg { left: auto; width: 2px; border-radius: 0; background: var(--text-2); opacity: 0.6; }
+.ability-val { text-align: right; font-weight: 650; font-variant-numeric: tabular-nums; }
+@media (max-width: 600px) { .ability-row { grid-template-columns: 96px minmax(0, 1fr) 40px; } .ability-row > :last-child { display: none; } }
+/* Keep the player's name in view while scrolling a wide stats table. */
+.stats-table th:nth-child(2), .stats-table td:nth-child(2) { position: sticky; left: 0; z-index: 1; background: var(--surface); box-shadow: 1px 0 0 var(--border); }
+.stats-table tr.me td:nth-child(2) { background: var(--highlight); }

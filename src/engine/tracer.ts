@@ -336,8 +336,19 @@ export function traceHole({ course, hole, score, player, windMph = 0, seed }: Tr
   };
   /** A spot on the green `feet` from the pin, on the side the ball came from. */
   const onGreen = (feet: number, from: Pt): Pt => {
-    const ang = Math.atan2(from.y - pin.y, from.x - pin.x) + rng.normal(0, 0.9);
-    const yds = Math.min(feet / 3, layout.green.r * 0.95);
+    const g = layout.green;
+    // How far from the pin the green runs in a given direction (pins sit off centre).
+    const reach = (ang: number) => {
+      const dx = Math.cos(ang);
+      const dy = Math.sin(ang);
+      const b = (pin.x - g.x) * dx + (pin.y - g.y) * dy;
+      const c = (pin.x - g.x) ** 2 + (pin.y - g.y) ** 2 - g.r * g.r;
+      return (-b + Math.sqrt(Math.max(0, b * b - c))) * 0.95;
+    };
+    let ang = Math.atan2(from.y - pin.y, from.x - pin.x) + rng.normal(0, 0.9);
+    // A long putt needs room: it comes from the far side of the green, away from a tucked pin.
+    if (feet / 3 > reach(ang)) ang = Math.atan2(pin.y - g.y, pin.x - g.x) + Math.PI + rng.normal(0, 0.4);
+    const yds = Math.min(feet / 3, reach(ang));
     return { x: pin.x + Math.cos(ang) * yds, y: pin.y + Math.sin(ang) * yds };
   };
   /** Where a missed green ends up: a greenside bunker or the rough around it. */
@@ -355,7 +366,9 @@ export function traceHole({ course, hole, score, player, windMph = 0, seed }: Tr
   };
   const approachFeet = (): number => {
     const skill = (a.midIrons + a.distanceControl + a.wedges) / 3 - TOUR_AVERAGE;
-    const base = plan.putts <= 1 ? 4 + rng.next() * 18 : plan.putts === 2 ? 18 + rng.next() * 35 : 38 + rng.next() * 30;
+    // One-putts are mostly from inside 20 feet, with the odd long one holed.
+    const onePutt = () => (rng.chance(0.08) ? 22 + 50 * rng.next() ** 2 : 3 + rng.next() * 17);
+    const base = plan.putts <= 1 ? onePutt() : plan.putts === 2 ? 18 + rng.next() * 35 : 38 + rng.next() * 30;
     return Math.round(clamp(base * (1 - skill * 0.03), 2, 90));
   };
   const chipFeet = (): number => (plan.putts <= 1 ? 1 + rng.next() * 6 : plan.putts === 2 ? 6 + rng.next() * 10 : 20 + rng.next() * 15);

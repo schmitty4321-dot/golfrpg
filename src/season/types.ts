@@ -1,4 +1,4 @@
-import type { AttributeKey, Attributes, Course, Player } from "../engine";
+import type { AttributeKey, Attributes, Course, Player, RoundStats, StrokesGained } from "../engine";
 
 /** "dev" events are the developmental tour, a level below the main tour. */
 export type EventTier = "major" | "signature" | "standard" | "opposite" | "playoff" | "finale" | "dev";
@@ -88,6 +88,27 @@ export interface Career {
   careerCuts: number;
   /** Seasons finished top of the main tour's points list. */
   pointsTitles: number;
+  /** This season's main-tour stats (missing in older saves until the next event). */
+  stats?: SeasonStats;
+  /** Last season's, kept through the next season for comparison. */
+  lastStats?: SeasonStats;
+}
+
+/** A season of main-tour golf, added up event by event. */
+export interface SeasonStats {
+  season: number;
+  events: number;
+  rounds: number;
+  strokes: number;
+  cuts: number;
+  wins: number;
+  top10s: number;
+  earnings: number;
+  points: number;
+  /** Strokes gained against the field, summed over rounds. */
+  sg: StrokesGained;
+  /** Shot-by-shot stats from the replays (the same numbers the round stats show). */
+  shots: RoundStats;
 }
 
 export type TrainingFocus = "balanced" | "longGame" | "approach" | "shortGame" | "putting" | "mental" | "fitness";

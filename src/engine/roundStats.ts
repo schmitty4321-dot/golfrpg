@@ -58,30 +58,35 @@ export const emptyStats = (): RoundStats => ({
   madeFeet: 0, madeCount: 0, longestMade: 0, penalties: 0,
 });
 
+const STAT_KEYS = Object.keys(emptyStats()) as (keyof RoundStats)[];
+
 export function addStats(a: RoundStats, b: RoundStats): RoundStats {
-  const out = emptyStats();
-  for (const k of Object.keys(out) as (keyof RoundStats)[]) out[k] = k === "longestMade" ? Math.max(a[k], b[k]) : a[k] + b[k];
-  return out;
+  return addInto({ ...a }, b);
+}
+
+/** Adds b into acc in place (for totals built hole by hole) and returns acc. */
+export function addInto(acc: RoundStats, b: RoundStats): RoundStats {
+  for (const k of STAT_KEYS) acc[k] = k === "longestMade" ? Math.max(acc[k], b[k]) : acc[k] + b[k];
+  return acc;
 }
 
 /** The seed the shot tracer uses for a hole, so both see the same shots. */
 export const holeSeed = (eventName: string, playerId: string, round: number, hole: number) => traceSeed(eventName, playerId, round, hole);
 
-/** Stats for one hole from its reconstruction. */
-export function holeStats(trace: HoleTrace, par: number): RoundStats {
-  const s = emptyStats();
+/** Stats for one hole from its reconstruction, added into `s` when given (a running total). */
+export function holeStats(trace: HoleTrace, par: number, s: RoundStats = emptyStats()): RoundStats {
   const shots = trace.shots;
   const L = trace.layout;
-  s.holes = 1;
-  s.strokes = trace.score;
-  s.toPar = trace.score - par;
+  s.holes++;
+  s.strokes += trace.score;
+  s.toPar += trace.score - par;
   const d = trace.score - par;
   if (d <= -2) s.eagles++;
   else if (d === -1) s.birdies++;
   else if (d === 0) s.pars++;
   else if (d === 1) s.bogeys++;
   else s.doublesOrWorse++;
-  s.penalties = shots.filter((x) => x.kind === "penalty").length;
+  s.penalties += shots.filter((x) => x.kind === "penalty").length;
 
   const tee = shots[0]!;
   if (par > 3) {
@@ -136,8 +141,8 @@ export function holeStats(trace: HoleTrace, par: number): RoundStats {
   }
 
   const putts = shots.filter((x) => x.kind === "putt");
-  s.putts = putts.length;
-  if (gir) s.puttsOnGir = putts.length;
+  s.putts += putts.length;
+  if (gir) s.puttsOnGir += putts.length;
   if (putts.length === 1) s.onePutts++;
   if (putts.length >= 3) s.threePutts++;
   if (putts.length > 0) {
@@ -159,17 +164,19 @@ export function roundStats(result: TournamentResult, row: PlayerEventResult, rou
   const card = row.holes[round];
   if (!card) return emptyStats();
   const wind = result.weather[round]?.windMph[row.waves[round] ?? "AM"] ?? 0;
-  return card.reduce((acc, score, i) => {
+  const acc = emptyStats();
+  card.forEach((score, i) => {
     const hole = result.course.holes[i]!;
     const trace = traceHole({ course: result.course, hole, score, player: row.player, windMph: wind, seed: holeSeed(result.name, row.player.id, round, i) });
-    return addStats(acc, holeStats(trace, hole.par));
-  }, emptyStats());
+    holeStats(trace, hole.par, acc);
+  });
+  return acc;
 }
 
 /** Stats for a player over rounds 1..n (0-based rounds up to and including `lastRound`). */
 export function eventStats(result: TournamentResult, row: PlayerEventResult, lastRound: number): RoundStats {
-  let acc = emptyStats();
-  for (let r = 0; r <= lastRound && r < row.holes.length; r++) acc = addStats(acc, roundStats(result, row, r));
+  const acc = emptyStats();
+  for (let r = 0; r <= lastRound && r < row.holes.length; r++) addInto(acc, roundStats(result, row, r));
   return acc;
 }
 

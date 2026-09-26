@@ -14,3 +14,4 @@ export * from "./amateurs";
 export * from "./history";
 export * from "./editor";
 export * from "./editorFixtures";
+export * from "./stats";

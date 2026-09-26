@@ -46,7 +46,21 @@ export function roundTendencyShift(t: Tendencies, round: number, shotsBehind: nu
   return shift;
 }
 
+// Tendencies are asked for on every hole of every replay: cache them per player
+// while the attributes they depend on are unchanged.
+const cache = new WeakMap<Player, { key: string; t: Tendencies }>();
+
 export function tendencies(p: Player): Tendencies {
+  const a = p.attributes;
+  const key = `${p.id}|${a.aggression}|${a.courseManagement}|${a.trajectoryControl}|${a.windTolerance}|${a.speedControl}|${a.sundayNerves}|${a.stamina}|${a.focus}`;
+  const hit = cache.get(p);
+  if (hit && hit.key === key) return hit.t;
+  const t = computeTendencies(p);
+  cache.set(p, { key, t });
+  return t;
+}
+
+function computeTendencies(p: Player): Tendencies {
   const a = p.attributes;
   const missRight = 0.3 + ((traceSeed(p.id, "miss") % 1000) / 1000) * 0.4;
   const flightScore = (a.trajectoryControl + a.windTolerance) / 2 - TOUR_AVERAGE;

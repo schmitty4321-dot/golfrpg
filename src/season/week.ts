@@ -1,3 +1,4 @@
+import { recordEventStats } from "./stats";
 import { clamp, createRng, expectedStrokesGained, simulateTournament, totalSg, type TournamentResult } from "../engine";
 import { seasonWeeks, majorSetup } from "./calendar";
 import { buildFields, courseById, mixSeed, planWeek, weekContext, type AiChoice, type FieldResult } from "./entries";
@@ -106,6 +107,7 @@ export function playWeek(world: World, choices: ClientChoices = {}): WeekReport 
         via: f.mondayQualifiers.includes(r.player.id) ? "monday" : "field",
       };
       c.results.push(record);
+      recordEventStats(c, world.season, f.event.tier, result, r, record.seasonPoints);
       // Developmental tour points go on their own list.
       if (f.event.tier === "dev") c.devPoints += record.seasonPoints;
       else c.seasonPoints += record.seasonPoints;
