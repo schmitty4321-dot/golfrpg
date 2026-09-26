@@ -1,7 +1,8 @@
-import { clamp, expectedStrokesGained, simulateTournament, totalSg, type TournamentResult } from "../engine";
+import { clamp, createRng, expectedStrokesGained, simulateTournament, totalSg, type TournamentResult } from "../engine";
 import { SEASON_WEEKS, majorSetup } from "./calendar";
 import { buildFields, courseById, mixSeed, planWeek, weekContext, type AiChoice, type FieldResult } from "./entries";
 import { owgrPointsFor, owgrWinnerPoints, seasonPointsFor, tieCounts } from "./points";
+import { endOfWeek } from "./staff";
 import { absWeek, type EventRecord, type TourEvent, type World } from "./types";
 
 /** What the client does this week. */
@@ -136,6 +137,7 @@ export function playWeek(world: World, choice: ClientChoice = { kind: "auto" }):
     wp.player.condition = clamp(wp.player.condition + REST_RECOVERY, 0, 100);
     wp.player.form *= 0.9;
   }
+  endOfWeek(world, played, createRng(mixSeed(world.seed, world.season, world.week, 3)));
 
   report.client.summary = describeClientWeek(world, plan.choices.get(world.clientId) ?? null, fields, report.client.record);
   world.news = world.news.slice(0, 30);

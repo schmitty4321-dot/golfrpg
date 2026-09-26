@@ -19,6 +19,11 @@ export interface Player {
   form: number;
   /** Physical and mental freshness, 0-100. Travel and events drain it. */
   condition: number;
+  /**
+   * Temporary strokes-gained adjustments per round, e.g. while a swing
+   * rebuild is bedding in. Absent for most players.
+   */
+  sgAdjust?: Partial<StrokesGained>;
 }
 
 export interface Hole {

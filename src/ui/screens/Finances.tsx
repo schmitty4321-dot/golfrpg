@@ -3,11 +3,12 @@ import { money } from "../format";
 
 export function Finances({ world }: { world: World }) {
   const f = world.finances;
-  const net = f.prizeMoney - f.caddie - f.travel - f.commission;
+  const net = f.prizeMoney - f.caddie - f.travel - f.coaching - f.commission;
   const rows: [string, number][] = [
     ["Prize money", f.prizeMoney],
     ["Caddie (weekly fee + share of winnings)", -f.caddie],
     ["Travel and accommodation", -f.travel],
+    ["Coaching staff", -f.coaching],
     ["Your agency's commission", -f.commission],
   ];
   return (

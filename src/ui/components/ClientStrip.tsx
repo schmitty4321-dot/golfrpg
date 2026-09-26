@@ -46,6 +46,16 @@ export function ClientStrip({ world }: { world: World }) {
           <span className="stat-sub">{Math.round(world.commissionRate * 100)}% commission</span>
         </div>
       </div>
+      {c.injury && (
+        <p className="bad-text" style={{ marginBottom: 0 }}>
+          <strong>Injured:</strong> {c.injury.name}, about {c.injury.weeksLeft} more week{c.injury.weeksLeft === 1 ? "" : "s"}.
+        </p>
+      )}
+      {c.rebuild && (
+        <p className="secondary" style={{ marginBottom: 0 }}>
+          Swing rebuild: {c.rebuild.weeksLeft} of {c.rebuild.totalWeeks} weeks left. Expect his ball-striking to be off.
+        </p>
+      )}
     </section>
   );
 }

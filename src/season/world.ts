@@ -1,5 +1,6 @@
 import {
   COURSES,
+  clamp,
   createRng,
   expectedStrokesGained,
   generatePlayer,
@@ -9,10 +10,12 @@ import {
   type Rng,
 } from "../engine";
 import { SEASON_WEEKS, buildTour } from "./calendar";
+import { newDevelopment, overall } from "./development";
+import { generateCoaches, offseason, OFFSEASON_WEEKS } from "./staff";
 import { courseFit, courseById, eventsInWeek, isInvitational, mixSeed, planWeek, priorityCompare, MONDAY_SPOTS } from "./entries";
 import { pointsList, rankMap } from "./points";
 import type { Course } from "../engine";
-import { absWeek, type Career, type SeasonSummary, type TourEvent, type TourStatus, type World, type WorldPlayer } from "./types";
+import { SAVE_VERSION, absWeek, type Career, type SeasonSummary, type TourEvent, type TourStatus, type World, type WorldPlayer } from "./types";
 import { playWeek } from "./week";
 
 /** How your first client's career starts. */
@@ -64,6 +67,12 @@ const newCareer = (status: TourStatus): Career => ({
   careerWins: 0,
 });
 
+export const emptyFinances = () => ({ prizeMoney: 0, caddie: 0, travel: 0, coaching: 0, commission: 0 });
+
+export function makeWorldPlayer(p: Player, status: TourStatus, rng: Rng): WorldPlayer {
+  return { player: p, career: newCareer(status), targetEvents: 26, development: newDevelopment(p, rng), injury: null, rebuild: null };
+}
+
 /** A player's quality averaged over the reference courses (for seeding status). */
 const quality = (p: Player) => COURSES.reduce((s, c) => s + totalSg(expectedStrokesGained(p, c)), 0) / COURSES.length;
 
@@ -99,19 +108,22 @@ export function createWorld(opts: CreateWorldOptions): World {
   const statusAt = (i: number): TourStatus => (i < 125 ? "exempt" : i < 155 ? "graduate" : i < 220 ? "conditional" : "none");
 
   const world: World = {
-    version: 1,
+    version: SAVE_VERSION,
     seed: opts.seed,
     season: 0,
     week: 1,
-    players: Object.fromEntries(byQuality.map((p, i) => [p.id, { player: p, career: newCareer(statusAt(i)), targetEvents: 25 }])),
+    players: Object.fromEntries(byQuality.map((p, i) => [p.id, makeWorldPlayer(p, statusAt(i), rng)])),
     courses,
     schedule,
     clientId: "",
     commissionRate: opts.commissionRate ?? 0.1,
-    finances: { prizeMoney: 0, caddie: 0, travel: 0, commission: 0 },
+    finances: emptyFinances(),
     agencyBank: 0,
     pastSeasons: [],
     news: [],
+    coaches: generateCoaches(opts.seed),
+    staff: {},
+    training: { focus: "balanced", intensity: "normal" },
   };
 
   setTargets(world);
@@ -132,7 +144,7 @@ function prefixIds(players: Player[], prefix: string): void {
 }
 
 function createClient(rng: Rng, scenario: Scenario, usedNames: Set<string>): WorldPlayer {
-  const make = (tier: PlayerTier, age: number, status: TourStatus, boost = 0): WorldPlayer => {
+  const make = (tier: PlayerTier, age: number, status: TourStatus, boost = 0, room = 0): WorldPlayer => {
     const p = generatePlayer(rng, { tier, usedNames, nationality: "USA" });
     for (const k of Object.keys(p.attributes) as (keyof Player["attributes"])[]) {
       p.attributes[k] = Math.max(1, Math.min(20, p.attributes[k] + boost));
@@ -141,19 +153,23 @@ function createClient(rng: Rng, scenario: Scenario, usedNames: Set<string>): Wor
     p.age = age;
     p.form = 0;
     p.condition = 95;
-    return { player: p, career: newCareer(status), targetEvents: 27 };
+    const wp = makeWorldPlayer(p, status, rng);
+    // How much he can still grow, by scenario (hidden from the player).
+    wp.development.potential = Math.round(Math.min(18.5, overall(p) + room + clamp(rng.normal(0, 0.5), -0.5, 0.5)) * 10) / 10;
+    wp.targetEvents = 27;
+    return wp;
   };
   switch (scenario) {
     // Pitched so each start is a fight for a card, not a cruise.
     case "rookie":
-      return make("fringe", 23, "graduate", 1);
+      return make("fringe", 23, "graduate", 1, 2);
     case "journeyman":
-      return make("fringe", 32, "conditional");
+      return make("fringe", 32, "conditional", 0, 0.3);
     case "grinder":
       // A standout: near the top of what college players are, but still raw.
-      return make("college", 21, "none", 1);
+      return make("college", 21, "none", 1, 3.5);
     case "veteran": {
-      const wp = make("veteran", 45, "exempt");
+      const wp = make("veteran", 45, "exempt", 0, 0);
       wp.career.exemptThrough = 1;
       wp.career.careerWins = 4;
       wp.career.careerEarnings = 21_400_000;
@@ -199,14 +215,22 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   const addPlayer = (tier: PlayerTier, status: TourStatus) => {
     const p = generatePlayer(rng, { tier, usedNames });
     p.id = `s${season}n${++n}`;
-    world.players[p.id] = { player: p, career: newCareer(status), targetEvents: 27 };
+    world.players[p.id] = makeWorldPlayer(p, status, rng);
   };
   for (let i = fromPool; i < GRADUATES; i++) addPlayer("fringe", "graduate");
 
-  // Retirements among players without status, then fresh prospects to keep the pool steady.
+  // Retirements: players without status drift away, and the old guard hangs it up.
   for (const wp of Object.values(world.players)) {
-    if (wp.player.id === world.clientId || wp.career.status !== "none") continue;
-    if (wp.player.age >= 45 || rng.chance(0.2)) delete world.players[wp.player.id];
+    if (wp.player.id === world.clientId) continue;
+    const age = wp.player.age;
+    const retire =
+      age >= 50 ||
+      (wp.career.status === "none" && (age >= 42 || rng.chance(0.2))) ||
+      (age >= 46 && (wp.career.exemptThrough ?? 0) <= season && rng.chance(0.3));
+    if (retire) {
+      if (wp.career.careerWins > 0) world.news.unshift(`${wp.player.name} retires at ${age}, with ${wp.career.careerWins} career win${wp.career.careerWins === 1 ? "" : "s"}.`);
+      delete world.players[wp.player.id];
+    }
   }
   while (Object.keys(world.players).length < TARGET_POOL_SIZE) addPlayer(rng.chance(0.5) ? "college" : "fringe", "none");
 
@@ -224,10 +248,13 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
     wp.player.condition = Math.max(wp.player.condition, 90);
     wp.player.form *= 0.5;
   }
+  // The winter: ten weeks of practice with no events, then a new season's baseline.
+  offseason(world, OFFSEASON_WEEKS, rng);
+  for (const wp of Object.values(world.players)) wp.development.seasonStart = { ...wp.player.attributes };
   pruneHistory(world);
   world.season++;
   world.week = 1;
-  world.finances = { prizeMoney: 0, caddie: 0, travel: 0, commission: 0 };
+  world.finances = emptyFinances();
   setTargets(world);
   return summary;
 }
@@ -268,7 +295,7 @@ function summarise(world: World, client: WorldPlayer, statusBefore: TourStatus, 
   };
 }
 
-export type EntryAccess = "invited" | "not-invited" | "in" | "alternate" | "monday";
+export type EntryAccess = "invited" | "not-invited" | "in" | "alternate" | "monday" | "injured";
 
 export interface EntryOption {
   event: TourEvent;
@@ -287,6 +314,9 @@ export function clientOptions(world: World): EntryOption[] {
     const course = courseById(world, event.courseId);
     const fit = Math.round(courseFit(client, course) * 100) / 100;
     const base = { event, course, fit };
+    if (client.injury) {
+      return { ...base, access: "injured" as const, detail: `Injured (${client.injury.name.toLowerCase()}), out for about ${client.injury.weeksLeft} more week${client.injury.weeksLeft === 1 ? "" : "s"}.` };
+    }
     const plan = planWeek(world, { eventId: event.id, route: "entry" });
     if (isInvitational(event.tier)) {
       const invited = plan.invited.get(event.id)!.has(world.clientId);

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import * as season from "../season";
 import {
   SEASON_WEEKS,
   createWorld,
@@ -117,7 +118,18 @@ export function useGame() {
 
   const exportSave = useCallback(() => (worldRef.current ? serializeWorld(worldRef.current) : null), []);
 
-  return { state, newGame, play, closeSeason, dismissReview, importSave, abandon, exportSave };
+  /** Apply a management decision (training, staff, rebuild) to the world, then save. */
+  const act = useCallback(
+    (fn: (w: World) => unknown) => {
+      if (!worldRef.current) return;
+      fn(worldRef.current);
+      publish();
+      void persist();
+    },
+    [publish, persist],
+  );
+
+  return { state, newGame, play, closeSeason, dismissReview, importSave, abandon, exportSave, act, lib: season };
 }
 
 export type Game = ReturnType<typeof useGame>;

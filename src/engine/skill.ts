@@ -107,6 +107,10 @@ export function expectedStrokesGained(player: Player, course: Course): StrokesGa
   sg.approach += general / 4;
   sg.aroundTheGreen += general / 4;
   sg.putting += general / 4;
+
+  if (player.sgAdjust) {
+    for (const k of Object.keys(player.sgAdjust) as (keyof StrokesGained)[]) sg[k] += player.sgAdjust[k] ?? 0;
+  }
   return sg;
 }
 

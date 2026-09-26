@@ -270,7 +270,7 @@ describe("saves", () => {
   });
 
   it("rejects an unknown save version", () => {
-    const json = JSON.stringify({ ...base, version: 2 });
+    const json = JSON.stringify({ ...base, version: 99 });
     expect(() => deserializeWorld(json)).toThrow(/version/);
   });
 });

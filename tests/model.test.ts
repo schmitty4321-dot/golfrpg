@@ -119,3 +119,16 @@ describe("purse", () => {
     expect(tiedPayout(1_000_000, 2, 2)).toBe(Math.round((1_000_000 * (10.9 + 6.9)) / 100 / 2));
   });
 });
+
+describe("temporary adjustments", () => {
+  it("applies sgAdjust on top of attributes (e.g. mid swing rebuild)", () => {
+    const course = getCourse("harrow-pines");
+    const base = flatPlayer("a", 14);
+    const rebuilding = { ...flatPlayer("b", 14), sgAdjust: { approach: -0.5, offTheTee: -0.2 } };
+    const a = expectedStrokesGained(base, course);
+    const b = expectedStrokesGained(rebuilding, course);
+    expect(b.approach).toBeCloseTo(a.approach - 0.5, 9);
+    expect(b.offTheTee).toBeCloseTo(a.offTheTee - 0.2, 9);
+    expect(b.putting).toBeCloseTo(a.putting, 9);
+  });
+});

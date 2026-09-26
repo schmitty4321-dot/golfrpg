@@ -44,6 +44,31 @@ npm run calibrate      # 200 events per course vs. real tour reference numbers
   strokes-gained chart, points, world and money lists with the card lines, a season calendar
   with winners, the player card, finances, and an end-of-season review. It saves itself in
   the browser (IndexedDB), can export and import save files, and supports light and dark themes.
+- **Step 3 (done): development and ageing** (`src/season/development.ts`, `staff.ts`, and the Training tab).
+
+### Development, coaching and injuries
+
+- **Growth:** every player has a hidden ceiling (young players have room to grow). Each week,
+  attributes grow towards it, faster when young, with a strong work ethic (professionalism,
+  coachability), good coaching and a training focus. Changes build up as progress and tick over a
+  point at a time, and the Player and Training tabs show what moved this season.
+- **Ageing:** after his peak (around 31, varies by player), distance, stamina and flexibility fade
+  first, then the short putts. Course management, composure and nerve keep improving into the
+  forties. A fitness trainer and a fitness focus slow the decline.
+- **Training plan:** a focus (balanced, long game, approach, short game, putting, mental, fitness)
+  and an intensity. Heavy training is faster, but tiring and doubles the injury risk.
+- **Coaching staff:** a swing coach, short-game coach, putting coach, mental coach and fitness
+  trainer, five of each on the market from journeymen to gurus. Wages come out of your client's
+  winnings. Coach quality also sharpens the read on his ceiling.
+- **Swing rebuild:** 16 weeks with the swing coach. He loses up to 0.9 strokes a round at first,
+  easing week by week. If it works (the odds depend on coach quality and coachability), his
+  ball-striking improves and his ceiling rises. Start one late in a season and the winter absorbs it.
+- **Injuries:** weekly risk from injury proneness, competing, fatigue and heavy training. They
+  last 1-14 weeks, and long ones can cost distance. Injured players withdraw, and majors take the next man in.
+- **The world:** computer players develop and age by the same rules. Old players retire, and
+  new prospects arrive. `npm run worldcheck` plays many seasons to confirm the tour stays stable
+  (overall strength plateaus, average age about 33-34).
+- Saves from before this update are upgraded automatically when loaded.
 
 ### Playing a season
 
@@ -134,7 +159,7 @@ playoffs are a little frequent.
 1. ✅ **Sim engine**, calibrated against tour scoring.
 2. ✅ **One season, one golfer**: a tour schedule, entering events, money,
    world ranking points, keeping your card.
-3. **Development and ageing**: training plans, coaches, swing rebuilds (form
+3. ✅ **Development and ageing**: training plans, coaches, swing rebuilds (form
    dips now, higher ceiling later), peak age, decline, injuries.
 4. **The agency**: multiple clients, scouting (reports as good as the scout,
    and hidden attributes seen only through them), contracts and commission, sponsors

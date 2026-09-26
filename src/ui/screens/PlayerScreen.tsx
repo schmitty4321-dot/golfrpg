@@ -1,5 +1,5 @@
 import { ATTRIBUTE_GROUPS, ATTRIBUTE_LABELS } from "../../engine";
-import { STATUS_LABELS, type World } from "../../season";
+import { STATUS_LABELS, seasonChange, type World } from "../../season";
 import { formWord, money, signed, toPar } from "../format";
 
 const GROUP_LABELS: Record<keyof typeof ATTRIBUTE_GROUPS, string> = {
@@ -16,6 +16,7 @@ export function PlayerScreen({ world }: { world: World }) {
   const p = wp.player;
   const c = wp.career;
   const season = c.results.filter((r) => r.season === world.season);
+  const change = seasonChange(wp);
   return (
     <main>
       <section className="panel">
@@ -46,7 +47,9 @@ export function PlayerScreen({ world }: { world: World }) {
                 <div className="attr" key={k}>
                   <span>{ATTRIBUTE_LABELS[k]}</span>
                   <span className="attr-bar" aria-hidden><span style={{ width: `${(p.attributes[k] / 20) * 100}%` }} /></span>
-                  <span className="attr-val">{p.attributes[k]}</span>
+                  <span className="attr-val">
+                    {change[k] ? <span className={`small ${change[k]! > 0 ? "good-text" : "bad-text"}`} title="Change this season">{change[k]! > 0 ? "▲" : "▼"}</span> : null} {p.attributes[k]}
+                  </span>
                 </div>
               ))}
             </div>

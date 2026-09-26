@@ -8,6 +8,7 @@ import { PlayerScreen } from "./screens/PlayerScreen";
 import { SeasonReview } from "./screens/SeasonReview";
 import { Standings } from "./screens/Standings";
 import { Tournament } from "./screens/Tournament";
+import { Training } from "./screens/Training";
 import { TABS, type Go, type Tab } from "./nav";
 import { useGame } from "./useGame";
 
@@ -80,6 +81,8 @@ export function App() {
         <Calendar world={world} game={game} go={go} />
       ) : tab === "player" ? (
         <PlayerScreen world={world} />
+      ) : tab === "training" ? (
+        <Training world={world} game={game} />
       ) : tab === "finances" ? (
         <Finances world={world} />
       ) : (

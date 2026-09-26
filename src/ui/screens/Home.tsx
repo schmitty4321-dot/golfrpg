@@ -20,6 +20,7 @@ const ACCESS_TONE: Record<EntryOption["access"], string> = {
   alternate: "var(--warning)",
   monday: "var(--serious)",
   "not-invited": "var(--critical)",
+  injured: "var(--critical)",
 };
 
 export function Home({ world, game, go }: { world: World; game: Game; go: Go }) {
@@ -98,7 +99,7 @@ function ThisWeek({ world, game }: { world: World; game: Game }) {
 function EventCard({ option: o, onEnter }: { option: EntryOption; onEnter: () => void }) {
   const e = o.event;
   const fit = fitWord(o.fit);
-  const canEnter = o.access !== "not-invited";
+  const canEnter = o.access !== "not-invited" && o.access !== "injured";
   return (
     <article className="event-card">
       <div className="event-title">

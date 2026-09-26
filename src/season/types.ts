@@ -1,4 +1,4 @@
-import type { Course, Player } from "../engine";
+import type { AttributeKey, Attributes, Course, Player } from "../engine";
 
 export type EventTier = "major" | "signature" | "standard" | "opposite" | "finale";
 export type Region = "NA" | "EU" | "ASIA" | "AUS";
@@ -76,17 +76,59 @@ export interface Career {
   careerWins: number;
 }
 
+export type TrainingFocus = "balanced" | "longGame" | "approach" | "shortGame" | "putting" | "mental" | "fitness";
+export type Intensity = "light" | "normal" | "heavy";
+export interface TrainingPlan {
+  focus: TrainingFocus;
+  intensity: Intensity;
+}
+
+export type CoachRole = "swing" | "shortGame" | "putting" | "mental" | "fitness";
+
+export interface Coach {
+  id: string;
+  name: string;
+  role: CoachRole;
+  /** 1-20. */
+  quality: number;
+  weeklyFee: number;
+}
+
+export interface Injury {
+  name: string;
+  weeksLeft: number;
+}
+
+export interface SwingRebuild {
+  weeksLeft: number;
+  totalWeeks: number;
+}
+
+export interface Development {
+  /** Hidden: the overall level (average golf attribute) the player can grow to. */
+  potential: number;
+  /** Fractional progress towards the next point up (+1) or down (-1), per attribute. */
+  progress: Partial<Record<AttributeKey, number>>;
+  /** Attributes at the start of the season, to show what changed. */
+  seasonStart: Attributes;
+}
+
 export interface WorldPlayer {
   player: Player;
   career: Career;
   /** How many starts this player aims for in a season (AI scheduling). */
   targetEvents: number;
+  development: Development;
+  injury: Injury | null;
+  rebuild: SwingRebuild | null;
 }
 
 export interface Finances {
   prizeMoney: number;
   caddie: number;
   travel: number;
+  /** Coaching staff wages, paid by the client. */
+  coaching: number;
   /** Your agency's cut. */
   commission: number;
 }
@@ -111,8 +153,10 @@ export interface SeasonSummary {
   };
 }
 
+export const SAVE_VERSION = 2;
+
 export interface World {
-  version: 1;
+  version: typeof SAVE_VERSION;
   seed: number;
   season: number;
   /** Next week to be played. */
@@ -128,6 +172,11 @@ export interface World {
   pastSeasons: SeasonSummary[];
   /** Most recent headlines, newest first. */
   news: string[];
+  /** Coaches available to hire. */
+  coaches: Coach[];
+  /** The client's staff: a coach id per role. */
+  staff: Partial<Record<CoachRole, string>>;
+  training: TrainingPlan;
 }
 
 export const absWeek = (season: number, week: number): number => season * 52 + week;

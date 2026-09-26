@@ -1,4 +1,4 @@
-export type Tab = "home" | "tournament" | "standings" | "calendar" | "player" | "finances" | "career";
+export type Tab = "home" | "tournament" | "standings" | "calendar" | "player" | "training" | "finances" | "career";
 
 export const TABS: { id: Tab; label: string }[] = [
   { id: "home", label: "This week" },
@@ -6,6 +6,7 @@ export const TABS: { id: Tab; label: string }[] = [
   { id: "standings", label: "Standings" },
   { id: "calendar", label: "Calendar" },
   { id: "player", label: "Player" },
+  { id: "training", label: "Training" },
   { id: "finances", label: "Finances" },
   { id: "career", label: "Save" },
 ];

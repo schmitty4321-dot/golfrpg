@@ -1,0 +1,203 @@
+import { ATTRIBUTE_LABELS, createRng, type AttributeKey } from "../../engine";
+import {
+  COACH_ROLES,
+  REBUILD_WEEKS,
+  ROLE_LABELS,
+  canStartRebuild,
+  ceilingEstimate,
+  mixSeed,
+  rebuildSuccessChance,
+  seasonChange,
+  staffQuality,
+  weeklyStaffCost,
+  SEASON_WEEKS,
+  type CoachRole,
+  type Intensity,
+  type TrainingFocus,
+  type World,
+} from "../../season";
+import { money } from "../format";
+import type { Game } from "../useGame";
+
+const FOCUS: { id: TrainingFocus; label: string; blurb: string }[] = [
+  { id: "balanced", label: "Balanced", blurb: "Even work on every part of the game." },
+  { id: "longGame", label: "Long game", blurb: "Driving and long clubs." },
+  { id: "approach", label: "Approach", blurb: "Irons, wedges and distance control." },
+  { id: "shortGame", label: "Short game", blurb: "Chipping, pitching and bunkers." },
+  { id: "putting", label: "Putting", blurb: "Lag, short putts, reading greens." },
+  { id: "mental", label: "Mental", blurb: "Composure, decisions, closing out events." },
+  { id: "fitness", label: "Fitness", blurb: "Stamina, flexibility, and holding on to distance with age." },
+];
+
+const INTENSITY: { id: Intensity; label: string; blurb: string }[] = [
+  { id: "light", label: "Light", blurb: "Slower progress, fresher legs, fewer injuries." },
+  { id: "normal", label: "Normal", blurb: "The usual workload." },
+  { id: "heavy", label: "Heavy", blurb: "Faster progress, but tiring and twice the injury risk." },
+];
+
+export const Stars = ({ value, max = 5 }: { value: number; max?: number }) => (
+  <span aria-label={`${value} out of ${max} stars`} title={`${value} / ${max}`} style={{ letterSpacing: 1, color: "var(--warning)" }}>
+    {"★".repeat(Math.floor(value))}
+    {value % 1 ? "⯪" : ""}
+    <span style={{ color: "var(--bar-track)" }}>{"★".repeat(max - Math.ceil(value))}</span>
+  </span>
+);
+
+const qualityStars = (q: number) => Math.max(0.5, Math.round((q / 20) * 5 * 2) / 2);
+
+export function Training({ world, game }: { world: World; game: Game }) {
+  const wp = world.players[world.clientId]!;
+  const quality = staffQuality(world);
+  const bestCoach = Math.max(4, ...Object.values(quality));
+  const ceiling = ceilingEstimate(wp, bestCoach, createRng(mixSeed(world.seed, world.season, 77)));
+  const changes = Object.entries(seasonChange(wp)) as [AttributeKey, number][];
+  const weekly = weeklyStaffCost(world);
+  const rebuildCheck = canStartRebuild(world);
+  const act = game.act;
+
+  return (
+    <main>
+      {wp.injury && (
+        <section className="panel" style={{ background: "var(--neg-soft)" }}>
+          <strong>Injured: {wp.injury.name}.</strong> Out for about {wp.injury.weeksLeft} more week{wp.injury.weeksLeft === 1 ? "" : "s"}. He can't enter events, and training does little until he's fit.
+        </section>
+      )}
+
+      <div className="grid-2">
+        <div className="stack">
+          <section className="panel">
+            <div className="panel-head"><h2>Training focus</h2><span className="muted small">Focused areas grow about 2.5× faster than the rest</span></div>
+            <div className="choice-grid">
+              {FOCUS.map((f) => (
+                <button key={f.id} className="choice" aria-pressed={world.training.focus === f.id} onClick={() => act((w) => (w.training.focus = f.id))}>
+                  <strong>{f.label}</strong>
+                  <span className="secondary small">{f.blurb}</span>
+                </button>
+              ))}
+            </div>
+            <div className="panel-head" style={{ marginTop: 16 }}><h2>Intensity</h2></div>
+            <div className="choice-grid">
+              {INTENSITY.map((f) => (
+                <button key={f.id} className="choice" aria-pressed={world.training.intensity === f.id} onClick={() => act((w) => (w.training.intensity = f.id))}>
+                  <strong>{f.label}</strong>
+                  <span className="secondary small">{f.blurb}</span>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <section className="panel">
+            <div className="panel-head">
+              <h2>Coaching staff</h2>
+              <span className="secondary small">{money(weekly)}/week · about {money(weekly * SEASON_WEEKS)} a season, paid from his winnings</span>
+            </div>
+            <div className="table-wrap">
+              <table>
+                <thead><tr><th>Role</th><th>Coach</th><th>Quality</th><th className="num">Per week</th><th /></tr></thead>
+                <tbody>
+                  {COACH_ROLES.map((role) => (
+                    <StaffRow key={role} role={role} world={world} game={game} />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="muted small">Better coaches speed up development in their area. With no coach he works it out alone, slowly. The fitness trainer also cuts injuries and slows the loss of distance with age.</p>
+          </section>
+        </div>
+
+        <div className="stack">
+          <section className="panel">
+            <div className="panel-head"><h2>His ceiling</h2></div>
+            <p style={{ marginTop: 0 }}>
+              <Stars value={ceiling} /> <span className="secondary">according to his coaches</span>
+            </p>
+            <p className="secondary small" style={{ marginBottom: 0 }}>
+              {wp.player.age <= wp.player.peakAge - 3
+                ? "He's young: most of his improvement is still ahead of him."
+                : wp.player.age <= wp.player.peakAge + 2
+                  ? "He's around his peak years: gains come slowly now."
+                  : "He's past his peak: expect distance to fade, while experience keeps him sharp."}{" "}
+              Better coaches give a more reliable read.
+            </p>
+          </section>
+
+          <section className="panel">
+            <div className="panel-head"><h2>Swing rebuild</h2></div>
+            {wp.rebuild ? (
+              <>
+                <p style={{ marginTop: 0 }}>Under way: {wp.rebuild.weeksLeft} of {wp.rebuild.totalWeeks} weeks left. His ball-striking is worse while the new move beds in, easing week by week.</p>
+                <div className="meter" aria-hidden><span style={{ width: `${(1 - wp.rebuild.weeksLeft / wp.rebuild.totalWeeks) * 100}%` }} /></div>
+                <div className="btn-row" style={{ marginTop: 12 }}>
+                  <button className="btn" onClick={() => confirm("Abandon the rebuild? The weeks spent so far are lost.") && act((w) => game.lib.abandonRebuild(w))}>Abandon</button>
+                </div>
+              </>
+            ) : (
+              <>
+                <p style={{ marginTop: 0 }}>
+                  A {REBUILD_WEEKS}-week overhaul with his swing coach. He'll lose up to 0.9 strokes a round at first. If it works, his long game and approach improve and his ceiling rises.
+                </p>
+                {world.staff.swing && (
+                  <p className="secondary small">
+                    Chance it works with his current coach: {Math.round(rebuildSuccessChance(quality.swing ?? 4, wp.player.attributes.coachability) * 100)}%.
+                  </p>
+                )}
+                <button className="btn btn-primary" disabled={!rebuildCheck.ok} onClick={() => act((w) => game.lib.startRebuild(w))}>Start rebuild</button>
+                {!rebuildCheck.ok && <p className="muted small">{rebuildCheck.reason}</p>}
+                <p className="muted small">Tip: start one near the end of a season and the winter break absorbs most of the dip.</p>
+              </>
+            )}
+          </section>
+
+          <section className="panel">
+            <div className="panel-head"><h2>Changes this season</h2></div>
+            {changes.length === 0 ? (
+              <p className="empty">No changes yet. Development shows up a point at a time.</p>
+            ) : (
+              <table>
+                <tbody>
+                  {changes.map(([k, d]) => (
+                    <tr key={k}>
+                      <td>{ATTRIBUTE_LABELS[k]}</td>
+                      <td className="num">{wp.player.attributes[k]}</td>
+                      <td className={`num ${d > 0 ? "good-text" : "bad-text"}`}>{d > 0 ? `▲ ${d}` : `▼ ${-d}`}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </section>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function StaffRow({ role, world, game }: { role: CoachRole; world: World; game: Game }) {
+  const current = world.coaches.find((c) => c.id === world.staff[role]);
+  const options = world.coaches.filter((c) => c.role === role).sort((a, b) => a.quality - b.quality);
+  return (
+    <tr>
+      <td>{ROLE_LABELS[role]}</td>
+      <td>
+        <select
+          aria-label={`${ROLE_LABELS[role]}`}
+          value={current?.id ?? ""}
+          onChange={(e) => {
+            const id = e.target.value;
+            game.act((w) => (id ? game.lib.hireCoach(w, id) : game.lib.releaseCoach(w, role)));
+          }}
+        >
+          <option value="">No one</option>
+          {options.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name} · {c.quality}/20 · {money(c.weeklyFee)}/wk
+            </option>
+          ))}
+        </select>
+      </td>
+      <td>{current ? <Stars value={qualityStars(current.quality)} /> : <span className="muted">–</span>}</td>
+      <td className="num">{current ? money(current.weeklyFee) : "–"}</td>
+      <td />
+    </tr>
+  );
+}

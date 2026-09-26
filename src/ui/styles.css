@@ -179,7 +179,7 @@ th.num, td.num { text-align: right; }
 
 /* ---------- attributes ---------- */
 .attr-groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px 28px; }
-.attr { display: grid; grid-template-columns: 1fr 90px 24px; align-items: center; gap: 10px; padding: 3px 0; }
+.attr { display: grid; grid-template-columns: 1fr 90px 40px; align-items: center; gap: 10px; padding: 3px 0; }
 .attr-bar { height: 6px; background: var(--bar-track); border-radius: 3px; overflow: hidden; }
 .attr-bar > span { display: block; height: 100%; background: var(--pos); border-radius: 0 3px 3px 0; }
 .attr-val { text-align: right; font-weight: 650; }
@@ -226,3 +226,7 @@ select, input[type="text"], input[type="number"] {
 .hero { display: grid; gap: 6px; padding: 12px 0 4px; }
 .hero h1 { font-size: 28px; }
 .empty { color: var(--muted); padding: 12px 0; }
+.choice-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.choice { text-align: left; border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 8px; padding: 10px; cursor: pointer; display: grid; gap: 4px; }
+.choice:hover { background: var(--surface-2); }
+.choice[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 1.5px var(--accent); background: var(--accent-soft); }

@@ -65,7 +65,8 @@ export function weekContext(world: World): WeekContext {
 
 /** The ordered list of players invited to a major, signature event or finale. */
 export function invitedField(world: World, ctx: WeekContext, event: TourEvent): string[] {
-  const all = Object.values(world.players);
+  // Injured players withdraw, and the next in line takes the spot.
+  const all = Object.values(world.players).filter((wp) => !wp.injury || wp.player.id === world.clientId);
   const owgr = (id: string) => ctx.owgrRank.get(id) ?? 9999;
   const pts = (id: string) => ctx.pointsRank.get(id) ?? 9999;
   const ids = all.map((wp) => wp.player.id);
@@ -129,7 +130,7 @@ export type AiChoice = { eventId: string; route: "entry" | "monday" } | null;
 export function aiChoice(world: World, ctx: WeekContext, wp: WorldPlayer, events: TourEvent[], invited: Map<string, Set<string>>, rng: Rng): AiChoice {
   const id = wp.player.id;
   const main = events[0];
-  if (!main) return null;
+  if (!main || wp.injury) return null;
   const opposite = events.find((e) => e.tier === "opposite");
   const c = wp.career;
 
@@ -176,7 +177,8 @@ export function planWeek(world: World, clientChoice: AiChoice | "auto"): WeekPla
   const choices = new Map<string, AiChoice>();
   for (const wp of Object.values(world.players).sort((a, b) => a.player.id.localeCompare(b.player.id))) {
     const ai = aiChoice(world, ctx, wp, events, invited, rng);
-    choices.set(wp.player.id, wp.player.id === world.clientId && clientChoice !== "auto" ? clientChoice : ai);
+    const own = wp.player.id === world.clientId && clientChoice !== "auto" && !wp.injury;
+    choices.set(wp.player.id, own ? clientChoice : ai);
   }
   return { events, invited, choices };
 }
