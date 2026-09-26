@@ -8,7 +8,8 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "calibrate": "tsx scripts/calibrate.ts",
-    "demo": "tsx scripts/demo.ts"
+    "demo": "tsx scripts/demo.ts",
+    "play": "tsx scripts/play.ts"
   },
   "devDependencies": {
     "@types/node": "^26.6.3",

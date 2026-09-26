@@ -86,7 +86,8 @@ function uniqueName(rng: Rng, nation: { first: string[]; last: string[] }, used?
 
 export function generatePlayer(rng: Rng, opts: GenerateOptions): Player {
   const tier = TIERS[opts.tier];
-  const talent = rng.normal(tier.talent[0], tier.talent[1]);
+  // Capped so no generated player is untouchable: the very best are +3 a round, not +4.
+  const talent = Math.min(16.5, rng.normal(tier.talent[0], tier.talent[1]));
   const archetype = ARCHETYPES[opts.archetype ?? rng.pick(Object.keys(ARCHETYPES))] ?? {};
   const nationality = opts.nationality ?? rng.pick(Object.keys(NATIONS));
   const nation = NATIONS[nationality] ?? NATIONS.USA!;

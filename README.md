@@ -7,19 +7,72 @@ coaches and money while taking your cut.
 
 Golf is an individual sport, so the agency's client list plays the part of FM's squad.
 
-## Status
+## Getting started
 
-**Step 1 of the build path: the tournament simulation engine** (`src/engine/`),
-pure TypeScript with no UI, seeded and reproducible, with tests and a
-calibration script.
+You need [Node.js](https://nodejs.org) 20 or newer and [Git](https://git-scm.com).
+On Windows, run these in PowerShell:
 
 ```bash
+git clone https://github.com/schmitty4321-dot/golfrpg.git
+cd golfrpg
 npm install
+npm run play           # play a season in the terminal
+```
+
+Other commands:
+
+```bash
 npm test               # unit tests
 npm run typecheck
 npm run demo -- 42     # simulate one tournament (seed 42) and print the leaderboard
 npm run calibrate      # 200 events per course vs. real tour reference numbers
 ```
+
+## Status
+
+- **Step 1 (done): the tournament engine** (`src/engine/`).
+- **Step 2 (done): one season, one golfer** (`src/season/`, played with `npm run play`).
+
+### Playing a season
+
+Pick your first client:
+
+| Scenario | Start |
+|---|---|
+| The Rookie | 23, just up from the developmental tour. Finish top 125 or lose the card. |
+| The Journeyman | 32, conditional status: only gets in when fields are short. |
+| The Monday Grinder | 21, no status. Every start comes through a Monday qualifier. |
+| The Fading Veteran | 45, a former winner on the last year of his exemption. |
+
+Each week you see the events on (a main event, sometimes an opposite-field
+event), whether your client gets in (invited, in on status, alternate, or Monday
+qualifier), and how well the course suits his game. Enter or rest; the whole
+world plays out and you get the leaderboard and his strokes-gained breakdown.
+The game autosaves to `saves/career.json` after every week.
+
+How the season works:
+- **Calendar:** 36 weeks: 4 majors, 8 signature events (72-player no-cut
+  fields), regular events, opposite-field events on big weeks, and a Tour
+  Championship for the top 30. Venues are generated per world, with the
+  hand-built courses hosting two majors.
+- **Getting in:** majors take the top 80 in the world, recent winners and last
+  season's top 50, then fill by world ranking. Signature events take the top 50
+  on the points list. Regular events fill by status (exempt, graduate,
+  conditional), then points, with four spots for a one-round Monday qualifier.
+- **Points and cards:** FedEx-style season points by finish. After the season
+  the top 125 are fully exempt, 126-150 conditional, and winners exempt for two
+  more seasons. Everyone else loses status, 30 players come up from the
+  developmental tour, and some players retire.
+- **World ranking:** points scaled by field strength (majors 100), counted in full for 13
+  weeks and fading over two years, divided by events played (40-52).
+- **Condition and form:** each start costs condition (more for majors and
+  travel), and rest brings it back. Form follows results against expectation.
+- **Money:** prize money, caddie pay (weekly fee plus 5/7/10% of winnings), travel
+  by region, and your agency's 10% commission.
+- **The world:** about 260 computer players schedule themselves. They always play majors
+  and signature events, spread their other starts, favour courses that suit them,
+  rest when worn out, and chase starts late in the season when their card is at risk.
+  A silent warm-up season runs at creation so rankings and cards exist on day one.
 
 ## How the engine works
 
@@ -67,7 +120,7 @@ playoffs are a little frequent.
 ## Roadmap
 
 1. ✅ **Sim engine**, calibrated against tour scoring.
-2. **One season, one golfer**: a tour schedule, entering events, money,
+2. ✅ **One season, one golfer**: a tour schedule, entering events, money,
    world ranking points, keeping your card.
 3. **Development and ageing**: training plans, coaches, swing rebuilds (form
    dips now, higher ceiling later), peak age, decline, injuries.
@@ -93,7 +146,8 @@ Features that could set it apart, to fold in along the way:
 ## Layout
 
 ```
-src/engine/   attributes, types, rng, skill model, courses, round & tournament sim, purse, players
-scripts/      demo.ts, calibrate.ts
+src/engine/   attributes, types, rng, skill model, courses (+ generator), round & tournament sim, purse, players
+src/season/   calendar, entries & fields, points & world ranking, weekly sim, world creation & season end, saves
+scripts/      play.ts (the game), demo.ts, calibrate.ts
 tests/        vitest suites
 ```
