@@ -313,9 +313,6 @@ select, input[type="text"], input[type="number"] {
 .course-photo img { display: block; width: 100%; height: clamp(160px, 28vw, 300px); object-fit: cover; border-radius: 10px 10px 0 0; background: var(--surface-2); }
 .course-photo figcaption { position: absolute; right: 8px; bottom: 6px; font-size: 11px; color: #fff; background: rgba(0, 0, 0, 0.55); padding: 2px 6px; border-radius: 4px; max-width: calc(100% - 16px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .course-photo figcaption a { color: #fff; }
-.course-card td, .course-card th { padding: 4px 6px; }
-.course-card tbody + tbody tr:first-child th { padding-top: 12px; }
-.course-card .hardest { color: var(--critical-text); font-weight: 600; }
 
 /* ---------- stats ---------- */
 .stats-filters { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin-bottom: 12px; font-size: 13px; }
@@ -622,3 +619,36 @@ select, input[type="text"], input[type="number"] {
 .trait-chips { display: inline-flex; flex-wrap: wrap; gap: 4px; max-width: 220px; }
 .trait-chips .trait-chip { font-size: 11px; padding: 1px 8px; white-space: nowrap; }
 .table-wrap td > .btn-row { flex-wrap: nowrap; }
+
+/* ---------- the course as a printed scorecard ---------- */
+.course-scorecard { --sc-label: 78px; --sc-sum: 54px; --sc-tot: var(--sc-sum); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--surface); }
+.sc-banner { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 8px 12px; background: #16261d; color: #eef3ef; font-weight: 650; }
+.sc-banner span:last-child { font-weight: 500; opacity: 0.85; font-size: 13px; }
+.sc-nines { display: grid; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 1150px) { .sc-nines { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .sc-nine + .sc-nine { border-left: 2px solid #16261d; } }
+.sc-nine { min-width: 0; }
+.sc-thumbs { display: grid; gap: 0; background: var(--c-rough); padding: 6px 0 4px; }
+.sc-thumb { display: flex; justify-content: center; padding: 0 1px; }
+.sc-thumb .hole-svg { height: 118px; width: 100%; max-height: none; border-radius: 3px; }
+.sc-table { width: 100%; table-layout: fixed; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.sc-table th, .sc-table td { text-align: center; padding: 5px 0; border: 1px solid var(--border); font-size: 13px; white-space: nowrap; overflow: hidden; }
+.sc-table th:first-child { width: var(--sc-label); text-align: left; padding-left: 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+.sc-table tr > :last-child, .sc-nine:last-child .sc-table tr > :nth-last-child(2) { width: var(--sc-sum); font-weight: 700; }
+.sc-short { display: none; }
+.sc-hole th { background: #1f5c3a; color: #fff; border-color: #1f5c3a; font-weight: 700; }
+.sc-hole th:first-child { color: #fff; }
+.sc-yards th, .sc-yards td { background: #f2c14e; color: #2b2210; border-color: #d9a93a; font-weight: 650; }
+.sc-par th, .sc-par td { font-weight: 700; }
+.sc-hcp th, .sc-hcp td { background: var(--surface-2); color: var(--text-2); font-size: 12px; }
+.sc-hcp .sc-hardest { color: var(--critical); font-weight: 700; }
+.sc-avg th, .sc-avg td { color: var(--muted); font-size: 11px; }
+@media (max-width: 700px) {
+  .course-scorecard { --sc-label: 44px; --sc-sum: 40px; --sc-tot: 0px; }
+  .sc-table th, .sc-table td { font-size: 11px; padding: 4px 0; letter-spacing: -0.02em; }
+  .sc-yards td { font-size: 10px; }
+  .sc-table th:first-child { padding-left: 4px; font-size: 9px; letter-spacing: 0; }
+  .sc-long, .sc-avg, .sc-tot { display: none; }
+  .sc-short { display: inline; }
+  .sc-thumb .hole-svg { height: 72px; }
+  .sc-banner { font-size: 13px; }
+}

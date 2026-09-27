@@ -167,7 +167,7 @@ export function roundStats(result: TournamentResult, row: PlayerEventResult, rou
   const acc = emptyStats();
   card.forEach((score, i) => {
     const hole = result.course.holes[i]!;
-    const trace = traceHole({ course: result.course, hole, score, player: row.player, windMph: wind, seed: holeSeed(result.name, row.player.id, round, i), call: row.calls?.[round]?.[i] ?? null });
+    const trace = traceHole({ course: result.course, hole, score, player: row.player, windMph: wind, seed: holeSeed(result.name, row.player.id, round, i), call: row.calls?.[round]?.[i] ?? null, round });
     holeStats(trace, hole.par, acc);
   });
   return acc;

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  pinLabel,
   callOdds,
   decisionsFor,
   holeLayout,
@@ -89,7 +90,7 @@ export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTourname
   }, [decisions]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // What the drawing shows: the hole just played (animated), or the next one.
-  const preview: HoleTrace | null = upcoming ? { layout: holeLayout(course, upcoming), shots: [], score: 0, result: "" } : null;
+  const preview: HoleTrace | null = upcoming ? { layout: holeLayout(course, upcoming, t.round - 1), shots: [], score: 0, result: "" } : null;
   const shown = played ?? (preview ? { index, trace: preview } : null);
   const map = useHoleMap(shown?.trace.layout.real);
 
@@ -107,7 +108,7 @@ export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTourname
     const hole = course.holes[i]!;
     const windMph = wind();
     const score = playLiveHole(t, call);
-    const trace = traceHole({ course, hole, score, player, windMph, seed: traceSeed(t.config.name, player.id, t.round - 1, i), call });
+    const trace = traceHole({ course, hole, score, player, windMph, seed: traceSeed(t.config.name, player.id, t.round - 1, i), call, round: t.round - 1 });
     return { index: i, trace };
   }
 
@@ -115,7 +116,7 @@ export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTourname
   function replay(i: number) {
     const hole = course.holes[i]!;
     const call = entry.calls?.[t.round - 1]?.[i] ?? null;
-    const trace = traceHole({ course, hole, score: today[i]!, player, windMph: wind(), seed: traceSeed(t.config.name, player.id, t.round - 1, i), call });
+    const trace = traceHole({ course, hole, score: today[i]!, player, windMph: wind(), seed: traceSeed(t.config.name, player.id, t.round - 1, i), call, round: t.round - 1 });
     setPlayed({ index: i, trace });
     setStep(0);
   }
@@ -184,6 +185,7 @@ export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTourname
           <span>{showHole.yards} yds</span>
           {showHole.tourAverage !== undefined && <span title="Tour average to par">Avg {toPar(Math.round((showHole.tourAverage - showHole.par) * 100) / 100)}</span>}
           <span>Wind {Math.round(wind())} mph</span>
+          <span title="Where the pin is cut today">Pin: {pinLabel(holeLayout(course, showHole, t.round - 1)).toLowerCase()}</span>
         </p>
       )}
 

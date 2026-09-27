@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { aerialMatrix, useHoleMap } from "../holeMaps";
 import { traceHole, traceSeed, type HoleTrace, type PlayerEventResult, type Pt, type Shot, type TournamentResult } from "../../engine";
 
@@ -43,7 +43,7 @@ export function ShotTracer({ result, row, round: startRound, hole: startHole, on
   const wind = result.weather[round]?.windMph[row.waves[round] ?? "AM"] ?? 0;
 
   const trace: HoleTrace = useMemo(
-    () => traceHole({ course, hole: h, score: card[hole]!, player: row.player, windMph: wind, seed: traceSeed(result.name, row.player.id, round, hole), call: row.calls?.[round]?.[hole] ?? null }),
+    () => traceHole({ course, hole: h, score: card[hole]!, player: row.player, windMph: wind, seed: traceSeed(result.name, row.player.id, round, hole), call: row.calls?.[round]?.[hole] ?? null, round }),
     [course, h, card, hole, row.player, wind, result.name, round],
   );
   const holesToShow = course.holes.map((_, i) => i).filter((i) => !keyOnly || card[i] !== course.holes[i]!.par || i === hole);
@@ -148,6 +148,7 @@ export function ShotTracer({ result, row, round: startRound, hole: startHole, on
 
 export function HoleDrawing({ trace, step, photo, map }: { trace: HoleTrace; step: number; photo: boolean; map: ReturnType<typeof useHoleMap> }) {
   const L = trace.layout;
+  const clip = `hc${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const { minX, maxX, minY, maxY } = L.bounds;
   const W = maxX - minX;
   const H = maxY - minY;
@@ -173,10 +174,10 @@ export function HoleDrawing({ trace, step, photo, map }: { trace: HoleTrace; ste
     list?.map((q, i) => <polygon key={`${key}${i}`} points={poly(q.map(([x, y]) => ({ x: x!, y: y! })))} fill={fill} />);
   return (
     <svg className="hole-svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Hole diagram: par ${L.par}, ${L.yards} yards. ${trace.shots.slice(0, step).map((s) => s.text).join(" ")}`}>
-      <defs><clipPath id="hole-clip"><rect x={0} y={0} width={W} height={H} /></clipPath></defs>
+      <defs><clipPath id={clip}><rect x={0} y={0} width={W} height={H} /></clipPath></defs>
       <rect x={0} y={0} width={W} height={H} fill={bg} />
       {map?.aerial && photo ? (
-        <g clipPath="url(#hole-clip)">
+        <g clipPath={`url(#${clip})`}>
           <image
             href={`${import.meta.env.BASE_URL}${map.aerial.file}`}
             x={map.aerial.box[0]}
@@ -190,7 +191,7 @@ export function HoleDrawing({ trace, step, photo, map }: { trace: HoleTrace; ste
       ) : map ? (
         <>
           {/* The real hole, from its OpenStreetMap outlines (clipped: neighbouring holes run off the edge). */}
-          <g clipPath="url(#hole-clip)">
+          <g clipPath={`url(#${clip})`}>
           {shapes(map.wood, "var(--c-trees)", "wd")}
           {shapes(map.rough, "var(--c-rough-deep)", "rg")}
           {shapes(map.water, "var(--c-water)", "wa")}

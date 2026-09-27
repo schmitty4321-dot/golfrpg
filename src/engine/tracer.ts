@@ -130,13 +130,49 @@ const dist = (a: Pt, b: Pt) => Math.hypot(a.x - b.x, a.y - b.y);
 const layoutCache = new WeakMap<Hole, HoleLayout>();
 
 /** Draws a hole from its numbers. Features are placed from a seed of the course and hole, so they never move. */
-export function holeLayout(course: Course, hole: Hole): HoleLayout {
-  const cached = layoutCache.get(hole);
-  if (cached) return cached;
-  const real = REAL_HOLES[course.id]?.[String(hole.number)];
-  const layout = real ? realLayout(course, hole, real) : buildLayout(course, hole);
-  layoutCache.set(hole, layout);
-  return layout;
+export function holeLayout(course: Course, hole: Hole, round?: number): HoleLayout {
+  let layout = layoutCache.get(hole);
+  if (!layout) {
+    const real = REAL_HOLES[course.id]?.[String(hole.number)];
+    layout = real ? realLayout(course, hole, real) : buildLayout(course, hole);
+    layoutCache.set(hole, layout);
+  }
+  return round === undefined ? layout : { ...layout, pin: pinPosition(course, hole, layout.green, round) };
+}
+
+/**
+ * Where the pin is cut on a hole in a given round (0-3). Each hole has four
+ * spots spread around the green, a quarter-turn apart from a random start, so
+ * no two rounds share a pin; how far from the middle varies (tucked or not).
+ */
+export function pinPosition(course: Course, hole: Hole, green: Circle, round: number): Pt {
+  const rng = createRng(traceSeed(course.id, hole.number, "pins"));
+  const start = rng.next() * Math.PI * 2;
+  const order = [0, 1, 2, 3];
+  for (let i = 3; i > 0; i--) {
+    const j = rng.int(0, i);
+    [order[i], order[j]] = [order[j]!, order[i]!];
+  }
+  const rounds = [0, 1, 2, 3].map((r) => ({ ang: start + (order[r]! * Math.PI) / 2 + rng.normal(0, 0.25), off: 0.3 + rng.next() * 0.35 }));
+  const r = rounds[((round % 4) + 4) % 4]!;
+  return { x: green.x + Math.cos(r.ang) * green.r * r.off, y: green.y + Math.sin(r.ang) * green.r * r.off };
+}
+
+/** "Back left", "Front", "Middle" ...: the pin as a player walking up the hole sees it. */
+export function pinLabel(layout: HoleLayout): string {
+  const { green, pin, path } = layout;
+  // Direction of play into the green: from the last bend of the centre line.
+  const from = path.length >= 2 ? path[path.length - 2]! : layout.tee;
+  const dx = green.x - from.x;
+  const dy = green.y - from.y;
+  const len = Math.hypot(dx, dy) || 1;
+  const along = ((pin.x - green.x) * dx + (pin.y - green.y) * dy) / len / green.r;
+  const across = ((pin.x - green.x) * dy - (pin.y - green.y) * dx) / len / green.r;
+  const depth = along > 0.2 ? "Back" : along < -0.2 ? "Front" : "";
+  const side = across > 0.2 ? "right" : across < -0.2 ? "left" : "";
+  if (!depth && !side) return "Middle";
+  if (!depth) return side === "right" ? "Middle right" : "Middle left";
+  return side ? `${depth} ${side}` : depth;
 }
 
 function realLayout(course: Course, hole: Hole, real: RealHole): HoleLayout {
@@ -360,11 +396,13 @@ export interface TraceInput {
   seed: number;
   /** Strategy calls made for this hole (hole-by-hole play): the replay follows them. */
   call?: HoleCall | null;
+  /** 0-based round: the pin moves each day. */
+  round?: number;
 }
 
 /** The shots behind a hole score. The strokes (shots plus penalties) always equal the score. */
-export function traceHole({ course, hole, score, player, windMph = 0, seed, call }: TraceInput): HoleTrace {
-  const layout = holeLayout(course, hole);
+export function traceHole({ course, hole, score, player, windMph = 0, seed, call, round }: TraceInput): HoleTrace {
+  const layout = holeLayout(course, hole, round);
   const rng = createRng(seed);
   const a = player.attributes;
   const habits = tendencies(player);

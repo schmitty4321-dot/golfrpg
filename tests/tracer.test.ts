@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { COURSES, REAL_COURSES, createRng, getCourse, hasRealHoles, holeLayout, planHole, planStrokes, projectAlong, pointAt, traceHole, traceSeed, scoreName, generateCourse } from "../src/engine";
+import { COURSES, REAL_COURSES, createRng, getCourse, hasRealHoles, holeLayout, pinLabel, planHole, planStrokes, projectAlong, pointAt, traceHole, traceSeed, scoreName, generateCourse } from "../src/engine";
 import { flatPlayer } from "./helpers";
 
 // Real courses are drawn from their OpenStreetMap outlines: include a few (every hole is checked below).
@@ -148,6 +148,21 @@ describe("real holes (OpenStreetMap)", () => {
       if (!wet) continue;
       const nearest = Math.min(...L.water.flat().map((p) => Math.hypot(p.x - wet.to.x, p.y - wet.to.y)));
       expect(nearest).toBeLessThan(10);
+    }
+  });
+});
+
+describe("pin positions", () => {
+  it("moves the pin every round, and keeps it on the green", () => {
+    for (const id of ["waialae", "augusta-national"]) {
+      const course = getCourse(id);
+      for (const hole of course.holes) {
+        const pins = [0, 1, 2, 3].map((r) => holeLayout(course, hole, r));
+        const g = pins[0]!.green;
+        for (const p of pins) expect(Math.hypot(p.pin.x - g.x, p.pin.y - g.y)).toBeLessThanOrEqual(g.r * 0.7);
+        for (let a = 0; a < 4; a++) for (let b = a + 1; b < 4; b++) expect(Math.hypot(pins[a]!.pin.x - pins[b]!.pin.x, pins[a]!.pin.y - pins[b]!.pin.y)).toBeGreaterThan(g.r * 0.15);
+        expect(pinLabel(pins[0]!)).toMatch(/^(Front|Back|Middle)/);
+      }
     }
   });
 });
