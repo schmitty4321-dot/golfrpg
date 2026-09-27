@@ -1,17 +1,10 @@
-import { ATTRIBUTE_GROUPS, ATTRIBUTE_LABELS } from "../../engine";
-import { STATUS_LABELS, abilityView, seasonChange, type World } from "../../season";
+import type { AttributeKey } from "../../engine";
+import { STATUS_LABELS, abilityView, attributePotential, seasonChange, type World } from "../../season";
 import { AbilityBars } from "../components/AbilityBars";
+import { Portrait } from "../components/Portrait";
+import { StatBoxes, StatLegend } from "../components/StatBoxes";
 import { TendenciesPanel } from "../components/TendenciesPanel";
 import { formWord, money, signed, toPar } from "../format";
-
-const GROUP_LABELS: Record<keyof typeof ATTRIBUTE_GROUPS, string> = {
-  longGame: "Long game",
-  approach: "Approach",
-  shortGame: "Short game",
-  putting: "Putting",
-  mental: "Mental",
-  physical: "Physical",
-};
 
 export function PlayerScreen({ world, clientId }: { world: World; clientId: string }) {
   const wp = world.players[clientId]!;
@@ -23,8 +16,9 @@ export function PlayerScreen({ world, clientId }: { world: World; clientId: stri
   return (
     <main>
       <section className="panel">
-        <div className="panel-head">
-          <div>
+        <div className="panel-head client-head">
+          <Portrait playerId={clientId} size={64} title={p.name} />
+          <div style={{ flex: 1 }}>
             <h1 style={{ fontSize: 22 }}>{p.name}</h1>
             <div className="secondary small">{p.age} · {p.nationality} · {STATUS_LABELS[c.status]}</div>
           </div>
@@ -45,25 +39,15 @@ export function PlayerScreen({ world, clientId }: { world: World; clientId: stri
       <section className="panel">
         <div className="panel-head">
           <h2>Attributes</h2>
-          <span className="muted small">1-20 · 12 is a tour average · Injury proneness: lower is better</span>
+          <span className="muted small"><StatLegend potential /> 1-20 · 12 is a tour average · Injury proneness: lower is better</span>
         </div>
-        <div className="attr-groups">
-          {(Object.keys(ATTRIBUTE_GROUPS) as (keyof typeof ATTRIBUTE_GROUPS)[]).map((g) => (
-            <div key={g}>
-              <h3 style={{ marginBottom: 6 }}>{GROUP_LABELS[g]}</h3>
-              {ATTRIBUTE_GROUPS[g].map((k) => (
-                <div className="attr" key={k}>
-                  <span>{ATTRIBUTE_LABELS[k]}</span>
-                  <span className="attr-bar" aria-hidden><span style={{ width: `${(p.attributes[k] / 20) * 100}%` }} /></span>
-                  <span className="attr-val">
-                    {change[k] ? <span className={`small ${change[k]! > 0 ? "good-text" : "bad-text"}`} title="Change this season">{change[k]! > 0 ? "▲" : "▼"}</span> : null} {p.attributes[k]}
-                  </span>
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-        <p className="muted small">Hidden traits (wind tolerance, grass preference, comfort on each style of course) show up only in results. Scouting comes later.</p>
+        <StatBoxes
+          view={(k: AttributeKey) => {
+            const value = p.attributes[k];
+            return { value, low: value, high: value, potential: attributePotential(p, k, ability.potential), change: change[k] };
+          }}
+        />
+        <p className="muted small">Potential is his coaches' estimate of how far each skill can grow. Hidden traits (wind tolerance, grass preference, comfort on each style of course) show up only in results. Scouting comes later.</p>
       </section>
 
       <section className="panel">

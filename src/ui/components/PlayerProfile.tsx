@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { ATTRIBUTE_GROUPS, ATTRIBUTE_LABELS, createRng, type AttributeKey } from "../../engine";
+import { ATTRIBUTE_LABELS, createRng, describeTendencies, tendencies, type AttributeKey } from "../../engine";
 import {
   STATUS_LABELS,
+  abilityView,
   acceptChance,
   approachBlock,
-  ceilingEstimate,
+  attributePotential,
+  ceilingStars,
+  potentialEstimate,
   knowsHidden,
   mixSeed,
   pointsList,
@@ -15,17 +18,10 @@ import {
 } from "../../season";
 import { Stars } from "./Stars";
 import { TendenciesPanel } from "./TendenciesPanel";
+import { Portrait } from "./Portrait";
+import { StatBoxes, StatLegend } from "./StatBoxes";
 import { money, plural } from "../format";
 import type { Game } from "../useGame";
-
-const GROUP_LABELS: Record<keyof typeof ATTRIBUTE_GROUPS, string> = {
-  longGame: "Long game",
-  approach: "Approach",
-  shortGame: "Short game",
-  putting: "Putting",
-  mental: "Mental",
-  physical: "Physical",
-};
 
 export function chanceWords(p: number): string {
   if (p < 0.1) return "Very unlikely";
@@ -66,86 +62,100 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
   const offer = { commission: commission / 100, years };
   const chance = block ? 0 : acceptChance(world, id, offer);
   const queued = world.agency.scoutingQueue.includes(id);
-  const ceiling = hidden ? ceilingEstimate(wp, 4 + (k!.accuracy ?? 0) * 16, createRng(mixSeed(world.seed, world.season, Number(id.replace(/\D/g, "")) || 3))) : null;
+  // His ceiling: the coaches' estimate for a client, the scouts' once a report is good enough.
+  const potential = wp.client
+    ? abilityView(world, id).potential
+    : hidden
+      ? potentialEstimate(wp, 4 + (k!.accuracy ?? 0) * 16, createRng(mixSeed(world.seed, world.season, Number(id.replace(/\D/g, "")) || 3)))
+      : null;
+  const ceiling = potential === null ? null : ceilingStars(potential);
+  const view = (key: AttributeKey) => {
+    const v = scoutedAttribute(world, id, key)!;
+    return { ...v, ...(potential === null ? {} : { potential: attributePotential(wp.player, key, potential, v.value) }) };
+  };
 
   return (
     <div className="player-page" role="dialog" aria-modal="true" aria-labelledby="profile-title">
       <div className="player-page-inner">
         <button className="btn btn-small player-back" onClick={onClose}><span aria-hidden>←</span> Back</button>
-        <div className="player-page-head">
-          <div>
-            <h1 id="profile-title">{wp.player.name}</h1>
-            <div className="secondary small">
-              {wp.player.age} · {wp.player.nationality} · {STATUS_LABELS[wp.career.status]} ·{" "}
-              {wp.client ? "Your client" : wp.agent ? `${wp.agent.agency} (until end of season ${wp.agent.untilSeason})` : "Free agent"}
-            </div>
-          </div>
-        </div>
-
-        <div className="stat-row">
-          <div className="stat"><span className="stat-label">World rank</span><span className="stat-value">{rank ? `#${rank}` : "—"}</span></div>
-          <div className="stat"><span className="stat-label">Points list</span><span className="stat-value">{pr ? `#${pr}` : "—"}</span></div>
-          <div className="stat"><span className="stat-label">This season</span><span className="stat-value">{plural(season.length, "start")}</span><span className="stat-sub">{season.filter((r) => r.madeCut).length} cuts{best ? `, best ${best.label}` : ""}</span></div>
-          <div className="stat"><span className="stat-label">Career</span><span className="stat-value">{plural(wp.career.careerWins, "win")}</span><span className="stat-sub">{plural(wp.career.careerMajors, "major")} · {money(wp.career.careerEarnings)}</span></div>
-        </div>
-
-        <section>
-          <div className="panel-head">
-            <h2>Scouting report</h2>
-            <span className="muted small">
-              {wp.client ? "Known exactly" : known ? `Accuracy ${Math.round(k!.accuracy * 100)}% · ${k!.reports} report${k!.reports === 1 ? "" : "s"}` : "Not scouted"}
-            </span>
-          </div>
-          {!known ? (
-            <p className="empty">
-              Your agency has no report on him: only his results are public.{" "}
-              {!wp.client && (
-                <button className="linkish" disabled={queued} onClick={() => game.act((w) => queueScouting(w, id))}>
-                  {queued ? "Queued for scouting" : "Add to the scouting queue"}
-                </button>
-              )}
-            </p>
-          ) : (
-            <>
-              <div className="attr-groups wide">
-                {(Object.keys(ATTRIBUTE_GROUPS) as (keyof typeof ATTRIBUTE_GROUPS)[]).map((g) => (
-                  <div key={g}>
-                    <h3 style={{ marginBottom: 6 }}>{GROUP_LABELS[g]}</h3>
-                    {ATTRIBUTE_GROUPS[g].map((key) => <RangeRow key={key} world={world} id={id} k={key} />)}
-                  </div>
-                ))}
+        <div className="pp-layout">
+          <aside className="pp-card">
+            <Portrait playerId={id} size={96} className="pp-portrait" title={wp.player.name} />
+            <div>
+              <h1 id="profile-title">{wp.player.name}</h1>
+              <div className="pp-meta">
+                {wp.player.age} · {wp.player.nationality} · {STATUS_LABELS[wp.career.status]}
+                <br />
+                {wp.client ? "Your client" : wp.agent ? `${wp.agent.agency} (until end of season ${wp.agent.untilSeason})` : "Free agent"}
               </div>
-              {hidden ? (
-                <div className="facts" style={{ marginTop: 12 }}>
-                  <span>Ceiling: <Stars value={ceiling!} /></span>
-                  <span>Grew up on {wp.player.grassPreference} greens</span>
-                  {(["windTolerance", "professionalism", "coachability", "ambition"] as AttributeKey[]).map((key) => {
-                    const v = scoutedAttribute(world, id, key)!;
-                    return <span key={key}>{ATTRIBUTE_LABELS[key]}: {v.low === v.high ? v.value : `${v.low}-${v.high}`}</span>;
-                  })}
+            </div>
+            <dl className="pp-kv">
+              <div><dt>World rank</dt><dd>{rank ? `#${rank}` : "—"}</dd></div>
+              <div><dt>Points list</dt><dd>{pr ? `#${pr}` : "—"}</dd></div>
+              <div><dt>This season</dt><dd>{plural(season.length, "start")} · {season.filter((r) => r.madeCut).length} cuts{best ? ` · best ${best.label}` : ""}</dd></div>
+              <div><dt>Career</dt><dd>{plural(wp.career.careerWins, "win")} · {plural(wp.career.careerMajors, "major")}</dd></div>
+              <div><dt>Earnings</dt><dd>{money(wp.career.careerEarnings)}</dd></div>
+              {ceiling !== null && <div><dt>Ceiling</dt><dd><Stars value={ceiling} /></dd></div>}
+              {hidden && <div><dt>Home greens</dt><dd>{wp.player.grassPreference}</dd></div>}
+              {hidden &&
+                (["windTolerance", "professionalism", "coachability", "ambition"] as AttributeKey[]).map((key) => {
+                  const v = scoutedAttribute(world, id, key)!;
+                  return <div key={key}><dt>{ATTRIBUTE_LABELS[key]}</dt><dd>{v.low === v.high ? v.value : `${v.low}-${v.high}`}</dd></div>;
+                })}
+            </dl>
+            {hidden && (
+              <div>
+                <div className="pp-label">Tendencies</div>
+                <div className="pp-chips">
+                  {describeTendencies(tendencies(wp.player)).map((t) => <span key={t.label} className="pp-chip" title={`${t.label}: ${t.detail}`}>{t.value}</span>)}
                 </div>
+              </div>
+            )}
+          </aside>
+
+          <div className="pp-main">
+            <section className="panel">
+              <div className="panel-head">
+                <h2>Skills</h2>
+                <span className="muted small">
+                  {known && <StatLegend potential={potential !== null} />}{" "}
+                  {wp.client ? "Known exactly" : known ? `Scouted to ${Math.round(k!.accuracy * 100)}% · ${k!.reports} report${k!.reports === 1 ? "" : "s"}` : "Not scouted"}
+                </span>
+              </div>
+              {!known ? (
+                <p className="empty">
+                  Your agency has no report on him: only his results are public.{" "}
+                  {!wp.client && (
+                    <button className="linkish" disabled={queued} onClick={() => game.act((w) => queueScouting(w, id))}>
+                      {queued ? "Queued for scouting" : "Add to the scouting queue"}
+                    </button>
+                  )}
+                </p>
               ) : (
-                <p className="muted small">A more accurate report (60%+) would reveal his ceiling, work ethic and other hidden traits.</p>
-              )}
-              {hidden && (
                 <>
-                  <h3 style={{ margin: "14px 0 8px" }}>Tendencies</h3>
-                  <TendenciesPanel player={wp.player} />
+                  <StatBoxes view={view} />
+                  {!hidden && <p className="muted small">A more accurate report (60%+) would reveal his ceiling, how far each skill can grow, his work ethic and other hidden traits.</p>}
+                  {potential !== null && <p className="muted small" style={{ marginBottom: 0 }}>Potential is an estimate from his overall ceiling{wp.client ? ", judged by his coaches" : ", judged by your scouts"}.</p>}
+                  {!wp.client && (
+                    <p className="small" style={{ marginBottom: 0 }}>
+                      <button className="linkish" disabled={queued} onClick={() => game.act((w) => queueScouting(w, id))}>
+                        {queued ? "Queued for another report" : "Scout him again for a sharper report"}
+                      </button>
+                    </p>
+                  )}
                 </>
               )}
-              {!wp.client && (
-                <p className="small">
-                  <button className="linkish" disabled={queued} onClick={() => game.act((w) => queueScouting(w, id))}>
-                    {queued ? "Queued for another report" : "Scout him again for a sharper report"}
-                  </button>
-                </p>
-              )}
-            </>
-          )}
-        </section>
+            </section>
+
+            {hidden && (
+              <section className="panel">
+                <div className="panel-head"><h2>Tendencies</h2><span className="muted small">His habits: they show up in replays and round stats</span></div>
+                <TendenciesPanel player={wp.player} />
+              </section>
+            )}
 
         {!wp.client && (
-          <section className="panel" style={{ boxShadow: "none" }}>
+          <section className="panel">
             <div className="panel-head"><h2>Offer representation</h2></div>
             {block ? (
               <p className="secondary" style={{ margin: 0 }}>{block}</p>
@@ -184,21 +194,9 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
             <strong>{result}</strong>
           </p>
         )}
+          </div>
+        </div>
       </div>
-    </div>
-  );
-}
-
-function RangeRow({ world, id, k }: { world: World; id: string; k: AttributeKey }) {
-  const v = scoutedAttribute(world, id, k)!;
-  const exact = v.low === v.high;
-  return (
-    <div className="attr range-row">
-      <span title={ATTRIBUTE_LABELS[k]}>{ATTRIBUTE_LABELS[k]}</span>
-      <span className="attr-bar range" aria-hidden>
-        <span style={{ marginLeft: `${((v.low - 1) / 20) * 100}%`, width: `${((v.high - v.low + 1) / 20) * 100}%`, opacity: exact ? 1 : 0.45 }} />
-      </span>
-      <span className="attr-val" title={exact ? undefined : `Somewhere between ${v.low} and ${v.high}`}>{exact ? v.value : `${v.low}-${v.high}`}</span>
     </div>
   );
 }

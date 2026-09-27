@@ -68,6 +68,18 @@ export function initialPotential(p: Player, rng: Rng): number {
   return Math.round(Math.min(Math.max(now, MAX_POTENTIAL), now + room) * 10) / 10;
 }
 
+/**
+ * How far one attribute could grow, for showing beside the current value.
+ * The game keeps a single overall ceiling, so this projects it onto each
+ * skill: every trainable attribute gains the gap between the player's overall
+ * and that ceiling, up to the cap growth stops at. Personality never changes.
+ */
+export function attributePotential(p: Player, key: AttributeKey, potential: number, value = p.attributes[key]): number {
+  if (FIXED.includes(key)) return value;
+  const cap = Math.min(20, Math.ceil(potential + STRENGTH_ROOM));
+  return Math.max(value, Math.min(cap, Math.round(value + Math.max(0, potential - overall(p)))));
+}
+
 /** Ceilings top out here unless a player already starts above it. */
 export const MAX_POTENTIAL = 17;
 
