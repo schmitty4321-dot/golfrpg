@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ATTRIBUTE_GROUPS, ATTRIBUTE_LABELS, createRng, type AttributeKey } from "../../engine";
 import {
   STATUS_LABELS,
@@ -41,6 +41,19 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
   const [commission, setCommission] = useState(10);
   const [years, setYears] = useState(2);
   const [result, setResult] = useState<string | null>(null);
+  // A full screen of its own: Escape goes back, and the page underneath doesn't scroll.
+  const close = useRef(onClose);
+  close.current = onClose;
+  useEffect(() => {
+    const key = (e: KeyboardEvent) => e.key === "Escape" && close.current();
+    document.addEventListener("keydown", key);
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", key);
+      document.body.style.overflow = overflow;
+    };
+  }, []);
   if (!wp) return null;
   const k = world.agency.knowledge[id];
   const known = (k?.accuracy ?? 0) > 0;
@@ -56,17 +69,17 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
   const ceiling = hidden ? ceilingEstimate(wp, 4 + (k!.accuracy ?? 0) * 16, createRng(mixSeed(world.seed, world.season, Number(id.replace(/\D/g, "")) || 3))) : null;
 
   return (
-    <div className="overlay" role="dialog" aria-modal="true" aria-labelledby="profile-title" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 900 }}>
-        <div className="panel-head" style={{ marginBottom: 0 }}>
+    <div className="player-page" role="dialog" aria-modal="true" aria-labelledby="profile-title">
+      <div className="player-page-inner">
+        <button className="btn btn-small player-back" onClick={onClose}><span aria-hidden>←</span> Back</button>
+        <div className="player-page-head">
           <div>
-            <h1 id="profile-title" style={{ fontSize: 22 }}>{wp.player.name}</h1>
+            <h1 id="profile-title">{wp.player.name}</h1>
             <div className="secondary small">
               {wp.player.age} · {wp.player.nationality} · {STATUS_LABELS[wp.career.status]} ·{" "}
               {wp.client ? "Your client" : wp.agent ? `${wp.agent.agency} (until end of season ${wp.agent.untilSeason})` : "Free agent"}
             </div>
           </div>
-          <button className="btn btn-small" onClick={onClose}>Close</button>
         </div>
 
         <div className="stat-row">

@@ -7,6 +7,8 @@ import {
   STATUS_LABELS,
   clientOptions,
   clientPreference,
+  courseById,
+  eventsInWeek,
   pointsList,
   rosterLimit,
   type ClientChoice,
@@ -38,6 +40,7 @@ export function Home({ world, game, go, week }: { world: World; game: Game; go: 
   const last = game.state.reports[game.state.reports.length - 1];
   return (
     <main>
+      <WeekHero world={world} game={game} week={week} />
       <AgencyStrip world={world} />
       <Alerts world={world} go={go} />
       <div className="grid-2">
@@ -76,15 +79,72 @@ export function Home({ world, game, go, week }: { world: World; game: Game; go: 
   );
 }
 
+/**
+ * The top of the dashboard: this week's main event over its course photo,
+ * which of your clients are in it, and the button that plays the week.
+ */
+function WeekHero({ world, game, week }: { world: World; game: Game; week: WeekChoices }) {
+  const weeks = seasonWeeks(world);
+  const a = world.agency;
+  if (world.week > weeks) {
+    return (
+      <section className="hero">
+        <div className="hero-body">
+          <div className="hero-kicker">{a.name} · Season {world.season}</div>
+          <h1 className="hero-title">The season is over</h1>
+          <div className="hero-meta">Close it to hand out cards, settle contracts and see how your agency did.</div>
+        </div>
+        <button className="btn btn-primary hero-play" onClick={() => void game.closeSeason()}>Close the season <span aria-hidden>▸</span></button>
+      </section>
+    );
+  }
+  const events = eventsInWeek(world);
+  const main = events[0];
+  if (!main) return null;
+  const course = courseById(world, main.courseId);
+  const photo = course.info?.photo;
+  // Where each client is headed with the choices made so far ("his call" = his own pick).
+  const going = (eventId: string) =>
+    world.clientIds.filter((id) => {
+      const c = week.choices[id] ?? { kind: "auto" };
+      return c.kind === "enter" ? c.eventId === eventId : c.kind === "auto" && clientPreference(world, id) === eventId;
+    });
+  const here = going(main.id).map((id) => world.players[id]!.player.name);
+  const play = () => {
+    void game.play(week.choices, 1);
+    week.setChoices(() => ({}));
+  };
+  return (
+    <section className={`hero${photo ? " hero-photo" : ""}`} style={photo ? { backgroundImage: `url(${import.meta.env.BASE_URL}${photo.file})` } : undefined}>
+      <div className="hero-body">
+        <div className="hero-kicker">{a.name} · Week {world.week} of {weeks}</div>
+        <h1 className="hero-title">{main.name}</h1>
+        <div className="hero-meta">
+          <span>{TIER_LABELS[main.tier]}</span>
+          <span>{course.name}{course.info ? `, ${course.info.city}` : ""}</span>
+          <span>par {coursePar(course)}, {courseYards(course).toLocaleString("en-US")} yds</span>
+          <span>Purse {millions(main.purse)}</span>
+        </div>
+        <div className="hero-clients">
+          {world.clientIds.length === 0
+            ? "You have no clients yet"
+            : here.length === 0
+              ? "None of your clients is in this event"
+              : `${here.join(", ")} ${here.length === 1 ? "is" : "are"} in the field`}
+          {events.length > 1 && <span className="hero-also"> · also this week: {events.slice(1).map((e) => e.name).join(", ")}</span>}
+        </div>
+      </div>
+      <button className="btn btn-primary hero-play" onClick={play}>Play week {world.week} <span aria-hidden>▸</span></button>
+      {photo && <div className="hero-credit">Photo: <a href={photo.page} target="_blank" rel="noreferrer">{photo.artist || "Wikimedia Commons"}</a>, {photo.license}</div>}
+    </section>
+  );
+}
+
 function AgencyStrip({ world }: { world: World }) {
   const a = world.agency;
   const season = a.ledger.prizeCommission + a.ledger.endorsementCommission - a.ledger.office - a.ledger.scouts;
   return (
-    <section className="panel">
-      <div className="panel-head">
-        <h1 style={{ fontSize: 22 }}>{a.name}</h1>
-        <span className="secondary small">Season {world.season} · Week {Math.min(world.week, seasonWeeks(world))} of {seasonWeeks(world)}</span>
-      </div>
+    <section className="panel agency-strip">
       <div className="stat-row">
         <div className="stat" style={{ minWidth: 140 }}>
           <span className="stat-label">Reputation</span>
