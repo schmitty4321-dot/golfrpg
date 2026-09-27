@@ -663,3 +663,8 @@ select, input[type="text"], input[type="number"] {
 @media (max-width: 480px) { .fam-row { grid-template-columns: minmax(0, 1fr) 60px 24px; } .fam-level { display: none; } }
 .fam-tag { margin-left: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 1px 6px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
 .fam-tag.fam-debut { background: var(--surface-2); color: var(--text-2); }
+.practice-toggle { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; margin-top: 8px; padding: 8px 10px; border: 1px dashed var(--border); border-radius: 8px; background: var(--surface-2); }
+.practice-toggle input[type="checkbox"] { margin: 0 4px 0 0; }
+.practice-toggle label { flex: 1 1 100%; min-width: 0; display: flex; gap: 8px; align-items: center; }
+.practice-toggle select { flex: 1; min-width: 0; width: 100%; }
+.practice-toggle > span { min-width: 0; }

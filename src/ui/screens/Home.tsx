@@ -8,6 +8,14 @@ import {
   clientOptions,
   clientPreference,
   courseById,
+  afterPracticeRound,
+  afterPracticeTrip,
+  familiarityWith,
+  practiceCourses,
+  practiceTripCost,
+  PRACTICE_ROUND_FATIGUE,
+  PRACTICE_ROUND_FEE,
+  PRACTICE_TRIP_FATIGUE,
   eventsInWeek,
   pointsList,
   rosterLimit,
@@ -229,6 +237,9 @@ function ClientWeek({ world, game, id, choice, onChoose }: { world: World; game:
   const pref = clientPreference(world, id);
   const prefName = pref ? world.schedule.find((e) => e.id === pref)?.name : null;
   const sel = (c: ClientChoice) => JSON.stringify(c) === JSON.stringify(choice);
+  const entered = choice.kind === "enter" ? options.find((o) => o.event.id === choice.eventId) : undefined;
+  const courses = practiceCourses(world);
+  const tripCourse = choice.kind === "practice" ? choice.courseId : (courses.find((c) => c.next && world.schedule.some((e) => e.courseId === c.courseId && e.tier === "major" && e.week > world.week)) ?? courses[0])?.courseId;
   return (
     <article className="event-card">
       <div className="panel-head" style={{ marginBottom: 0 }}>
@@ -254,12 +265,44 @@ function ClientWeek({ world, game, id, choice, onChoose }: { world: World; game:
           <strong>His call</strong>
           <span className="secondary small">{wp.injury ? "He's injured." : prefName ? `He'd play ${prefName}.` : "He'd rest."}</span>
         </button>
-        {options.map((o) => <EventChoice key={o.event.id} o={o} checked={sel({ kind: "enter", eventId: o.event.id })} onChoose={() => onChoose({ kind: "enter", eventId: o.event.id })} />)}
+        {options.map((o) => <EventChoice key={o.event.id} o={o} checked={choice.kind === "enter" && choice.eventId === o.event.id} onChoose={() => onChoose({ kind: "enter", eventId: o.event.id })} />)}
         <button className="choice" role="radio" aria-checked={sel({ kind: "rest" })} onClick={() => onChoose({ kind: "rest" })}>
           <strong>Rest</strong>
           <span className="secondary small">Recover condition.</span>
         </button>
+        {tripCourse && !wp.injury && wp.career.status !== "amateur" && (
+          <button className="choice" role="radio" aria-checked={choice.kind === "practice"} onClick={() => onChoose({ kind: "practice", courseId: tripCourse })}>
+            <strong>Practice trip</strong>
+            <span className="secondary small">A week learning a course of your choice instead of an event. Costs travel, fees and most of a week's rest.</span>
+          </button>
+        )}
       </div>
+      {entered && (
+        <label className="practice-toggle small">
+          <input type="checkbox" checked={choice.kind === "enter" && !!choice.practice} onChange={(e) => onChoose({ kind: "enter", eventId: entered.event.id, ...(e.target.checked ? { practice: true } : {}) })} />
+          <span>
+            <strong>Practice round first</strong> at {entered.course.name}: familiarity {Math.round(entered.familiarity)} → {Math.round(afterPracticeRound(wp, entered.course.id))}
+            {entered.debut ? " (and no debut nerves)" : ""} · −{PRACTICE_ROUND_FATIGUE}% condition · {money(PRACTICE_ROUND_FEE)}
+          </span>
+        </label>
+      )}
+      {choice.kind === "practice" && (
+        <div className="practice-toggle small">
+          <label>
+            <strong>Practise at</strong>{" "}
+            <select value={choice.courseId} onChange={(e) => onChoose({ kind: "practice", courseId: e.target.value })}>
+              {courses.map((c) => (
+                <option key={c.courseId} value={c.courseId}>
+                  {c.name}{c.next ? ` (${c.next})` : ""}
+                </option>
+              ))}
+            </select>
+          </label>
+          <span>
+            Familiarity {Math.round(familiarityWith(wp, choice.courseId))} → {Math.round(afterPracticeTrip(wp, choice.courseId))} · −{PRACTICE_TRIP_FATIGUE}% condition against a week's rest · {money(practiceTripCost(world, choice.courseId))}
+          </span>
+        </div>
+      )}
     </article>
   );
 }

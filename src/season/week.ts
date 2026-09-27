@@ -9,6 +9,7 @@ import { sponsorBonus, sponsorWeek } from "./sponsors";
 import { recordEvent } from "./history";
 import { beginRebuild, endOfWeek } from "./staff";
 import { familiarityWith, recordFamiliarity } from "./familiarity";
+import { afterPracticeRound, takePracticeRound, takePracticeTrip } from "./practice";
 import {
   ensureTraits,
   eventContext,
@@ -27,7 +28,12 @@ import { homeRegion } from "../engine";
 import { absWeek, type EventRecord, type TourEvent, type World } from "./types";
 
 /** What a client does this week. "auto" lets him pick his own schedule. */
-export type ClientChoice = { kind: "enter"; eventId: string } | { kind: "rest" } | { kind: "auto" };
+export type ClientChoice =
+  | { kind: "enter"; eventId: string; /** A practice round there first. */ practice?: boolean }
+  | { kind: "rest" }
+  | { kind: "auto" }
+  /** A week's practice trip to any course, instead of an event. */
+  | { kind: "practice"; courseId: string };
 /** Choices by client id; clients without one play "auto". */
 export type ClientChoices = Record<string, ClientChoice>;
 
@@ -64,7 +70,7 @@ export function caddieShare(position: number, madeCut: boolean): number {
 
 function toAiChoice(world: World, choice: ClientChoice): AiChoice | "auto" {
   if (choice.kind === "auto") return "auto";
-  if (choice.kind === "rest") return null;
+  if (choice.kind === "rest" || choice.kind === "practice") return null;
   const e = world.schedule.find((x) => x.id === choice.eventId && x.week === world.week);
   if (!e) throw new Error(`event ${choice.eventId} is not played this week`);
   return { eventId: e.id, route: "entry" };
@@ -86,9 +92,19 @@ function weekPlan(world: World, choices: ClientChoices) {
   return { plan, fields: buildFields(world, plan) };
 }
 
-function tournamentConfig(world: World, f: FieldResult, i: number): TournamentConfig {
+/** Clients having a practice round at an event this week. */
+function practising(choices: ClientChoices): Set<string> {
+  return new Set(Object.entries(choices).filter(([, c]) => c.kind === "enter" && c.practice).map(([id]) => id));
+}
+
+function tournamentConfig(world: World, f: FieldResult, i: number, practice: Set<string> = new Set()): TournamentConfig {
   const venue = courseById(world, f.event.courseId);
   const context = Object.fromEntries(f.field.map((id) => [id, eventContext(world, f.event, id)]));
+  // A practice round counts already: he knows the course a little better, and it's no longer a debut.
+  for (const id of f.field) {
+    if (!practice.has(id)) continue;
+    context[id] = { ...context[id]!, familiarity: afterPracticeRound(world.players[id]!, f.event.courseId), debut: false };
+  }
   // Local knowledge counts against the field's: the week's average familiarity with the course.
   const all = Object.values(context);
   const fieldFamiliarity = all.reduce((s, c) => s + (c.familiarity ?? 0), 0) / Math.max(1, all.length);
@@ -119,7 +135,7 @@ export function liveEvents(world: World, choices: ClientChoices = {}): LiveEvent
   fields.forEach((f, i) => {
     const clientIds = f.field.filter((id) => world.clientIds.includes(id));
     if (!clientIds.length || f.field.length < 2) return;
-    out.push({ event: f.event, field: f, clientIds, tournament: startLive(tournamentConfig(world, f, i), clientIds[0]!) });
+    out.push({ event: f.event, field: f, clientIds, tournament: startLive(tournamentConfig(world, f, i, practising(choices)), clientIds[0]!) });
   });
   return out;
 }
@@ -140,10 +156,11 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
   const rng = createRng(mixSeed(world.seed, world.season, world.week, 3));
   // Where each client played this week, for the traits that care who else was there.
   const eventOf = new Map<string, TourEvent>();
+  const tripTo = new Map<string, string>();
 
   fields.forEach((f, i) => {
     if (f.field.length < 2) return;
-    const config = tournamentConfig(world, f, i);
+    const config = tournamentConfig(world, f, i, practising(choices));
     const { course, field: players } = config;
     const expected = new Map(players.map((p) => [p.id, totalSg(expectedStrokesGained(p, course))]));
     const fieldExpected = [...expected.values()].reduce((s, x) => s + x, 0) / players.length;
@@ -203,6 +220,8 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
       const effort = (f.event.tier === "major" ? MAJOR_FATIGUE : EVENT_FATIGUE) * fatigueMultiplier(world, wp);
       wp.player.condition = clamp(wp.player.condition - effort - travel, 0, 100);
       c.lastRegion = f.event.region;
+      const pc = choices[wp.player.id];
+      if (wp.client && pc?.kind === "enter" && pc.practice && pc.eventId === f.event.id) takePracticeRound(wp, f.event.courseId);
       recordFamiliarity(wp, f.event.courseId, r.rounds.length, r.position, r.madeCut);
       playedIds.add(r.player.id);
 
@@ -241,6 +260,14 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
     wp.player.condition = clamp(wp.player.condition + REST_RECOVERY * recoveryMultiplier(world, wp), 0, 100);
     wp.player.form *= 0.9;
   }
+  // Practice trips: the week at another course instead of resting.
+  for (const id of world.clientIds) {
+    const c = choices[id];
+    const wp = world.players[id];
+    if (c?.kind !== "practice" || !wp || wp.injury || playedIds.has(id)) continue;
+    takePracticeTrip(world, wp, c.courseId);
+    tripTo.set(id, c.courseId);
+  }
   endOfWeek(world, playedIds, rng);
   weeklyTraitEvents(world, rng, beginRebuild);
 
@@ -267,7 +294,9 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
     const loves = ev && familiarityWith(wp, ev.courseId) >= 70 ? 2 : 0;
     wp.client!.happiness = clamp(wp.client!.happiness + mood + loves, 0, 100);
     settleHappiness(wp, before, world);
-    report.clients[id]!.summary = describeClientWeek(world, id, plan.choices.get(id) ?? null, fields, rec);
+    report.clients[id]!.summary = tripTo.has(id)
+      ? `${wp.player.name} spent the week practising at ${courseById(world, tripTo.get(id)!).name}.`
+      : describeClientWeek(world, id, plan.choices.get(id) ?? null, fields, rec);
   }
   // No agency exists during the silent warm-up season, so nothing to pay.
   if (world.clientIds.length > 0) {
@@ -298,7 +327,7 @@ function heldOut(plan: ReturnType<typeof planWeek>, id: string, choice: ClientCh
   if (!choice || choice.kind === "auto") return false;
   const main = plan.events[0];
   if (!main || (main.tier !== "major" && main.tier !== "signature")) return false;
-  return !!plan.invited.get(main.id)?.has(id) && (choice.kind === "rest" || choice.eventId !== main.id);
+  return !!plan.invited.get(main.id)?.has(id) && (choice.kind !== "enter" || choice.eventId !== main.id);
 }
 
 function describeClientWeek(world: World, clientId: string, choice: AiChoice, fields: FieldResult[], record: EventRecord | null): string {

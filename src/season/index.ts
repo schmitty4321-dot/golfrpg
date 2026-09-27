@@ -17,3 +17,4 @@ export * from "./editorFixtures";
 export * from "./stats";
 export * from "./traits";
 export * from "./familiarity";
+export * from "./practice";
