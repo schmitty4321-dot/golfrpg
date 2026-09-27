@@ -97,8 +97,8 @@ export function decisionsFor(hole: Hole, course: Course, player: Player, s: Hole
   return out;
 }
 
-/** What a set of calls does to the hole, for this player. */
-export function callEffect(call: HoleCall | null | undefined, hole: Hole, player: Player): HoleMod {
+/** What a set of calls does to the hole, for this player. `tuck` (0-1) is how tucked today's pin is. */
+export function callEffect(call: HoleCall | null | undefined, hole: Hole, player: Player, tuck = 0.5): HoleMod {
   const mod: HoleMod = { mean: 0, sd: 1, blowup: 1 };
   if (!call) return mod;
   const a = player.attributes;
@@ -134,11 +134,12 @@ export function callEffect(call: HoleCall | null | undefined, hole: Hole, player
   }
   if (call.approach) {
     if (call.approach === "attack") {
-      mod.mean += -0.06 - (d("midIrons") + d("wedges") + d("distanceControl")) * 0.002;
+      // Going at a tucked pin brings the edge of the green, and what's beyond it, into play.
+      mod.mean += -0.06 - (d("midIrons") + d("wedges") + d("distanceControl")) * 0.002 + (tuck - 0.5) * 0.04;
       mod.sd *= 1.1;
-      mod.blowup *= 1 + hole.hazard * 1.5 + hole.bunkers * 0.05;
+      mod.blowup *= (1 + hole.hazard * 1.5 + hole.bunkers * 0.05) * (1 + (tuck - 0.5) * 0.6);
     } else {
-      mod.mean += 0.04;
+      mod.mean += 0.04 - (tuck - 0.5) * 0.03;
       mod.sd *= 0.9;
       mod.blowup *= 0.7;
     }

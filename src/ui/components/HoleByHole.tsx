@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   pinLabel,
+  pinTuck,
+  tuckWord,
   callOdds,
   decisionsFor,
   holeLayout,
@@ -185,7 +187,10 @@ export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTourname
           <span>{showHole.yards} yds</span>
           {showHole.tourAverage !== undefined && <span title="Tour average to par">Avg {toPar(Math.round((showHole.tourAverage - showHole.par) * 100) / 100)}</span>}
           <span>Wind {Math.round(wind())} mph</span>
-          <span title="Where the pin is cut today">Pin: {pinLabel(holeLayout(course, showHole, t.round - 1)).toLowerCase()}</span>
+          <span title="Where the pin is cut today: tucked pins play harder, accessible ones easier">
+            Pin: {pinLabel(holeLayout(course, showHole, t.round - 1)).toLowerCase()}
+            {tuckWord(pinTuck(course, showHole, t.round - 1)) && `, ${tuckWord(pinTuck(course, showHole, t.round - 1))}`}
+          </span>
         </p>
       )}
 

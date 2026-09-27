@@ -3,6 +3,7 @@ import { tiedPayout } from "./purse";
 import { createRng, type Rng } from "./rng";
 import { DAY_SD, WEEK_SD, playHole, roundForm, simulateRound, type HoleState, type RoundContext } from "./round";
 import { callEffect, type HoleCall } from "./calls";
+import { pinTuck } from "./pins";
 import type { PlayerEventContext } from "./traits";
 import { SG_CATEGORIES, type Course, type Player, type RoundWeather, type StrokesGained, type Wave } from "./types";
 import { drawWeather } from "./weather";
@@ -460,7 +461,7 @@ export function playLiveHole(t: LiveTournament, call: HoleCall | null = null): n
   const hole = course.holes[cur.holes.length]!;
   const me = controlled(t);
   const teeShotHoles = course.holes.filter((h) => h.par > 3).length;
-  const score = playHole({ ctx: cur.ctx, hole, dayForm: cur.dayForm, teeShotHoles, state: cur.state, mod: callEffect(call, hole, me.player) });
+  const score = playHole({ ctx: cur.ctx, hole, dayForm: cur.dayForm, teeShotHoles, state: cur.state, mod: callEffect(call, hole, me.player, pinTuck(course, hole, t.round - 1)) });
   cur.holes.push(score);
   const calls = me.calls!;
   (calls[t.round - 1] ??= []).push(call && Object.keys(call).length ? call : null);
@@ -489,7 +490,7 @@ export function callOdds(t: LiveTournament, call: HoleCall | null): { expected: 
   const teeShotHoles = course.holes.filter((h) => h.par > 3).length;
   const rng = createRng(t.config.seed ^ (t.round * 131 + cur.holes.length * 7));
   const ctx = { ...cur.ctx, rng };
-  const mod = callEffect(call, hole, me.player);
+  const mod = callEffect(call, hole, me.player, pinTuck(course, hole, t.round - 1));
   const N = 1500;
   let sum = 0;
   let birdies = 0;

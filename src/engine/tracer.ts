@@ -7,6 +7,7 @@
  * exactly the score, shaped by the player's game and the hole's layout.
  * The same inputs always give the same replay.
  */
+import { pinSpot } from "./pins";
 import { TOUR_AVERAGE } from "./attributes";
 import { clamp, createRng, type Rng } from "./rng";
 import type { Course, CourseStyle, Hole, Player } from "./types";
@@ -140,21 +141,9 @@ export function holeLayout(course: Course, hole: Hole, round?: number): HoleLayo
   return round === undefined ? layout : { ...layout, pin: pinPosition(course, hole, layout.green, round) };
 }
 
-/**
- * Where the pin is cut on a hole in a given round (0-3). Each hole has four
- * spots spread around the green, a quarter-turn apart from a random start, so
- * no two rounds share a pin; how far from the middle varies (tucked or not).
- */
+/** Where the pin is cut on a hole in a given round (0-3): see pins.ts. */
 export function pinPosition(course: Course, hole: Hole, green: Circle, round: number): Pt {
-  const rng = createRng(traceSeed(course.id, hole.number, "pins"));
-  const start = rng.next() * Math.PI * 2;
-  const order = [0, 1, 2, 3];
-  for (let i = 3; i > 0; i--) {
-    const j = rng.int(0, i);
-    [order[i], order[j]] = [order[j]!, order[i]!];
-  }
-  const rounds = [0, 1, 2, 3].map((r) => ({ ang: start + (order[r]! * Math.PI) / 2 + rng.normal(0, 0.25), off: 0.3 + rng.next() * 0.35 }));
-  const r = rounds[((round % 4) + 4) % 4]!;
+  const r = pinSpot(course, hole, round);
   return { x: green.x + Math.cos(r.ang) * green.r * r.off, y: green.y + Math.sin(r.ang) * green.r * r.off };
 }
 

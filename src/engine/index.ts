@@ -15,3 +15,4 @@ export * from "./tendencies";
 export * from "./realCourses";
 export * from "./calls";
 export * from "./traits";
+export * from "./pins";

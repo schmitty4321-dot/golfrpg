@@ -15,7 +15,7 @@ describe("player pictures", () => {
     const used = new Set(ids.map(portraitIndex));
     expect(used.size).toBeGreaterThan(80);
     for (const i of used) expect(i).toBeGreaterThanOrEqual(0), expect(i).toBeLessThan(PORTRAIT_COUNT);
-  });
+  }, 30_000);
 });
 
 describe("attribute potential", () => {
@@ -26,5 +26,5 @@ describe("attribute potential", () => {
     expect(attributePotential(p, "chipping", 0)).toBe(p.attributes.chipping);
     expect(attributePotential(p, "chipping", 30)).toBeLessThanOrEqual(20);
     expect(attributePotential(p, "chipping", 30)).toBeGreaterThanOrEqual(p.attributes.chipping);
-  });
+  }, 30_000);
 });

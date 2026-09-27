@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { COURSES, REAL_COURSES, createRng, getCourse, hasRealHoles, holeLayout, pinLabel, planHole, planStrokes, projectAlong, pointAt, traceHole, traceSeed, scoreName, generateCourse } from "../src/engine";
+import { COURSES, REAL_COURSES, createRng, getCourse, hasRealHoles, holeLayout, pinEffect, pinLabel, pinSpots, planHole, callEffect, planStrokes, projectAlong, pointAt, traceHole, traceSeed, scoreName, generateCourse } from "../src/engine";
 import { flatPlayer } from "./helpers";
 
 // Real courses are drawn from their OpenStreetMap outlines: include a few (every hole is checked below).
@@ -164,5 +164,32 @@ describe("pin positions", () => {
         expect(pinLabel(pins[0]!)).toMatch(/^(Front|Back|Middle)/);
       }
     }
+  });
+});
+
+describe("tucked pins", () => {
+  const course = getCourse("waialae");
+  it("play harder than accessible ones, and a hole's four pins average out", () => {
+    for (const hole of course.holes) {
+      const effects = [0, 1, 2, 3].map((r) => pinEffect(course, hole, r));
+      expect(effects.reduce((s, e) => s + e.mean, 0)).toBeCloseTo(0, 10);
+      const spots = pinSpots(course, hole);
+      const hardest = spots.indexOf([...spots].sort((a, b) => b.tuck - a.tuck)[0]!);
+      const easiest = spots.indexOf([...spots].sort((a, b) => a.tuck - b.tuck)[0]!);
+      expect(effects[hardest]!.mean).toBeGreaterThan(effects[easiest]!.mean);
+      expect(effects[hardest]!.blowup).toBeGreaterThan(effects[easiest]!.blowup);
+    }
+  });
+
+  it("are usually saved for the weekend", () => {
+    const weekend = course.holes.filter((h) => { const s = pinSpots(course, h); return s[3]!.tuck + s[2]!.tuck > s[0]!.tuck + s[1]!.tuck; }).length;
+    expect(weekend).toBeGreaterThan(11);
+  });
+
+  it("make attacking the pin riskier", () => {
+    const hole = course.holes.find((h) => h.hazard >= 0.3)!;
+    const p = flatPlayer("p", 12);
+    expect(callEffect({ approach: "attack" }, hole, p, 1).blowup).toBeGreaterThan(callEffect({ approach: "attack" }, hole, p, 0).blowup);
+    expect(callEffect({ approach: "middle" }, hole, p, 1).mean).toBeLessThan(callEffect({ approach: "middle" }, hole, p, 0).mean);
   });
 });

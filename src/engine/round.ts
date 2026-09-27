@@ -2,6 +2,7 @@ import { TOUR_AVERAGE } from "./attributes";
 import { clamp, type Rng } from "./rng";
 import { expectedStrokesGained } from "./skill";
 import { roundTendencyShift, tendencies } from "./tendencies";
+import { pinEffect } from "./pins";
 import { hasTrait, traitHoleEffects, traitRoundEffects, type PlayerEventContext } from "./traits";
 import {
   SG_CATEGORIES,
@@ -152,6 +153,9 @@ export function playHole({ ctx, hole, dayForm, teeShotHoles, state, mod }: HoleI
     bunkerCost: hole.bunkers * 0.008,
   });
   mean += t.mean;
+  // Today's pin: tucked by the edge plays harder, in the middle easier.
+  const pin = pinEffect(course, hole, ctx.playoff ? 3 : ctx.round - 1);
+  mean += pin.mean;
   mean += windPenalty(hole, weather.windMph[wave]) * windMultiplier(player) * t.wind;
 
   // Today's category form, spread over the holes where it applies.
@@ -179,7 +183,7 @@ export function playHole({ ctx, hole, dayForm, teeShotHoles, state, mod }: HoleI
 
   // Big numbers: trouble on the hole, wind, and poor decisions.
   const blowupChance = clamp(
-    (0.014 + hole.hazard * 0.05) * (1 - (a.courseManagement - TOUR_AVERAGE) * 0.04) * (1 + weather.windMph[wave] / 30) * (mod?.blowup ?? 1) * t.blowup,
+    (0.014 + hole.hazard * 0.05) * (1 - (a.courseManagement - TOUR_AVERAGE) * 0.04) * (1 + weather.windMph[wave] / 30) * (mod?.blowup ?? 1) * t.blowup * pin.blowup,
     0,
     0.25,
   );
