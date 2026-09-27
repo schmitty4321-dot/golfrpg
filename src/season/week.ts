@@ -8,6 +8,7 @@ import { scoutingWeek, weeklyScoutCost } from "./scouting";
 import { sponsorBonus, sponsorWeek } from "./sponsors";
 import { recordEvent } from "./history";
 import { beginRebuild, endOfWeek } from "./staff";
+import { familiarityWith, recordFamiliarity } from "./familiarity";
 import {
   ensureTraits,
   eventContext,
@@ -87,6 +88,11 @@ function weekPlan(world: World, choices: ClientChoices) {
 
 function tournamentConfig(world: World, f: FieldResult, i: number): TournamentConfig {
   const venue = courseById(world, f.event.courseId);
+  const context = Object.fromEntries(f.field.map((id) => [id, eventContext(world, f.event, id)]));
+  // Local knowledge counts against the field's: the week's average familiarity with the course.
+  const all = Object.values(context);
+  const fieldFamiliarity = all.reduce((s, c) => s + (c.familiarity ?? 0), 0) / Math.max(1, all.length);
+  for (const c of all) c.fieldFamiliarity = fieldFamiliarity;
   return {
     name: f.event.name,
     course: f.event.tier === "major" ? majorSetup(venue) : venue,
@@ -95,7 +101,7 @@ function tournamentConfig(world: World, f: FieldResult, i: number): TournamentCo
     seed: mixSeed(world.seed, world.season, world.week, 10 + i),
     cutTop: f.event.cutTop ?? undefined,
     tier: f.event.tier,
-    context: Object.fromEntries(f.field.map((id) => [id, eventContext(world, f.event, id)])),
+    context,
   };
 }
 
@@ -197,6 +203,7 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
       const effort = (f.event.tier === "major" ? MAJOR_FATIGUE : EVENT_FATIGUE) * fatigueMultiplier(world, wp);
       wp.player.condition = clamp(wp.player.condition - effort - travel, 0, 100);
       c.lastRegion = f.event.region;
+      recordFamiliarity(wp, f.event.courseId, r.rounds.length, r.position, r.madeCut);
       playedIds.add(r.player.id);
 
       if (wp.client) {
@@ -256,7 +263,9 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
       stablemateWon: world.clientIds.some((o) => o !== id && report.clients[o]?.record?.position === 1 && report.clients[o]?.record?.tier !== "dev"),
       playedAtHome: !!ev && homeRegion(wp.player.nationality) === ev.region,
     });
-    wp.client!.happiness = clamp(wp.client!.happiness + mood, 0, 100);
+    // He likes playing a course he knows well.
+    const loves = ev && familiarityWith(wp, ev.courseId) >= 70 ? 2 : 0;
+    wp.client!.happiness = clamp(wp.client!.happiness + mood + loves, 0, 100);
     settleHappiness(wp, before, world);
     report.clients[id]!.summary = describeClientWeek(world, id, plan.choices.get(id) ?? null, fields, rec);
   }

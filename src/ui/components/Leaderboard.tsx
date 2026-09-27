@@ -11,9 +11,11 @@ interface Props {
   clientIds: string[];
   /** Show only the first N rows (plus the client) until expanded. */
   limit?: number;
+  /** Short tags by player id, e.g. "Debut" or "Course expert". */
+  tags?: Record<string, string>;
 }
 
-export function Leaderboard({ result, clientIds, limit }: Props) {
+export function Leaderboard({ result, clientIds, limit, tags }: Props) {
   const [open, setOpen] = useState<string | null>(null);
   const [all, setAll] = useState(!limit);
   const rows = result.leaderboard;
@@ -41,7 +43,7 @@ export function Leaderboard({ result, clientIds, limit }: Props) {
                 {idx === firstMc && all && (
                   <tr className="divider"><td colSpan={9}>Missed the cut{result.cutLine !== null ? ` (cut ${toPar(result.cutLine)})` : ""}</td></tr>
                 )}
-                <Row r={r} me={clientIds.includes(r.player.id)} onClick={() => setOpen(open === r.player.id ? null : r.player.id)} />
+                <Row r={r} me={clientIds.includes(r.player.id)} tag={tags?.[r.player.id]} onClick={() => setOpen(open === r.player.id ? null : r.player.id)} />
                 {open === r.player.id && (
                   <tr>
                     <td colSpan={9} style={{ whiteSpace: "normal", background: "var(--surface-2)" }}>
@@ -64,12 +66,13 @@ export function Leaderboard({ result, clientIds, limit }: Props) {
   );
 }
 
-function Row({ r, me, onClick }: { r: PlayerEventResult; me: boolean; onClick: () => void }) {
+function Row({ r, me, tag, onClick }: { r: PlayerEventResult; me: boolean; tag?: string; onClick: () => void }) {
   return (
     <tr className={`clickable${me ? " me" : ""}`} onClick={onClick}>
       <td>{r.positionLabel}</td>
       <td>
         {r.player.name} <span className="muted small">{r.player.nationality}</span>
+        {tag && <span className={`fam-tag${tag === "Debut" ? " fam-debut" : ""}`}>{tag}</span>}
       </td>
       <td className={`num ${r.toPar < 0 ? "good-text" : r.toPar > 0 ? "bad-text" : ""}`}>{toPar(r.toPar)}</td>
       {[0, 1, 2, 3].map((i) => <td className="num" key={i}>{r.rounds[i] ?? "–"}</td>)}

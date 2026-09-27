@@ -4,6 +4,7 @@ import { AbilityBars } from "../components/AbilityBars";
 import { Portrait } from "../components/Portrait";
 import { StatBoxes, StatLegend } from "../components/StatBoxes";
 import { TraitList } from "../components/Traits";
+import { FamiliarityPanel } from "../components/Familiarity";
 import { TendenciesPanel } from "../components/TendenciesPanel";
 import { formWord, money, signed, toPar } from "../format";
 
@@ -55,6 +56,8 @@ export function PlayerScreen({ world, clientId }: { world: World; clientId: stri
         <div className="panel-head"><h2>Traits</h2><span className="muted small">What sets him apart, on the course and off it</span></div>
         <TraitList ids={[...traitsOf(p)]} />
       </section>
+
+      <FamiliarityPanel world={world} wp={wp} />
 
       <section className="panel">
         <div className="panel-head"><h2>Tendencies</h2><span className="muted small">His habits: they show up in replays and round stats</span></div>

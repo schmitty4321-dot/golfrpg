@@ -1,7 +1,7 @@
 import { CourseCard, CourseFacts, CoursePhoto } from "../components/CourseHeader";
 import { Fragment, useMemo, useState, type ReactNode } from "react";
 import { autoFinishRound, clientActive, fieldRoundStats, finishLive, liveSnapshot, standingsAfterRound, startLiveRound, type Course, type PlayerEventResult, type RoundStanding, type TournamentResult } from "../../engine";
-import { theEvent, type LiveEvent, type TourEvent, type WeekReport, type World } from "../../season";
+import { familiarityTags, theEvent, type LiveEvent, type TourEvent, type WeekReport, type World } from "../../season";
 import { HoleByHole } from "../components/HoleByHole";
 import type { Game, LiveWeek } from "../useGame";
 import { Scorecard } from "../components/Scorecard";
@@ -268,7 +268,7 @@ function Final({ world, report, live }: { world: World; report: WeekReport; live
         </ul>
       </section>
       <section className="panel">
-        <Leaderboard result={live.result} clientIds={world.clientIds} limit={20} />
+        <Leaderboard result={live.result} clientIds={world.clientIds} limit={20} tags={familiarityTags(world, live.event.courseId, live.result.leaderboard.map((r) => r.player.id))} />
       </section>
     </>
   );

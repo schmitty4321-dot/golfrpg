@@ -9,6 +9,7 @@ import { newHistory } from "./history";
 import { makeAmateur } from "./world";
 import { SAVE_VERSION, type World } from "./types";
 import { ensureTraits } from "./traits";
+import { ensureFamiliarity } from "./familiarity";
 
 export function serializeWorld(world: World): string {
   return JSON.stringify(world);
@@ -28,6 +29,7 @@ export function deserializeWorld(json: string): World {
   }
   // Saves from before traits existed: every player gets his roll now.
   ensureTraits(world);
+  ensureFamiliarity(world);
   return world;
 }
 

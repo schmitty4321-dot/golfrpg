@@ -182,6 +182,8 @@ export function aiChoice(world: World, ctx: WeekContext, wp: WorldPlayer, events
   if (finale !== null && world.week > finale && pr <= 50) p *= 0.15;
   if ((ctx.owgrRank.get(id) ?? 999) <= 15) p *= 0.6;
   p *= clamp(1 + courseFit(wp, courseById(world, main.courseId)) * 0.5, 0.6, 1.4);
+  // Players go back to courses they know.
+  p *= 1 + (wp.career.familiarity?.[main.courseId] ?? 0) / 300;
   if (main.region !== "NA") p *= 0.6;
   if (wp.player.condition < 65) p *= 0.3;
   return rng.chance(clamp(p, 0, 0.98)) ? { eventId: main.id, route: "entry" } : null;

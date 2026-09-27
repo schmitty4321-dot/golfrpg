@@ -652,3 +652,14 @@ select, input[type="text"], input[type="number"] {
   .sc-thumb .hole-svg { height: 72px; }
   .sc-banner { font-size: 13px; }
 }
+
+/* ---------- course familiarity ---------- */
+.fam-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 8px 24px; }
+.fam-row { display: grid; grid-template-columns: minmax(0, 1fr) 90px 28px 104px; gap: 8px; align-items: center; }
+.fam-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fam-bar { height: 10px; border-radius: 5px; background: var(--track); overflow: hidden; }
+.fam-bar > span { display: block; height: 100%; background: var(--cur); border-radius: 5px; }
+.fam-val { text-align: right; font-weight: 700; }
+@media (max-width: 480px) { .fam-row { grid-template-columns: minmax(0, 1fr) 60px 24px; } .fam-level { display: none; } }
+.fam-tag { margin-left: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 1px 6px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
+.fam-tag.fam-debut { background: var(--surface-2); color: var(--text-2); }

@@ -22,6 +22,7 @@ import { TendenciesPanel } from "./TendenciesPanel";
 import { Portrait } from "./Portrait";
 import { StatBoxes, StatLegend } from "./StatBoxes";
 import { TraitChip, TraitList } from "./Traits";
+import { FamiliarityPanel } from "./Familiarity";
 import { money, plural } from "../format";
 import type { Game } from "../useGame";
 
@@ -165,6 +166,8 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
                 />
               </section>
             )}
+
+            <FamiliarityPanel world={world} wp={wp} />
 
             {hidden && (
               <section className="panel">

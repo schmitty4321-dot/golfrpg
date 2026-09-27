@@ -27,6 +27,7 @@ import type { Course } from "../engine";
 import { SAVE_VERSION, absWeek, type Career, type ClientSeasonSummary, type SeasonRecord, type SeasonSummary, type TourEvent, type TourStatus, type World, type WorldPlayer } from "./types";
 import { playWeek } from "./week";
 import { ensureTraits, seasonEndTraits } from "./traits";
+import { ensureFamiliarity, fadeFamiliarity, familiarityWith } from "./familiarity";
 
 /** How your first client's career starts. */
 export type Scenario = "rookie" | "journeyman" | "grinder" | "veteran";
@@ -174,6 +175,7 @@ export function createWorld(opts: CreateWorldOptions): World {
   }
 
   setTargets(world);
+  ensureFamiliarity(world);
   while (world.week <= seasonWeeks(world)) playWeek(world);
   finishSeason(world, rng);
   world.pastSeasons = [];
@@ -192,6 +194,7 @@ export function createWorld(opts: CreateWorldOptions): World {
   world.agency.knowledge[client.player.id] = { accuracy: 1, reports: 99, absWeek: 0 };
   setTargets(world);
   ensureTraits(world);
+  ensureFamiliarity(world);
   return world;
 }
 
@@ -352,6 +355,7 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   // The winter: ten weeks of practice with no events, then a new season's baseline.
   offseason(world, OFFSEASON_WEEKS, rng);
   for (const wp of Object.values(world.players)) wp.development.seasonStart = { ...wp.player.attributes };
+  fadeFamiliarity(world);
   pruneHistory(world);
   world.season++;
   world.week = 1;
@@ -360,6 +364,7 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   world.agency.ledger = { prizeCommission: 0, endorsementCommission: 0, office: 0, scouts: 0 };
   setTargets(world);
   ensureTraits(world);
+  ensureFamiliarity(world);
   return summary;
 }
 
@@ -423,6 +428,9 @@ export interface EntryOption {
   detail: string;
   /** Strokes per round better (+) or worse (-) than the client's usual on this course. */
   fit: number;
+  /** His familiarity with the course, 0-100 (0 and never played: a debut). */
+  familiarity: number;
+  debut: boolean;
 }
 
 /** A client's options for this week, with a projection of whether he'd get in. */
@@ -431,7 +439,7 @@ export function clientOptions(world: World, clientId: string): EntryOption[] {
   return eventsInWeek(world).map((event) => {
     const course = courseById(world, event.courseId);
     const fit = Math.round(courseFit(client, course) * 100) / 100;
-    const base = { event, course, fit };
+    const base = { event, course, fit, familiarity: familiarityWith(client, course.id), debut: client.career.familiarity?.[course.id] === undefined };
     if (client.injury) {
       return { ...base, access: "injured" as const, detail: `Injured (${client.injury.name.toLowerCase()}), out for about ${client.injury.weeksLeft} more week${client.injury.weeksLeft === 1 ? "" : "s"}.` };
     }

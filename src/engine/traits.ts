@@ -113,7 +113,7 @@ export const TRAITS: readonly TraitDef[] = [
   { id: "resort-bandit", name: "Resort Course Bandit", category: "venue", rarity: "common", polarity: "mixed", blurb: "Give him a birdie-fest and he'll win it.", effect: "Resort courses 0.15 a round better; links and parkland 0.05 worse.", conflicts: ["links-lifer", "loves-a-brute"] },
   { id: "loves-a-brute", name: "Loves a Brute", category: "venue", rarity: "uncommon", polarity: "positive", blurb: "The harder it plays, the better he likes it.", effect: "Courses playing 4+ over par for the field: 0.15 a round better. Easy courses: 0.05 worse.", conflicts: ["birdie-fest", "resort-bandit"] },
   { id: "birdie-fest", name: "Birdie-Fest Only", category: "venue", rarity: "common", polarity: "mixed", blurb: "Needs to go low to feel alive.", effect: "Courses playing under par: 0.1 a round better. Brutes (4+ over): 0.15 worse.", conflicts: ["loves-a-brute"] },
-  { id: "course-horse", name: "Course Horse", category: "venue", rarity: "common", polarity: "positive", blurb: "Some places just fit his eye.", effect: "0.05 a round better for each past top-25 at an event, up to 0.2." },
+  { id: "course-horse", name: "Course Horse", category: "venue", rarity: "common", polarity: "positive", blurb: "Some places just fit his eye.", effect: "Learns courses twice as fast: every round and good finish builds his familiarity double." },
   { id: "home-crowd-hero", name: "Home Crowd Hero", category: "venue", rarity: "uncommon", polarity: "positive", blurb: "The home fans carry him.", effect: "Events in his home region: 0.12 a round better, and he's happier afterwards.", weight: (p) => (homeRegion(p.nationality) === null ? 0 : p.nationality === "USA" ? 0.4 : 2) },
   { id: "dawn-patrol", name: "Dawn Patrol", category: "venue", rarity: "common", polarity: "mixed", blurb: "Likes to be first off, before the greens get spiked up.", effect: "Morning wave 0.08 a round better; afternoon 0.08 worse." },
   { id: "rain-man", name: "Rain Man", category: "venue", rarity: "uncommon", polarity: "positive", blurb: "Wet days, soft greens: his kind of golf.", effect: "0.1 a round better in the rain, on top of the field's rain bonus.", conflicts: ["ground-game"] },
@@ -240,6 +240,10 @@ export interface PlayerEventContext {
   missedCutHereLastSeason: boolean;
   /** Top-25 finishes at this event in past seasons. */
   top25sHere: number;
+  /** Course familiarity, the field's average this week, and whether it's his first time. */
+  familiarity?: number;
+  fieldFamiliarity?: number;
+  debut?: boolean;
   /** The event is in his home region. */
   home: boolean;
   /** He flew in from another region. */
@@ -339,7 +343,6 @@ export function traitRoundEffects(r: TraitRoundInfo): { sg: StrokesGained; strok
         strokes += d < 0 ? -0.1 : d >= 4 ? 0.15 : 0;
         break;
       }
-      case "course-horse": strokes -= Math.min(0.2, 0.05 * (e?.top25sHere ?? 0)); break;
       case "home-crowd-hero": if (e?.home) strokes -= 0.12; break;
       case "dawn-patrol": strokes += r.wave === "AM" ? -0.08 : 0.08; break;
       case "rain-man": if (r.rain) strokes -= 0.1; break;

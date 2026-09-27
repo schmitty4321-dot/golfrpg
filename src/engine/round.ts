@@ -3,6 +3,7 @@ import { clamp, type Rng } from "./rng";
 import { expectedStrokesGained } from "./skill";
 import { roundTendencyShift, tendencies } from "./tendencies";
 import { pinEffect } from "./pins";
+import { familiarityHole, familiarityRound, type FamiliarityInfo } from "./familiarity";
 import { hasTrait, traitHoleEffects, traitRoundEffects, type PlayerEventContext } from "./traits";
 import {
   SG_CATEGORIES,
@@ -153,8 +154,8 @@ export function playHole({ ctx, hole, dayForm, teeShotHoles, state, mod }: HoleI
     bunkerCost: hole.bunkers * 0.008,
   });
   mean += t.mean;
-  // Today's pin: tucked by the edge plays harder, in the middle easier.
-  const pin = pinEffect(course, hole, ctx.playoff ? 3 : ctx.round - 1);
+  // Today's pin: tucked by the edge plays harder, in the middle easier; local knowledge softens it.
+  const pin = familiarityHole(familiarityOf(ctx), hole.hazard, pinEffect(course, hole, ctx.playoff ? 3 : ctx.round - 1));
   mean += pin.mean;
   mean += windPenalty(hole, weather.windMph[wave]) * windMultiplier(player) * t.wind;
 
@@ -236,7 +237,18 @@ export function roundForm(ctx: RoundContext): StrokesGained {
     cutGap: ctx.cutGap,
     position36: ctx.position36,
   });
-  return drawDayForm(ctx.player, ctx.course, ctx.rng, (ctx.weekForm ?? 0) - shift - traits.strokes, habits.streak, traits);
+  // Local knowledge of the course, against the field's.
+  const local = familiarityRound(familiarityOf(ctx), ctx.round);
+  traits.sg.approach += local.approach;
+  traits.sg.putting += local.putting;
+  return drawDayForm(ctx.player, ctx.course, ctx.rng, (ctx.weekForm ?? 0) - shift - traits.strokes - local.strokes, habits.streak, traits);
+}
+
+/** His familiarity with the course this week, when the season supplied it. */
+function familiarityOf(ctx: RoundContext): FamiliarityInfo | undefined {
+  const e = ctx.event;
+  if (!e || e.familiarity === undefined) return undefined;
+  return { familiarity: e.familiarity, fieldFamiliarity: e.fieldFamiliarity ?? e.familiarity, debut: !!e.debut };
 }
 
 export function simulateRound(ctx: RoundContext): RoundResult {

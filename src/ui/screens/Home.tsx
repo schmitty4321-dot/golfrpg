@@ -1,4 +1,4 @@
-import { coursePar, courseYards } from "../../engine";
+import { coursePar, courseYards, familiarityLabel } from "../../engine";
 import {
   FULL_CARD,
   REGION_NAMES,
@@ -284,6 +284,10 @@ function EventChoice({ o, checked, onChoose }: { o: EntryOption; checked: boolea
       <span className="access small">
         <span className="dot" style={{ background: fit.tone === "good" ? "var(--good)" : fit.tone === "bad" ? "var(--serious)" : "var(--muted)" }} aria-hidden />
         <span>{fit.label} ({signed(o.fit, 2)}/round)</span>
+      </span>
+      <span className="access small">
+        <span className="dot" style={{ background: o.debut ? "var(--muted)" : o.familiarity >= 40 ? "var(--good)" : "var(--warning)" }} aria-hidden />
+        <span>{o.debut ? "Course debut: never played it" : `Familiarity: ${familiarityLabel(o.familiarity).toLowerCase()} (${Math.round(o.familiarity)})`}</span>
       </span>
     </button>
   );

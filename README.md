@@ -192,6 +192,10 @@ Every player has one to three of 100 traits (`src/engine/traits.ts`), rolled onc
 - **They can change**: a season with a mental coach rated 14+ cures the chipping yips, a temper or major nerves; a first major win brings Major Mindset; the odd veteran's putting stroke goes.
 - **Scouting**: you see all of a client's traits; for anyone else, a report at accuracy x spots each trait with chance x.
 
+### Course familiarity
+
+Every player has a 0-100 familiarity with each course (`src/engine/familiarity.ts`, `src/season/familiarity.ts`): 3 a round played there, plus 6 for a top 10, 12 for a top 5 or 20 for a win, with gains shrinking towards 100 (a Course Horse learns twice as fast), and 3 lost for each season he stays away. New worlds (and older saves) start veterans with what their years on tour would have earned. It is local knowledge measured against the field that week, so a field of veterans still plays a course to its real average: up to about a quarter of a stroke a round at the top (mostly on the greens), fewer big numbers on holes with trouble, and tucked pins costing less. A course debut costs 0.15 in round 1. Players lean towards courses they know when picking their schedule, and clients are happier at a course they know well. Familiarity shows on the player page, on this week's entry options, and as Debut / Course expert tags on leaderboards.
+
 ### Round stats and tendencies
 
 Each round on the event screen shows your client's stats in the style of the tour's stats pages, each with

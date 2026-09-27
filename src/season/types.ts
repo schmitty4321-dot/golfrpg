@@ -92,6 +92,8 @@ export interface Career {
   stats?: SeasonStats;
   /** Last season's, kept through the next season for comparison. */
   lastStats?: SeasonStats;
+  /** Course familiarity, 0-100, by course id (see engine/familiarity.ts). */
+  familiarity?: Record<string, number>;
 }
 
 /** A season of main-tour golf, added up event by event. */
