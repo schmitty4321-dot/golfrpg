@@ -196,6 +196,15 @@ Every player has one to three of 100 traits (`src/engine/traits.ts`), rolled onc
 
 Every player has a 0-100 familiarity with each course (`src/engine/familiarity.ts`, `src/season/familiarity.ts`): 3 a round played there, plus 6 for a top 10, 12 for a top 5 or 20 for a win, with gains shrinking towards 100 (a Course Horse learns twice as fast), and 3 lost for each season he stays away. New worlds (and older saves) start veterans with what their years on tour would have earned. It is local knowledge measured against the field that week, so a field of veterans still plays a course to its real average: up to about a quarter of a stroke a round at the top (mostly on the greens), fewer big numbers on holes with trouble, and tucked pins costing less. A course debut costs 0.15 in round 1. Players lean towards courses they know when picking their schedule, and clients are happier at a course they know well. Familiarity shows on the player page, on this week's entry options, and as Debut / Course expert tags on leaderboards.
 
+### Managing a client's week, team and kit
+
+- **Weekly planner** (`src/season/planner.ts`): before an event his Monday to Wednesday, in a week off all seven days. Travel takes the first days (fewer with a better travel class or the agency jet); every free day gets an activity: rest (free), a practice round (familiarity before the event), range work (training +15%), gym (fitness +30%, fewer injuries), a sponsor day (an appearance fee, likelier offers) or a media day (agency reputation; some players hate it).
+- **Practice trips**: a week learning any tour course instead of an event, for travel, fees and most of a week's rest.
+- **Caddies** (`src/season/team.ts`): twelve for hire, rated on green reading, clubbing and calm, with a weekly fee and a share of winnings. Chemistry builds three points a week together; a good caddie is worth strokes and takes the edge off weekend pressure.
+- **The bag** (`src/engine/equipment.ts`): driver, irons, wedges and putter, each with models that trade one thing for another (a longer, wilder driver; blades against game-improvement irons; a steadier mallet). Bought once, swapped freely. The field plays tour standard.
+- **Travel**: economy, business or charter per client (cost against tiredness and travel days; charter ends jet lag), or an agency jet, leased by the week or bought outright, for every client.
+- **Season goals** (`src/season/goals.ts`): four goals offered per client each season to suit where he stands; agree two by week 4. Met goals lift his mood and your reputation (more for a stretch), missed ones cost mood.
+
 ### Round stats and tendencies
 
 Each round on the event screen shows your client's stats in the style of the tour's stats pages, each with

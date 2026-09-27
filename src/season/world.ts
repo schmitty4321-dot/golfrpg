@@ -28,6 +28,8 @@ import { SAVE_VERSION, absWeek, type Career, type ClientSeasonSummary, type Seas
 import { playWeek } from "./week";
 import { ensureTraits, seasonEndTraits } from "./traits";
 import { ensureFamiliarity, fadeFamiliarity, familiarityWith } from "./familiarity";
+import { generateCaddies } from "./team";
+import { ensureGoals, settleGoals } from "./goals";
 
 /** How your first client's career starts. */
 export type Scenario = "rookie" | "journeyman" | "grinder" | "veteran";
@@ -160,6 +162,7 @@ export function createWorld(opts: CreateWorldOptions): World {
     pastSeasons: [],
     news: [],
     coaches: generateCoaches(opts.seed),
+    caddies: generateCaddies(opts.seed),
     history: newHistory(),
   };
   for (const [id, pot] of dbPotential) if (pot !== undefined) world.players[id]!.development.potential = pot;
@@ -195,6 +198,7 @@ export function createWorld(opts: CreateWorldOptions): World {
   setTargets(world);
   ensureTraits(world);
   ensureFamiliarity(world);
+  ensureGoals(world);
   return world;
 }
 
@@ -246,6 +250,8 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   const rng = rngIn ?? createRng(mixSeed(world.seed, world.season, 99));
   const season = world.season;
   const order = pointsList(world);
+  // Season goals: met or missed, judged on the final points list and results.
+  for (const line of settleGoals(world)) world.news.unshift(line);
   const rankOf = new Map(order.map((id, i) => [id, i + 1]));
   const owgr = rankMap(world);
   const statusBefore = new Map(world.clientIds.map((id) => [id, world.players[id]!.career.status]));
@@ -365,6 +371,7 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   setTargets(world);
   ensureTraits(world);
   ensureFamiliarity(world);
+  ensureGoals(world);
   return summary;
 }
 

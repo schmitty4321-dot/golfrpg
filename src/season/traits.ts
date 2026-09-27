@@ -6,6 +6,7 @@
 import { clamp, hasTrait, homeRegion, rollTraits, traceSeed, traitsOf, type PlayerEventContext, type Rng } from "../engine";
 import { rankMap } from "./points";
 import { familiarityContext } from "./familiarity";
+import { caddieOnBag, travelMode } from "./team";
 import type { Region, SponsorCategory, TourEvent, World, WorldPlayer } from "./types";
 
 /** Gives every player without traits his roll. Run when a world is made or loaded, and each week. */
@@ -71,6 +72,7 @@ export function eventContext(world: World, event: TourEvent, id: string): Player
     weeksOff: last === 0 ? 99 : world.week - 1 - last,
     lateSeason: world.week > 30,
     ...familiarityContext(wp, event),
+    ...(wp.client ? { caddie: caddieOnBag(world, wp), flewPrivate: travelMode(world, wp).private } : {}),
   };
 }
 

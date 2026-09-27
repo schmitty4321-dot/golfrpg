@@ -9,7 +9,10 @@ import { sponsorBonus, sponsorWeek } from "./sponsors";
 import { recordEvent } from "./history";
 import { beginRebuild, endOfWeek } from "./staff";
 import { familiarityWith, recordFamiliarity } from "./familiarity";
-import { afterPracticeRound, takePracticeRound, takePracticeTrip } from "./practice";
+import { takePracticeRound, takePracticeTrip } from "./practice";
+import { caddiePay, payJet, travelMode } from "./team";
+import { ensureGoals } from "./goals";
+import { EVENT_WEEK_ACTIVITIES, OFF_WEEK_ACTIVITIES, applyPlan, familiarityAfterPractice, fitPlan, trainingBoost, weekDays, type DayActivity } from "./planner";
 import {
   ensureTraits,
   eventContext,
@@ -29,8 +32,8 @@ import { absWeek, type EventRecord, type TourEvent, type World } from "./types";
 
 /** What a client does this week. "auto" lets him pick his own schedule. */
 export type ClientChoice =
-  | { kind: "enter"; eventId: string; /** A practice round there first. */ practice?: boolean }
-  | { kind: "rest" }
+  | { kind: "enter"; eventId: string; /** A practice round there first (older saves; the planner's days replace it). */ practice?: boolean; /** Monday to Wednesday. */ days?: DayActivity[] }
+  | { kind: "rest"; /** The week off, Monday to Sunday. */ days?: DayActivity[] }
   | { kind: "auto" }
   /** A week's practice trip to any course, instead of an event. */
   | { kind: "practice"; courseId: string };
@@ -61,7 +64,6 @@ const REST_RECOVERY = 15;
 
 /** Player expenses per event played, by region. */
 const TRAVEL_COST = { NA: 5_000, EU: 9_000, ASIA: 10_000, AUS: 10_000 } as const;
-const CADDIE_WEEKLY = 2_000;
 
 export function caddieShare(position: number, madeCut: boolean): number {
   if (!madeCut) return 0;
@@ -92,18 +94,38 @@ function weekPlan(world: World, choices: ClientChoices) {
   return { plan, fields: buildFields(world, plan) };
 }
 
-/** Clients having a practice round at an event this week. */
-function practising(choices: ClientChoices): Set<string> {
-  return new Set(Object.entries(choices).filter(([, c]) => c.kind === "enter" && c.practice).map(([id]) => id));
+/** Practice rounds each client has planned at his event this week. */
+function practising(choices: ClientChoices): Map<string, number> {
+  const out = new Map<string, number>();
+  for (const [id, c] of Object.entries(choices)) {
+    if (c.kind !== "enter") continue;
+    const n = (c.practice ? 1 : 0) + (c.days ? c.days.filter((d) => d === "practice").length : 0);
+    if (n) out.set(id, n);
+  }
+  return out;
 }
 
-function tournamentConfig(world: World, f: FieldResult, i: number, practice: Set<string> = new Set()): TournamentConfig {
+/** Each client's planned days, fitted to the days he actually has this week. */
+export function weekPlans(world: World, choices: ClientChoices): Map<string, DayActivity[]> {
+  const out = new Map<string, DayActivity[]>();
+  for (const id of world.clientIds) {
+    const c = choices[id];
+    const wp = world.players[id];
+    if (!wp || !c || (c.kind !== "enter" && c.kind !== "rest")) continue;
+    const event = c.kind === "enter" ? world.schedule.find((e) => e.id === c.eventId) : undefined;
+    const { days, travel } = weekDays(world, wp, event?.region ?? null);
+    out.set(id, fitPlan(c.days, days.length - travel, event ? EVENT_WEEK_ACTIVITIES : OFF_WEEK_ACTIVITIES));
+  }
+  return out;
+}
+
+function tournamentConfig(world: World, f: FieldResult, i: number, practice: Map<string, number> = new Map()): TournamentConfig {
   const venue = courseById(world, f.event.courseId);
   const context = Object.fromEntries(f.field.map((id) => [id, eventContext(world, f.event, id)]));
   // A practice round counts already: he knows the course a little better, and it's no longer a debut.
   for (const id of f.field) {
     if (!practice.has(id)) continue;
-    context[id] = { ...context[id]!, familiarity: afterPracticeRound(world.players[id]!, f.event.courseId), debut: false };
+    context[id] = { ...context[id]!, familiarity: familiarityAfterPractice(world.players[id]!, f.event.courseId, practice.get(id)!), debut: false };
   }
   // Local knowledge counts against the field's: the week's average familiarity with the course.
   const all = Object.values(context);
@@ -147,6 +169,7 @@ export function liveEvents(world: World, choices: ClientChoices = {}): LiveEvent
 export function playWeek(world: World, choices: ClientChoices = {}, played: Record<string, TournamentResult> = {}): WeekReport {
   if (world.week > seasonWeeks(world)) throw new Error("the season is over; call finishSeason first");
   ensureTraits(world);
+  ensureGoals(world);
   const ctxBefore = weekContext(world);
   const { plan, fields } = weekPlan(world, choices);
   const playedIds = new Set<string>();
@@ -157,6 +180,9 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
   // Where each client played this week, for the traits that care who else was there.
   const eventOf = new Map<string, TourEvent>();
   const tripTo = new Map<string, string>();
+  // The planner: fitted before anyone travels (travel days depend on where he's coming from).
+  const plans = weekPlans(world, choices);
+  const practice = practising(choices);
 
   fields.forEach((f, i) => {
     if (f.field.length < 2) return;
@@ -216,21 +242,22 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
       wp.player.form = clamp(wp.player.form * 0.6 + beat * 0.1, -1, 1);
       // A perfectionist takes a missed cut harder than most.
       if (!r.madeCut && has(wp, "perfectionist")) wp.player.form = clamp(wp.player.form - 0.1, -1, 1);
-      const travel = c.lastRegion !== null && c.lastRegion !== f.event.region && feelsTravel(wp) ? TRAVEL_FATIGUE : 0;
+      const mode = travelMode(world, wp);
+      const travel = c.lastRegion !== null && c.lastRegion !== f.event.region && feelsTravel(wp) ? TRAVEL_FATIGUE * mode.fatigue : 0;
       const effort = (f.event.tier === "major" ? MAJOR_FATIGUE : EVENT_FATIGUE) * fatigueMultiplier(world, wp);
       wp.player.condition = clamp(wp.player.condition - effort - travel, 0, 100);
       c.lastRegion = f.event.region;
       const pc = choices[wp.player.id];
-      if (wp.client && pc?.kind === "enter" && pc.practice && pc.eventId === f.event.id) takePracticeRound(wp, f.event.courseId);
+      if (wp.client && pc?.kind === "enter" && pc.eventId === f.event.id) for (let n = practice.get(wp.player.id) ?? 0; n > 0; n--) takePracticeRound(wp, f.event.courseId);
       recordFamiliarity(wp, f.event.courseId, r.rounds.length, r.position, r.madeCut);
       playedIds.add(r.player.id);
 
       if (wp.client) {
         const m = wp.client;
-        const caddie = CADDIE_WEEKLY + Math.round(r.earnings * caddieShare(r.position, r.madeCut));
+        const caddie = caddiePay(world, wp, r.earnings, caddieShare(r.position, r.madeCut));
         m.finances.prizeMoney += r.earnings;
         m.finances.caddie += caddie;
-        m.finances.travel += TRAVEL_COST[f.event.region];
+        m.finances.travel += Math.round(TRAVEL_COST[f.event.region] * mode.cost);
         const commission = Math.round(r.earnings * m.contract.commission);
         m.finances.commission += commission;
         world.agency.bank += commission;
@@ -268,7 +295,13 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
     takePracticeTrip(world, wp, c.courseId);
     tripTo.set(id, c.courseId);
   }
-  endOfWeek(world, playedIds, rng);
+  endOfWeek(world, playedIds, rng, new Map([...plans].map(([id, p]) => [id, trainingBoost(p)])));
+  // A week longer together: the caddie and his player get to know each other.
+  for (const id of world.clientIds) {
+    const m = world.players[id]?.client;
+    if (m?.caddieId) m.caddieWeeks = (m.caddieWeeks ?? 0) + 1;
+  }
+  if (world.clientIds.length > 0) payJet(world);
   weeklyTraitEvents(world, rng, beginRebuild);
 
   // The agency's week: sponsors pay, moods move, scouts report, bills are paid.
@@ -276,7 +309,8 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
     const id = wp.player.id;
     const rec = report.clients[id]?.record ?? null;
     const goodWeek = !!rec && rec.madeCut && rec.position <= 5;
-    const pay = sponsorWeek(world, wp, rng, goodWeek, seasonWeeks(world));
+    const dayPlan = plans.get(id) ?? [];
+    const pay = sponsorWeek(world, wp, rng, goodWeek, seasonWeeks(world), 0.1 * dayPlan.filter((d) => d === "sponsor").length);
     if (pay > 0) payEndorsement(world, id, pay);
     const before = wp.client!.happiness;
     updateHappiness(wp, { played: playedIds.has(id), sgVsExpected: sgVsExpected.get(id) ?? null, heldOut: heldOut(plan, id, choices[id]) });
@@ -292,7 +326,8 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
     });
     // He likes playing a course he knows well.
     const loves = ev && familiarityWith(wp, ev.courseId) >= 70 ? 2 : 0;
-    wp.client!.happiness = clamp(wp.client!.happiness + mood + loves, 0, 100);
+    const planned = applyPlan(world, wp, dayPlan);
+    wp.client!.happiness = clamp(wp.client!.happiness + mood + loves + planned, 0, 100);
     settleHappiness(wp, before, world);
     report.clients[id]!.summary = tripTo.has(id)
       ? `${wp.player.name} spent the week practising at ${courseById(world, tripTo.get(id)!).name}.`

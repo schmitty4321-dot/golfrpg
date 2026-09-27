@@ -1,4 +1,4 @@
-export type Tab = "home" | "agency" | "scouting" | "tournament" | "standings" | "stats" | "calendar" | "player" | "training" | "finances" | "history" | "editor" | "career";
+export type Tab = "home" | "team" | "agency" | "scouting" | "tournament" | "standings" | "stats" | "calendar" | "player" | "training" | "finances" | "history" | "editor" | "career";
 
 export type SectionId = "week" | "clients" | "agency" | "tour" | "game";
 
@@ -8,7 +8,7 @@ export type SectionId = "week" | "clients" | "agency" | "tour" | "game";
  */
 export const SECTIONS: { id: SectionId; label: string; tabs: { id: Tab; label: string }[] }[] = [
   { id: "week", label: "Week", tabs: [{ id: "home", label: "This week" }, { id: "tournament", label: "Leaderboards" }, { id: "calendar", label: "Calendar" }] },
-  { id: "clients", label: "Clients", tabs: [{ id: "agency", label: "Roster" }, { id: "player", label: "Player" }, { id: "training", label: "Training" }] },
+  { id: "clients", label: "Clients", tabs: [{ id: "agency", label: "Roster" }, { id: "player", label: "Player" }, { id: "training", label: "Training" }, { id: "team", label: "Team & gear" }] },
   { id: "agency", label: "Agency", tabs: [{ id: "scouting", label: "Scouting" }, { id: "finances", label: "Finances" }] },
   { id: "tour", label: "Tour", tabs: [{ id: "standings", label: "Standings" }, { id: "stats", label: "Stats" }, { id: "history", label: "History" }] },
   { id: "game", label: "Game", tabs: [{ id: "career", label: "Save" }, { id: "editor", label: "Editor" }] },

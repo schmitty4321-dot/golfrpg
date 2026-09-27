@@ -5,5 +5,6 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   base: "./",
   plugins: [react()],
-  test: { include: ["tests/**/*.test.ts"] },
+  // Whole seasons are simulated in some tests; give them room when the suite runs in parallel.
+  test: { include: ["tests/**/*.test.ts"], testTimeout: 60_000 },
 });

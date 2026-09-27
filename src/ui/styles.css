@@ -668,3 +668,35 @@ select, input[type="text"], input[type="number"] {
 .practice-toggle label { flex: 1 1 100%; min-width: 0; display: flex; gap: 8px; align-items: center; }
 .practice-toggle select { flex: 1; min-width: 0; width: 100%; }
 .practice-toggle > span { min-width: 0; }
+
+/* ---------- team & gear ---------- */
+.gear-slots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 760px) { .gear-slots { grid-template-columns: minmax(0, 1fr); } }
+.gear-models { display: grid; gap: 8px; padding: 10px; }
+.gear-models .choice { text-align: left; }
+
+/* ---------- weekly planner ---------- */
+.planner { margin-top: 10px; padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); display: grid; gap: 8px; }
+.planner-days { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 6px; }
+.planner-day { display: grid; gap: 3px; padding: 6px 8px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); font-size: 12px; min-width: 0; }
+.planner-day select { width: 100%; min-width: 0; font-size: 13px; padding: 3px 4px; }
+.planner-dname { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+.planner-day.travel { background: transparent; border-style: dashed; color: var(--text-2); }
+.planner-day.event { background: var(--accent-soft); border-color: var(--accent); color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; grid-column: span 2; }
+.planner-day.act-practice { border-color: var(--accent); }
+.planner-day.act-range, .planner-day.act-gym { border-color: #2f6ea5; }
+.planner-day.act-sponsor, .planner-day.act-media { border-color: #a35d00; }
+.planner-sum { display: flex; flex-wrap: wrap; gap: 4px 14px; }
+
+/* ---------- season goals ---------- */
+.goals { display: grid; gap: 12px; }
+.goal-client { display: grid; gap: 6px; }
+.goal-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+.goal { all: unset; box-sizing: border-box; cursor: pointer; display: grid; gap: 3px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+.goal:disabled { cursor: default; }
+.goal:not(.on):disabled { opacity: 0.55; }
+.goal.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; background: var(--accent-soft); }
+.goal.met { border-color: var(--good); }
+.goal-label { font-weight: 600; }
+.goal-meta { color: var(--text-2); }
+.goal-stars { color: #e0ad3c; }

@@ -10,6 +10,7 @@ import { TOUR_AVERAGE } from "./attributes";
 import { clamp } from "./rng";
 import type { HoleMod } from "./round";
 import { hasTrait, traitReachBonus } from "./traits";
+import { equipmentReach } from "./equipment";
 import type { Course, Hole, Player } from "./types";
 
 export type TeeCall = "driver" | "3-wood" | "iron";
@@ -44,7 +45,7 @@ export interface HoleSituation {
 }
 
 /** Yards the player can reach in two on a par 5 (drive plus a long second). */
-export const reachInTwo = (p: Player): number => 300 + (p.attributes.drivingDistance - TOUR_AVERAGE) * 6 + 245 + (p.attributes.longIrons - TOUR_AVERAGE) * 4 + traitReachBonus(p);
+export const reachInTwo = (p: Player): number => 300 + (p.attributes.drivingDistance - TOUR_AVERAGE) * 6 + 245 + (p.attributes.longIrons - TOUR_AVERAGE) * 4 + traitReachBonus(p) + equipmentReach(p);
 
 /** The calls worth making on this hole: key moments only; on other holes he plays his own game. */
 export function decisionsFor(hole: Hole, course: Course, player: Player, s: HoleSituation): Decision[] {

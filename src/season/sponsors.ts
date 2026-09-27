@@ -82,13 +82,13 @@ export function declineSponsor(world: World, clientId: string, offerId: string):
 }
 
 /** Weekly: pay instalments, lapse old offers, and maybe a new offer (likelier after a good week). */
-export function sponsorWeek(world: World, wp: WorldPlayer, rng: Rng, goodWeek: boolean, seasonWeeks: number): number {
+export function sponsorWeek(world: World, wp: WorldPlayer, rng: Rng, goodWeek: boolean, seasonWeeks: number, extraChance = 0): number {
   const c = wp.client;
   if (!c) return 0;
   const now = absWeek(world.season, world.week);
   c.offers = c.offers.filter((o) => o.expiresAbsWeek >= now);
   const pay = c.sponsors.reduce((s, x) => s + x.annualValue / seasonWeeks, 0);
-  maybeOffer(world, wp, rng, Math.min(0.95, (goodWeek ? 0.5 : world.week === 1 ? 0.8 : 0.05) * offerChanceMultiplier(wp)));
+  maybeOffer(world, wp, rng, Math.min(0.95, (goodWeek ? 0.5 : world.week === 1 ? 0.8 : 0.05) * offerChanceMultiplier(wp) + extraChance));
   return Math.round(pay);
 }
 

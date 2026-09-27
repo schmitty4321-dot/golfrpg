@@ -38,11 +38,11 @@ export function Finances({ world }: { world: World }) {
         ) : (
           <div className="table-wrap">
             <table>
-              <thead><tr><th>Client</th><th className="num">Prize money</th><th className="num">Endorsements</th><th className="num">Caddie</th><th className="num">Travel</th><th className="num">Coaching</th><th className="num">Commission</th><th className="num">Take-home</th></tr></thead>
+              <thead><tr><th>Client</th><th className="num">Prize money</th><th className="num">Endorsements</th><th className="num">Caddie</th><th className="num">Travel</th><th className="num">Coaching</th><th className="num">Clubs</th><th className="num">Commission</th><th className="num">Take-home</th></tr></thead>
               <tbody>
                 {world.clientIds.map((id) => {
                   const f = world.players[id]!.client!.finances;
-                  const net = f.prizeMoney + f.endorsements - f.caddie - f.travel - f.coaching - f.commission;
+                  const net = f.prizeMoney + f.endorsements - f.caddie - f.travel - f.coaching - (f.equipment ?? 0) - f.commission;
                   return (
                     <tr key={id}>
                       <td>{world.players[id]!.player.name}</td>
@@ -51,6 +51,7 @@ export function Finances({ world }: { world: World }) {
                       <td className="num">{cash(-f.caddie)}</td>
                       <td className="num">{cash(-f.travel)}</td>
                       <td className="num">{cash(-f.coaching)}</td>
+                      <td className="num">{cash(-(f.equipment ?? 0))}</td>
                       <td className="num">{cash(-f.commission)}</td>
                       <td className={`num ${net >= 0 ? "" : "bad-text"}`}><strong>{cash(net)}</strong></td>
                     </tr>

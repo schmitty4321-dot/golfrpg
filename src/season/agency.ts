@@ -3,6 +3,7 @@ import { amateurRanking } from "./amateurs";
 import { mixSeed } from "./entries";
 import { rankMap } from "./points";
 import { absWeek, type Agency, type ClientManagement, type World, type WorldPlayer } from "./types";
+import { ensureGoals } from "./goals";
 import { commissionWeight, decisionSensitivity, extensionBias, heldOutPenalty, onSigned, recruitingBonus } from "./traits";
 
 export const RIVAL_AGENCIES = [
@@ -173,6 +174,7 @@ export function signClient(world: World, id: string, offer: Offer): void {
   world.clientIds.push(id);
   world.agency.knowledge[id] = { accuracy: 1, reports: 99, absWeek: absWeek(world.season, world.week) };
   onSigned(world, wp);
+  ensureGoals(world);
   world.news.unshift(`${wp.player.name} signs with ${world.agency.name} (${Math.round(offer.commission * 100)}%, ${offer.years} season${offer.years === 1 ? "" : "s"}).`);
 }
 

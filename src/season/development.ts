@@ -104,6 +104,8 @@ export interface DevelopmentInputs {
   competed: boolean;
   /** A veteran Mentor on the same books (your clients under 25 learn faster). */
   mentored?: boolean;
+  /** This week's planner: extra range work and gym time. */
+  boost?: { training: number; fitness: number };
 }
 
 /** The coach quality a computer player works with, by standing. */
@@ -167,6 +169,7 @@ export function developWeek(wp: WorldPlayer, inputs: DevelopmentInputs, rng: Rng
     let delta = BASE_GROWTH * growAge * gap * learn * coach * focusMultiplier(key, inputs.plan.focus) * intensity * boost;
     if (has(wp, "sponge") && inputs.plan.focus !== "balanced" && FOCUS_GROUPS[inputs.plan.focus].includes(key)) delta *= 1.25;
     if (has(wp, "gym-rat") && (key === "stamina" || key === "flexibility")) delta *= 1.3;
+    if (inputs.boost && delta > 0) delta *= key === "stamina" || key === "flexibility" ? inputs.boost.fitness : inputs.boost.training;
     if (injured) delta *= 0.3;
 
     // Ageing: power goes first, then the short putts; fitness work slows it.

@@ -17,3 +17,4 @@ export * from "./calls";
 export * from "./traits";
 export * from "./pins";
 export * from "./familiarity";
+export * from "./equipment";

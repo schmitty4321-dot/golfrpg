@@ -194,6 +194,17 @@ export interface ClientManagement {
   offers: SponsorOffer[];
   /** Grateful Underdogs: the last season his mood can't fall below 40. */
   gratefulUntil?: number;
+  /** His caddie (id in World.caddies) and how many weeks they've worked together. */
+  caddieId?: string;
+  caddieWeeks?: number;
+  /** How he flies between events (the agency jet, when you have one, beats all of these). */
+  travelClass?: TravelClass;
+  /** Equipment models he owns (tour standard is always free). */
+  ownedEquipment?: string[];
+  /** This season's goals, agreed with him (see goals.ts), and the ones on offer. */
+  goals?: SeasonGoal[];
+  goalOffers?: SeasonGoal[];
+  goalsSeason?: number;
 }
 
 /** Who represents a player. */
@@ -256,6 +267,34 @@ export interface Agency {
   ledger: AgencyLedger;
   /** Player id → absolute week before which he won't hear another offer. */
   cooldowns: Record<string, number>;
+  /** The agency's private jet: leased by the week, or owned. */
+  jet?: "lease" | "own" | null;
+}
+
+export type TravelClass = "economy" | "business" | "charter";
+
+export interface Caddie {
+  id: string;
+  name: string;
+  /** 1-20. */
+  greenReading: number;
+  clubbing: number;
+  calm: number;
+  weeklyFee: number;
+  /** Share of prize money on top of the fee. */
+  share: number;
+}
+
+/** A goal agreed with a client for the season. */
+export interface SeasonGoal {
+  id: string;
+  kind: "card" | "top10s" | "win" | "playoffs" | "major-top10" | "points-top" | "cuts";
+  /** The number to reach (top 10s, cuts, a points rank...). */
+  target: number;
+  label: string;
+  /** How hard it looks, for the reward: 1 (modest) to 3 (stretch). */
+  difficulty: 1 | 2 | 3;
+  done?: boolean;
 }
 
 /** One client's money for the season. */
@@ -266,6 +305,8 @@ export interface Finances {
   travel: number;
   /** Coaching staff wages, paid by the client. */
   coaching: number;
+  /** Clubs bought. */
+  equipment?: number;
   /** Your agency's cut of prize money and endorsements. */
   commission: number;
 }
@@ -364,6 +405,8 @@ export interface World {
   news: string[];
   /** Coaches available to hire (a coach can work with several players). */
   coaches: Coach[];
+  /** Caddies available to hire (older saves get them on load). */
+  caddies?: Caddie[];
   history: History;
   /** Set once anything has been changed in the editor, like an "edited" save in FM. */
   edited?: boolean;

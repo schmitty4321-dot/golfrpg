@@ -240,6 +240,10 @@ export interface PlayerEventContext {
   missedCutHereLastSeason: boolean;
   /** Top-25 finishes at this event in past seasons. */
   top25sHere: number;
+  /** His caddie, when the season knows one (your clients). */
+  caddie?: import("./equipment").CaddieOnBag;
+  /** Flying private or charter: no jet lag. */
+  flewPrivate?: boolean;
   /** Course familiarity, the field's average this week, and whether it's his first time. */
   familiarity?: number;
   fieldFamiliarity?: number;
@@ -346,7 +350,7 @@ export function traitRoundEffects(r: TraitRoundInfo): { sg: StrokesGained; strok
       case "home-crowd-hero": if (e?.home) strokes -= 0.12; break;
       case "dawn-patrol": strokes += r.wave === "AM" ? -0.08 : 0.08; break;
       case "rain-man": if (r.rain) strokes -= 0.1; break;
-      case "jet-lag": if (e?.regionChanged && r.round <= 2) strokes += 0.25; break;
+      case "jet-lag": if (e?.regionChanged && !e.flewPrivate && r.round <= 2) strokes += 0.25; break;
       case "night-before": if (r.round === 1) strokes += 0.15; break;
       case "late-fade": if (e?.lateSeason) strokes += 0.1; break;
       case "rhythm-player":

@@ -3,6 +3,7 @@ import { clamp, type Rng } from "./rng";
 import { expectedStrokesGained } from "./skill";
 import { roundTendencyShift, tendencies } from "./tendencies";
 import { pinEffect } from "./pins";
+import { caddieCalm, caddieRound, equipmentHole, equipmentRound } from "./equipment";
 import { familiarityHole, familiarityRound, type FamiliarityInfo } from "./familiarity";
 import { hasTrait, traitHoleEffects, traitRoundEffects, type PlayerEventContext } from "./traits";
 import {
@@ -157,6 +158,9 @@ export function playHole({ ctx, hole, dayForm, teeShotHoles, state, mod }: HoleI
   // Today's pin: tucked by the edge plays harder, in the middle easier; local knowledge softens it.
   const pin = familiarityHole(familiarityOf(ctx), hole.hazard, pinEffect(course, hole, ctx.playoff ? 3 : ctx.round - 1));
   mean += pin.mean;
+  // His bag: wide-soled wedges in the sand, a long driver on tight holes.
+  const bag = equipmentHole(player, hole.par > 3 ? hole.fairwayWidth : 0, hole.bunkers * 0.008);
+  mean += bag.mean;
   mean += windPenalty(hole, weather.windMph[wave]) * windMultiplier(player) * t.wind;
 
   // Today's category form, spread over the holes where it applies.
@@ -169,7 +173,9 @@ export function playHole({ ctx, hole, dayForm, teeShotHoles, state, mod }: HoleI
   // A bogey or worse carries over: everyone tilts a little, good bounce-back cancels it.
   if (state.lastOverPar > 0) mean += 0.03 - (a.bounceBack - TOUR_AVERAGE) * 0.015;
 
-  const pressure = pressureShift(player, ctx.round, ctx.shotsBehind, hole.number);
+  // A calm caddie takes some of the weekend nerves away.
+  const rawPressure = pressureShift(player, ctx.round, ctx.shotsBehind, hole.number);
+  const pressure = rawPressure > 0 ? rawPressure * (1 - caddieCalm(ctx.event?.caddie)) : rawPressure;
   mean += pressure;
 
   // Late fatigue on the weekend for low-stamina or worn-out players.
@@ -184,7 +190,7 @@ export function playHole({ ctx, hole, dayForm, teeShotHoles, state, mod }: HoleI
 
   // Big numbers: trouble on the hole, wind, and poor decisions.
   const blowupChance = clamp(
-    (0.014 + hole.hazard * 0.05) * (1 - (a.courseManagement - TOUR_AVERAGE) * 0.04) * (1 + weather.windMph[wave] / 30) * (mod?.blowup ?? 1) * t.blowup * pin.blowup,
+    (0.014 + hole.hazard * 0.05) * (1 - (a.courseManagement - TOUR_AVERAGE) * 0.04) * (1 + weather.windMph[wave] / 30) * (mod?.blowup ?? 1) * t.blowup * pin.blowup * bag.blowup,
     0,
     0.25,
   );
@@ -241,6 +247,15 @@ export function roundForm(ctx: RoundContext): StrokesGained {
   const local = familiarityRound(familiarityOf(ctx), ctx.round);
   traits.sg.approach += local.approach;
   traits.sg.putting += local.putting;
+  // His clubs and his caddie.
+  const bag = equipmentRound(ctx.player, !ctx.weather.rain && ctx.course.firmness > 0.6, ctx.weather.rain);
+  const caddie = caddieRound(ctx.event?.caddie);
+  for (const k of SG_CATEGORIES) {
+    traits.sg[k] += bag.sg[k];
+    traits.spread[k] *= bag.spread[k];
+  }
+  traits.sg.approach += caddie.approach;
+  traits.sg.putting += caddie.putting;
   return drawDayForm(ctx.player, ctx.course, ctx.rng, (ctx.weekForm ?? 0) - shift - traits.strokes - local.strokes, habits.streak, traits);
 }
 

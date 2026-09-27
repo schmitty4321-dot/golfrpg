@@ -26,6 +26,8 @@ export interface Player {
   sgAdjust?: Partial<StrokesGained>;
   /** Trait ids (see traits.ts). Rolled once, then kept; absent until assigned. */
   traits?: string[];
+  /** Model ids in his bag by slot (see equipment.ts); tour standard where absent. */
+  equipment?: Partial<Record<"driver" | "irons" | "wedges" | "putter", string>>;
 }
 
 export interface Hole {

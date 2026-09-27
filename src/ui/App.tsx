@@ -16,6 +16,7 @@ import { Standings } from "./screens/Standings";
 import { Stats } from "./screens/Stats";
 import { Tournament } from "./screens/Tournament";
 import { Training } from "./screens/Training";
+import { Team } from "./screens/Team";
 import { SECTIONS, sectionOf, type Go, type SectionId, type Tab } from "./nav";
 import { SectionBar, StatusStrip, SubTabs } from "./components/Nav";
 import type { ClientChoices } from "../season";
@@ -133,7 +134,7 @@ export function App() {
         <Stats world={world} game={game} />
       ) : tab === "calendar" ? (
         <Calendar world={world} game={game} go={go} />
-      ) : (tab === "player" || tab === "training") && !clientId ? (
+      ) : (tab === "player" || tab === "training" || tab === "team") && !clientId ? (
         <main><section className="panel"><p className="empty">You have no clients. Sign one from the Scouting tab.</p></section></main>
       ) : tab === "player" ? (
         <>
@@ -144,6 +145,11 @@ export function App() {
         <>
           <div style={{ maxWidth: 1240, margin: "0 auto", padding: "20px 20px 0" }}><ClientPicker world={world} value={clientId!} onChange={setPicked} /></div>
           <Training world={world} game={game} clientId={clientId!} />
+        </>
+      ) : tab === "team" ? (
+        <>
+          <div style={{ maxWidth: 1240, margin: "0 auto", padding: "20px 20px 0" }}><ClientPicker world={world} value={clientId!} onChange={setPicked} /></div>
+          <Team world={world} game={game} clientId={clientId!} />
         </>
       ) : tab === "editor" ? (
         <Editor world={world} game={game} />

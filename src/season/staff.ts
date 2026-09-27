@@ -184,7 +184,7 @@ function rollInjury(world: World, wp: WorldPlayer, rng: Rng): Injury {
  * training moves attributes, swing rebuilds progress, and the client's
  * coaches get paid.
  */
-export function endOfWeek(world: World, competed: Set<string>, rng: Rng): void {
+export function endOfWeek(world: World, competed: Set<string>, rng: Rng, boosts: Map<string, { training: number; fitness: number; injury: number }> = new Map()): void {
   // A veteran Mentor on the books speeds up your younger clients.
   const mentor = world.clientIds.some((id) => {
     const m = world.players[id];
@@ -205,12 +205,13 @@ export function endOfWeek(world: World, competed: Set<string>, rng: Rng): void {
         wp.injury = null;
         if (isClient) world.news.unshift(`${wp.player.name} is fit again.`);
       }
-    } else if (rng.chance(injuryChance(wp, played, INTENSITY[plan.intensity].injury, quality.fitness ?? 4))) {
+    } else if (rng.chance(injuryChance(wp, played, INTENSITY[plan.intensity].injury, quality.fitness ?? 4) * (boosts.get(wp.player.id)?.injury ?? 1))) {
       wp.injury = rollInjury(world, wp, rng);
     }
 
     const mentored = mentor && isClient && wp.player.age < 25 && !has(wp, "mentor");
-    const changes = developWeek(wp, { plan, coachQuality: quality, competed: played, mentored }, rng);
+    const boost = boosts.get(wp.player.id);
+    const changes = developWeek(wp, { plan, coachQuality: quality, competed: played, mentored, ...(boost ? { boost } : {}) }, rng);
     if (isClient) {
       wp.player.condition = clamp(wp.player.condition + INTENSITY[plan.intensity].condition, 0, 100);
       for (const c of changes) {

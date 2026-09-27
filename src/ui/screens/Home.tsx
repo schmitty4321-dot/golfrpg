@@ -8,13 +8,21 @@ import {
   clientOptions,
   clientPreference,
   courseById,
-  afterPracticeRound,
+  ACTIVITIES,
+  EVENT_WEEK_ACTIVITIES,
+  OFF_WEEK_ACTIVITIES,
+  count,
+  familiarityAfterPractice,
+  fitPlan,
+  planCost,
+  trainingBoost,
+  travelMode,
+  weekDays,
+  type DayActivity,
   afterPracticeTrip,
   familiarityWith,
   practiceCourses,
   practiceTripCost,
-  PRACTICE_ROUND_FATIGUE,
-  PRACTICE_ROUND_FEE,
   PRACTICE_TRIP_FATIGUE,
   eventsInWeek,
   pointsList,
@@ -26,6 +34,7 @@ import {
 } from "../../season";
 import { TIER_LABELS, fitWord, formWord, millions, money, signed } from "../format";
 import type { Go } from "../nav";
+import { GoalsPanel } from "../components/Goals";
 import type { Game } from "../useGame";
 
 const ACCESS_TONE: Record<EntryOption["access"], string> = {
@@ -67,6 +76,7 @@ export function Home({ world, game, go, week }: { world: World; game: Game; go: 
           ) : (
             <ThisWeek world={world} game={game} week={week} />
           )}
+          <GoalsPanel world={world} game={game} />
           {last && <LastWeek world={world} report={last} go={go} />}
         </div>
         <div className="stack">
@@ -277,14 +287,8 @@ function ClientWeek({ world, game, id, choice, onChoose }: { world: World; game:
           </button>
         )}
       </div>
-      {entered && (
-        <label className="practice-toggle small">
-          <input type="checkbox" checked={choice.kind === "enter" && !!choice.practice} onChange={(e) => onChoose({ kind: "enter", eventId: entered.event.id, ...(e.target.checked ? { practice: true } : {}) })} />
-          <span>
-            <strong>Practice round first</strong> at {entered.course.name}: familiarity {Math.round(entered.familiarity)} → {Math.round(afterPracticeRound(wp, entered.course.id))}
-            {entered.debut ? " (and no debut nerves)" : ""} · −{PRACTICE_ROUND_FATIGUE}% condition · {money(PRACTICE_ROUND_FEE)}
-          </span>
-        </label>
+      {(choice.kind === "enter" || choice.kind === "rest") && (
+        <DayPlanner world={world} id={id} choice={choice} entered={entered} onChoose={onChoose} />
       )}
       {choice.kind === "practice" && (
         <div className="practice-toggle small">
@@ -304,6 +308,59 @@ function ClientWeek({ world, game, id, choice, onChoose }: { world: World; game:
         </div>
       )}
     </article>
+  );
+}
+
+/** The client's days this week: travel first, then one activity a free day. */
+function DayPlanner({ world, id, choice, entered, onChoose }: { world: World; id: string; choice: Extract<ClientChoice, { kind: "enter" | "rest" }>; entered: EntryOption | undefined; onChoose: (c: ClientChoice) => void }) {
+  const wp = world.players[id]!;
+  const event = choice.kind === "enter" ? entered?.event : undefined;
+  if (choice.kind === "enter" && !event) return null;
+  const { days, travel } = weekDays(world, wp, event?.region ?? null);
+  const allowed = event ? EVENT_WEEK_ACTIVITIES : OFF_WEEK_ACTIVITIES;
+  const plan = fitPlan(choice.days ?? (choice.kind === "enter" && choice.practice ? ["practice"] : undefined), days.length - travel, allowed);
+  const set = (i: number, a: DayActivity) => {
+    const next = [...plan];
+    next[i] = a;
+    const { practice: _drop, ...rest } = choice as { practice?: boolean };
+    void _drop;
+    onChoose({ ...(rest as typeof choice), days: next });
+  };
+  const cost = planCost(plan);
+  const practice = count(plan, "practice");
+  const boost = trainingBoost(plan);
+  return (
+    <div className="planner">
+      <div className="planner-head small">
+        <strong>{event ? `Before ${event.name}` : "His week off"}</strong>
+        {travel > 0 && <span className="muted"> · {travel} travel day{travel === 1 ? "" : "s"} ({travelMode(world, wp).label.toLowerCase()})</span>}
+      </div>
+      <div className="planner-days">
+        {days.map((d, i) =>
+          i < travel ? (
+            <div key={d} className="planner-day travel"><span className="planner-dname">{d}</span><span>✈ Travel</span></div>
+          ) : (
+            <label key={d} className={`planner-day act-${plan[i - travel]}`}>
+              <span className="planner-dname">{d}</span>
+              <select value={plan[i - travel]} onChange={(e) => set(i - travel, e.target.value as DayActivity)} aria-label={`${wp.player.name}, ${d}`}>
+                {allowed.map((a) => <option key={a} value={a}>{ACTIVITIES[a].short}</option>)}
+              </select>
+            </label>
+          ),
+        )}
+        {event && <div className="planner-day event"><span className="planner-dname">Thu–Sun</span><span>⛳ {event.name}</span></div>}
+      </div>
+      <div className="planner-sum small secondary">
+        {cost.condition !== 0 && <span>Condition {cost.condition}%</span>}
+        {cost.fees > 0 && <span>{money(cost.fees)}</span>}
+        {practice > 0 && entered && <span>Familiarity {Math.round(entered.familiarity)} → {Math.round(familiarityAfterPractice(wp, entered.course.id, practice))}{entered.debut ? ", no debut nerves" : ""}</span>}
+        {boost.training > 1 && <span>Training +{Math.round((boost.training - 1) * 100)}%</span>}
+        {boost.fitness > 1 && <span>Fitness +{Math.round((boost.fitness - 1) * 100)}%</span>}
+        {count(plan, "sponsor") > 0 && <span>Sponsor goodwill</span>}
+        {count(plan, "media") > 0 && <span>Agency profile</span>}
+        {cost.condition === 0 && cost.fees === 0 && !count(plan, "media") && <span>All rest: nothing gained, nothing spent.</span>}
+      </div>
+    </div>
   );
 }
 
