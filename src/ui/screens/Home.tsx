@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { coursePar, courseYards } from "../../engine";
 import {
   FULL_CARD,
@@ -28,7 +27,13 @@ const ACCESS_TONE: Record<EntryOption["access"], string> = {
   injured: "var(--critical)",
 };
 
-export function Home({ world, game, go }: { world: World; game: Game; go: Go }) {
+/** The week's choices live in the App so the status bar's Continue plays the same week. */
+export interface WeekChoices {
+  choices: ClientChoices;
+  setChoices: (f: (c: ClientChoices) => ClientChoices) => void;
+}
+
+export function Home({ world, game, go, week }: { world: World; game: Game; go: Go; week: WeekChoices }) {
   const seasonOver = world.week > seasonWeeks(world);
   const last = game.state.reports[game.state.reports.length - 1];
   return (
@@ -49,7 +54,7 @@ export function Home({ world, game, go }: { world: World; game: Game; go: Go }) 
               </div>
             </section>
           ) : (
-            <ThisWeek world={world} game={game} />
+            <ThisWeek world={world} game={game} week={week} />
           )}
           {last && <LastWeek world={world} report={last} go={go} />}
         </div>
@@ -128,13 +133,13 @@ function Alerts({ world, go }: { world: World; go: Go }) {
   );
 }
 
-function ThisWeek({ world, game }: { world: World; game: Game }) {
-  const [choices, setChoices] = useState<ClientChoices>({});
+function ThisWeek({ world, game, week }: { world: World; game: Game; week: WeekChoices }) {
+  const { choices, setChoices } = week;
   const remaining = seasonWeeks(world) - world.week + 1;
   const set = (id: string, c: ClientChoice) => setChoices((x) => ({ ...x, [id]: c }));
   const play = (weeks: number) => {
     void game.play(choices, weeks);
-    setChoices({});
+    setChoices(() => ({}));
   };
   return (
     <section className="panel">

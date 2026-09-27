@@ -16,9 +16,9 @@ import { Standings } from "./screens/Standings";
 import { Stats } from "./screens/Stats";
 import { Tournament } from "./screens/Tournament";
 import { Training } from "./screens/Training";
-import { TABS, type Go, type Tab } from "./nav";
-import { MoreMenu } from "./components/MoreMenu";
-import { MobileMenu } from "./components/MobileMenu";
+import { SECTIONS, sectionOf, type Go, type SectionId, type Tab } from "./nav";
+import { SectionBar, StatusStrip, SubTabs } from "./components/Nav";
+import type { ClientChoices } from "../season";
 import { useGame } from "./useGame";
 
 type Theme = "system" | "light" | "dark";
@@ -29,6 +29,9 @@ export function App() {
   const [tab, setTab] = useState<Tab>("home");
   const [eventId, setEventId] = useState<string | undefined>();
   const [picked, setPicked] = useState<string | undefined>();
+  // Where each section was left, so coming back to it returns there.
+  const [lastIn, setLastIn] = useState<Partial<Record<SectionId, Tab>>>({});
+  const [choices, setChoices] = useState<ClientChoices>({});
   // The client shown on the Player and Training tabs: the picked one if still signed, else the first.
   const clientId = world && picked && world.clientIds.includes(picked) ? picked : world?.clientIds[0];
   const [theme, setTheme] = useState<Theme>(() => {
@@ -53,11 +56,35 @@ export function App() {
     // Leaving the event screen finishes the week (anything unplayed plays itself), then moves on.
     if (game.state.live || game.state.liveWeek) void game.dismissLive();
     setTab(t);
+    setLastIn((l) => ({ ...l, [sectionOf(t).id]: t }));
     if (id) setEventId(id);
     window.scrollTo(0, 0);
   };
 
   const nextTheme: Record<Theme, Theme> = { system: "dark", dark: "light", light: "system" };
+  const inEvent = Boolean(game.state.live || game.state.liveWeek);
+  // A tournament in progress belongs to the Week section, whatever tab it was started from.
+  const shownTab: Tab = inEvent ? "home" : tab;
+
+  const openSection = (s: SectionId) => {
+    const section = SECTIONS.find((x) => x.id === s)!;
+    // Leaving a live event finishes it, so tapping the section it's shown under does nothing.
+    if (inEvent && s === sectionOf(shownTab).id) return;
+    // Tapping the section you're in goes back to its first screen.
+    go(sectionOf(tab).id === s && !inEvent ? section.tabs[0]!.id : lastIn[s] ?? section.tabs[0]!.id);
+  };
+  const seasonOver = world ? world.week > game.lib.seasonWeeks(world) : false;
+  const action = !world || inEvent || busy
+    ? null
+    : seasonOver
+      ? { label: "Close season", run: () => void game.closeSeason() }
+      : {
+          label: `Play week ${world.week}`,
+          run: () => {
+            void game.play(choices, 1);
+            setChoices({});
+          },
+        };
 
   return (
     <>
@@ -68,34 +95,17 @@ export function App() {
           </span>
           <span className="brand-name">Fairway Manager</span>
         </div>
-        {world && (
-          <nav className="nav" aria-label="Main">
-            {TABS.filter((t) => !t.more).map((t) => (
-              <button key={t.id} aria-current={tab === t.id ? "page" : undefined} onClick={() => go(t.id)}>{t.label}</button>
-            ))}
-            <MoreMenu tab={tab} go={go} />
-          </nav>
-        )}
-        {world && (
-          <MobileMenu
-            tab={tab}
-            go={go}
-            extra={
-              <>
-                <span className="secondary small">Season {world.season} · Week {Math.min(world.week, game.lib.seasonWeeks(world))}{world.edited ? " · edited world" : ""}</span>
-                <button className="btn btn-small" onClick={() => setTheme(nextTheme[theme])}>Theme: {theme === "dark" ? "Dark" : theme === "light" ? "Light" : "Auto"}</button>
-              </>
-            }
-          />
-        )}
+        {world && <SectionBar tab={shownTab} open={openSection} variant="top" />}
+        {world && <span className="topbar-section">{sectionOf(shownTab).label}</span>}
         <div className="topbar-right" style={{ marginLeft: world ? undefined : "auto" }}>
-          {world?.edited && <span className="badge" title="This world has been changed in the editor">Edited</span>}
-          {world && <span className="topbar-season">S{world.season} · Wk {Math.min(world.week, game.lib.seasonWeeks(world))}</span>}
+          {world && <span className="topbar-season">Season {world.season}</span>}
           <button className="btn btn-small" onClick={() => setTheme(nextTheme[theme])} title={`Theme: ${theme} (click to switch)`} aria-label={`Theme: ${theme}`}>
             {theme === "dark" ? "Dark" : theme === "light" ? "Light" : "Auto"}
           </button>
         </div>
       </header>
+      {world && <StatusStrip world={world} action={action} />}
+      {world && !inEvent && <SubTabs tab={tab} go={go} />}
 
       {!loaded ? null : !world ? (
         <NewGame game={game} />
@@ -110,7 +120,7 @@ export function App() {
           }}
         />
       ) : tab === "home" ? (
-        <Home world={world} game={game} go={go} />
+        <Home world={world} game={game} go={go} week={{ choices, setChoices }} />
       ) : tab === "agency" ? (
         <Agency world={world} game={game} />
       ) : tab === "scouting" ? (
@@ -145,6 +155,7 @@ export function App() {
         <Career world={world} game={game} />
       )}
 
+      {world && <SectionBar tab={shownTab} open={openSection} variant="bottom" />}
       {review && world && <SeasonReview world={world} summary={review} onClose={() => { game.dismissReview(); go("home"); }} />}
       {busy && (
         <div className="busy" role="status">
