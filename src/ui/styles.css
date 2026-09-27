@@ -396,6 +396,21 @@ select, input[type="text"], input[type="number"] {
 .topbar .nav button[aria-current="page"] { background: var(--accent); color: var(--accent-ink); }
 .topbar-section { display: none; }
 
+/* The top bar is dark green in both themes. */
+:root { --bar-bg: #16261d; --bar-ink: #eef3ef; --bar-muted: #a9bcaf; --bar-hover: #243a2c; --bar-line: #2c4434; }
+:root[data-theme="dark"] { --bar-bg: #0d1712; --bar-hover: #1a2b21; --bar-line: #1f3127; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bar-bg: #0d1712; --bar-hover: #1a2b21; --bar-line: #1f3127; } }
+.topbar { background: var(--bar-bg); border-bottom-color: var(--bar-line); color: var(--bar-ink); }
+.topbar .brand { color: var(--bar-ink); }
+.topbar .brand-mark { background: #2f9a63; }
+.topbar .nav button { color: var(--bar-muted); }
+.topbar .nav button:hover { background: var(--bar-hover); color: var(--bar-ink); }
+.topbar .nav button[aria-current="page"] { background: #2f9a63; color: #fff; }
+.topbar-right, .topbar-season { color: var(--bar-muted); }
+.topbar .btn { background: transparent; border-color: var(--bar-line); color: var(--bar-ink); }
+.topbar .btn:hover:not(:disabled) { background: var(--bar-hover); }
+.topbar .badge { background: var(--bar-hover); color: var(--bar-ink); }
+
 .status-strip {
   display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
   max-width: 1240px; margin: 12px auto 0; padding: 8px 12px;
@@ -403,7 +418,7 @@ select, input[type="text"], input[type="number"] {
   width: calc(100% - 40px);
 }
 .status-items { display: flex; align-items: center; gap: 6px 16px; flex-wrap: wrap; flex: 1; min-width: 0; color: var(--text-2); }
-.status-items b { color: var(--text); }
+.status-items b { color: var(--text); white-space: nowrap; }
 .status-event { color: var(--text); font-weight: 550; }
 .status-continue { margin-left: auto; white-space: nowrap; }
 
