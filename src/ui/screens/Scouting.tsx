@@ -1,7 +1,9 @@
 import { useMemo, useState } from "react";
-import { REPORTS_PER_WEEK, STATUS_LABELS, approachBlock, pointsList, queueScouting, rankMap, weeklyScoutCost, type TourStatus, type World } from "../../season";
+import { REPORTS_PER_WEEK, STATUS_LABELS, approachBlock, knownTraits, pointsList, queueScouting, rankMap, weeklyScoutCost, type TourStatus, type World } from "../../season";
 import { PlayerProfile } from "../components/PlayerProfile";
 import { Stars } from "../components/Stars";
+import { TraitChips } from "../components/Traits";
+import { TRAITS } from "../../engine";
 import { money } from "../format";
 import type { Game } from "../useGame";
 
@@ -13,6 +15,7 @@ export function Scouting({ world, game }: { world: World; game: Game }) {
   const [status, setStatus] = useState<TourStatus | "any">("any");
   const [maxAge, setMaxAge] = useState(50);
   const [q, setQ] = useState("");
+  const [trait, setTrait] = useState("any");
   const [show, setShow] = useState(50);
   const ranks = rankMap(world);
   const pts = pointsList(world);
@@ -26,9 +29,10 @@ export function Scouting({ world, game }: { world: World; game: Game }) {
         .filter((wp) => status === "any" || wp.career.status === status)
         .filter((wp) => wp.player.age <= maxAge)
         .filter((wp) => !q || wp.player.name.toLowerCase().includes(q.toLowerCase()))
+        .filter((wp) => trait === "any" || knownTraits(world, wp.player.id).includes(trait))
         .sort((x, y) => (ranks.get(x.player.id) ?? 999) - (ranks.get(y.player.id) ?? 999)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [world, world.week, filter, status, maxAge, q, a.reputation, world.clientIds.length],
+    [world, world.week, filter, status, maxAge, q, trait, a.reputation, world.clientIds.length],
   );
 
   return (
@@ -39,6 +43,7 @@ export function Scouting({ world, game }: { world: World; game: Game }) {
             <h2>Scouts</h2>
             <span className="secondary small">{money(weeklyScoutCost(world))}/week · each files {REPORTS_PER_WEEK} reports a week</span>
           </div>
+          <div className="table-wrap">
           <table>
             <thead><tr><th>Scout</th><th>Quality</th><th className="num">Per week</th><th /></tr></thead>
             <tbody>
@@ -59,6 +64,7 @@ export function Scouting({ world, game }: { world: World; game: Game }) {
               })}
             </tbody>
           </table>
+          </div>
           <p className="muted small">Better scouts write more accurate reports. A second report on the same player sharpens it.</p>
         </section>
 
@@ -95,11 +101,15 @@ export function Scouting({ world, game }: { world: World; game: Game }) {
             {(Object.keys(STATUS_LABELS) as TourStatus[]).map((s) => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
           </select>
           <label className="small secondary">Max age <input type="number" min={16} max={50} value={maxAge} onChange={(e) => setMaxAge(Number(e.target.value) || 50)} style={{ width: 64 }} /></label>
+          <select aria-label="Trait" value={trait} onChange={(e) => setTrait(e.target.value)}>
+            <option value="any">Any trait</option>
+            {[...TRAITS].sort((x, y) => x.name.localeCompare(y.name)).map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+          </select>
           <input type="text" placeholder="Search name" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         <div className="table-wrap">
           <table>
-            <thead><tr><th>Player</th><th className="num">Age</th><th>Status</th><th className="num">World</th><th className="num">Points</th><th>Agent</th><th>Report</th><th /></tr></thead>
+            <thead><tr><th>Player</th><th className="num">Age</th><th>Status</th><th className="num">World</th><th className="num">Points</th><th>Agent</th><th>Report</th><th>Traits</th><th /></tr></thead>
             <tbody>
               {rows.slice(0, show).map((wp) => {
                 const id = wp.player.id;
@@ -114,6 +124,7 @@ export function Scouting({ world, game }: { world: World; game: Game }) {
                     <td className="num">{pts.indexOf(id) >= 0 ? `#${pts.indexOf(id) + 1}` : "—"}</td>
                     <td className="small">{wp.agent ? `${wp.agent.agency} (S${wp.agent.untilSeason})` : <span className="good-text">Free agent</span>}</td>
                     <td className="small">{k ? `${Math.round(k.accuracy * 100)}%` : <span className="muted">None</span>}</td>
+                    <td><TraitChips ids={knownTraits(world, id)} empty={k ? "None spotted" : "Unscouted"} /></td>
                     <td>
                       <div className="btn-row">
                         <button className="btn btn-small" disabled={queued} onClick={() => game.act((w) => queueScouting(w, id))}>{queued ? "Queued" : "Scout"}</button>

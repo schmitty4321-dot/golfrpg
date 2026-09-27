@@ -12,6 +12,16 @@ export function TraitChip({ id, dark }: { id: string; dark?: boolean }) {
   );
 }
 
+/** A player's traits in a table cell: small chips, the effect on hover. */
+export function TraitChips({ ids, empty = "—" }: { ids: string[]; empty?: string }) {
+  if (ids.length === 0) return <span className="muted small">{empty}</span>;
+  return (
+    <span className="trait-chips">
+      {ids.map((id) => <TraitChip key={id} id={id} />)}
+    </span>
+  );
+}
+
 /** Every trait with what it does. */
 export function TraitList({ ids, hiddenNote }: { ids: string[]; hiddenNote?: string }) {
   return (

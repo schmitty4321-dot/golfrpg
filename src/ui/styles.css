@@ -619,3 +619,6 @@ select, input[type="text"], input[type="number"] {
 .trait-tag.pol-negative { color: var(--critical, #c0392b); }
 .trait-tag.pol-mixed { color: var(--r-legendary); }
 .trait-blurb { font-style: italic; }
+.trait-chips { display: inline-flex; flex-wrap: wrap; gap: 4px; max-width: 220px; }
+.trait-chips .trait-chip { font-size: 11px; padding: 1px 8px; white-space: nowrap; }
+.table-wrap td > .btn-row { flex-wrap: nowrap; }

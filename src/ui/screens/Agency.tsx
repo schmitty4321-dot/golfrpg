@@ -1,6 +1,8 @@
 import { Fragment, useState } from "react";
 import { STATUS_LABELS, pointsList, rankMap, rosterLimit, type World } from "../../season";
 import { PlayerProfile } from "../components/PlayerProfile";
+import { TraitChips } from "../components/Traits";
+import { traitsOf } from "../../engine";
 import { money } from "../format";
 import type { Game } from "../useGame";
 
@@ -34,7 +36,7 @@ export function Agency({ world, game }: { world: World; game: Game }) {
           <div className="table-wrap">
             <table>
               <thead>
-                <tr><th>Client</th><th>Status</th><th className="num">Points</th><th className="num">World</th><th>Mood</th><th>Contract</th><th className="num">Sponsors / yr</th><th className="num">Your cut (season)</th><th /></tr>
+                <tr><th>Client</th><th>Status</th><th className="num">Points</th><th className="num">World</th><th>Mood</th><th>Traits</th><th>Contract</th><th className="num">Sponsors / yr</th><th className="num" title="Your commission this season">Your cut</th><th /></tr>
               </thead>
               <tbody>
                 {world.clientIds.map((id) => {
@@ -45,10 +47,11 @@ export function Agency({ world, game }: { world: World; game: Game }) {
                     <Fragment key={id}>
                       <tr>
                         <td><button className="linkish" onClick={() => setProfile(id)}>{wp.player.name}</button> <span className="muted small">{wp.player.age}</span></td>
-                        <td className="secondary small">{STATUS_LABELS[wp.career.status]}</td>
+                        <td className="secondary small" style={{ whiteSpace: "normal", minWidth: 110 }}>{STATUS_LABELS[wp.career.status]}</td>
                         <td className="num">{pts.indexOf(id) >= 0 ? `#${pts.indexOf(id) + 1}` : "—"}</td>
                         <td className="num">#{ranks.get(id) ?? "—"}</td>
                         <td>{mood(m.happiness)} <span className="muted small">{Math.round(m.happiness)}</span></td>
+                        <td><TraitChips ids={[...traitsOf(wp.player)]} /></td>
                         <td className={expiring ? "bad-text" : ""}>{Math.round(m.contract.commission * 100)}% · {expiring ? "ends this season" : `to S${m.contract.untilSeason}`}</td>
                         <td className="num">{money(m.sponsors.reduce((s, x) => s + x.annualValue, 0))}</td>
                         <td className="num">{money(m.finances.commission)}</td>
@@ -60,7 +63,7 @@ export function Agency({ world, game }: { world: World; game: Game }) {
                         </td>
                       </tr>
                       {extending === id && (
-                        <tr><td colSpan={9} style={{ background: "var(--surface-2)", whiteSpace: "normal" }}><ExtendForm world={world} game={game} id={id} /></td></tr>
+                        <tr><td colSpan={10} style={{ background: "var(--surface-2)", whiteSpace: "normal" }}><ExtendForm world={world} game={game} id={id} /></td></tr>
                       )}
                     </Fragment>
                   );
