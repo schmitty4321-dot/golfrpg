@@ -7,7 +7,22 @@ import { OFFICE_COST, addReputation, clients, reputationFor, updateHappiness } f
 import { scoutingWeek, weeklyScoutCost } from "./scouting";
 import { sponsorBonus, sponsorWeek } from "./sponsors";
 import { recordEvent } from "./history";
-import { endOfWeek } from "./staff";
+import { beginRebuild, endOfWeek } from "./staff";
+import {
+  ensureTraits,
+  eventContext,
+  fatigueMultiplier,
+  feelsTravel,
+  has,
+  hotheadHeadline,
+  onMajorWin,
+  recoveryMultiplier,
+  reputationBonus,
+  settleHappiness,
+  traitMood,
+  weeklyTraitEvents,
+} from "./traits";
+import { homeRegion } from "../engine";
 import { absWeek, type EventRecord, type TourEvent, type World } from "./types";
 
 /** What a client does this week. "auto" lets him pick his own schedule. */
@@ -79,6 +94,8 @@ function tournamentConfig(world: World, f: FieldResult, i: number): TournamentCo
     purse: f.event.purse,
     seed: mixSeed(world.seed, world.season, world.week, 10 + i),
     cutTop: f.event.cutTop ?? undefined,
+    tier: f.event.tier,
+    context: Object.fromEntries(f.field.map((id) => [id, eventContext(world, f.event, id)])),
   };
 }
 
@@ -90,6 +107,7 @@ function tournamentConfig(world: World, f: FieldResult, i: number): TournamentCo
  */
 export function liveEvents(world: World, choices: ClientChoices = {}): LiveEvent[] {
   if (world.week > seasonWeeks(world)) return [];
+  ensureTraits(world);
   const { fields } = weekPlan(world, choices);
   const out: LiveEvent[] = [];
   fields.forEach((f, i) => {
@@ -106,12 +124,16 @@ export function liveEvents(world: World, choices: ClientChoices = {}): LiveEvent
  */
 export function playWeek(world: World, choices: ClientChoices = {}, played: Record<string, TournamentResult> = {}): WeekReport {
   if (world.week > seasonWeeks(world)) throw new Error("the season is over; call finishSeason first");
+  ensureTraits(world);
   const ctxBefore = weekContext(world);
   const { plan, fields } = weekPlan(world, choices);
   const playedIds = new Set<string>();
   const report: WeekReport = { season: world.season, week: world.week, results: [], clients: {} };
   for (const id of world.clientIds) report.clients[id] = { summary: "", record: null, result: null };
   const sgVsExpected = new Map<string, number>();
+  const rng = createRng(mixSeed(world.seed, world.season, world.week, 3));
+  // Where each client played this week, for the traits that care who else was there.
+  const eventOf = new Map<string, TourEvent>();
 
   fields.forEach((f, i) => {
     if (f.field.length < 2) return;
@@ -158,7 +180,10 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
       if (r.position === 1 && f.event.tier !== "dev") {
         c.seasonWins++;
         c.careerWins++;
-        if (f.event.tier === "major") c.careerMajors++;
+        if (f.event.tier === "major") {
+          c.careerMajors++;
+          onMajorWin(world, wp);
+        }
       }
       if (record.owgrPoints > 0) c.owgr.push({ absWeek: absWeek(world.season, world.week), points: record.owgrPoints });
 
@@ -166,8 +191,11 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
       const beat = r.sgPerRound - ((expected.get(r.player.id) ?? 0) - fieldExpected);
       sgVsExpected.set(r.player.id, beat);
       wp.player.form = clamp(wp.player.form * 0.6 + beat * 0.1, -1, 1);
-      const travel = c.lastRegion !== null && c.lastRegion !== f.event.region ? TRAVEL_FATIGUE : 0;
-      wp.player.condition = clamp(wp.player.condition - (f.event.tier === "major" ? MAJOR_FATIGUE : EVENT_FATIGUE) - travel, 0, 100);
+      // A perfectionist takes a missed cut harder than most.
+      if (!r.madeCut && has(wp, "perfectionist")) wp.player.form = clamp(wp.player.form - 0.1, -1, 1);
+      const travel = c.lastRegion !== null && c.lastRegion !== f.event.region && feelsTravel(wp) ? TRAVEL_FATIGUE : 0;
+      const effort = (f.event.tier === "major" ? MAJOR_FATIGUE : EVENT_FATIGUE) * fatigueMultiplier(world, wp);
+      wp.player.condition = clamp(wp.player.condition - effort - travel, 0, 100);
       c.lastRegion = f.event.region;
       playedIds.add(r.player.id);
 
@@ -183,7 +211,9 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
         world.agency.ledger.prizeCommission += commission;
         const bonus = sponsorBonus(wp, r.position, f.event.tier === "major");
         if (bonus > 0) payEndorsement(world, wp.player.id, bonus);
-        addReputation(world.agency, reputationFor(r.position, r.madeCut, f.event.tier));
+        addReputation(world.agency, reputationFor(r.position, r.madeCut, f.event.tier) + (f.event.tier === "dev" ? 0 : reputationBonus(wp, r.position, r.madeCut)));
+        if (!r.madeCut) hotheadHeadline(world, wp, rng);
+        eventOf.set(wp.player.id, f.event);
         report.clients[wp.player.id] = { summary: "", record, result };
       }
     }
@@ -201,11 +231,11 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
   // Everyone who didn't play rests.
   for (const wp of Object.values(world.players)) {
     if (playedIds.has(wp.player.id)) continue;
-    wp.player.condition = clamp(wp.player.condition + REST_RECOVERY, 0, 100);
+    wp.player.condition = clamp(wp.player.condition + REST_RECOVERY * recoveryMultiplier(world, wp), 0, 100);
     wp.player.form *= 0.9;
   }
-  const rng = createRng(mixSeed(world.seed, world.season, world.week, 3));
   endOfWeek(world, playedIds, rng);
+  weeklyTraitEvents(world, rng, beginRebuild);
 
   // The agency's week: sponsors pay, moods move, scouts report, bills are paid.
   for (const wp of clients(world)) {
@@ -214,7 +244,20 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
     const goodWeek = !!rec && rec.madeCut && rec.position <= 5;
     const pay = sponsorWeek(world, wp, rng, goodWeek, seasonWeeks(world));
     if (pay > 0) payEndorsement(world, id, pay);
+    const before = wp.client!.happiness;
     updateHappiness(wp, { played: playedIds.has(id), sgVsExpected: sgVsExpected.get(id) ?? null, heldOut: heldOut(plan, id, choices[id]) });
+    const ev = eventOf.get(id);
+    const mood = traitMood(world, wp, {
+      played: playedIds.has(id),
+      madeCut: rec ? rec.madeCut : null,
+      earnings: rec?.earnings ?? 0,
+      sentToOpposite: choices[id]?.kind === "enter" && ev?.tier === "opposite",
+      stablemates: ev ? world.clientIds.filter((o) => o !== id && eventOf.get(o) === ev).length : 0,
+      stablemateWon: world.clientIds.some((o) => o !== id && report.clients[o]?.record?.position === 1 && report.clients[o]?.record?.tier !== "dev"),
+      playedAtHome: !!ev && homeRegion(wp.player.nationality) === ev.region,
+    });
+    wp.client!.happiness = clamp(wp.client!.happiness + mood, 0, 100);
+    settleHappiness(wp, before, world);
     report.clients[id]!.summary = describeClientWeek(world, id, plan.choices.get(id) ?? null, fields, rec);
   }
   // No agency exists during the silent warm-up season, so nothing to pay.

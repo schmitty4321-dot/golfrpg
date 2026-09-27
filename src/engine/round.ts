@@ -2,6 +2,7 @@ import { TOUR_AVERAGE } from "./attributes";
 import { clamp, type Rng } from "./rng";
 import { expectedStrokesGained } from "./skill";
 import { roundTendencyShift, tendencies } from "./tendencies";
+import { hasTrait, traitHoleEffects, traitRoundEffects, type PlayerEventContext } from "./traits";
 import {
   SG_CATEGORIES,
   type Course,
@@ -72,6 +73,16 @@ export interface RoundContext {
   /** This week's hot or cold spell, strokes per round (drawn once per event). */
   weekForm?: number;
   rng: Rng;
+  /** The event's tier ("major", "signature", ...), for traits that care. */
+  tier?: string;
+  /** What the season knows about his week (schedule, history), for traits. */
+  event?: PlayerEventContext;
+  /** Round 2: shots inside (+) or outside (-) the projected cut after round 1. */
+  cutGap?: number | null;
+  /** Rounds 3-4: his position after 36 holes. */
+  position36?: number | null;
+  /** A sudden-death playoff hole. */
+  playoff?: boolean;
 }
 
 export interface RoundResult {
@@ -94,9 +105,12 @@ function stochasticRound(x: number, rng: Rng): number {
 export function pressureShift(player: Player, round: number, shotsBehind: number | null, holeNumber: number): number {
   if (round < 3 || shotsBehind === null || shotsBehind > 4) return 0;
   const a = player.attributes;
-  const steadiness = a.sundayNerves * 0.6 + a.composure * 0.4 - TOUR_AVERAGE;
+  // Ice Water plays as if his nerve and composure were 3 higher; Clutch Gene feels it the right way.
+  const steadiness = a.sundayNerves * 0.6 + a.composure * 0.4 - TOUR_AVERAGE + (hasTrait(player, "ice-water") ? 3 : 0);
   const weight = (round === 4 ? 1 : 0.4) * (holeNumber > 9 ? 1 : 0.5);
-  return -steadiness * 0.02 * weight;
+  const shift = -steadiness * 0.02 * weight;
+  if (hasTrait(player, "clutch-gene")) return shift < 0 ? shift * 1.8 : shift * 0.5;
+  return shift;
 }
 
 export interface HoleState {
@@ -125,7 +139,20 @@ export function playHole({ ctx, hole, dayForm, teeShotHoles, state, mod }: HoleI
   const a = player.attributes;
 
   let mean = holeBaseline(hole, course, weather);
-  mean += windPenalty(hole, weather.windMph[wave]) * windMultiplier(player);
+  const t = traitHoleEffects({
+    player,
+    hole,
+    course,
+    round: ctx.round,
+    shotsBehind: ctx.shotsBehind,
+    tier: ctx.tier,
+    playoff: ctx.playoff,
+    lastToPar: state.lastOverPar,
+    roughCost: hole.par > 3 ? (30 - hole.fairwayWidth) * 0.004 * (0.5 + course.roughPenalty) : 0,
+    bunkerCost: hole.bunkers * 0.008,
+  });
+  mean += t.mean;
+  mean += windPenalty(hole, weather.windMph[wave]) * windMultiplier(player) * t.wind;
 
   // Today's category form, spread over the holes where it applies.
   if (hole.par > 3) mean -= dayForm.offTheTee / teeShotHoles;
@@ -147,12 +174,12 @@ export function playHole({ ctx, hole, dayForm, teeShotHoles, state, mod }: HoleI
 
   if (mod) mean += mod.mean;
 
-  let sd = HOLE_SD * (1 + (a.aggression - TOUR_AVERAGE) * 0.015) * (mod?.sd ?? 1);
+  let sd = HOLE_SD * (1 + (a.aggression - TOUR_AVERAGE) * 0.015) * (mod?.sd ?? 1) * t.sd;
   if (pressure > 0) sd *= 1 + pressure * 3; // nervy players get wilder, not just worse
 
   // Big numbers: trouble on the hole, wind, and poor decisions.
   const blowupChance = clamp(
-    (0.014 + hole.hazard * 0.05) * (1 - (a.courseManagement - TOUR_AVERAGE) * 0.04) * (1 + weather.windMph[wave] / 30) * (mod?.blowup ?? 1),
+    (0.014 + hole.hazard * 0.05) * (1 - (a.courseManagement - TOUR_AVERAGE) * 0.04) * (1 + weather.windMph[wave] / 30) * (mod?.blowup ?? 1) * t.blowup,
     0,
     0.25,
   );
@@ -165,20 +192,52 @@ export function playHole({ ctx, hole, dayForm, teeShotHoles, state, mod }: HoleI
 }
 
 /** Draws a player's category form for the day around their expected level. */
-export function drawDayForm(player: Player, course: Course, rng: Rng, weekForm = 0, streak = 1): StrokesGained {
+export function drawDayForm(
+  player: Player,
+  course: Course,
+  rng: Rng,
+  weekForm = 0,
+  streak = 1,
+  adj?: { sg: StrokesGained; spread: StrokesGained; grinder: boolean },
+): StrokesGained {
   const expected = expectedStrokesGained(player, course);
   // Focused players are steadier from day to day; streaky ones less so.
   const spread = clamp(1 - (player.attributes.focus - TOUR_AVERAGE) * 0.02, 0.7, 1.3) * streak;
   const day = { ...expected };
-  for (const k of SG_CATEGORIES) day[k] = expected[k] + weekForm / 4 + rng.normal(0, DAY_SD[k] * spread);
+  for (const k of SG_CATEGORIES) day[k] = expected[k] + (adj?.sg[k] ?? 0) + weekForm / 4 + rng.normal(0, DAY_SD[k] * spread * (adj?.spread[k] ?? 1));
+  // A grinder claws some of a bad day back.
+  if (adj?.grinder) {
+    const below = SG_CATEGORIES.reduce((s, k) => s + day[k] - expected[k], 0);
+    if (below < -1) for (const k of SG_CATEGORIES) day[k] += 0.05;
+  }
   return day;
 }
 
-export function simulateRound(ctx: RoundContext): RoundResult {
-  // Round-level habits: early- or late-week form, leading or chasing, streakiness.
+/**
+ * The day's form for a round: his usual level, this week's spell, his
+ * round-level habits and traits (all as strokes gained, positive helps).
+ */
+export function roundForm(ctx: RoundContext): StrokesGained {
   const habits = tendencies(ctx.player);
   const shift = roundTendencyShift(habits, ctx.round, ctx.shotsBehind);
-  const dayForm = drawDayForm(ctx.player, ctx.course, ctx.rng, (ctx.weekForm ?? 0) - shift, habits.streak);
+  const traits = traitRoundEffects({
+    player: ctx.player,
+    course: ctx.course,
+    rain: ctx.weather.rain,
+    wave: ctx.wave,
+    round: ctx.round,
+    shotsBehind: ctx.shotsBehind,
+    tier: ctx.tier,
+    event: ctx.event,
+    cutGap: ctx.cutGap,
+    position36: ctx.position36,
+  });
+  return drawDayForm(ctx.player, ctx.course, ctx.rng, (ctx.weekForm ?? 0) - shift - traits.strokes, habits.streak, traits);
+}
+
+export function simulateRound(ctx: RoundContext): RoundResult {
+  // Round-level habits and traits: early- or late-week form, leading or chasing, streakiness, venue.
+  const dayForm = roundForm(ctx);
   const teeShotHoles = ctx.course.holes.filter((h) => h.par > 3).length;
   const state: HoleState = { lastOverPar: 0 };
   const holes = ctx.course.holes.map((hole) => playHole({ ctx, hole, dayForm, teeShotHoles, state }));

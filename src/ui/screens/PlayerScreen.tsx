@@ -1,8 +1,9 @@
-import type { AttributeKey } from "../../engine";
+import { traitsOf, type AttributeKey } from "../../engine";
 import { STATUS_LABELS, abilityView, attributePotential, seasonChange, type World } from "../../season";
 import { AbilityBars } from "../components/AbilityBars";
 import { Portrait } from "../components/Portrait";
 import { StatBoxes, StatLegend } from "../components/StatBoxes";
+import { TraitList } from "../components/Traits";
 import { TendenciesPanel } from "../components/TendenciesPanel";
 import { formWord, money, signed, toPar } from "../format";
 
@@ -48,6 +49,11 @@ export function PlayerScreen({ world, clientId }: { world: World; clientId: stri
           }}
         />
         <p className="muted small">Potential is his coaches' estimate of how far each skill can grow. Hidden traits (wind tolerance, grass preference, comfort on each style of course) show up only in results. Scouting comes later.</p>
+      </section>
+
+      <section className="panel">
+        <div className="panel-head"><h2>Traits</h2><span className="muted small">What sets him apart, on the course and off it</span></div>
+        <TraitList ids={[...traitsOf(p)]} />
       </section>
 
       <section className="panel">

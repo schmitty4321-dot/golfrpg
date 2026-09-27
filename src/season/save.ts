@@ -8,6 +8,7 @@ import { buildDevTour } from "./calendar";
 import { newHistory } from "./history";
 import { makeAmateur } from "./world";
 import { SAVE_VERSION, type World } from "./types";
+import { ensureTraits } from "./traits";
 
 export function serializeWorld(world: World): string {
   return JSON.stringify(world);
@@ -25,6 +26,8 @@ export function deserializeWorld(json: string): World {
   if (!Array.isArray(world.clientIds) || world.clientIds.some((id) => !world.players[id]?.client)) {
     throw new Error("save has no valid client list");
   }
+  // Saves from before traits existed: every player gets his roll now.
+  ensureTraits(world);
   return world;
 }
 

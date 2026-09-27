@@ -10,6 +10,7 @@ import {
   type VisibleAttribute,
 } from "../engine";
 import type { CoachRole, Development, Intensity, TrainingFocus, TrainingPlan, WorldPlayer } from "./types";
+import { effectivePeak, has } from "./traits";
 
 /** Skills that decide scoring: the average of these is a player's overall level. */
 export const GOLF_SKILLS: readonly VisibleAttribute[] = [
@@ -101,6 +102,8 @@ export interface DevelopmentInputs {
   coachQuality: Partial<Record<CoachRole, number>>;
   /** Whether the player competed this week (competition hardens the mind). */
   competed: boolean;
+  /** A veteran Mentor on the same books (your clients under 25 learn faster). */
+  mentored?: boolean;
 }
 
 /** The coach quality a computer player works with, by standing. */
@@ -111,6 +114,10 @@ export function impliedStaff(wp: WorldPlayer): Partial<Record<CoachRole, number>
 
 /** Quality used when a role has no coach: working it out alone. */
 const SELF_TAUGHT = 4;
+
+function hasCoach(key: AttributeKey, quality: Partial<Record<CoachRole, number>>): boolean {
+  return (Object.keys(COACH_GROUPS) as CoachRole[]).some((role) => COACH_GROUPS[role].includes(key) && quality[role] !== undefined);
+}
 
 function coachFor(key: AttributeKey, quality: Partial<Record<CoachRole, number>>): number {
   for (const role of Object.keys(COACH_GROUPS) as CoachRole[]) {
@@ -137,28 +144,40 @@ export function developWeek(wp: WorldPlayer, inputs: DevelopmentInputs, rng: Rng
   const a = p.attributes;
   const changes: { key: AttributeKey; delta: number }[] = [];
   const learn = (a.professionalism + a.coachability) / (2 * TOUR_AVERAGE);
-  const gap = clamp((dev.potential - overall(p)) / 4, -0.5, 1.5);
-  const growAge = ageGrowth(p.age, p.peakAge);
-  const yearsPast = Math.max(0, p.age - p.peakAge - 2);
+  // A Plateau player stops growing half a point above where he is from 25.
+  const ceiling = has(wp, "plateau") && p.age >= 25 ? Math.min(dev.potential, overall(p) + 0.5) : dev.potential;
+  const gap = clamp((ceiling - overall(p)) / 4, -0.5, 1.5);
+  const peak = effectivePeak(wp);
+  const growAge = ageGrowth(p.age, peak) * (has(wp, "early-peaker") && p.age <= 24 ? 1.25 : 1);
+  const yearsPast = Math.max(0, p.age - peak - (has(wp, "early-peaker") ? 1 : 2));
   const intensity = INTENSITY[inputs.plan.intensity].growth;
   const injured = wp.injury !== null;
+  const selfTaught = has(wp, "self-taught");
+  const coachQ = (key: AttributeKey) => {
+    const q = coachFor(key, inputs.coachQuality);
+    // Self-taught players do well alone and take less from a coach.
+    return selfTaught ? (q === SELF_TAUGHT && !hasCoach(key, inputs.coachQuality) ? SELF_TAUGHT * 2 : q * 0.8) : q;
+  };
   const fitnessQ = inputs.coachQuality.fitness ?? SELF_TAUGHT;
+  const boost = (wp.comebackWeeks ? 1.5 : 1) * (inputs.mentored ? 1.1 : 1);
 
   for (const key of TRAINABLE) {
     if (FIXED.includes(key)) continue;
-    const coach = 0.6 + coachFor(key, inputs.coachQuality) / 20;
-    let delta = BASE_GROWTH * growAge * gap * learn * coach * focusMultiplier(key, inputs.plan.focus) * intensity;
+    const coach = 0.6 + coachQ(key) / 20;
+    let delta = BASE_GROWTH * growAge * gap * learn * coach * focusMultiplier(key, inputs.plan.focus) * intensity * boost;
+    if (has(wp, "sponge") && inputs.plan.focus !== "balanced" && FOCUS_GROUPS[inputs.plan.focus].includes(key)) delta *= 1.25;
+    if (has(wp, "gym-rat") && (key === "stamina" || key === "flexibility")) delta *= 1.3;
     if (injured) delta *= 0.3;
 
     // Ageing: power goes first, then the short putts; fitness work slows it.
     if (yearsPast > 0) {
-      const slow = clamp(1 - (fitnessQ - SELF_TAUGHT) / 30, 0.5, 1) * (inputs.plan.focus === "fitness" ? 0.7 : 1);
+      const slow = clamp(1 - (fitnessQ - SELF_TAUGHT) / 30, 0.5, 1) * (inputs.plan.focus === "fitness" ? 0.7 : 1) * (has(wp, "ageless") ? 0.5 : 1);
       if (PHYSICAL.includes(key)) delta -= 0.0015 * yearsPast * slow;
       else if (key === "shortPutts") delta -= 0.0009 * yearsPast;
       else if (!EXPERIENCE.includes(key)) delta -= 0.0006 * yearsPast;
     }
     // Experience: the mind keeps improving into the forties, faster when competing.
-    if (EXPERIENCE.includes(key) && p.age < 46) delta += 0.003 * (inputs.competed ? 1.3 : 1);
+    if (EXPERIENCE.includes(key) && p.age < 46) delta += 0.003 * (inputs.competed ? 1.3 : 1) * (inputs.competed && has(wp, "tournament-learner") ? 2 : 1);
 
     delta += rng.normal(0, 0.01);
     const cap = Math.min(20, Math.ceil(dev.potential + STRENGTH_ROOM));
@@ -194,7 +213,9 @@ export function seasonChange(wp: WorldPlayer): Partial<Record<AttributeKey, numb
 /** What his coaches think his ceiling is, as an overall level (1-20), blurred by their quality. */
 export function potentialEstimate(wp: WorldPlayer, coachQuality: number, rng: Rng): number {
   const noise = rng.normal(0, Math.max(0.3, (20 - coachQuality) / 10));
-  return clamp(wp.development.potential + noise, 1, 20);
+  // The hype around a junior fools other people's scouts, not his own coaches.
+  const hype = !wp.client && has(wp, "hyped-junior") ? 1.5 : 0;
+  return clamp(wp.development.potential + noise + hype, 1, 20);
 }
 
 /** The same estimate as 1-5 stars. */

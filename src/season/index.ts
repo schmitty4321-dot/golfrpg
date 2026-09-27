@@ -15,3 +15,4 @@ export * from "./history";
 export * from "./editor";
 export * from "./editorFixtures";
 export * from "./stats";
+export * from "./traits";

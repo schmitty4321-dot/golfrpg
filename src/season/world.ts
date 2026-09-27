@@ -26,6 +26,7 @@ import { pointsList, rankMap } from "./points";
 import type { Course } from "../engine";
 import { SAVE_VERSION, absWeek, type Career, type ClientSeasonSummary, type SeasonRecord, type SeasonSummary, type TourEvent, type TourStatus, type World, type WorldPlayer } from "./types";
 import { playWeek } from "./week";
+import { ensureTraits, seasonEndTraits } from "./traits";
 
 /** How your first client's career starts. */
 export type Scenario = "rookie" | "journeyman" | "grinder" | "veteran";
@@ -182,12 +183,15 @@ export function createWorld(opts: CreateWorldOptions): World {
 
   assignRivalAgents(world, rng);
   world.agency.scouts = generateScouts(opts.seed);
+  // The warm-up season brought in new amateurs and walk-ons: their names are taken too.
+  for (const wp of Object.values(world.players)) usedNames.add(wp.player.name);
   const client = createClient(rng, opts.scenario, usedNames);
   client.client = newManagement(world.season, STANDARD_COMMISSION, 3);
   world.players[client.player.id] = client;
   world.clientIds = [client.player.id];
   world.agency.knowledge[client.player.id] = { accuracy: 1, reports: 99, absWeek: 0 };
   setTargets(world);
+  ensureTraits(world);
   return world;
 }
 
@@ -343,6 +347,8 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
     wp.player.condition = Math.max(wp.player.condition, 90);
     wp.player.form *= 0.5;
   }
+  // Coaches cure a demon or two over the winter; the odd veteran's stroke goes.
+  seasonEndTraits(world, rng);
   // The winter: ten weeks of practice with no events, then a new season's baseline.
   offseason(world, OFFSEASON_WEEKS, rng);
   for (const wp of Object.values(world.players)) wp.development.seasonStart = { ...wp.player.attributes };
@@ -353,6 +359,7 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   for (const wp of clients(world)) wp.client!.finances = emptyFinances();
   world.agency.ledger = { prizeCommission: 0, endorsementCommission: 0, office: 0, scouts: 0 };
   setTargets(world);
+  ensureTraits(world);
   return summary;
 }
 

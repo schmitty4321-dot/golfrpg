@@ -1,6 +1,7 @@
 import { clamp, createRng, type Rng } from "../engine";
 import { COACH_GROUPS, INTENSITY, developWeek, impliedStaff, overall, potentialEstimate } from "./development";
 import { mixSeed } from "./entries";
+import { has, injuryLength, injuryRisk, returnFromInjury } from "./traits";
 import type { Coach, CoachRole, Injury, World, WorldPlayer } from "./types";
 
 export const COACH_ROLES: CoachRole[] = ["swing", "shortGame", "putting", "mental", "fitness"];
@@ -96,6 +97,12 @@ export function startRebuild(world: World, clientId: string): void {
   world.news.unshift(`${wp.player.name} begins a swing rebuild. Expect some rough weeks.`);
 }
 
+/** A rebuild the player starts on his own (a Swing Tinkerer), coach or no coach. */
+export function beginRebuild(wp: WorldPlayer): void {
+  wp.rebuild = { weeksLeft: REBUILD_WEEKS, totalWeeks: REBUILD_WEEKS };
+  applyRebuildPenalty(wp);
+}
+
 export function abandonRebuild(world: World, clientId: string): void {
   const { wp } = mgmt(world, clientId);
   wp.rebuild = null;
@@ -153,12 +160,13 @@ export function injuryChance(wp: WorldPlayer, competed: boolean, intensityRisk: 
   const prone = wp.player.attributes.injuryProneness / 10;
   const tired = wp.player.condition < 60 ? 2 : 1;
   const fit = clamp(1 - (fitnessQuality - 4) / 40, 0.6, 1.1);
-  return base * prone * tired * intensityRisk * fit;
+  return base * prone * tired * intensityRisk * fit * injuryRisk(wp, intensityRisk > 1);
 }
 
 function rollInjury(world: World, wp: WorldPlayer, rng: Rng): Injury {
   const [name, lo, hi] = rng.pick(INJURIES);
-  const injury = { name, weeksLeft: rng.int(lo, hi) };
+  const weeks = injuryLength(wp, rng.int(lo, hi));
+  const injury = { name, weeksLeft: weeks, totalWeeks: weeks };
   if (injury.weeksLeft >= 8 && rng.chance(0.4)) {
     const k = rng.pick(["drivingDistance", "flexibility"] as const);
     wp.player.attributes[k] = Math.max(1, wp.player.attributes[k] - 1);
@@ -177,6 +185,11 @@ function rollInjury(world: World, wp: WorldPlayer, rng: Rng): Injury {
  * coaches get paid.
  */
 export function endOfWeek(world: World, competed: Set<string>, rng: Rng): void {
+  // A veteran Mentor on the books speeds up your younger clients.
+  const mentor = world.clientIds.some((id) => {
+    const m = world.players[id];
+    return !!m && m.player.age >= 34 && has(m, "mentor");
+  });
   for (const wp of Object.values(world.players)) {
     const isClient = !!wp.client;
     const plan = wp.client ? wp.client.training : { focus: "balanced" as const, intensity: "normal" as const };
@@ -184,9 +197,11 @@ export function endOfWeek(world: World, competed: Set<string>, rng: Rng): void {
     // Amateurs are playing college and amateur events most weeks.
     const played = competed.has(wp.player.id) || wp.career.status === "amateur";
 
+    if (wp.comebackWeeks) wp.comebackWeeks--;
     if (wp.injury) {
       wp.injury.weeksLeft--;
       if (wp.injury.weeksLeft <= 0) {
+        returnFromInjury(wp, wp.injury.totalWeeks ?? 0);
         wp.injury = null;
         if (isClient) world.news.unshift(`${wp.player.name} is fit again.`);
       }
@@ -194,7 +209,8 @@ export function endOfWeek(world: World, competed: Set<string>, rng: Rng): void {
       wp.injury = rollInjury(world, wp, rng);
     }
 
-    const changes = developWeek(wp, { plan, coachQuality: quality, competed: played }, rng);
+    const mentored = mentor && isClient && wp.player.age < 25 && !has(wp, "mentor");
+    const changes = developWeek(wp, { plan, coachQuality: quality, competed: played, mentored }, rng);
     if (isClient) {
       wp.player.condition = clamp(wp.player.condition + INTENSITY[plan.intensity].condition, 0, 100);
       for (const c of changes) {
@@ -219,7 +235,10 @@ export const OFFSEASON_WEEKS = 10;
 export function offseason(world: World, weeks: number, rng: Rng): void {
   for (let w = 0; w < weeks; w++) {
     for (const wp of Object.values(world.players)) {
-      if (wp.injury && --wp.injury.weeksLeft <= 0) wp.injury = null;
+      if (wp.injury && --wp.injury.weeksLeft <= 0) {
+        returnFromInjury(wp, wp.injury.totalWeeks ?? 0);
+        wp.injury = null;
+      }
       developWeek(
         wp,
         {

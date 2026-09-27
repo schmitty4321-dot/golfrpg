@@ -14,3 +14,4 @@ export * from "./roundStats";
 export * from "./tendencies";
 export * from "./realCourses";
 export * from "./calls";
+export * from "./traits";

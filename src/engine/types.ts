@@ -24,6 +24,8 @@ export interface Player {
    * rebuild is bedding in. Absent for most players.
    */
   sgAdjust?: Partial<StrokesGained>;
+  /** Trait ids (see traits.ts). Rolled once, then kept; absent until assigned. */
+  traits?: string[];
 }
 
 export interface Hole {

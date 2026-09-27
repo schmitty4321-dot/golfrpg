@@ -3,6 +3,7 @@ import { amateurRanking } from "./amateurs";
 import { mixSeed } from "./entries";
 import { rankMap } from "./points";
 import { absWeek, type Agency, type ClientManagement, type World, type WorldPlayer } from "./types";
+import { commissionWeight, decisionSensitivity, extensionBias, heldOutPenalty, onSigned, recruitingBonus } from "./traits";
 
 export const RIVAL_AGENCIES = [
   "Apex Sports Management",
@@ -136,7 +137,8 @@ export function acceptChance(world: World, id: string, offer: Offer): number {
   const wp = world.players[id]!;
   const a = wp.player.attributes;
   let score = world.agency.reputation - expectedReputation(world, id);
-  score += (STANDARD_COMMISSION - offer.commission) * 100 * 3; // each point under 10% helps
+  score += (STANDARD_COMMISSION - offer.commission) * 100 * 3 * commissionWeight(wp); // each point under 10% helps
+  score += recruitingBonus(world);
   // Ambitious players want a big-name agency; young ones like security, veterans like flexibility.
   score -= Math.max(0, a.ambition - 12) * 1.5;
   score += wp.player.age <= 25 ? (offer.years - 1) * 3 : wp.player.age >= 36 ? (1 - offer.years) * 2 : 0;
@@ -170,6 +172,7 @@ export function signClient(world: World, id: string, offer: Offer): void {
   wp.client = newManagement(world.season, offer.commission, offer.years);
   world.clientIds.push(id);
   world.agency.knowledge[id] = { accuracy: 1, reports: 99, absWeek: absWeek(world.season, world.week) };
+  onSigned(world, wp);
   world.news.unshift(`${wp.player.name} signs with ${world.agency.name} (${Math.round(offer.commission * 100)}%, ${offer.years} season${offer.years === 1 ? "" : "s"}).`);
 }
 
@@ -179,7 +182,12 @@ export function extendContract(world: World, id: string, offer: Offer): OfferRes
   if (!wp?.client) return { accepted: false, chance: 0, message: "He isn't your client." };
   const until = world.agency.cooldowns[id];
   if (until !== undefined && until > absWeek(world.season, world.week)) return { accepted: false, chance: 0, message: "He's not ready to talk again yet." };
-  const score = wp.client.happiness - 55 + (wp.client.contract.commission - offer.commission) * 100 * 3 - Math.max(0, expectedReputation(world, id) - world.agency.reputation) * 0.5;
+  const score =
+    wp.client.happiness -
+    55 +
+    (wp.client.contract.commission - offer.commission) * 100 * 3 * commissionWeight(wp) -
+    Math.max(0, expectedReputation(world, id) - world.agency.reputation) * 0.5 +
+    extensionBias(world, wp);
   const chance = clamp(1 / (1 + Math.exp(-score / 7)), 0.02, 0.98);
   const rng = createRng(mixSeed(world.seed, world.season, world.week, 600, Number(id.replace(/\D/g, "")) || 1));
   if (!rng.chance(chance)) {
@@ -214,8 +222,9 @@ export function updateHappiness(wp: WorldPlayer, week: { played: boolean; sgVsEx
   let target = 62;
   target += clamp(wp.player.form * 15, -12, 12);
   target += Math.min(10, c.sponsors.reduce((s, x) => s + x.annualValue, 0) / 150_000);
-  target -= (c.contract.commission - STANDARD_COMMISSION) * 100 * 1.5;
-  if (week.heldOut) target -= 15;
+  const sensitivity = decisionSensitivity(wp);
+  target -= (c.contract.commission - STANDARD_COMMISSION) * 100 * 1.5 * sensitivity;
+  if (week.heldOut) target -= (15 + heldOutPenalty(wp)) * sensitivity;
   c.happiness = clamp(c.happiness + (target - c.happiness) * 0.12, 0, 100);
   if (week.sgVsExpected !== null) c.happiness = clamp(c.happiness + clamp(week.sgVsExpected, -2, 2), 0, 100);
 }

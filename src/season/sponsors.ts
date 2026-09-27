@@ -1,6 +1,7 @@
 import { clamp, type Rng } from "../engine";
 import { rankMap } from "./points";
 import { absWeek, type SponsorCategory, type SponsorOffer, type World, type WorldPlayer } from "./types";
+import { bonusMultiplier, offerChanceMultiplier, sponsorValueMultiplier } from "./traits";
 
 const BRANDS: Record<SponsorCategory, string[]> = {
   equipment: ["Talon Golf", "Kinetic Clubs", "Forged Theory", "Arcline", "Vantage Irons"],
@@ -46,15 +47,15 @@ export function maybeOffer(world: World, wp: WorldPlayer, rng: Rng, chance: numb
   const category = rng.pick(open);
   const m = marketability(world, wp);
   const scale = Math.min(1, m);
-  const annualValue = Math.round((TOP_VALUE[category] * scale * scale * (0.7 + rng.next() * 0.6)) / 5_000) * 5_000;
+  const annualValue = Math.round((TOP_VALUE[category] * scale * scale * (0.7 + rng.next() * 0.6) * sponsorValueMultiplier(world, wp, category)) / 5_000) * 5_000;
   if (annualValue < 20_000) return null;
   const offer: SponsorOffer = {
     id: `sp${world.season}-${world.week}-${wp.player.id}-${category}`,
     sponsor: rng.pick(BRANDS[category]),
     category,
     annualValue,
-    winBonus: Math.round(annualValue * 0.1 / 1_000) * 1_000,
-    majorBonus: Math.round(annualValue * 0.3 / 1_000) * 1_000,
+    winBonus: Math.round((annualValue * 0.1 * bonusMultiplier(wp)) / 1_000) * 1_000,
+    majorBonus: Math.round((annualValue * 0.3 * bonusMultiplier(wp)) / 1_000) * 1_000,
     untilSeason: world.season + rng.int(0, 2),
     expiresAbsWeek: absWeek(world.season, world.week) + 3,
   };
@@ -87,7 +88,7 @@ export function sponsorWeek(world: World, wp: WorldPlayer, rng: Rng, goodWeek: b
   const now = absWeek(world.season, world.week);
   c.offers = c.offers.filter((o) => o.expiresAbsWeek >= now);
   const pay = c.sponsors.reduce((s, x) => s + x.annualValue / seasonWeeks, 0);
-  maybeOffer(world, wp, rng, goodWeek ? 0.5 : world.week === 1 ? 0.8 : 0.05);
+  maybeOffer(world, wp, rng, Math.min(0.95, (goodWeek ? 0.5 : world.week === 1 ? 0.8 : 0.05) * offerChanceMultiplier(wp)));
   return Math.round(pay);
 }
 

@@ -132,6 +132,8 @@ export interface Coach {
 export interface Injury {
   name: string;
   weeksLeft: number;
+  /** How long it was expected to last when it happened. */
+  totalWeeks?: number;
 }
 
 export interface SwingRebuild {
@@ -188,6 +190,8 @@ export interface ClientManagement {
   happiness: number;
   sponsors: Sponsorship[];
   offers: SponsorOffer[];
+  /** Grateful Underdogs: the last season his mood can't fall below 40. */
+  gratefulUntil?: number;
 }
 
 /** Who represents a player. */
@@ -208,6 +212,8 @@ export interface WorldPlayer {
   agent: Representation | null;
   /** Present only for your agency's clients. */
   client?: ClientManagement;
+  /** Comeback Kids: weeks of faster development left after a long injury. */
+  comebackWeeks?: number;
 }
 
 export interface Scout {

@@ -89,8 +89,9 @@ describe("signing players", () => {
 
   it("caps the roster by reputation", () => {
     const w = fresh();
-    for (const wp of freeAgents(w).slice(0, 2)) signClient(w, wp.player.id, { commission: 0.1, years: 1 });
-    const next = freeAgents(w)[0]!.player.id;
+    const open = freeAgents(w).filter((wp) => approachBlock(w, wp.player.id) === null);
+    for (const wp of open.slice(0, 2)) signClient(w, wp.player.id, { commission: 0.1, years: 1 });
+    const next = open[2]!.player.id;
     expect(approachBlock(w, next)).toMatch(/clients at its reputation/);
   });
 

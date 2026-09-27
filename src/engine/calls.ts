@@ -9,6 +9,7 @@
 import { TOUR_AVERAGE } from "./attributes";
 import { clamp } from "./rng";
 import type { HoleMod } from "./round";
+import { hasTrait, traitReachBonus } from "./traits";
 import type { Course, Hole, Player } from "./types";
 
 export type TeeCall = "driver" | "3-wood" | "iron";
@@ -43,7 +44,7 @@ export interface HoleSituation {
 }
 
 /** Yards the player can reach in two on a par 5 (drive plus a long second). */
-export const reachInTwo = (p: Player): number => 300 + (p.attributes.drivingDistance - TOUR_AVERAGE) * 6 + 245 + (p.attributes.longIrons - TOUR_AVERAGE) * 4;
+export const reachInTwo = (p: Player): number => 300 + (p.attributes.drivingDistance - TOUR_AVERAGE) * 6 + 245 + (p.attributes.longIrons - TOUR_AVERAGE) * 4 + traitReachBonus(p);
 
 /** The calls worth making on this hole: key moments only; on other holes he plays his own game. */
 export function decisionsFor(hole: Hole, course: Course, player: Player, s: HoleSituation): Decision[] {
@@ -109,22 +110,22 @@ export function callEffect(call: HoleCall | null | undefined, hole: Hole, player
     // Laying back costs distance (more for long hitters and long holes) and saves trouble (more for wild drivers).
     const lost = 0.05 + Math.max(0, hole.yards - 400) / 2500 + d("drivingDistance") * 0.006;
     const saved = (0.4 * hole.hazard + 0.3 * tight) * (0.25 - d("drivingAccuracy") * 0.02 + d("fairwayWoods") * 0.005);
-    if (call.tee === "3-wood") {
-      mod.mean += lost - saved;
-      mod.blowup *= 0.75;
-      mod.sd *= 0.96;
-    } else {
-      mod.mean += 2.2 * lost - 1.6 * saved;
-      mod.blowup *= 0.5;
-      mod.sd *= 0.92;
-    }
+    const tee: HoleMod =
+      call.tee === "3-wood"
+        ? { mean: lost - saved, blowup: 0.75, sd: 0.96 }
+        : { mean: 2.2 * lost - 1.6 * saved - (hasTrait(player, "stinger") ? 0.03 : 0), blowup: 0.5, sd: 0.92 };
+    // A driver addict pulls driver anyway half the time.
+    const k = hasTrait(player, "driver-addict") ? 0.5 : 1;
+    mod.mean += tee.mean * k;
+    mod.blowup *= Math.pow(tee.blowup, k);
+    mod.sd *= Math.pow(tee.sd, k);
   }
   if (call.second && hole.par === 5) {
     if (call.second === "go") {
       // More eagles and birdies; the trouble shows up as big numbers, not a worse average.
-      mod.mean += -0.07 - d("longIrons") * 0.01 - d("fairwayWoods") * 0.005;
+      mod.mean += -0.07 - d("longIrons") * 0.01 - d("fairwayWoods") * 0.005 - (hasTrait(player, "rescue-merchant") ? 0.02 : 0);
       mod.sd *= 1.12;
-      mod.blowup *= 1 + hole.hazard * 2;
+      mod.blowup *= (1 + hole.hazard * 2) * (hasTrait(player, "rescue-merchant") ? 0.85 : 1) * (hasTrait(player, "long-iron-artist") ? 0.85 : 1);
     } else {
       mod.mean += 0.05 - d("wedges") * 0.004;
       mod.sd *= 0.9;
@@ -144,12 +145,17 @@ export function callEffect(call: HoleCall | null | undefined, hole: Hole, player
   }
   if (call.putt) {
     if (call.putt === "charge") {
-      mod.mean += -0.005 - (d("shortPutts") + d("greenReading")) * 0.002;
+      mod.mean += -0.005 - (d("shortPutts") + d("greenReading")) * 0.002 - (hasTrait(player, "long-range-sniper") ? 0.012 : 0);
       mod.sd *= 1.12;
     } else {
       mod.mean += 0.01 - d("lagPutting") * 0.002;
       mod.sd *= 0.88;
     }
+  }
+  // A stubborn player ignores a quarter of your calls and commits harder to the rest.
+  if (hasTrait(player, "stubborn")) {
+    const k = 0.825;
+    return { mean: mod.mean * k, sd: Math.pow(mod.sd, k), blowup: Math.pow(mod.blowup, k) };
   }
   return mod;
 }

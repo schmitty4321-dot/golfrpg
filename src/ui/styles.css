@@ -589,3 +589,33 @@ select, input[type="text"], input[type="number"] {
 .sw { display: inline-block; width: 18px; height: 8px; border-radius: 4px; vertical-align: middle; margin-right: 4px; }
 .sw-cur { background: var(--cur); }
 .sw-pot { background: var(--pot); opacity: 0.6; }
+
+/* ---------- traits ---------- */
+:root { --r-common: #5b645e; --r-uncommon: #2f6ea5; --r-rare: #7b4bb0; --r-legendary: #a35d00; }
+:root[data-theme="dark"] { --r-common: #b3bcb6; --r-uncommon: #7fb5e6; --r-rare: #c3a0ec; --r-legendary: #f0b457; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --r-common: #b3bcb6; --r-uncommon: #7fb5e6; --r-rare: #c3a0ec; --r-legendary: #f0b457; } }
+.trait-chip { display: inline-block; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; cursor: default; border: 1px solid var(--border); background: var(--surface); }
+.trait-chip.rarity-common { color: var(--r-common); }
+.trait-chip.rarity-uncommon { color: var(--r-uncommon); }
+.trait-chip.rarity-rare { color: var(--r-rare); }
+.trait-chip.rarity-legendary { color: var(--r-legendary); }
+.trait-chip.on-dark { border-color: transparent; background: rgba(255, 255, 255, 0.92); }
+.trait-chip.on-dark.rarity-common { color: #3f4742; }
+.trait-chip.on-dark.rarity-uncommon { color: #22598c; }
+.trait-chip.on-dark.rarity-rare { color: #6a3aa3; }
+.trait-chip.on-dark.rarity-legendary { color: #8a4d00; background: #fbe7bf; }
+.trait-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+.trait-card { border: 1px solid var(--border); border-left: 4px solid var(--r-common); border-radius: 8px; padding: 10px 12px; background: var(--surface); display: grid; gap: 4px; }
+.trait-card.rarity-uncommon { border-left-color: var(--r-uncommon); }
+.trait-card.rarity-rare { border-left-color: var(--r-rare); }
+.trait-card.rarity-legendary { border-left-color: var(--r-legendary); }
+.trait-card-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; }
+.trait-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+.trait-tag.rarity-common { color: var(--r-common); }
+.trait-tag.rarity-uncommon { color: var(--r-uncommon); }
+.trait-tag.rarity-rare { color: var(--r-rare); }
+.trait-tag.rarity-legendary { color: var(--r-legendary); }
+.trait-tag.pol-positive { color: var(--good, #1f7a4d); }
+.trait-tag.pol-negative { color: var(--critical, #c0392b); }
+.trait-tag.pol-mixed { color: var(--r-legendary); }
+.trait-blurb { font-style: italic; }

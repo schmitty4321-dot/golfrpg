@@ -4,6 +4,7 @@ import {
   STATUS_LABELS,
   abilityView,
   acceptChance,
+  knownTraits,
   approachBlock,
   attributePotential,
   ceilingStars,
@@ -20,6 +21,7 @@ import { Stars } from "./Stars";
 import { TendenciesPanel } from "./TendenciesPanel";
 import { Portrait } from "./Portrait";
 import { StatBoxes, StatLegend } from "./StatBoxes";
+import { TraitChip, TraitList } from "./Traits";
 import { money, plural } from "../format";
 import type { Game } from "../useGame";
 
@@ -69,6 +71,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
       ? potentialEstimate(wp, 4 + (k!.accuracy ?? 0) * 16, createRng(mixSeed(world.seed, world.season, Number(id.replace(/\D/g, "")) || 3)))
       : null;
   const ceiling = potential === null ? null : ceilingStars(potential);
+  const traits = knownTraits(world, id);
   const view = (key: AttributeKey) => {
     const v = scoutedAttribute(world, id, key)!;
     return { ...v, ...(potential === null ? {} : { potential: attributePotential(wp.player, key, potential, v.value) }) };
@@ -103,6 +106,12 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
                   return <div key={key}><dt>{ATTRIBUTE_LABELS[key]}</dt><dd>{v.low === v.high ? v.value : `${v.low}-${v.high}`}</dd></div>;
                 })}
             </dl>
+            {traits.length > 0 && (
+              <div>
+                <div className="pp-label">Traits</div>
+                <div className="pp-chips">{traits.map((t) => <TraitChip key={t} id={t} dark />)}</div>
+              </div>
+            )}
             {hidden && (
               <div>
                 <div className="pp-label">Tendencies</div>
@@ -146,6 +155,16 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
                 </>
               )}
             </section>
+
+            {(known || wp.client) && (
+              <section className="panel">
+                <div className="panel-head"><h2>Traits</h2><span className="muted small">What sets him apart, on the course and off it</span></div>
+                <TraitList
+                  ids={traits}
+                  hiddenNote={wp.client ? undefined : "Scouts spot each trait with a chance equal to their report's accuracy, so there may be more."}
+                />
+              </section>
+            )}
 
             {hidden && (
               <section className="panel">

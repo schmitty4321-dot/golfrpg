@@ -1,9 +1,9 @@
 import { coursePar } from "./courses";
 import { tiedPayout } from "./purse";
 import { createRng, type Rng } from "./rng";
-import { DAY_SD, WEEK_SD, drawDayForm, playHole, simulateRound, type HoleState, type RoundContext } from "./round";
+import { DAY_SD, WEEK_SD, playHole, roundForm, simulateRound, type HoleState, type RoundContext } from "./round";
 import { callEffect, type HoleCall } from "./calls";
-import { roundTendencyShift, tendencies } from "./tendencies";
+import type { PlayerEventContext } from "./traits";
 import { SG_CATEGORIES, type Course, type Player, type RoundWeather, type StrokesGained, type Wave } from "./types";
 import { drawWeather } from "./weather";
 
@@ -15,6 +15,10 @@ export interface TournamentConfig {
   seed: number;
   /** Top N and ties make the cut after round 2. Omit for a no-cut event. */
   cutTop?: number;
+  /** The event's tier ("major", "signature", ...), for player traits. */
+  tier?: string;
+  /** What the season knows about each player's week, by id, for player traits. */
+  context?: Record<string, PlayerEventContext>;
 }
 
 export interface PlayerEventResult {
@@ -66,6 +70,28 @@ interface Entry {
 
 const total = (e: Entry) => e.rounds.reduce((s, x) => s + x, 0);
 
+/**
+ * Where each player stands going into a round, for traits: shots inside or
+ * outside the projected cut before round 2, and 36-hole positions on the weekend.
+ */
+function situation(active: Entry[], round: number, cutTop: number | undefined): (e: Entry) => { cutGap: number | null; position36: number | null } {
+  const totals = active.map(total).sort((a, b) => a - b);
+  const projected = round === 2 && cutTop !== undefined && totals.length > cutTop ? totals[cutTop - 1]! : null;
+  return (e) => {
+    const t = total(e);
+    return {
+      cutGap: projected === null ? null : projected - t,
+      position36: round >= 3 ? totals.findIndex((x) => x === t) + 1 : null,
+    };
+  };
+}
+
+/** The per-event fields of a player's round context. */
+const eventFields = (config: TournamentConfig, id: string) => ({
+  ...(config.tier ? { tier: config.tier } : {}),
+  ...(config.context?.[id] ? { event: config.context[id] } : {}),
+});
+
 export function simulateTournament(config: TournamentConfig): TournamentResult {
   const { course, field } = config;
   if (field.length < 2) throw new Error("a tournament needs at least two players");
@@ -90,6 +116,7 @@ export function simulateTournament(config: TournamentConfig): TournamentResult {
     const active = entries.filter((e) => e.active);
     const waves = assignWaves(active, round);
     const leader = round >= 3 ? Math.min(...active.map(total)) : null;
+    const where = situation(active, round, config.cutTop);
 
     for (const e of active) {
       const wave = waves.get(e) ?? "AM";
@@ -102,6 +129,8 @@ export function simulateTournament(config: TournamentConfig): TournamentResult {
         shotsBehind: leader === null ? null : total(e) - leader,
         weekForm: e.weekForm,
         rng,
+        ...where(e),
+        ...eventFields(config, e.player.id),
       });
       e.rounds.push(r.strokes);
       e.holes.push(r.holes);
@@ -116,7 +145,7 @@ export function simulateTournament(config: TournamentConfig): TournamentResult {
     }
   }
 
-  const playoff = runPlayoff(entries, course, weather[3]!, rng);
+  const playoff = runPlayoff(entries, course, weather[3]!, rng, config);
   return {
     name: config.name,
     course,
@@ -147,7 +176,7 @@ function assignWaves(active: Entry[], round: number): Map<Entry, Wave> {
 }
 
 /** Sudden death on the 18th until one player has the lowest score on a hole. */
-function runPlayoff(entries: Entry[], course: Course, weather: RoundWeather, rng: Rng) {
+function runPlayoff(entries: Entry[], course: Course, weather: RoundWeather, rng: Rng, config: TournamentConfig) {
   const finishers = entries.filter((e) => e.active);
   const best = Math.min(...finishers.map(total));
   let contenders = finishers.filter((e) => total(e) === best);
@@ -161,7 +190,7 @@ function runPlayoff(entries: Entry[], course: Course, weather: RoundWeather, rng
     const scores = contenders.map((e) => {
       const state: HoleState = { lastOverPar: 0 };
       const dayForm = e.dayForms[e.dayForms.length - 1]!;
-      const ctx = { player: e.player, course, weather, wave: "PM" as Wave, round: 4, shotsBehind: 0, rng };
+      const ctx: RoundContext = { player: e.player, course, weather, wave: "PM", round: 4, shotsBehind: 0, rng, playoff: true, ...eventFields(config, e.player.id) };
       return playHole({ ctx, hole: { ...hole, number: 18 }, dayForm, teeShotHoles, state });
     });
     const low = Math.min(...scores);
@@ -404,19 +433,18 @@ export function startLiveRound(t: LiveTournament): void {
   const active = t.entries.filter((e) => e.active);
   const waves = assignWaves(active, round);
   const leader = round >= 3 ? Math.min(...active.map(total)) : null;
+  const where = situation(active, round, t.config.cutTop);
   const me = controlled(t);
   for (const e of active) {
     const wave = waves.get(e) ?? "AM";
     const shotsBehind = leader === null ? null : total(e) - leader;
     if (e === me) {
-      const ctx: RoundContext = { player: e.player, course, weather: w, wave, round, shotsBehind, weekForm: e.weekForm, rng: t.crng };
-      const habits = tendencies(e.player);
-      const shift = roundTendencyShift(habits, round, shotsBehind);
-      const dayForm = drawDayForm(e.player, course, t.crng, e.weekForm - shift, habits.streak);
+      const ctx: RoundContext = { player: e.player, course, weather: w, wave, round, shotsBehind, weekForm: e.weekForm, rng: t.crng, ...where(e), ...eventFields(t.config, e.player.id) };
+      const dayForm = roundForm(ctx);
       t.current = { holes: [], wave, shotsBehind, ctx, dayForm, state: { lastOverPar: 0 } };
       continue;
     }
-    const r = simulateRound({ player: e.player, course, weather: w, wave, round, shotsBehind, weekForm: e.weekForm, rng: t.rng });
+    const r = simulateRound({ player: e.player, course, weather: w, wave, round, shotsBehind, weekForm: e.weekForm, rng: t.rng, ...where(e), ...eventFields(t.config, e.player.id) });
     e.rounds.push(r.strokes);
     e.holes.push(r.holes);
     e.waves.push(wave);
@@ -488,7 +516,7 @@ export function finishLive(t: LiveTournament): TournamentResult {
     startLiveRound(t);
     autoFinishRound(t);
   }
-  const playoff = runPlayoff(t.entries, t.config.course, t.weather[3]!, t.rng);
+  const playoff = runPlayoff(t.entries, t.config.course, t.weather[3]!, t.rng, t.config);
   t.done = true;
   t.result = {
     name: t.config.name,

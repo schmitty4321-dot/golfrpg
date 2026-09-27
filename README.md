@@ -183,6 +183,15 @@ You make the calls at the key moments; on the other holes he plays his own game.
   from his own, so your calls never change anyone else's scores. The week is recorded once every
   event is finished. Leaving the event screen plays the rest automatically.
 
+### Player traits
+
+Every player has one to three of 100 traits (`src/engine/traits.ts`), rolled once from who he is (a Links Lifer is likelier from Scotland, a Sand Saver from a good bunker player) and kept in the save. Rarity weights are 60% common, 28% uncommon, 10% rare and 2% legendary, and clashing traits (Loyal and Mercenary, say) never go together.
+
+- **On the course** (shot-making, short game, mental, venue, legendary): small edges in the hole and round simulation, usually 0.05-0.4 strokes and only in the situation named: par 3s, bunkers, the rough, majors, Sunday in contention, rain, a links course, the hole after a double bogey. Some change what hole-by-hole calls do (a Driver Addict only half lays up). Because traits help the average player about 0.1 a round, every round gives that back, so a field still scores what the courses are calibrated to.
+- **Off the course** (`src/season/traits.ts`): fatigue and travel, injuries, development (Late Bloomer, Plateau, Sponge...), mood (Diva, Homesick, Jealous Rival...), contract talks (Loyal, Hard Bargainer...) and sponsor offers (Sponsor Magnet, Box Office...).
+- **They can change**: a season with a mental coach rated 14+ cures the chipping yips, a temper or major nerves; a first major win brings Major Mindset; the odd veteran's putting stroke goes.
+- **Scouting**: you see all of a client's traits; for anyone else, a report at accuracy x spots each trait with chance x.
+
 ### Round stats and tendencies
 
 Each round on the event screen shows your client's stats in the style of the tour's stats pages, each with
