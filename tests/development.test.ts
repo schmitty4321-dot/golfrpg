@@ -19,6 +19,7 @@ import {
   serializeWorld,
   SAVE_VERSION,
   startRebuild,
+  staggeredProgress,
   abandonRebuild,
   weeklyStaffCost,
   finishSeason,
@@ -85,6 +86,32 @@ describe("development", () => {
   it("never pushes an attribute past 20 or far past the ceiling", () => {
     const wp = weeks(person(18, 17, 18.5), 400, inputs({ plan: { focus: "longGame", intensity: "heavy" } }));
     for (const v of Object.values(wp.player.attributes)) expect(v).toBeLessThanOrEqual(20);
+  });
+
+  it("starts each skill part-way to its next point, the same way every time", () => {
+    const p = flatPlayer("stagger", 10);
+    const progress = staggeredProgress(p);
+    expect(staggeredProgress(p)).toEqual(progress);
+    const values = Object.values(progress) as number[];
+    expect(values.length).toBeGreaterThan(20);
+    for (const v of values) expect(Math.abs(v)).toBeLessThanOrEqual(0.5);
+    expect(new Set(values).size).toBeGreaterThan(values.length / 2);
+    expect(progress.professionalism).toBeUndefined();
+  });
+
+  it("spreads a young player's changes through the season instead of bunching them", () => {
+    // From a common start every skill ticks over in the same few weeks; staggered, they don't.
+    const busiest = (progress: WorldPlayer["development"]["progress"]) => {
+      const wp = person(19, 9, 15);
+      wp.development.progress = { ...progress };
+      const rng = createRng(3);
+      let most = 0;
+      for (let k = 0; k < 40; k++) most = Math.max(most, developWeek(wp, inputs(), rng).length);
+      return most;
+    };
+    const staggered = busiest(staggeredProgress(person(19, 9, 15).player));
+    expect(staggered).toBeLessThanOrEqual(5);
+    expect(staggered).toBeLessThan(busiest({}));
   });
 
   it("reports what changed this season", () => {

@@ -15,6 +15,7 @@ import {
 } from "../src/engine";
 import {
   createWorld,
+  overall,
   deserializeWorld,
   developWeek,
   extensionBias,
@@ -168,10 +169,14 @@ describe("season effects", () => {
 
   it("a Plateau player stops growing", () => {
     const w = fresh();
-    const young = Object.values(w.players).find((x) => x.player.age >= 25 && x.player.age <= 27 && x.development.potential > 14)!;
+    // Someone with plenty of room below the ceiling, so the trait's cap is what makes the difference.
+    const young = Object.values(w.players).find((x) => x.player.age >= 25 && x.player.age <= 27 && x.development.potential > 14 && overall(x.player) <= 14)!;
     const grow = (traits: string[]) => {
       const x = deserializeWorld(serializeWorld(w)).players[young.player.id]!;
       x.player.traits = traits;
+      // Young enough to still be growing, whoever the world happened to generate.
+      x.player.age = 25;
+      x.player.peakAge = 31;
       x.development.potential = 17;
       const rng = createRng(3);
       let gained = 0;

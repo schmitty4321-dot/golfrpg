@@ -3,6 +3,8 @@ import {
   TOUR_AVERAGE,
   VISIBLE_ATTRIBUTES,
   clamp,
+  createRng,
+  traceSeed,
   type AttributeKey,
   type Attributes,
   type Player,
@@ -85,7 +87,20 @@ export function attributePotential(p: Player, key: AttributeKey, potential: numb
 export const MAX_POTENTIAL = 17;
 
 export function newDevelopment(p: Player, rng: Rng): Development {
-  return { potential: initialPotential(p, rng), progress: {}, seasonStart: { ...p.attributes } };
+  return { potential: initialPotential(p, rng), progress: staggeredProgress(p), seasonStart: { ...p.attributes } };
+}
+
+/**
+ * Starts each attribute part-way to its next point. Growth is nearly the same
+ * for every attribute, so from a common start they all tick over in the same
+ * few weeks: nothing for half a season, then a burst. Drawn from the player's
+ * own stream so the world's shared one is untouched.
+ */
+export function staggeredProgress(p: Player): Development["progress"] {
+  const rng = createRng(traceSeed("progress", p.id, p.name));
+  const progress: Development["progress"] = {};
+  for (const key of TRAINABLE) if (!FIXED.includes(key)) progress[key] = Math.round((rng.next() - 0.5) * 1000) / 1000 || 0;
+  return progress;
 }
 
 /** Growth multiplier from age: fast when young, flat around the peak. */

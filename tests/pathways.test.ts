@@ -165,7 +165,10 @@ describe("history", () => {
   it("elects retiring greats to the Hall of Fame", () => {
     const w = fresh();
     const great = Object.values(w.players).find((wp) => wp.career.status === "exempt")!;
+    // Established pros start with a career behind them; clear it so only wins count here.
     great.career.careerWins = 1;
+    great.career.careerMajors = 0;
+    great.career.pointsTitles = 0;
     expect(considerForHallOfFame(w, great)).toBeNull();
     great.career.careerWins = HALL_OF_FAME_BAR;
     expect(considerForHallOfFame(w, great)?.name).toBe(great.player.name);

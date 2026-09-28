@@ -32,6 +32,7 @@ npm test               # unit tests
 npm run typecheck
 npm run demo -- 42     # simulate one tournament (seed 42) and print the leaderboard
 npm run calibrate      # 200 events per course vs. real tour reference numbers
+npm run worldcheck -- 12 5   # 12 seasons on seed 5: tour strength, ages, injuries, winning scores
 ```
 
 ## Status
@@ -50,7 +51,9 @@ npm run calibrate      # 200 events per course vs. real tour reference numbers
 - **Growth:** every player has a hidden ceiling (young players have room to grow). Each week,
   attributes grow towards it, faster when young, with a strong work ethic (professionalism,
   coachability), good coaching and a training focus. Changes build up as progress and tick over a
-  point at a time, and the Player and Training tabs show what moved this season.
+  point at a time, and the Player and Training tabs show what moved this season. Each skill starts
+  part-way to its next point, so a young player's gains come a point or two at a time through the
+  season rather than in one burst.
 - **Ageing:** after his peak (around 31, varies by player), distance, stamina and flexibility fade
   first, then the short putts. Course management, composure and nerve keep improving into the
   forties. A fitness trainer and a fitness focus slow the decline.
@@ -65,8 +68,10 @@ npm run calibrate      # 200 events per course vs. real tour reference numbers
 - **Injuries:** weekly risk from injury proneness, competing, fatigue and heavy training. They
   last 1-14 weeks, and long ones can cost distance. Injured players withdraw, and majors take the next man in.
 - **The world:** computer players develop and age by the same rules. Old players retire, and
-  new prospects arrive. `npm run worldcheck` plays many seasons to confirm the tour stays stable
-  (overall strength plateaus, average age about 33-34).
+  new prospects arrive. `npm run worldcheck -- [seasons] [seed]` plays many seasons to confirm the
+  tour stays stable (overall strength plateaus, average age about 33-34) and that scoring doesn't
+  drift: it prints the main tour's average winning score and the field's average to par per round.
+  Check a few seeds.
 - Saves from before this update are upgraded automatically when loaded.
 - **Step 4 (done): the agency** (`src/season/agency.ts`, `sponsors.ts`, `scouting.ts`, and the Agency and Scouting tabs).
 
