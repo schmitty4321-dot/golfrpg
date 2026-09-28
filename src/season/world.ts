@@ -14,6 +14,7 @@ import {
 } from "../engine";
 import { DEV_GRADUATES, buildTour, seasonWeeks } from "./calendar";
 import { newDevelopment, overall } from "./development";
+import { asSetUp, nextCourseSetup } from "./courseSetup";
 import { generateCoaches, offseason, OFFSEASON_WEEKS } from "./staff";
 import { STANDARD_COMMISSION, addReputation, agencySeasonEnd, clients, assignRivalAgents, emptyFinances, newAgency, newManagement } from "./agency";
 import { generateScouts } from "./scouting";
@@ -336,10 +337,12 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
     addReputation(world.agency, r <= 10 ? 8 : r <= 30 ? 5 : r <= FULL_CARD ? 2.5 : r <= CONDITIONAL_CARD ? 1 : 0);
   }
   const ledger = { ...world.agency.ledger };
+  // The winter's course setup: next season's courses play to their real averages again.
+  const courseSetup = nextCourseSetup(world);
   for (const wp of Object.values(world.players)) expireSponsors(world, wp);
   const departures = world.clientIds.length ? agencySeasonEnd(world, rng) : [];
   const summary: SeasonSummary | null = world.clientIds.length || clientSummaries.length
-    ? { ...seasonHeadlines(world), clients: clientSummaries, agency: { reputationBefore: repBefore, reputationAfter: world.agency.reputation, ledger, departures } }
+    ? { ...seasonHeadlines(world), clients: clientSummaries, agency: { reputationBefore: repBefore, reputationAfter: world.agency.reputation, ledger, departures }, courseSetup }
     : null;
   if (summary) world.pastSeasons.push(summary);
 
@@ -543,7 +546,7 @@ export function runQSchool(world: World, rng: Rng, rankOf: Map<string, number>, 
   for (const id of devOrder.slice(DEV_GRADUATES, 100)) add(id);
   for (const wp of Object.values(world.players).sort((a, b) => a.player.id.localeCompare(b.player.id))) if (rng.chance(0.3)) add(wp.player.id);
   if (picked.size < 10) return [];
-  const course = getCourse(QSCHOOL_COURSE);
+  const course = asSetUp(world, getCourse(QSCHOOL_COURSE));
   const result = simulateTournament({
     name: "Q-School",
     course,

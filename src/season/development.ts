@@ -194,8 +194,9 @@ export function developWeek(wp: WorldPlayer, inputs: DevelopmentInputs, rng: Rng
       else if (key === "shortPutts") delta -= 0.0009 * yearsPast;
       else if (!EXPERIENCE.includes(key)) delta -= 0.0006 * yearsPast;
     }
-    // Experience: the mind keeps improving into the forties, faster when competing.
-    if (EXPERIENCE.includes(key) && p.age < 46) delta += 0.003 * (inputs.competed ? 1.3 : 1) * (inputs.competed && has(wp, "tournament-learner") ? 2 : 1);
+    // Experience: the mind keeps improving into the forties, faster when competing,
+    // up to his ceiling (without one, the whole tour drifts to 16s in composure).
+    if (EXPERIENCE.includes(key) && p.age < 46 && a[key] < Math.ceil(dev.potential)) delta += 0.0015 * (inputs.competed ? 1.3 : 1) * (inputs.competed && has(wp, "tournament-learner") ? 2 : 1);
 
     delta += rng.normal(0, 0.01);
     const cap = Math.min(20, Math.ceil(dev.potential + STRENGTH_ROOM));

@@ -152,8 +152,9 @@ main { max-width: 1240px; margin: 0 auto; padding: 20px; display: grid; gap: 16p
 .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; box-shadow: var(--shadow); min-width: 0; }
 .panel-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
 .grid-2 { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.grid-2.even { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 .stack { display: grid; gap: 16px; min-width: 0; }
-@media (max-width: 900px) { .grid-2 { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 900px) { .grid-2, .grid-2.even { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 600px) { main { padding: 12px 16px; } .topbar { padding: 0 12px; gap: 8px; } }
 
 .btn {

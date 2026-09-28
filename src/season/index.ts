@@ -21,3 +21,4 @@ export * from "./practice";
 export * from "./team";
 export * from "./planner";
 export * from "./goals";
+export * from "./courseSetup";

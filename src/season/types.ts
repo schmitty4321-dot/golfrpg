@@ -333,6 +333,8 @@ export interface SeasonSummary {
   majors: { event: string; winner: string; toPar: number }[];
   clients: ClientSeasonSummary[];
   agency: { reputationBefore: number; reputationAfter: number; ledger: AgencyLedger; departures: string[] };
+  /** The course setup before and after the winter's change (strokes a round). */
+  courseSetup?: { from: number; to: number };
 }
 
 /** One entry in a record book. */
@@ -408,6 +410,10 @@ export interface World {
   /** Caddies available to hire (older saves get them on load). */
   caddies?: Caddie[];
   history: History;
+  /** Strokes a round the tour's course setup adds this season (see courseSetup.ts). Missing in older saves: 0. */
+  courseSetup?: number;
+  /** This season's scoring on real courses against their real averages, for next winter's setup. */
+  setupTally?: { strokes: number; rounds: number };
   /** Set once anything has been changed in the editor, like an "edited" save in FM. */
   edited?: boolean;
 }

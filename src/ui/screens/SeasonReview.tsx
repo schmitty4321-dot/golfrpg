@@ -1,4 +1,4 @@
-import { STATUS_LABELS, type SeasonSummary, type World } from "../../season";
+import { STATUS_LABELS, setupNews, type SeasonSummary, type World } from "../../season";
 import { money, plural, toPar } from "../format";
 
 export function SeasonReview({ world, summary, onClose }: { world: World; summary: SeasonSummary; onClose: () => void }) {
@@ -6,6 +6,7 @@ export function SeasonReview({ world, summary, onClose }: { world: World; summar
   const mine = (id: string) => world.clientIds.includes(id) || summary.clients.some((c) => c.id === id);
   const l = summary.agency.ledger;
   const profit = l.prizeCommission + l.endorsementCommission - l.office - l.scouts;
+  const setup = summary.courseSetup ? setupNews(summary.courseSetup) : null;
   return (
     <div className="overlay" role="dialog" aria-modal="true" aria-labelledby="review-title">
       <div className="modal" style={{ maxWidth: 860 }}>
@@ -14,6 +15,7 @@ export function SeasonReview({ world, summary, onClose }: { world: World; summar
           <p className="secondary" style={{ marginBottom: 0 }}>
             Agency profit {profit < 0 ? `−${money(-profit)}` : money(profit)} · reputation {Math.round(summary.agency.reputationBefore)} → {Math.round(summary.agency.reputationAfter)}
           </p>
+          {setup && <p className="small secondary" style={{ margin: "6px 0 0" }}>{setup}</p>}
         </div>
         {summary.clients.length > 0 && (
           <div className="table-wrap">
@@ -42,7 +44,7 @@ export function SeasonReview({ world, summary, onClose }: { world: World; summar
             <strong>Leaving the agency:</strong> {summary.agency.departures.join(", ")}. Their contracts ran out without an extension.
           </div>
         )}
-        <div className="grid-2" style={{ gridTemplateColumns: "1fr 1fr" }}>
+        <div className="grid-2 even">
           <div>
             <h3 style={{ marginBottom: 6 }}>Points leaders</h3>
             <table>
@@ -65,7 +67,7 @@ export function SeasonReview({ world, summary, onClose }: { world: World; summar
           </div>
         </div>
         {rec && (rec.graduates.length > 0 || rec.qSchool.length > 0) && (
-          <div className="grid-2" style={{ gridTemplateColumns: "1fr 1fr" }}>
+          <div className="grid-2 even">
             <div>
               <h3 style={{ marginBottom: 6 }}>Q-School</h3>
               <table>

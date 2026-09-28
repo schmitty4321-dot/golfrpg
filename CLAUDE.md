@@ -46,6 +46,9 @@ Live site: https://schmitty4321-dot.github.io/golfrpg/ (GitHub Pages; every push
   traits give back `TRAIT_BALANCE` each round, familiarity is measured against the field's average that
   week, a hole's four pins average out, and the field plays tour-standard clubs with an ordinary caddie.
   After a change to scoring, measure the field's average to par before and after.
+- **Course setup holds the real averages over time** (`courseSetup.ts`): each winter every course's setup
+  moves by however far the season scored from the real averages. It corrects slow drift in player
+  strength, not a scoring change you make now: measure those with the setup held fixed.
 - **Effects are small and situational**: typically 0.05-0.4 strokes a round, only where they apply.
 - **Old saves must keep loading.** New fields are optional and filled in on load (`ensureTraits`,
   `ensureFamiliarity`, `ensureGoals`, caddies in `save.ts`); bump `SAVE_VERSION` only for real migrations.

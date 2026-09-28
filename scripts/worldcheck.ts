@@ -3,17 +3,19 @@
  * move, to check that development, ageing and promotion keep the world stable.
  * Also prints the main tour's scoring, so drift that would upset the course
  * calibration shows up: average winning score, and the field's average to par
- * per round. Try a few seeds; one can look stable by luck.
+ * per round. "vs real" is the field against the real hole averages on the real
+ * courses (the course setup holds it near 0), and "Setup" is the setup in force.
+ * Try a few seeds; one can look stable by luck.
  *   npm run worldcheck -- [seasons] [seed]
  */
-import { createWorld, seasonWeeks, finishSeason, overall, playWeek } from "../src/season";
+import { createWorld, seasonWeeks, seasonVsReal, finishSeason, overall, playWeek } from "../src/season";
 
 const seasons = Number(process.argv[2] ?? 12);
 const seed = Number(process.argv[3] ?? 5);
 const w = createWorld({ seed, scenario: "rookie" });
 console.log(`Seed ${seed}`);
 const avg = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0).toFixed(2);
-console.log("Season  Exempt  Top-10  Age    Pros  Amateurs  Dev field  Grads  Injured/wk  Win    Rd/par  ms");
+console.log("Season  Exempt  Top-10  Age    Pros  Amateurs  Dev field  Grads  Injured/wk  Win    Rd/par  vs real  Setup  ms");
 for (let s = 0; s < seasons; s++) {
   const t = Date.now();
   const ps = Object.values(w.players);
@@ -41,10 +43,12 @@ for (let s = 0; s < seasons; s++) {
     }
     injured += Object.values(w.players).filter((p) => p.injury).length;
   }
+  const vsReal = seasonVsReal(w) ?? 0;
+  const setup = w.courseSetup ?? 0;
   finishSeason(w);
   const rec = w.history.seasons.find((x) => x.season === w.season - 1)!;
   console.log(
-    `${String(w.season - 1).padEnd(8)}${avg(exempt).padEnd(8)}${avg(top).padEnd(8)}${avg(pros.map((p) => p.player.age)).padEnd(7)}${String(pros.length).padEnd(6)}${String(ps.length - pros.length).padEnd(10)}${avg(devFields).padEnd(11)}${String(rec.graduates.length).padEnd(7)}${(injured / seasonWeeks(w)).toFixed(1).padEnd(12)}${avg(winning).padEnd(7)}${(parStrokes / Math.max(1, parRounds)).toFixed(2).padEnd(8)}${Date.now() - t}`,
+    `${String(w.season - 1).padEnd(8)}${avg(exempt).padEnd(8)}${avg(top).padEnd(8)}${avg(pros.map((p) => p.player.age)).padEnd(7)}${String(pros.length).padEnd(6)}${String(ps.length - pros.length).padEnd(10)}${avg(devFields).padEnd(11)}${String(rec.graduates.length).padEnd(7)}${(injured / seasonWeeks(w)).toFixed(1).padEnd(12)}${avg(winning).padEnd(7)}${(parStrokes / Math.max(1, parRounds)).toFixed(2).padEnd(8)}${vsReal.toFixed(2).padEnd(9)}${setup.toFixed(2).padEnd(7)}${Date.now() - t}`,
   );
 }
 const r = w.history.records;

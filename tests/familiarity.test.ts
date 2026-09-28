@@ -23,7 +23,12 @@ describe("familiarity score", () => {
     const before = new Map(Object.values(w.players).map((p) => [p.player.id, familiarityWith(p, course)]));
     const report = playWeek(w);
     const field = report.results[0]!.result.leaderboard.map((r) => r.player.id);
-    for (const id of field) expect(familiarityWith(w.players[id]!, course)).toBeGreaterThan(before.get(id)!);
+    for (const id of field) {
+      // Familiarity tops out at 100: anyone already there stays there.
+      const was = before.get(id)!;
+      if (was >= 100) expect(familiarityWith(w.players[id]!, course)).toBe(100);
+      else expect(familiarityWith(w.players[id]!, course)).toBeGreaterThan(was);
+    }
     const someone = w.players[field[0]!]!;
     const other = Object.keys(someone.career.familiarity!).find((c) => c !== course && someone.career.familiarity![c]! > 5)!;
     const was = someone.career.familiarity![other]!;

@@ -114,6 +114,16 @@ describe("development", () => {
     expect(staggered).toBeLessThan(busiest({}));
   });
 
+  it("grows the mental game with experience, but only up to his ceiling", () => {
+    const competing = inputs({ competed: true });
+    const capped = weeks(person(30, 12, 12), 200, competing);
+    for (const k of ["courseManagement", "composure", "sundayNerves", "bounceBack", "focus"] as const) expect(capped.player.attributes[k]).toBeLessThanOrEqual(12);
+    const room = person(30, 12, 15);
+    room.player.attributes.composure = 10;
+    weeks(room, 200, competing);
+    expect(room.player.attributes.composure).toBeGreaterThan(10);
+  });
+
   it("reports what changed this season", () => {
     const wp = weeks(person(19, 9, 15), 100, inputs());
     const change = seasonChange(wp);

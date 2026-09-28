@@ -47,6 +47,8 @@ export function holeBaseline(hole: Hole, course: Course, weather: RoundWeather):
   mean += weather.rain ? -0.06 : (course.firmness - 0.5) * 0.08;
   // Real holes carry a correction so they play to their real scoring average.
   mean += hole.adjust ?? 0;
+  // The season's course setup, spread evenly over the holes.
+  mean += (course.setup ?? 0) / course.holes.length;
   return mean;
 }
 

@@ -10,6 +10,7 @@ import {
   type Rng,
 } from "../engine";
 import { finaleWeek, lastRegularWeek } from "./calendar";
+import { asSetUp } from "./courseSetup";
 import { pointsList, rankMap } from "./points";
 import type { EventTier, TourEvent, TourStatus, World, WorldPlayer } from "./types";
 
@@ -278,7 +279,7 @@ export function buildFields(world: World, plan: WeekPlan): FieldResult[] {
 /** One round; the lowest scores take the open spots (ties broken at random). */
 function mondayQualifier(world: World, event: TourEvent, pool: string[], spots: number, rng: Rng): string[] {
   if (pool.length === 0 || spots <= 0) return [];
-  const course = courseById(world, event.courseId);
+  const course = asSetUp(world, courseById(world, event.courseId));
   const weather = drawWeather(course, rng);
   const scores = pool.map((id) => {
     const r = simulateRound({ player: world.players[id]!.player, course, weather, wave: "AM", round: 1, shotsBehind: null, rng });

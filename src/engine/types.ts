@@ -82,6 +82,12 @@ export interface Course {
   greenSpeed: number;
   /** 0-1: how penal the rough is. */
   roughPenalty: number;
+  /**
+   * Strokes a round the tour's setup adds to this course (longer tees, thicker
+   * rough, tucked pins), spread evenly over the holes. Set each season so real
+   * courses keep playing to their real averages as the players improve.
+   */
+  setup?: number;
   /** 0-1: typical wind at this venue. */
   windiness: number;
   /** 0-1: green firmness in dry weather. */

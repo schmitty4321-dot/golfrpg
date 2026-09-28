@@ -1,6 +1,7 @@
 import { recordEventStats } from "./stats";
 import { clamp, createRng, expectedStrokesGained, simulateTournament, startLive, totalSg, type LiveTournament, type TournamentConfig, type TournamentResult } from "../engine";
 import { seasonWeeks, majorSetup } from "./calendar";
+import { asSetUp, tallyRealScoring } from "./courseSetup";
 import { buildFields, courseById, mixSeed, planWeek, weekContext, type AiChoice, type FieldResult } from "./entries";
 import { owgrPointsFor, owgrWinnerPoints, seasonPointsFor, tieCounts } from "./points";
 import { OFFICE_COST, addReputation, clients, reputationFor, updateHappiness } from "./agency";
@@ -133,7 +134,7 @@ function tournamentConfig(world: World, f: FieldResult, i: number, practice: Map
   for (const c of all) c.fieldFamiliarity = fieldFamiliarity;
   return {
     name: f.event.name,
-    course: f.event.tier === "major" ? majorSetup(venue) : venue,
+    course: asSetUp(world, f.event.tier === "major" ? majorSetup(venue) : venue),
     field: f.field.map((id) => world.players[id]!.player),
     purse: f.event.purse,
     seed: mixSeed(world.seed, world.season, world.week, 10 + i),
@@ -192,6 +193,8 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
     const fieldExpected = [...expected.values()].reduce((s, x) => s + x, 0) / players.length;
 
     const result = played[f.event.id] ?? simulateTournament(config);
+    // Main-tour scoring on real courses sets next winter's course setup.
+    if (f.event.tier !== "dev") tallyRealScoring(world, course, result);
     const ties = tieCounts(result);
     const winnerOwgr = owgrWinnerPoints(f.event.tier, f.field.map((id) => ctxBefore.owgrRank.get(id) ?? 9999));
 

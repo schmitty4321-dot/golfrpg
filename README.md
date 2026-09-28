@@ -56,7 +56,7 @@ npm run worldcheck -- 12 5   # 12 seasons on seed 5: tour strength, ages, injuri
   season rather than in one burst.
 - **Ageing:** after his peak (around 31, varies by player), distance, stamina and flexibility fade
   first, then the short putts. Course management, composure and nerve keep improving into the
-  forties. A fitness trainer and a fitness focus slow the decline.
+  forties, up to his ceiling. A fitness trainer and a fitness focus slow the decline.
 - **Training plan:** a focus (balanced, long game, approach, short game, putting, mental, fitness)
   and an intensity. Heavy training is faster, but tiring and doubles the injury risk.
 - **Coaching staff:** a swing coach, short-game coach, putting coach, mental coach and fitness
@@ -345,7 +345,18 @@ credited on each photo.
 
 The hole-by-hole scoring mix matches the real tour closely. Per round, the game makes 3.89
 birdies (real 3.81), 2.66 bogeys (real 2.53), 0.26 doubles (real 0.27) and 0.10 eagles (real
-0.10). Winning scores still run about 3 shots lower than the real ones.
+0.10). Holding the courses to their real averages (below) moved winning scores about 0.8 shots
+closer to the real ones; they still run roughly 2 shots lower.
+
+**Course setup.** Players improve over the years, so a fixed course would play easier every season.
+Like the real tour lengthening courses and growing the rough, the game sets the courses up tougher
+(or easier) each winter by however far the season's scoring on the real courses was from the real
+averages, so they keep playing to those averages. It is the same for the whole field, so nobody's
+standing changes; the season review says when it moves. A new career starts with the setup its
+warm-up season called for. Over 12 seasons on three worlds (`npm run worldcheck -- 12 <seed>`), the
+field stays within about 0.1 a round of the real averages while the setup settles 0.5 to 0.7 strokes
+a round tougher, and winning scores hold around 20 under instead of sliding from 21 to 23 under
+(`src/season/courseSetup.ts`).
 
 Careers started before this change switch to the real tour at the start of their next season.
 
