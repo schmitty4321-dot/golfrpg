@@ -4,6 +4,7 @@ import { statsRows, type SeasonStats, type World } from "../../season";
 import { PlayerProfile } from "../components/PlayerProfile";
 import { money } from "../format";
 import type { Game } from "../useGame";
+import { Nation } from "../components/Flag";
 
 type Group = "results" | "sg" | "tee" | "approach" | "around" | "putting" | "scoring";
 
@@ -182,7 +183,7 @@ export function Stats({ world, game }: { world: World; game: Game }) {
                     <tr key={r.id} className={world.clientIds.includes(r.id) ? "me" : ""}>
                       <td className="num muted">{i + 1}</td>
                       <td className="nowrap">
-                        <button className="linkish" onClick={() => setProfile(r.id)}>{wp.player.name}</button> <span className="muted small">{wp.player.nationality}</span>
+                        <button className="linkish" onClick={() => setProfile(r.id)}>{wp.player.name}</button> <Nation nationality={wp.player.nationality} />
                       </td>
                       {columns.map((c) => {
                         const v = c.value(r.stats);

@@ -1,7 +1,7 @@
-import { traitsOf, type AttributeKey } from "../../engine";
+import { nationInfo, traitsOf, type AttributeKey } from "../../engine";
 import { STATUS_LABELS, abilityView, attributePotential, seasonChange, type World } from "../../season";
 import { AbilityBars } from "../components/AbilityBars";
-import { Portrait } from "../components/Portrait";
+import { PortraitCard } from "../components/Portrait";
 import { StatBoxes, StatLegend } from "../components/StatBoxes";
 import { TraitList } from "../components/Traits";
 import { FamiliarityPanel } from "../components/Familiarity";
@@ -19,10 +19,10 @@ export function PlayerScreen({ world, clientId }: { world: World; clientId: stri
     <main>
       <section className="panel">
         <div className="panel-head client-head">
-          <Portrait playerId={clientId} size={64} title={p.name} />
+          <PortraitCard player={p} size={64} title={p.name} />
           <div style={{ flex: 1 }}>
             <h1 style={{ fontSize: 22 }}>{p.name}</h1>
-            <div className="secondary small">{p.age} · {p.nationality} · {STATUS_LABELS[c.status]}</div>
+            <div className="secondary small">{p.age} · {nationInfo(p.nationality).name} · {STATUS_LABELS[c.status]}</div>
           </div>
         </div>
         <div className="stat-row">

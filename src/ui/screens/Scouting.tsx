@@ -6,6 +6,7 @@ import { TraitChips } from "../components/Traits";
 import { TRAITS } from "../../engine";
 import { money } from "../format";
 import type { Game } from "../useGame";
+import { Nation } from "../components/Flag";
 
 type Filter = "all" | "approachable" | "free";
 
@@ -117,7 +118,7 @@ export function Scouting({ world, game }: { world: World; game: Game }) {
                 const queued = a.scoutingQueue.includes(id);
                 return (
                   <tr key={id}>
-                    <td><button className="linkish" onClick={() => setProfile(id)}>{wp.player.name}</button> <span className="muted small">{wp.player.nationality}</span></td>
+                    <td><button className="linkish" onClick={() => setProfile(id)}>{wp.player.name}</button> <Nation nationality={wp.player.nationality} /></td>
                     <td className="num">{wp.player.age}</td>
                     <td className="secondary small">{STATUS_LABELS[wp.career.status]}</td>
                     <td className="num">{ranks.get(id) ?? "—"}</td>

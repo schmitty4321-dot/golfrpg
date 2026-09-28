@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { RecordEntry, World } from "../../season";
 import { money, toPar } from "../format";
+import { Nation } from "../components/Flag";
 
 type View = "seasons" | "majors" | "records" | "hall";
 
@@ -130,7 +131,7 @@ function Hall({ world }: { world: World }) {
             <thead><tr><th>Player</th><th className="num">Wins</th><th className="num">Majors</th><th className="num">Titles</th><th className="num">Inducted</th></tr></thead>
             <tbody>
               {hof.map((h) => (
-                <tr key={h.playerId}><td>{h.name} <span className="muted small">{h.nationality}</span></td><td className="num">{h.wins}</td><td className="num">{h.majors}</td><td className="num">{h.pointsTitles}</td><td className="num">S{h.inducted}</td></tr>
+                <tr key={h.playerId}><td>{h.name} <Nation nationality={h.nationality} /></td><td className="num">{h.wins}</td><td className="num">{h.majors}</td><td className="num">{h.pointsTitles}</td><td className="num">S{h.inducted}</td></tr>
               ))}
             </tbody>
           </table>

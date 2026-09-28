@@ -549,7 +549,15 @@ select, input[type="text"], input[type="number"] {
   display: grid; gap: 14px; padding: 20px; border-radius: 12px; color: #fff;
   background: linear-gradient(170deg, #16261d, #2c5a3f); box-shadow: var(--shadow);
 }
-.pp-portrait { border-radius: 50%; box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25); }
+.portrait { display: block; border-radius: 14px; }
+.portrait-card { margin: 0; display: grid; gap: 6px; justify-items: center; flex-shrink: 0; }
+.portrait-card .portrait { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18); }
+.pp-card .portrait-card { justify-items: start; }
+.pp-card .portrait-card .portrait { box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.22); }
+/* A country as tour boards show it: small flag and three-letter code. */
+.nation { display: inline-flex; align-items: center; gap: 4px; vertical-align: -2px; font-size: 11px; font-weight: 650; letter-spacing: 0.04em; color: var(--text-2); white-space: nowrap; }
+.flag { display: block; flex-shrink: 0; border-radius: 2px; }
+.pp-card .nation { color: rgba(255, 255, 255, 0.88); }
 .pp-card h1 { font-size: 24px; font-weight: 800; }
 .pp-meta { color: rgba(255, 255, 255, 0.8); font-size: 13px; margin-top: 4px; }
 .pp-kv { margin: 0; display: grid; gap: 6px; }
@@ -574,7 +582,7 @@ select, input[type="text"], input[type="number"] {
 .radar-value { fill: var(--text); font-weight: 700; font-variant-numeric: tabular-nums; }
 .radar-pot-text { fill: var(--pot); }
 .client-head { align-items: center; justify-content: flex-start; }
-.client-head svg { border-radius: 50%; flex-shrink: 0; }
+
 
 .stat-boxes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 @media (min-width: 1300px) { .panel .stat-boxes { grid-template-columns: repeat(3, minmax(0, 1fr)); } }

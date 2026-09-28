@@ -1,5 +1,6 @@
 import { pointsList, rankMap, STATUS_LABELS, type World } from "../../season";
 import { formWord, money } from "../format";
+import { Nation } from "./Flag";
 
 export function ClientStrip({ world, clientId }: { world: World; clientId: string }) {
   const c = world.players[clientId]!;
@@ -13,7 +14,7 @@ export function ClientStrip({ world, clientId }: { world: World; clientId: strin
         <div>
           <h1 style={{ fontSize: 22 }}>{c.player.name}</h1>
           <div className="secondary small">
-            {c.player.age} · {c.player.nationality} · <span className="badge badge-accent">{STATUS_LABELS[c.career.status]}</span>
+            {c.player.age} · <Nation nationality={c.player.nationality} /> · <span className="badge badge-accent">{STATUS_LABELS[c.career.status]}</span>
           </div>
         </div>
         <div className="secondary small">

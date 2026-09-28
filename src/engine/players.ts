@@ -1,6 +1,7 @@
 import { ALL_ATTRIBUTES, TOUR_AVERAGE, type AttributeKey, type Attributes } from "./attributes";
 import { clamp, type Rng } from "./rng";
-import type { CourseStyle, Grass, Player } from "./types";
+import { NATIONS, nationFromRoll } from "./nations";
+import type { CourseStyle, Player } from "./types";
 
 /** Where a generated player sits in the golf world. */
 export type PlayerTier = "elite" | "tour" | "fringe" | "college" | "junior" | "veteran";
@@ -28,37 +29,6 @@ const ARCHETYPES: Record<string, Partial<Record<AttributeKey, number>>> = {
 
 /** Attributes that aren't really golf skill, so they don't follow talent. */
 const PERSONALITY: readonly AttributeKey[] = ["aggression", "injuryProneness", "professionalism", "ambition", "coachability"];
-
-const NATIONS: Record<string, { first: string[]; last: string[]; grass: Grass[] }> = {
-  USA: {
-    first: ["Tyler", "Brooks", "Cole", "Mason", "Wyatt", "Grant", "Luke", "Carter", "Drew", "Jake", "Harris", "Reid"],
-    last: ["Whitaker", "Dunlap", "Mercer", "Holloway", "Crane", "Sutter", "Bishop", "Langford", "Pruitt", "Keane", "Vance", "Rhodes"],
-    grass: ["bermuda", "bentgrass", "poa"],
-  },
-  England: {
-    first: ["Oliver", "Harry", "Tom", "Callum", "James", "Freddie", "Alfie", "George", "Ben", "Sam"],
-    last: ["Ashworth", "Pemberton", "Fairclough", "Hartley", "Wickham", "Staunton", "Cartwright", "Blakemore", "Thornton", "Radcliffe"],
-    grass: ["bentgrass"],
-  },
-  Scotland: {
-    first: ["Euan", "Fraser", "Callum", "Ross", "Hamish", "Angus", "Craig", "Gregor"],
-    last: ["MacLeod", "Drummond", "Buchanan", "Kerr", "Munro", "Sinclair", "Galbraith", "Lennox"],
-    grass: ["bentgrass"],
-  },
-  Ireland: {
-    first: ["Cian", "Seamus", "Niall", "Rory", "Eoin", "Darragh", "Conor", "Ronan"],
-    last: ["Keating", "Brannigan", "O'Rourke", "Dunne", "Mulcahy", "Fitzgerald", "Hennessy", "Coakley"],
-    grass: ["bentgrass"],
-  },
-  Sweden: { first: ["Axel", "Linus", "Oskar", "Viktor", "Elias"], last: ["Lindqvist", "Berglund", "Ekholm", "Sandberg", "Nyström"], grass: ["bentgrass"] },
-  Spain: { first: ["Álvaro", "Pablo", "Sergio", "Iker", "Mateo"], last: ["Ferrer", "Salazar", "Ortega", "Villanueva", "Castaño"], grass: ["bermuda", "bentgrass"] },
-  "South Africa": { first: ["Dewald", "Thabo", "Ruan", "Jaco", "Sipho"], last: ["van Wyk", "Botha", "Nkosi", "du Plessis", "Coetzee"], grass: ["bermuda"] },
-  Australia: { first: ["Lachlan", "Bailey", "Hamish", "Jai", "Kade"], last: ["Hargreaves", "Pickering", "Doyle", "Mackintosh", "Tuckwell"], grass: ["bentgrass", "bermuda"] },
-  Japan: { first: ["Haruto", "Ren", "Sota", "Yuki", "Kaito"], last: ["Takeda", "Moriyama", "Hoshino", "Kuroda", "Ishikawa"], grass: ["bentgrass"] },
-  Korea: { first: ["Min-jun", "Ji-ho", "Seo-jun", "Hyun-woo", "Do-yun"], last: ["Kang", "Yoon", "Jang", "Seo", "Han"], grass: ["bentgrass"] },
-  Argentina: { first: ["Tomás", "Joaquín", "Facundo", "Santiago"], last: ["Echeverría", "Sosa", "Bustos", "Arriola"], grass: ["bermuda"] },
-  Canada: { first: ["Liam", "Carson", "Brody", "Nolan"], last: ["Tremblay", "MacPhail", "Gagnon", "Bouchard"], grass: ["bentgrass", "poa"] },
-};
 
 let nextId = 1;
 
@@ -94,7 +64,8 @@ export function generatePlayer(rng: Rng, opts: GenerateOptions): Player {
   // Capped so no generated player is untouchable: the very best are +3 a round, not +4.
   const talent = Math.min(16.5, rng.normal(tier.talent[0], tier.talent[1]));
   const archetype = ARCHETYPES[opts.archetype ?? rng.pick(Object.keys(ARCHETYPES))] ?? {};
-  const nationality = opts.nationality ?? rng.pick(Object.keys(NATIONS));
+  // Weighted like the real tour's membership (one draw, as a plain pick was).
+  const nationality = opts.nationality ?? nationFromRoll(rng.next()).key;
   const nation = NATIONS[nationality] ?? NATIONS.USA!;
 
   const attributes = {} as Attributes;
@@ -117,7 +88,7 @@ export function generatePlayer(rng: Rng, opts: GenerateOptions): Player {
   for (const s of ["links", "parkland", "desert", "resort"] as CourseStyle[]) {
     styleComfort[s] = Math.round(clamp(rng.normal(TOUR_AVERAGE, 2.5), 1, 20));
   }
-  if (["Scotland", "Ireland", "England"].includes(nationality)) styleComfort.links = Math.min(20, styleComfort.links + 3);
+  if (nation.links) styleComfort.links = Math.min(20, styleComfort.links + 3);
 
   return {
     id: `p${nextId++}`,

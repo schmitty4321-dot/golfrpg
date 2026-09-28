@@ -5,6 +5,7 @@
  * the roll, and the effects that belong to the golf itself; the season code
  * applies the rest (mood, contracts, sponsors, fitness, development).
  */
+import { NATIONS } from "./nations";
 import { createRng } from "./rng";
 import { traceSeed } from "./tracer";
 import type { Course, CourseStyle, Hole, Player, StrokesGained } from "./types";
@@ -44,15 +45,11 @@ export interface TraitDef {
 const at = (p: Player, k: keyof Player["attributes"]) => p.attributes[k];
 const hi = (v: number, t: number, w = 3) => (v >= t ? w : 0.3);
 const lo = (v: number, t: number, w = 3) => (v <= t ? w : 0.3);
-const GBI = ["England", "Scotland", "Ireland"];
+const GBI = ["England", "Scotland", "Ireland", "Northern Ireland"];
 
 /** The region a player calls home, for home-crowd and homesickness traits. */
 export function homeRegion(nationality: string): "NA" | "EU" | "ASIA" | "AUS" | null {
-  if (nationality === "USA" || nationality === "Canada") return "NA";
-  if ([...GBI, "Sweden", "Spain"].includes(nationality)) return "EU";
-  if (nationality === "Japan" || nationality === "Korea") return "ASIA";
-  if (nationality === "Australia") return "AUS";
-  return null;
+  return NATIONS[nationality]?.region ?? null;
 }
 
 export const TRAITS: readonly TraitDef[] = [

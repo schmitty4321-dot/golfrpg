@@ -188,6 +188,25 @@ You make the calls at the key moments; on the other holes he plays his own game.
   from his own, so your calls never change anyone else's scores. The week is recorded once every
   event is finished. Leaving the event screen plays the rest automatically.
 
+### Nationalities and player pictures
+
+- **Where players come from** follows the 2026 PGA TOUR's membership (the media guide lists 86
+  international members from 27 countries and territories): about two-thirds American, then England,
+  Canada, Sweden, Australia, Japan, South Korea, South Africa and so on down to single players from
+  Fiji or Puerto Rico (`src/engine/nations.ts`). Each country has its own names, home greens and
+  home tour region. Each year's amateurs follow the same mix, so it holds as the world turns over:
+  over nine seasons Americans stayed at 64-66% of the pros, with 21-26 countries represented.
+- **Flags:** every golfer's flag and three-letter code (USA, ENG, KOR...) show wherever his name is
+  listed: leaderboards, the points, money and world ranking lists, stats, scouting, the roster and
+  history. The flags are simple SVG drawings (flag emoji don't show on Windows).
+- **Player pictures** are illustrated head-and-shoulders portraits: most in a cap (some a visor, a
+  bucket hat or bare-headed), a polo with collar and buttons, the course's tree line behind, and the
+  flag and code underneath. Each is built from the player's id, so it never changes. Skin, hair and
+  eye colours are drawn from likelihoods that fit his country, and hair greys with age. Only colours
+  and styles vary; every face has the same proportions.
+- Careers started before this change keep their players' nationalities; new players arrive with the
+  new mix.
+
 ### Player traits
 
 Every player has one to three of 100 traits (`src/engine/traits.ts`), rolled once from who he is (a Links Lifer is likelier from Scotland, a Sand Saver from a good bunker player) and kept in the save. Rarity weights are 60% common, 28% uncommon, 10% rare and 2% legendary, and clashing traits (Loyal and Mercenary, say) never go together.

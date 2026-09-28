@@ -4,6 +4,7 @@ import { money, toPar } from "../format";
 import { Scorecard } from "./Scorecard";
 import { SgChart } from "./SgChart";
 import { ShotTracer } from "./ShotTracer";
+import { Nation } from "./Flag";
 
 interface Props {
   result: TournamentResult;
@@ -71,7 +72,7 @@ function Row({ r, me, tag, onClick }: { r: PlayerEventResult; me: boolean; tag?:
     <tr className={`clickable${me ? " me" : ""}`} onClick={onClick}>
       <td>{r.positionLabel}</td>
       <td>
-        {r.player.name} <span className="muted small">{r.player.nationality}</span>
+        {r.player.name} <Nation nationality={r.player.nationality} />
         {tag && <span className={`fam-tag${tag === "Debut" ? " fam-debut" : ""}`}>{tag}</span>}
       </td>
       <td className={`num ${r.toPar < 0 ? "good-text" : r.toPar > 0 ? "bad-text" : ""}`}>{toPar(r.toPar)}</td>

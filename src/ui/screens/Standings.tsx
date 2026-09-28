@@ -1,6 +1,7 @@
 import { Fragment, useState } from "react";
 import { CONDITIONAL_CARD, DEV_GRADUATES, FULL_CARD, PRO_AGE, amateurRanking, devPointsList, pointsList, worldRanking, STATUS_LABELS, type World } from "../../season";
 import { money } from "../format";
+import { Nation } from "../components/Flag";
 
 type View = "points" | "dev" | "amateurs" | "world" | "money";
 
@@ -51,7 +52,7 @@ function PointsTable({ world }: { world: World }) {
                 {i === CONDITIONAL_CARD && <tr className="divider"><td colSpan={7}>Conditional status line</td></tr>}
                 <tr className={world.clientIds.includes(id) ? "me" : ""}>
                   <td>{i + 1}</td>
-                  <td>{wp.player.name} <span className="muted small">{wp.player.nationality}</span></td>
+                  <td>{wp.player.name} <Nation nationality={wp.player.nationality} /></td>
                   <td className="secondary small">{STATUS_LABELS[wp.career.status]}</td>
                   <td className="num">{wp.career.seasonEvents}</td>
                   <td className="num">{wp.career.seasonWins || ""}</td>
@@ -80,7 +81,7 @@ function WorldTable({ world }: { world: World }) {
             return (
               <tr key={r.id} className={world.clientIds.includes(r.id) ? "me" : ""}>
                 <td>{i + 1}</td>
-                <td>{wp.player.name} <span className="muted small">{wp.player.nationality}</span></td>
+                <td>{wp.player.name} <Nation nationality={wp.player.nationality} /></td>
                 <td>{wp.player.age}</td>
                 <td className="num">{r.average.toFixed(2)}</td>
                 <td className="num">{r.events}</td>
@@ -135,7 +136,7 @@ function DevTable({ world }: { world: World }) {
                 {i === DEV_GRADUATES && <tr className="divider"><td colSpan={5}>Card line</td></tr>}
                 <tr className={world.clientIds.includes(id) ? "me" : ""}>
                   <td>{i + 1}</td>
-                  <td>{wp.player.name} <span className="muted small">{wp.player.nationality}</span></td>
+                  <td>{wp.player.name} <Nation nationality={wp.player.nationality} /></td>
                   <td className="num">{wp.player.age}</td>
                   <td className="num">{Math.round(wp.career.devPoints)}</td>
                   <td className="num">{money(wp.career.seasonEarnings)}</td>
@@ -166,7 +167,7 @@ function AmateurTable({ world }: { world: World }) {
                 <td>{i + 1}</td>
                 <td>{wp.player.name}</td>
                 <td className="num">{wp.player.age}</td>
-                <td>{wp.player.nationality}</td>
+                <td><Nation nationality={wp.player.nationality} /></td>
                 <td className="small">{wp.client ? "Your client" : "Free"}</td>
               </tr>
             );

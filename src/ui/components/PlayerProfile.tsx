@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ATTRIBUTE_LABELS, createRng, describeTendencies, tendencies, type AttributeKey } from "../../engine";
+import { ATTRIBUTE_LABELS, createRng, describeTendencies, nationInfo, tendencies, type AttributeKey } from "../../engine";
 import {
   STATUS_LABELS,
   abilityView,
@@ -19,7 +19,7 @@ import {
 } from "../../season";
 import { Stars } from "./Stars";
 import { TendenciesPanel } from "./TendenciesPanel";
-import { Portrait } from "./Portrait";
+import { PortraitCard } from "./Portrait";
 import { StatBoxes, StatLegend } from "./StatBoxes";
 import { SkillRadar } from "./SkillRadar";
 import { TraitChip, TraitList } from "./Traits";
@@ -86,11 +86,11 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
         <div className="pp-layout">
           <div className="pp-side">
           <aside className="pp-card">
-            <Portrait playerId={id} size={96} className="pp-portrait" title={wp.player.name} />
+            <PortraitCard player={wp.player} size={96} title={wp.player.name} />
             <div>
               <h1 id="profile-title">{wp.player.name}</h1>
               <div className="pp-meta">
-                {wp.player.age} · {wp.player.nationality} · {STATUS_LABELS[wp.career.status]}
+                {wp.player.age} · {nationInfo(wp.player.nationality).name} · {STATUS_LABELS[wp.career.status]}
                 <br />
                 {wp.client ? "Your client" : wp.agent ? `${wp.agent.agency} (until end of season ${wp.agent.untilSeason})` : "Free agent"}
               </div>

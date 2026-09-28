@@ -1,22 +1,25 @@
-import { clamp, createRng, generatePlayer, type AttributeKey, type CourseStyle, type Rng } from "../engine";
+import { clamp, createRng, generatePlayer, nationFromRoll, type AttributeKey, type CourseStyle, type Rng } from "../engine";
 import { overall } from "./development";
 import { mixSeed } from "./entries";
 import type { World, WorldPlayer } from "./types";
 
-/** Where each year's amateurs come from, and what their golf culture gives them. */
-const REGIONS: { nationality: string; weight: number; bias: Partial<Record<AttributeKey, number>>; style?: Partial<Record<CourseStyle, number>> }[] = [
-  { nationality: "USA", weight: 30, bias: { drivingDistance: 1, aggression: 1, wedges: 1 } },
-  { nationality: "Sweden", weight: 6, bias: { midIrons: 1, longIrons: 1, distanceControl: 1 } },
-  { nationality: "Korea", weight: 8, bias: { shortPutts: 1, chipping: 1, focus: 1, drivingDistance: -1 } },
-  { nationality: "Japan", weight: 8, bias: { lagPutting: 1, pitching: 1, professionalism: 1, drivingDistance: -1 } },
-  { nationality: "England", weight: 7, bias: { windTolerance: 1 }, style: { links: 3 } },
-  { nationality: "Scotland", weight: 4, bias: { windTolerance: 2, trajectoryControl: 1 }, style: { links: 3 } },
-  { nationality: "Ireland", weight: 4, bias: { windTolerance: 2, creativity: 1 }, style: { links: 3 } },
-  { nationality: "Australia", weight: 7, bias: { windTolerance: 2, drivingDistance: 1 }, style: { links: 2 } },
-  { nationality: "South Africa", weight: 6, bias: { windTolerance: 1, bunkerPlay: 1, composure: 1 } },
-  { nationality: "Spain", weight: 6, bias: { creativity: 2, chipping: 1, pitching: 1 } },
-  { nationality: "Argentina", weight: 5, bias: { creativity: 1, shotShaping: 1 } },
-  { nationality: "Canada", weight: 5, bias: { drivingAccuracy: 1, courseManagement: 1 } },
+/**
+ * What each country's golf culture gives its amateurs. Where they come from
+ * follows the tour's own mix (see nations.ts), so the pros they become keep it.
+ */
+const REGIONS: { nationality: string; bias: Partial<Record<AttributeKey, number>>; style?: Partial<Record<CourseStyle, number>> }[] = [
+  { nationality: "USA", bias: { drivingDistance: 1, aggression: 1, wedges: 1 } },
+  { nationality: "Sweden", bias: { midIrons: 1, longIrons: 1, distanceControl: 1 } },
+  { nationality: "Korea", bias: { shortPutts: 1, chipping: 1, focus: 1, drivingDistance: -1 } },
+  { nationality: "Japan", bias: { lagPutting: 1, pitching: 1, professionalism: 1, drivingDistance: -1 } },
+  { nationality: "England", bias: { windTolerance: 1 }, style: { links: 3 } },
+  { nationality: "Scotland", bias: { windTolerance: 2, trajectoryControl: 1 }, style: { links: 3 } },
+  { nationality: "Ireland", bias: { windTolerance: 2, creativity: 1 }, style: { links: 3 } },
+  { nationality: "Australia", bias: { windTolerance: 2, drivingDistance: 1 }, style: { links: 2 } },
+  { nationality: "South Africa", bias: { windTolerance: 1, bunkerPlay: 1, composure: 1 } },
+  { nationality: "Spain", bias: { creativity: 2, chipping: 1, pitching: 1 } },
+  { nationality: "Argentina", bias: { creativity: 1, shotShaping: 1 } },
+  { nationality: "Canada", bias: { drivingAccuracy: 1, courseManagement: 1 } },
 ];
 
 /** New amateurs each year. */
@@ -34,14 +37,9 @@ export function amateurPotential(currentOverall: number, rng: Rng): number {
 /** Amateurs turn pro by this age at the latest. */
 export const PRO_AGE = 22;
 
-function pickRegion(rng: Rng) {
-  const total = REGIONS.reduce((s, r) => s + r.weight, 0);
-  let x = rng.next() * total;
-  for (const r of REGIONS) {
-    x -= r.weight;
-    if (x <= 0) return r;
-  }
-  return REGIONS[0]!;
+function pickRegion(rng: Rng): { nationality: string; bias: Partial<Record<AttributeKey, number>>; style?: Partial<Record<CourseStyle, number>> } {
+  const nationality = nationFromRoll(rng.next()).key;
+  return REGIONS.find((r) => r.nationality === nationality) ?? { nationality, bias: {} };
 }
 
 /** One amateur, shaped by where he learned the game. */
