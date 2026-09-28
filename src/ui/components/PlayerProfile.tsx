@@ -21,6 +21,7 @@ import { Stars } from "./Stars";
 import { TendenciesPanel } from "./TendenciesPanel";
 import { Portrait } from "./Portrait";
 import { StatBoxes, StatLegend } from "./StatBoxes";
+import { SkillRadar } from "./SkillRadar";
 import { TraitChip, TraitList } from "./Traits";
 import { FamiliarityPanel } from "./Familiarity";
 import { money, plural } from "../format";
@@ -83,6 +84,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
       <div className="player-page-inner">
         <button className="btn btn-small player-back" onClick={onClose}><span aria-hidden>←</span> Back</button>
         <div className="pp-layout">
+          <div className="pp-side">
           <aside className="pp-card">
             <Portrait playerId={id} size={96} className="pp-portrait" title={wp.player.name} />
             <div>
@@ -122,6 +124,17 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
               </div>
             )}
           </aside>
+          {known && (
+            <section className="panel pp-radar">
+              <div className="panel-head">
+                <h2>Skill radar</h2>
+                <StatLegend potential={potential !== null} />
+              </div>
+              <SkillRadar view={view} />
+              <p className="muted small" style={{ margin: 0 }}>Group averages on the 1-20 scale. The dashed ring is a tour-average player (12).</p>
+            </section>
+          )}
+          </div>
 
           <div className="pp-main">
             <section className="panel">

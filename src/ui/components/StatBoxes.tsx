@@ -23,6 +23,17 @@ export interface StatView {
 const pct = (v: number) => `${(Math.max(0, Math.min(20, v)) / 20) * 100}%`;
 const avg = (xs: number[]) => xs.reduce((s, x) => s + x, 0) / xs.length;
 
+export type Group = keyof typeof ATTRIBUTE_GROUPS;
+
+/** Each group's average: current, and how far it could grow when that's known. Shared by the boxes and the radar. */
+export function groupAverages(view: (k: AttributeKey) => StatView): { group: Group; current: number; potential?: number }[] {
+  return (Object.keys(ATTRIBUTE_GROUPS) as Group[]).map((group) => {
+    const vs = ATTRIBUTE_GROUPS[group].map((k) => view(k));
+    const hasPot = vs.every((v) => v.potential !== undefined);
+    return { group, current: avg(vs.map((v) => v.value)), ...(hasPot ? { potential: avg(vs.map((v) => v.potential!)) } : {}) };
+  });
+}
+
 /**
  * Attributes as one box per group. Each bar is two colours: current skill,
  * and (behind it, lighter) how far he could grow.
@@ -30,16 +41,15 @@ const avg = (xs: number[]) => xs.reduce((s, x) => s + x, 0) / xs.length;
 export function StatBoxes({ view }: { view: (k: AttributeKey) => StatView }) {
   return (
     <div className="stat-boxes">
-      {(Object.keys(ATTRIBUTE_GROUPS) as (keyof typeof ATTRIBUTE_GROUPS)[]).map((g) => {
+      {groupAverages(view).map(({ group: g, current, potential }) => {
         const rows = ATTRIBUTE_GROUPS[g].map((k) => ({ k, v: view(k) }));
-        const hasPot = rows.every((r) => r.v.potential !== undefined);
         return (
           <section className="stat-box" key={g}>
             <div className="stat-box-head">
               <h3>{GROUP_LABELS[g]}</h3>
               <span className="stat-box-avg">
-                {avg(rows.map((r) => r.v.value)).toFixed(1)}
-                {hasPot && <span className="pot-text"> → {avg(rows.map((r) => r.v.potential!)).toFixed(1)}</span>}
+                {current.toFixed(1)}
+                {potential !== undefined && <span className="pot-text"> → {potential.toFixed(1)}</span>}
               </span>
             </div>
             <div className="stat-box-rows">

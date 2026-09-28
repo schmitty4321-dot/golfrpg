@@ -542,8 +542,11 @@ select, input[type="text"], input[type="number"] {
 .pot-text { color: var(--pot); }
 .pp-layout { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 16px; align-items: start; }
 .pp-main { display: grid; gap: 16px; min-width: 0; }
+/* The card and the radar under it share the left column, which follows the scroll when it fits on screen. */
+.pp-side { display: grid; gap: 16px; align-content: start; min-width: 0; }
+@media (min-height: 1200px) and (min-width: 861px) { .pp-side { position: sticky; top: 16px; } }
 .pp-card {
-  position: sticky; top: 16px; display: grid; gap: 14px; padding: 20px; border-radius: 12px; color: #fff;
+  display: grid; gap: 14px; padding: 20px; border-radius: 12px; color: #fff;
   background: linear-gradient(170deg, #16261d, #2c5a3f); box-shadow: var(--shadow);
 }
 .pp-portrait { border-radius: 50%; box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25); }
@@ -558,8 +561,18 @@ select, input[type="text"], input[type="number"] {
 .pp-chip { background: rgba(255, 255, 255, 0.14); border-radius: 999px; padding: 3px 10px; font-size: 12px; cursor: default; }
 @media (max-width: 860px) {
   .pp-layout { grid-template-columns: minmax(0, 1fr); }
-  .pp-card { position: static; }
 }
+.pp-radar { display: grid; gap: 8px; }
+.pp-radar .panel-head { margin-bottom: 0; flex-wrap: wrap; gap: 4px 10px; }
+.skill-radar { width: 100%; height: auto; display: block; max-width: 320px; justify-self: center; }
+.radar-ring { fill: none; stroke: var(--border); stroke-width: 1; }
+.radar-average { stroke: var(--muted); stroke-dasharray: 3 3; }
+.radar-pot { fill: var(--pot); fill-opacity: 0.25; stroke: var(--pot); stroke-width: 2; stroke-linejoin: round; }
+.radar-cur { fill: var(--cur); fill-opacity: 0.4; stroke: var(--cur); stroke-width: 2; stroke-linejoin: round; }
+.radar-dot { fill: var(--cur); }
+.radar-label { fill: var(--text-2); font-size: 13px; font-weight: 600; }
+.radar-value { fill: var(--text); font-weight: 700; font-variant-numeric: tabular-nums; }
+.radar-pot-text { fill: var(--pot); }
 .client-head { align-items: center; justify-content: flex-start; }
 .client-head svg { border-radius: 50%; flex-shrink: 0; }
 
