@@ -2,6 +2,7 @@ import { seasonWeeks, eventsInWeek, type World } from "../../season";
 import { TIER_LABELS, millions, toPar } from "../format";
 import type { Go } from "../nav";
 import type { Game } from "../useGame";
+import { TournamentCard, TournamentEmblem } from "../components/TournamentLogo";
 
 export function Calendar({ world, game, go }: { world: World; game: Game; go: Go }) {
   const winners = new Map<string, { name: string; toPar: number }>();
@@ -23,6 +24,17 @@ export function Calendar({ world, game, go }: { world: World; game: Game; go: Go
 
   return (
     <main>
+      {world.week <= seasonWeeks(world) && (
+        <section className="panel">
+          <div className="panel-head"><h2>This week</h2><span className="muted small">Week {world.week}</span></div>
+          <div className="tc-row">
+            {eventsInWeek(world, world.week).map((e) => {
+              const c = world.courses.find((x) => x.id === e.courseId)!;
+              return <TournamentCard key={e.id} event={e} course={c} venue={`${c.name}${c.info ? `, ${c.info.city}` : ""}`} />;
+            })}
+          </div>
+        </section>
+      )}
       <section className="panel">
         <div className="panel-head"><h2>Season {world.season} calendar</h2></div>
         <div className="table-wrap">
@@ -38,7 +50,10 @@ export function Calendar({ world, game, go }: { world: World; game: Game; go: Go
                     <tr key={e.id} className={week === world.week ? "me" : ""}>
                       <td>{week}</td>
                       <td>
-                        {inSession.has(e.id) ? <button className="linkish" onClick={() => go("tournament", e.id)}>{e.name}</button> : e.name}
+                        <span className="cal-event">
+                          <TournamentEmblem event={e} course={course} size={26} />
+                          {inSession.has(e.id) ? <button className="linkish" onClick={() => go("tournament", e.id)}>{e.name}</button> : e.name}
+                        </span>
                       </td>
                       <td><span className={`badge${e.tier === "major" ? " badge-major" : ""}`}>{TIER_LABELS[e.tier]}</span></td>
                       <td className="secondary">{course.name}</td>

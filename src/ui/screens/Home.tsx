@@ -36,6 +36,7 @@ import { TIER_LABELS, fitWord, formWord, millions, money, signed } from "../form
 import type { Go } from "../nav";
 import { GoalsPanel } from "../components/Goals";
 import type { Game } from "../useGame";
+import { TournamentEmblem } from "../components/TournamentLogo";
 
 const ACCESS_TONE: Record<EntryOption["access"], string> = {
   invited: "var(--good)",
@@ -134,6 +135,7 @@ function WeekHero({ world, game, week }: { world: World; game: Game; week: WeekC
   };
   return (
     <section className={`hero${photo ? " hero-photo" : ""}`} style={photo ? { backgroundImage: `url(${import.meta.env.BASE_URL}${photo.file})` } : undefined}>
+      <div className="hero-logo"><TournamentEmblem event={main} course={course} size={84} /></div>
       <div className="hero-body">
         <div className="hero-kicker">{a.name} · Week {world.week} of {weeks}</div>
         <h1 className="hero-title">{main.name}</h1>

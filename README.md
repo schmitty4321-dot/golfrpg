@@ -207,6 +207,17 @@ You make the calls at the key moments; on the other holes he plays his own game.
 - Careers started before this change keep their players' nationalities; new players arrive with the
   new mix.
 
+### Tournament logos
+
+Every event has a logo (`src/ui/components/TournamentLogo.tsx`): a round emblem with a scene from its part
+of the world (surf and palms for Hawaii and the Caribbean, saguaros for Scottsdale, a lighthouse for Hilton
+Head and Sea Island, dunes and wind for the Scottish Open and The Open, a laurel crest for the majors and
+playoffs) in its own colour, and a wordmark of its name. The emblem sits beside the event on the home screen,
+the event screen and every calendar row; the calendar opens with this week's full card: emblem, wordmark,
+venue, purse, winner's points and field. All 45 events on the real tour are hand-set; developmental-tour and
+generated events get one built from their course's style. The art is the game's own: only the event names
+the schedule already uses appear, and no sponsor or tournament marks are reproduced.
+
 ### Player archetypes
 
 Every player has one of 20 archetypes (`src/engine/archetypes.ts`): the shape of his game, meaning which

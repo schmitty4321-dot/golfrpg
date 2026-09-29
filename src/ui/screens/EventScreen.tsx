@@ -9,6 +9,7 @@ import { ShotTracer } from "../components/ShotTracer";
 import { RoundLeaders, RoundStatsPanel } from "../components/RoundStatsPanel";
 import { Leaderboard } from "../components/Leaderboard";
 import { TIER_LABELS, millions, toPar } from "../format";
+import { TournamentEmblem } from "../components/TournamentLogo";
 
 interface EventView {
   event: TourEvent;
@@ -58,6 +59,7 @@ function EventHeader({ event, course, week, players, hasCut, status, compact, ch
       <div className="panel-head">
         <div>
           <div className="event-title">
+            <TournamentEmblem event={event} course={course} size={compact ? 40 : 56} />
             <span className={`badge${event.tier === "major" ? " badge-major" : ""}`}>{TIER_LABELS[event.tier]}</span>
             <h1 style={{ fontSize: 22 }}>{event.name}</h1>
           </div>
