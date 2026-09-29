@@ -18,6 +18,7 @@ import {
 } from "../../engine";
 import { useHoleMap } from "../holeMaps";
 import { HoleDrawing, LIE_WORDS } from "./ShotTracer";
+import { hasIllustratedTracerArt, IllustratedTracer } from "./IllustratedTracer";
 import { toPar } from "../format";
 import { LiveScorecard } from "./LiveScorecard";
 
@@ -196,7 +197,11 @@ export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTourname
 
       <div className="tracer-body hbh-body">
         <div className="hbh-drawing">
-          {shown && <HoleDrawing trace={shown.trace} step={played ? step : 0} photo={photo} map={map} />}
+          {shown && hasIllustratedTracerArt(shown.trace) ? (
+            <IllustratedTracer trace={shown.trace} step={played ? step : 0} courseName={course.name} />
+          ) : shown ? (
+            <HoleDrawing trace={shown.trace} step={played ? step : 0} photo={photo} map={map} />
+          ) : null}
           <div className="hole-credit">
             {map?.aerial && (
               <div className="tabs" role="tablist" aria-label="Hole view" style={{ margin: 0 }}>

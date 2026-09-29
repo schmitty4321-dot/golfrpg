@@ -1,6 +1,7 @@
 import { useEffect, useId, useMemo, useState } from "react";
 import { aerialMatrix, useHoleMap } from "../holeMaps";
 import { traceHole, traceSeed, type HoleTrace, type PlayerEventResult, type Pt, type Shot, type TournamentResult } from "../../engine";
+import { hasIllustratedTracerArt, IllustratedTracer } from "./IllustratedTracer";
 
 interface Props {
   result: TournamentResult;
@@ -48,7 +49,7 @@ export function ShotTracer({ result, row, round: startRound, hole: startHole, on
   );
   const holesToShow = course.holes.map((_, i) => i).filter((i) => !keyOnly || card[i] !== course.holes[i]!.par || i === hole);
   const map = useHoleMap(trace.layout.real);
-  const illustrated = trace.layout.real?.courseId === "waialae";
+  const illustrated = hasIllustratedTracerArt(trace);
   const hasAerial = !!map?.aerial && !illustrated;
 
   // Auto-play: reveal a shot every 900 ms, then move to the next hole.
@@ -72,7 +73,7 @@ export function ShotTracer({ result, row, round: startRound, hole: startHole, on
 
   return (
     <div className="overlay" role="dialog" aria-modal="true" aria-labelledby="tracer-title" onClick={onClose}>
-      <div className="modal tracer" onClick={(e) => e.stopPropagation()}>
+      <div className={`modal tracer${illustrated ? " tracer-cinematic" : ""}`} onClick={(e) => e.stopPropagation()}>
         <div className="panel-head" style={{ marginBottom: 0 }}>
           <div>
             <h1 id="tracer-title" style={{ fontSize: 20 }}>{row.player.name} · {result.name}</h1>
@@ -100,6 +101,20 @@ export function ShotTracer({ result, row, round: startRound, hole: startHole, on
           ))}
         </div>
 
+        {illustrated ? (
+          <>
+            <IllustratedTracer trace={trace} step={step} courseName={course.name} />
+            <div className="illustrated-replay-controls">
+              <strong>{step >= trace.shots.length ? trace.result : trace.shots[Math.max(0, step - 1)]?.text ?? "Ready to play"}</strong>
+              <div className="btn-row">
+                <button className="btn btn-small" onClick={() => setPlaying((value) => !value)}>{playing ? "Pause" : "Play"}</button>
+                <button className="btn btn-small" onClick={() => { setPlaying(false); setStep(Math.min(trace.shots.length, step + 1)); }}>Next shot</button>
+                <button className="btn btn-small" onClick={() => { setStep(0); setPlaying(true); }}>Replay hole</button>
+                <button className="btn btn-small" disabled={hole === holesToShow[holesToShow.length - 1]} onClick={() => goHole(holesToShow.find((i) => i > hole) ?? hole)}>Next hole</button>
+              </div>
+            </div>
+          </>
+        ) : (
         <div className="tracer-body">
           <div>
             <HoleDrawing trace={trace} step={step} photo={photo} map={map} />
@@ -142,6 +157,7 @@ export function ShotTracer({ result, row, round: startRound, hole: startHole, on
             </p>
           </div>
         </div>
+        )}
       </div>
     </div>
   );

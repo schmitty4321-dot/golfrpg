@@ -1,31 +1,58 @@
-"""Puts a Blender hole render on a page with the header bar: python compose.py hole-02.json hole-02-3d.png out.png"""
-import json, sys
+"""Frames a wide Blender render as a premium course-guide hero image."""
+import json
+import sys
+
 from PIL import Image, ImageDraw, ImageFont
+
 
 meta = json.load(open(sys.argv[1], encoding="utf8"))["meta"]
 art = Image.open(sys.argv[2]).convert("RGBA")
-HEAD, PAD = 96, 24
-W = max(620, art.width + PAD * 2)
-page = Image.new("RGBA", (W, HEAD + art.height + PAD * 2), (236, 242, 232, 255))
-# A soft light wash behind the hole.
-glow = Image.new("RGBA", page.size, (0, 0, 0, 0))
-ImageDraw.Draw(glow).ellipse([W * 0.1, HEAD, W * 0.9, page.height], fill=(248, 251, 244, 255))
-page = Image.alpha_composite(page, glow)
-page.alpha_composite(art, ((W - art.width) // 2, HEAD + PAD))
+HEAD, FOOT = 132, 38
+W = art.width
+page = Image.new("RGBA", (W, HEAD + art.height + FOOT), (5, 53, 40, 255))
+page.alpha_composite(art, (0, HEAD))
 d = ImageDraw.Draw(page)
-d.rectangle([0, 0, W, HEAD], fill=(22, 38, 29, 255))
-def font(size, bold=False):
-    for name in (("segoeuib.ttf" if bold else "segoeui.ttf"), "arial.ttf"):
+d.rectangle([0, 0, W, HEAD], fill=(5, 61, 44, 255))
+d.rectangle([0, HEAD - 3, W, HEAD], fill=(215, 184, 83, 255))
+d.rectangle([0, HEAD + art.height, W, page.height], fill=(246, 245, 237, 255))
+
+
+def font(size, family="sans", bold=False):
+    if family == "serif":
+        names = ("georgiab.ttf" if bold else "georgia.ttf", "cambria.ttc")
+    else:
+        names = ("segoeuib.ttf" if bold else "segoeui.ttf", "calibri.ttf")
+    for name in names:
         try:
             return ImageFont.truetype(name, size)
         except OSError:
             continue
     return ImageFont.load_default()
-d.text((24, 16), f"Hole {meta['number']}", font=font(40, True), fill=(255, 255, 255))
-d.text((26, 64), meta["course"], font=font(17), fill=(169, 201, 180))
-right = f"Par {meta['par']}  ·  {meta['yards']} yds"
-sub = f"Difficulty {meta['difficulty']}  ·  Tour avg {meta['tourAverage']:.2f}"
-d.text((W - 24, 22), right, font=font(24, True), fill=(231, 241, 234), anchor="ra")
-d.text((W - 24, 58), sub, font=font(17), fill=(169, 201, 180), anchor="ra")
-page.convert("RGB").save(sys.argv[3], quality=92)
+
+
+d.text((48, 18), meta["course"].upper(), font=font(48, "serif", True), fill=(251, 249, 235))
+rule = f"HOLE {meta['number']}   |   PAR {meta['par']}   |   {meta['yards']} YARDS"
+d.text((51, 82), rule, font=font(24, bold=True), fill=(242, 242, 230))
+d.text(
+    (W - 48, 35),
+    "ISLAND GOLF.\nTIMELESS PLAY.",
+    font=font(17, bold=True),
+    fill=(238, 235, 211),
+    anchor="ra",
+    spacing=8,
+)
+d.text(
+    (48, page.height - 27),
+    "MAP © OPENSTREETMAP CONTRIBUTORS · ODbL",
+    font=font(13, bold=True),
+    fill=(35, 71, 53),
+)
+d.text(
+    (W - 48, page.height - 27),
+    "ILLUSTRATIVE TERRAIN + PLANTING",
+    font=font(13),
+    fill=(67, 92, 76),
+    anchor="ra",
+)
+page.convert("RGB").save(sys.argv[3], quality=94)
 print("composed", sys.argv[3], page.size)

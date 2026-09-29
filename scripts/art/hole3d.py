@@ -14,6 +14,7 @@ import sys
 
 import bpy
 import bmesh
+import mathutils
 
 args = sys.argv[sys.argv.index("--") + 1:]
 SRC, OUT = args[0], args[1]
@@ -182,6 +183,7 @@ for j in range(NY - 1):
 mesh = bpy.data.meshes.new("ground")
 mesh.from_pydata(verts, [], faces)
 mesh.update()
+
 ground = bpy.data.objects.new("ground", mesh)
 scene.collection.objects.link(ground)
 
@@ -230,6 +232,16 @@ def material(name, rgb=None, attribute=None, roughness=0.8, spec=0.3):
         pass
     return m
 
+
+# A broad landscaped base keeps the finished view feeling like a place rather
+# than a cut-out model. The mapped surfaces still sit above it and define play.
+land_w = max(700, X1 - X0 + 520)
+land_h = max(900, Y1 - Y0 + 520)
+bpy.ops.mesh.primitive_plane_add(size=2, location=((X0 + X1) / 2, (Y0 + Y1) / 2, -1.7))
+land = bpy.context.active_object
+land.name = "landscape"
+land.scale = (land_w / 2, land_h / 2, 1)
+land.data.materials.append(material("landscape grass", rgb=(0.085, 0.275, 0.095), roughness=0.92))
 
 ground.data.materials.append(material("ground", attribute="col"))
 ground.data.materials.append(material("soil", rgb=(0.48, 0.32, 0.19), roughness=0.95))
@@ -289,6 +301,30 @@ for j in range(0, NY, int(STEP / GRID)):
             jy = (hashf(j, i) - 0.5) * 3
             spots.append((X0 + i * GRID + jx, Y0 + j * GRID + jy, 3.4 + hashf(i + 3, j) * 1.6))
 
+# Unmapped vegetation is decorative, never a replacement for mapped surfaces.
+# Keep every crown clear of fairways, tees, greens, sand, water and paths.
+if not any(in_cut(x, y, -1.5) for x, y, _ in spots):
+    paths = sc.get("paths", [])
+    def near_path(x, y, radius):
+        for path in paths:
+            for a, b in zip(path, path[1:]):
+                dx, dy = b[0] - a[0], b[1] - a[1]
+                t = max(0, min(1, ((x-a[0])*dx + (y-a[1])*dy) / (dx*dx + dy*dy or 1)))
+                if math.hypot(x-a[0]-t*dx, y-a[1]-t*dy) < radius:
+                    return True
+        return False
+    for j in range(0, NY, max(1, int(10 / GRID))):
+        for i in range(0, NX, max(1, int(10 / GRID))):
+            x = X0 + i * GRID + (hashf(i, j) - 0.5) * 5
+            y = Y0 + j * GRID + (hashf(j, i) - 0.5) * 5
+            r = 3.5 + hashf(i + 7, j) * 2.0
+            if hashf(i + 11, j) < 0.22 or not in_cut(x, y, -r - 2):
+                continue
+            probes = [(x, y)] + [(x + math.cos(a * math.pi / 4) * (r + 2), y + math.sin(a * math.pi / 4) * (r + 2)) for a in range(8)]
+            if any(in_any(px, py, layers[k]) for px, py in probes for k in ("fairway", "green", "tee", "bunker", "water")) or near_path(x, y, r + 2):
+                continue
+            spots.append((x, y, r))
+
 canopy_mesh.materials.append(leaf_mats[0])
 placed = 0
 for n, (x, y, r) in enumerate(spots):
@@ -296,16 +332,115 @@ for n, (x, y, r) in enumerate(spots):
         continue
     z = ground_height(x, y)
     leaf = bpy.data.objects.new(f"tree{n}", canopy_mesh)
-    leaf.location = (x, y, z + 2.2 + r * 0.8)
-    leaf.scale = (r, r, r * 0.95)
+    leaf.location = (x, y, z + 2.4 + r)
+    leaf.scale = (r * 0.92, r * 0.82, r * 1.18)
     scene.collection.objects.link(leaf)
     # Canopies share one mesh; each takes its own shade of green through an object-level slot.
     leaf.material_slots[0].link = "OBJECT"
     leaf.material_slots[0].material = leaf_mats[int(hashf(x, y) * len(leaf_mats)) % len(leaf_mats)]
+    for lobe_i in range(2):
+        a = hashf(n, lobe_i + 307) * math.tau
+        lobe = bpy.data.objects.new(f"tree{n}-crown{lobe_i}", canopy_mesh)
+        lobe.location = (
+            x + math.cos(a) * r * 0.42,
+            y + math.sin(a) * r * 0.42,
+            z + 2.1 + r * (0.88 + lobe_i * 0.16),
+        )
+        lobe.scale = (r * 0.62, r * 0.58, r * 0.72)
+        scene.collection.objects.link(lobe)
+        lobe.material_slots[0].link = "OBJECT"
+        lobe.material_slots[0].material = leaf_mats[(n + lobe_i + 1) % len(leaf_mats)]
     stem = bpy.data.objects.new(f"trunk{n}", trunk_mesh)
     stem.location = (x, y, z + 1.4)
     scene.collection.objects.link(stem)
     placed += 1
+
+# Continue the canopy beyond the mapped corridor so the camera sees a lush
+# property around the hole, not empty model space.
+for n in range(460):
+    x = X0 - 75 + hashf(n, 211) * (X1 - X0 + 150)
+    y = Y0 - 75 + hashf(n, 227) * (Y1 - Y0 + 150)
+    r = 4.2 + hashf(n, 239) * 3.2
+    if in_cut(x, y, r + 5) or hashf(n, 251) < 0.08:
+        continue
+    z = -1.7
+    leaf = bpy.data.objects.new(f"background-tree{n}", canopy_mesh)
+    leaf.location = (x, y, z + 2.5 + r)
+    leaf.scale = (r * 0.94, r * 0.84, r * 1.22)
+    scene.collection.objects.link(leaf)
+    leaf.material_slots[0].link = "OBJECT"
+    leaf.material_slots[0].material = leaf_mats[int(hashf(x, y) * len(leaf_mats)) % len(leaf_mats)]
+    for lobe_i in range(2):
+        a = hashf(n, lobe_i + 337) * math.tau
+        lobe = bpy.data.objects.new(f"background-tree{n}-crown{lobe_i}", canopy_mesh)
+        lobe.location = (
+            x + math.cos(a) * r * 0.44,
+            y + math.sin(a) * r * 0.44,
+            z + 2.2 + r * (0.9 + lobe_i * 0.14),
+        )
+        lobe.scale = (r * 0.64, r * 0.58, r * 0.74)
+        scene.collection.objects.link(lobe)
+        lobe.material_slots[0].link = "OBJECT"
+        lobe.material_slots[0].material = leaf_mats[(n + lobe_i + 2) % len(leaf_mats)]
+    stem = bpy.data.objects.new(f"background-trunk{n}", trunk_mesh)
+    stem.location = (x, y, z + 1.4)
+    scene.collection.objects.link(stem)
+
+# Dense flowering shrubs and a few palms give the scene Waialae's tropical,
+# manicured character. Their placement is deterministic and stays outside the
+# mapped playing surfaces.
+flower_mats = [
+    material("bougainvillea", rgb=(0.88, 0.07, 0.30), roughness=0.78),
+    material("hibiscus", rgb=(0.96, 0.24, 0.15), roughness=0.78),
+    material("plumeria", rgb=(0.96, 0.88, 0.70), roughness=0.82),
+]
+bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=2, radius=1)
+shrub = bpy.context.active_object
+shrub_mesh = shrub.data
+shrub_mesh.materials.append(flower_mats[0])
+bpy.data.objects.remove(shrub)
+for n in range(340):
+    x = X0 - 55 + hashf(n, 19) * (X1 - X0 + 110)
+    y = Y0 - 55 + hashf(n, 43) * (Y1 - Y0 + 110)
+    if in_cut(x, y, 5) or hashf(n, 71) < 0.18:
+        continue
+    r = 0.9 + hashf(n, 83) * 1.4
+    bush = bpy.data.objects.new(f"flower{n}", shrub_mesh)
+    bush.location = (x, y, -0.2 + r * 0.7)
+    bush.scale = (r * 1.35, r, r * 0.7)
+    scene.collection.objects.link(bush)
+    bush.material_slots[0].link = "OBJECT"
+    bush.material_slots[0].material = flower_mats[n % len(flower_mats)]
+    for lobe_i in range(2):
+        a = hashf(n, 401 + lobe_i) * math.tau
+        lobe = bpy.data.objects.new(f"flower{n}-lobe{lobe_i}", shrub_mesh)
+        lobe.location = (
+            x + math.cos(a) * r * 0.95,
+            y + math.sin(a) * r * 0.95,
+            -0.25 + r * 0.55,
+        )
+        lobe.scale = (r, r * 0.78, r * 0.52)
+        scene.collection.objects.link(lobe)
+        lobe.material_slots[0].link = "OBJECT"
+        lobe.material_slots[0].material = flower_mats[(n + lobe_i + 1) % len(flower_mats)]
+
+palm_leaf_mat = material("palm leaves", rgb=(0.08, 0.38, 0.12), roughness=0.72)
+palm_trunk_mat = material("palm trunks", rgb=(0.44, 0.29, 0.14), roughness=0.94)
+for n in range(16):
+    x = X0 - 45 + hashf(n, 101) * (X1 - X0 + 90)
+    y = Y0 - 45 + hashf(n, 131) * (Y1 - Y0 + 90)
+    if in_cut(x, y, 12):
+        continue
+    ph = 13 + hashf(n, 151) * 10
+    bpy.ops.mesh.primitive_cylinder_add(vertices=10, radius=0.65, depth=ph, location=(x, y, -1.0 + ph / 2))
+    bpy.context.active_object.data.materials.append(palm_trunk_mat)
+    for k in range(7):
+        a = k * math.tau / 7 + hashf(n, 173) * 0.4
+        bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=1, radius=1, location=(x + math.cos(a) * 3.0, y + math.sin(a) * 3.0, ph - 0.8))
+        frond = bpy.context.active_object
+        frond.scale = (4.8, 0.75, 0.35)
+        frond.rotation_euler[2] = a
+        frond.data.materials.append(palm_leaf_mat)
 
 # ---------------------------------------------------------------- flag
 
@@ -328,7 +463,7 @@ world = bpy.data.worlds.new("world")
 scene.world = world
 world.use_nodes = True
 bg = world.node_tree.nodes["Background"]
-bg.inputs["Color"].default_value = (0.62, 0.74, 0.86, 1)
+bg.inputs["Color"].default_value = (0.035, 0.18, 0.055, 1)
 bg.inputs["Strength"].default_value = 0.55
 
 sun_data = bpy.data.lights.new("sun", "SUN")
@@ -338,25 +473,32 @@ sun = bpy.data.objects.new("sun", sun_data)
 sun.rotation_euler = (math.radians(52), math.radians(-14), math.radians(38))
 scene.collection.objects.link(sun)
 
-TILT = math.radians(38)
+TILT = math.radians(56)
+AZIMUTH = math.radians(-40)
 cx, cy = (X0 + X1) / 2, (Y0 + Y1) / 2
-w, h = X1 - X0, Y1 - Y0
 cam_data = bpy.data.cameras.new("cam")
 cam_data.type = "ORTHO"
 cam = bpy.data.objects.new("cam", cam_data)
-dist = 500
-cam.location = (cx, cy - dist * math.sin(TILT), dist * math.cos(TILT))
-cam.rotation_euler = (TILT, 0, 0)
+dist = 720
+cam.location = (
+    cx + dist * math.sin(TILT) * math.cos(AZIMUTH),
+    cy + dist * math.sin(TILT) * math.sin(AZIMUTH),
+    dist * math.cos(TILT),
+)
+target = mathutils.Vector((cx, cy, 0))
+cam.rotation_euler = (target - cam.location).to_track_quat("-Z", "Y").to_euler()
 scene.collection.objects.link(cam)
 scene.camera = cam
-vis_h = h * math.cos(TILT) + 14
-vis_w = w + 10
-RES_X = 900
-res_y = min(1500, int(RES_X * vis_h / vis_w))
-scene.render.resolution_x = RES_X if res_y < 1500 else int(1500 * vis_w / vis_h)
-scene.render.resolution_y = res_y
-cam_data.sensor_fit = "VERTICAL" if vis_h / vis_w > scene.render.resolution_y / scene.render.resolution_x - 1e-6 else "HORIZONTAL"
-cam_data.ortho_scale = vis_h if cam_data.sensor_fit == "VERTICAL" else vis_w
+scene.render.resolution_x = 1600
+scene.render.resolution_y = 900
+scene.render.resolution_percentage = 100
+right = mathutils.Vector((-math.sin(AZIMUTH), math.cos(AZIMUTH), 0))
+view = (target - cam.location).normalized()
+up = right.cross(view).normalized()
+corners = [mathutils.Vector((x, y, 0)) - target for x in (X0-38, X1+38) for y in (Y0-38, Y1+38)]
+span_x = max(abs(v.dot(right)) for v in corners) * 2
+span_y = max(abs(v.dot(up)) for v in corners) * 2
+cam_data.ortho_scale = max(span_y, span_x / (16 / 9)) * 1.42
 
 # Cycles: real soft shadows and ambient occlusion, denoised.
 scene.render.engine = "CYCLES"
@@ -378,10 +520,10 @@ try:
             continue
 except Exception:
     pass
-scene.view_settings.view_transform = "Standard"
-scene.view_settings.look = "None"
-scene.view_settings.exposure = 0.0
-scene.render.film_transparent = True
+scene.view_settings.view_transform = "AgX"
+scene.view_settings.look = "AgX - Medium High Contrast"
+scene.view_settings.exposure = 0.35
+scene.render.film_transparent = False
 scene.render.image_settings.color_mode = "RGBA"
 scene.render.image_settings.file_format = "PNG"
 scene.render.filepath = OUT

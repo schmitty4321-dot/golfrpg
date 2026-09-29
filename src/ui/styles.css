@@ -347,6 +347,52 @@ select, input[type="text"], input[type="number"] {
 .hole-credit { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin-top: 6px; }
 .hole-credit .tabs button { padding: 2px 10px; font-size: 12px; }
 
+/* ---------- image-first illustrated tracer ---------- */
+.modal.tracer.tracer-cinematic { width: min(1280px, calc(100vw - 28px)); max-width: none; padding: 14px; background: #f5f2e8; }
+.illustrated-replay { overflow: hidden; color: #f8f5e8; background: #043e2d; border-radius: 12px; box-shadow: 0 22px 70px rgba(1, 29, 19, 0.28); }
+.illustrated-stage { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: #063e2d; }
+.illustrated-stage > img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.illustrated-stage::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgba(1, 35, 24, 0.34), transparent 35%, transparent 78%, rgba(1, 32, 23, 0.08)); }
+.illustrated-hole-card { position: absolute; z-index: 2; top: 4.5%; left: 2.2%; width: min(330px, 25%); padding: 18px 20px 15px; border: 1px solid rgba(224, 194, 91, 0.9); border-radius: 13px; background: rgba(1, 51, 37, 0.91); box-shadow: 0 14px 36px rgba(0, 25, 17, 0.28); }
+.illustrated-hole-card > span { font-size: 11px; font-weight: 800; letter-spacing: 0.25em; text-transform: uppercase; }
+.illustrated-hole-card > strong { display: block; margin-top: 6px; font-family: Georgia, Cambria, serif; font-size: clamp(20px, 2.4vw, 34px); }
+.illustrated-hole-card > p { margin: 9px 0 13px; color: #e5eadf; font-family: Georgia, Cambria, serif; font-size: 14px; line-height: 1.45; }
+.illustrated-hole-card dl { display: grid; grid-template-columns: repeat(3, 1fr); margin: 0; padding-top: 12px; border-top: 1px solid rgba(224, 194, 91, 0.7); }
+.illustrated-hole-card dl div { text-align: center; }
+.illustrated-hole-card dl div + div { border-left: 1px solid rgba(224, 194, 91, 0.7); }
+.illustrated-hole-card dt { font-size: 22px; font-weight: 800; }
+.illustrated-hole-card dd { margin: 1px 0 0; font-size: 9px; font-weight: 750; letter-spacing: 0.16em; text-transform: uppercase; }
+.illustrated-arcs { position: absolute; z-index: 3; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.illustrated-arc-shadow { fill: none; stroke: rgba(0, 24, 16, 0.52); stroke-width: 9; stroke-linecap: round; }
+.illustrated-arc { fill: none; stroke-width: 5; stroke-linecap: round; filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.45)); animation: illustrated-draw 0.85s cubic-bezier(0.32, 0.72, 0, 1) both; }
+.illustrated-node-ring { fill: #09140f; stroke-width: 4; }
+.illustrated-node { fill: #09140f; stroke: #fffbed; stroke-width: 2; }
+.illustrated-arcs text { fill: #fff; font-size: 19px; font-weight: 850; text-anchor: middle; }
+.illustrated-ball { fill: #fff; stroke: #0b2117; stroke-width: 2; animation: illustrated-land 0.3s 0.72s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.illustrated-live-caption { position: absolute; z-index: 4; right: 18px; bottom: 16px; max-width: 42%; padding: 8px 13px; border-radius: 6px; color: #fff; background: rgba(2, 39, 28, 0.88); font-size: 13px; font-weight: 650; }
+.illustrated-replay-controls { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 11px 2px 2px; color: var(--text); }
+@keyframes illustrated-draw { from { stroke-dasharray: 1; stroke-dashoffset: 1; } to { stroke-dasharray: 1; stroke-dashoffset: 0; } }
+@keyframes illustrated-land { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+.hbh-drawing:has(.illustrated-replay) { grid-column: 1 / -1; }
+.hbh-body:has(.illustrated-replay) > div:last-child { grid-column: 1 / -1; }
+@media (max-width: 700px) {
+  .modal.tracer.tracer-cinematic { width: calc(100vw - 12px); padding: 6px; }
+  .illustrated-hole-card { top: 8px; left: 8px; width: auto; padding: 8px 10px; }
+  .illustrated-hole-card > strong { margin-top: 2px; font-size: 16px; }
+  .illustrated-hole-card > p, .illustrated-hole-card dl { display: none; }
+  .illustrated-live-caption { right: 8px; bottom: 8px; max-width: 65%; padding: 5px 8px; font-size: 10px; }
+  .illustrated-replay-controls { align-items: stretch; flex-direction: column; }
+}
+@media (prefers-reduced-motion: reduce) { .illustrated-arc, .illustrated-ball { animation: none; } }
+.tracer-preview { min-height: 100dvh; padding: 24px; background: var(--bg); }
+.tracer-preview > .panel { max-width: 1440px; margin: 0 auto; }
+.tracer-preview-layout { display: grid; grid-template-columns: minmax(0, 2.25fr) minmax(260px, 0.75fr); gap: 20px; margin-top: 14px; align-items: start; }
+.tracer-preview-layout aside { min-width: 0; }
+@media (max-width: 900px) {
+  .tracer-preview { padding: 8px; }
+  .tracer-preview-layout { grid-template-columns: 1fr; }
+}
+
 /* ---------- hole by hole ---------- */
 .hbh-hole { margin-top: 0; }
 .call { border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px 10px; margin: 0 0 10px; }
