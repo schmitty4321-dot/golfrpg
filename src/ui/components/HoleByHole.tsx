@@ -77,7 +77,7 @@ export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTourname
   const [calls, setCalls] = useState<HoleCall>({});
   const [played, setPlayed] = useState<Played | null>(null);
   const [step, setStep] = useState(0);
-  const [photo, setPhoto] = useState(true);
+  const [photo, setPhoto] = useState(course.id !== "waialae");
   const narrow = useNarrow();
 
   const index = cur ? cur.holes.length : course.holes.length;
@@ -206,7 +206,7 @@ export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTourname
             )}
             {shown?.trace.layout.real && (
               <span className="muted small">
-                {photo && map?.aerial ? "Aerial photo: USDA NAIP / USGS · " : ""}Hole map © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors
+{course.id === "waialae" ? "Illustrated hole · " : photo && map?.aerial ? "Aerial photo: USDA NAIP / USGS · " : ""}Hole map © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors
               </span>
             )}
           </div>
