@@ -36,8 +36,8 @@ export function ShotTracer({ result, row, round: startRound, hole: startHole, on
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(true);
   const [keyOnly, setKeyOnly] = useState(false);
-  const [photo, setPhoto] = useState(true);
   const course = result.course;
+  const [photo, setPhoto] = useState(course.id !== "waialae");
   const card = row.holes[round]!;
   const h = course.holes[hole]!;
   const wind = result.weather[round]?.windMph[row.waves[round] ?? "AM"] ?? 0;
