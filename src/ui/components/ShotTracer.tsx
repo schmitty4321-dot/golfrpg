@@ -48,7 +48,8 @@ export function ShotTracer({ result, row, round: startRound, hole: startHole, on
   );
   const holesToShow = course.holes.map((_, i) => i).filter((i) => !keyOnly || card[i] !== course.holes[i]!.par || i === hole);
   const map = useHoleMap(trace.layout.real);
-  const hasAerial = !!map?.aerial;
+  const illustrated = trace.layout.real?.courseId === "waialae";
+  const hasAerial = !!map?.aerial && !illustrated;
 
   // Auto-play: reveal a shot every 900 ms, then move to the next hole.
   useEffect(() => {
@@ -111,7 +112,7 @@ export function ShotTracer({ result, row, round: startRound, hole: startHole, on
                   </div>
                 )}
                 <span className="muted small">
-                  {photo && hasAerial ? "Aerial photo: USDA NAIP / USGS (public domain) · " : ""}Hole map ©{" "}
+                  {illustrated ? "Illustrated hole · " : photo && hasAerial ? "Aerial photo: USDA NAIP / USGS (public domain) · " : ""}Hole map ©{" "}
                   <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors
                 </span>
               </div>
@@ -157,6 +158,7 @@ export function HoleDrawing({ trace, step, photo, map }: { trace: HoleTrace; ste
   const Y = (p: Pt) => maxY - p.y;
   const poly = (pts: Pt[]) => pts.map((p) => `${X(p).toFixed(1)},${Y(p).toFixed(1)}`).join(" ");
   const shots = trace.shots.slice(0, step).filter((s) => s.kind !== "penalty");
+  const illustrated = L.real?.courseId === "waialae";
   const curve = (s: Shot, i: number) => {
     const a = { x: X(s.from), y: Y(s.from) };
     const b = { x: X(s.to), y: Y(s.to) };
@@ -164,19 +166,35 @@ export function HoleDrawing({ trace, step, photo, map }: { trace: HoleTrace; ste
     const mx = (a.x + b.x) / 2;
     const my = (a.y + b.y) / 2;
     const len = Math.hypot(b.x - a.x, b.y - a.y);
+    if (illustrated) {
+      const height = Math.min(72, Math.max(18, len * (s.kind === "chip" || s.kind === "bunker" ? 0.18 : 0.3)));
+      return `M${a.x},${a.y} Q${mx},${my - height} ${b.x},${b.y}`;
+    }
     const bend = (i % 2 ? 1 : -1) * len * 0.07;
     const nx = -(b.y - a.y) / (len || 1);
     const ny = (b.x - a.x) / (len || 1);
     return `M${a.x},${a.y} Q${mx + nx * bend},${my + ny * bend} ${b.x},${b.y}`;
+  };
+  const groundCurve = (s: Shot) => {
+    const a = { x: X(s.from), y: Y(s.from) };
+    const b = { x: X(s.to), y: Y(s.to) };
+    return s.kind === "putt" ? `M${a.x},${a.y} L${b.x},${b.y}` : `M${a.x},${a.y} Q${(a.x + b.x) / 2},${(a.y + b.y) / 2 + 4} ${b.x},${b.y}`;
   };
   const bg = L.style === "desert" ? "var(--c-desert)" : L.style === "links" ? "var(--c-links)" : "var(--c-rough)";
   const shapes = (list: number[][][] | undefined, fill: string, key: string) =>
     list?.map((q, i) => <polygon key={`${key}${i}`} points={poly(q.map(([x, y]) => ({ x: x!, y: y! })))} fill={fill} />);
   return (
     <svg className="hole-svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Hole diagram: par ${L.par}, ${L.yards} yards. ${trace.shots.slice(0, step).map((s) => s.text).join(" ")}`}>
-      <defs><clipPath id={clip}><rect x={0} y={0} width={W} height={H} /></clipPath></defs>
-      <rect x={0} y={0} width={W} height={H} fill={bg} />
-      {map?.aerial && photo ? (
+      <defs>
+        <clipPath id={clip}><rect x={0} y={0} width={W} height={H} /></clipPath>
+        <linearGradient id={`${clip}-rough`} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#4f8f3c" /><stop offset="1" stopColor="#255f31" /></linearGradient>
+        <linearGradient id={`${clip}-fairway`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#9bd45b" /><stop offset="1" stopColor="#5da63e" /></linearGradient>
+        <linearGradient id={`${clip}-green`} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#b8e978" /><stop offset="1" stopColor="#69b84b" /></linearGradient>
+        <linearGradient id={`${clip}-water`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#48bfe3" /><stop offset="1" stopColor="#087fba" /></linearGradient>
+        <filter id={`${clip}-lift`} x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="2" dy="4" stdDeviation="2.5" floodColor="#0b2d18" floodOpacity=".38" /></filter>
+      </defs>
+      <rect x={0} y={0} width={W} height={H} fill={illustrated ? `url(#${clip}-rough)` : bg} />
+      {map?.aerial && photo && !illustrated ? (
         <g clipPath={`url(#${clip})`}>
           <image
             href={`${import.meta.env.BASE_URL}${map.aerial.file}`}
@@ -192,17 +210,22 @@ export function HoleDrawing({ trace, step, photo, map }: { trace: HoleTrace; ste
         <>
           {/* The real hole, from its OpenStreetMap outlines (clipped: neighbouring holes run off the edge). */}
           <g clipPath={`url(#${clip})`}>
-          {shapes(map.wood, "var(--c-trees)", "wd")}
-          {shapes(map.rough, "var(--c-rough-deep)", "rg")}
-          {shapes(map.water, "var(--c-water)", "wa")}
-          {shapes(map.fairway, "var(--c-fairway)", "fw")}
-          {shapes(map.tee, "var(--c-fairway)", "te")}
-          {shapes(map.green, "var(--c-green)", "gr")}
-          {shapes(map.bunker, "var(--c-bunker)", "bu")}
+          {shapes(map.wood, illustrated ? "#174d2b" : "var(--c-trees)", "wd")}
+          {shapes(map.rough, illustrated ? "#34763a" : "var(--c-rough-deep)", "rg")}
+          {shapes(map.water, illustrated ? `url(#${clip}-water)` : "var(--c-water)", "wa")}
+          {shapes(map.fairway, illustrated ? `url(#${clip}-fairway)` : "var(--c-fairway)", "fw")}
+          {shapes(map.tee, illustrated ? "#8ac957" : "var(--c-fairway)", "te")}
+          {shapes(map.green, illustrated ? `url(#${clip}-green)` : "var(--c-green)", "gr")}
+          {shapes(map.bunker, illustrated ? "#f6e7b0" : "var(--c-bunker)", "bu")}
           {map.path.map((q, i) => (
             <polyline key={`pa${i}`} points={poly(q.map(([x, y]) => ({ x: x!, y: y! })))} fill="none" stroke="var(--c-cartpath)" strokeWidth={1.2} />
           ))}
-          {map.tree.map(([x, y], i) => <circle key={`tr${i}`} cx={X({ x: x!, y: y! })} cy={Y({ x: x!, y: y! })} r={4} fill="var(--c-trees)" />)}
+          {map.tree.map(([x, y], i) => illustrated ? (
+            <g key={`tr${i}`} filter={`url(#${clip}-lift)`}>
+              <circle cx={X({ x: x!, y: y! })} cy={Y({ x: x!, y: y! })} r={5.2} fill="#174d2b" />
+              <circle cx={X({ x: x!, y: y! }) - 1.4} cy={Y({ x: x!, y: y! }) - 1.6} r={2.7} fill="#3f8b43" />
+            </g>
+          ) : <circle key={`tr${i}`} cx={X({ x: x!, y: y! })} cy={Y({ x: x!, y: y! })} r={4} fill="var(--c-trees)" />)}
           </g>
         </>
       ) : (
@@ -226,9 +249,11 @@ export function HoleDrawing({ trace, step, photo, map }: { trace: HoleTrace; ste
         const last = i === shots.length - 1;
         return (
           <g key={`${step}-${i}`}>
-            <path d={d} stroke="rgba(0,0,0,0.45)" strokeWidth={s.kind === "putt" ? 2 : 3.2} fill="none" strokeLinecap="round" />
-            <path d={d} stroke="#fff" strokeWidth={s.kind === "putt" ? 1 : 1.6} fill="none" strokeLinecap="round" pathLength={1} className={last ? "trace-draw" : undefined} strokeDasharray={1} strokeDashoffset={0} />
-            {s.lie !== "holed" && <circle cx={X(s.to)} cy={Y(s.to)} r={s.kind === "putt" ? 1.4 : 2.4} fill={s.lie === "water" || s.lie === "ob" ? "var(--neg)" : "#fff"} stroke="rgba(0,0,0,0.6)" strokeWidth={0.6} className={last ? "trace-land" : undefined} />}
+            {illustrated && s.kind !== "putt" && <path d={groundCurve(s)} stroke="rgba(9,35,19,0.32)" strokeWidth={3.6} fill="none" strokeLinecap="round" pathLength={1} className={last ? "trace-shadow" : undefined} />}
+            <path d={d} stroke={illustrated ? "rgba(10,39,22,0.55)" : "rgba(0,0,0,0.45)"} strokeWidth={s.kind === "putt" ? 2 : illustrated ? 4.8 : 3.2} fill="none" strokeLinecap="round" />
+            <path d={d} stroke={illustrated ? "#fff4a8" : "#fff"} strokeWidth={s.kind === "putt" ? 1 : illustrated ? 2.4 : 1.6} fill="none" strokeLinecap="round" pathLength={1} className={last ? "trace-draw" : undefined} strokeDasharray={1} strokeDashoffset={0} />
+            {illustrated && last && s.kind !== "putt" && <circle cx={X(s.to)} cy={Y(s.to)} r={3.1} fill="#fff" className="trace-ball" />}
+            {s.lie !== "holed" && <circle cx={X(s.to)} cy={Y(s.to)} r={s.kind === "putt" ? 1.4 : illustrated ? 3 : 2.4} fill={s.lie === "water" || s.lie === "ob" ? "var(--neg)" : "#fff"} stroke="rgba(0,0,0,0.6)" strokeWidth={0.6} className={last ? "trace-land" : undefined} />}
           </g>
         );
       })}
