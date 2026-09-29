@@ -1,6 +1,6 @@
 import { useId, type ReactNode } from "react";
 import type { Course } from "../../engine";
-import { WINNER_POINTS, type TourEvent } from "../../season";
+import { WINNER_POINTS, realEventOrigin, type TourEvent } from "../../season";
 import { millions } from "../format";
 
 /**
@@ -72,19 +72,96 @@ const SPECS: Record<string, LogoSpec> = {
   "The RSM Classic": { motif: "lighthouse", color: "#1d4f8c", pre: "The", main: "RSM Classic" },
 };
 
-const FALLBACK_COLORS = ["#1f7a4d", "#1f5fa8", "#b8322a", "#6d4bc2", "#0f8080", "#c2562e", "#1d2b45", "#8a6a2f"];
+const COLORS = ["#1f7a4d", "#1f5fa8", "#b8322a", "#6d4bc2", "#0f8080", "#c2562e", "#1d4f8c", "#8a6a2f", "#c2304f", "#2c6fa8", "#5b2d8e", "#367c2b"];
+/** Majors, the playoffs and the finale take a darker, more formal colour. */
+const GRAND_COLORS = ["#1d2b45", "#7a1f2b", "#1f4a36", "#4d2a8c", "#8a6a2f"];
 
-/** The logo for any event: hand-set for the real tour, built from the venue for the rest. */
-export function logoSpec(event: Pick<TourEvent, "name" | "tier">, course?: Pick<Course, "style">): LogoSpec {
+const hashOf = (text: string) => {
+  let h = 0;
+  for (const ch of text) h = (Math.imul(h, 31) + ch.charCodeAt(0)) >>> 0;
+  return h;
+};
+
+const BIG_CITIES = /\b(houston|dallas|detroit|chicago|atlanta|memphis|charlotte|boston|philadelphia|new york|los angeles|denver|seattle|toronto|minneapolis|st\. louis|nashville|phoenix|miami|washington|pittsburgh|cleveland|cincinnati|indianapolis|kansas city|milwaukee|baltimore|portland|vancouver|montreal|london|tokyo|sydney|melbourne)\b/;
+const TEXAS = /\b(texas|austin|san antonio|fort worth|el paso|lubbock|waco|mckinney|irving|plano|amarillo)\b/;
+
+/**
+ * The scene for an event nobody hand-set: from where it's played. The venue's
+ * country first, then words in the event, course and city names, then the
+ * course's style. Majors, the playoffs and the finale take the laurel crest.
+ */
+export function motifFor(event: Pick<TourEvent, "name" | "tier">, course?: LogoCourse): Motif {
+  if (event.tier === "major" || event.tier === "finale" || event.tier === "playoff") return "laurel";
+  const style = course?.style ?? "parkland";
+  const country = course?.info?.country ?? "";
+  const words = `${event.name} ${course?.name ?? ""} ${course?.info?.city ?? ""}`.toLowerCase();
+  if (country === "JPN") return "fuji";
+  if (country === "CAN") return "maple";
+  if (["SCO", "ENG", "IRL", "NIR", "WAL"].includes(country)) return style === "parkland" ? "parkland" : "links";
+  if (["MEX", "PUR", "DOM", "BER", "BAH", "JAM", "BRB"].includes(country)) return style === "desert" ? "cabo" : "tropical";
+  if (/\blinks\b|\bheath\b|\bmoor\b|\broyal\b/.test(words) || (style === "links" && !/\bdesert\b/.test(words))) return "links";
+  // Words match at their start: Lakeside, Pinehurst and Oakmont all count.
+  if (/\blighthouse|\bsound\b|\bpoint\b/.test(words)) return "lighthouse";
+  if (/\bisland|\bisle\b|\bbeach|\bbay\b|\bbayside|\bharbou?r|\bcove\b|\bshore|\bcoast|\bocean|\breef|\blagoon|\bkeys?\b|\bpalms?\b/.test(words)) return style === "desert" ? "cabo" : style === "parkland" ? "coast" : "tropical";
+  if (/\bdesert|\bmesa|\bcanyon|\bcactus|\bsaguaro|\bred rock/.test(words) || style === "desert") return "desert";
+  // The city before the club's own name: Fort Worth is Texas whatever the club is called.
+  if (TEXAS.test(words)) return "star";
+  if (BIG_CITIES.test(words)) return "skyline";
+  if (/\bmountain|\bridge|\bpeak|\bsummit|\balpine|\bhighland|\bsmoky|\bblue ridge/.test(words)) return "mountains";
+  if (/\blake|\briver|\bcreek|\bspring|\bfalls\b|\bpine|\bforest|\bwoods?\b|\btimber/.test(words)) return "lakes";
+  if (/\boak|\bmagnolia|\bplantation|\bbayou|\bcypress/.test(words)) return "oak";
+  if (/\bfarm|\bharvest|\bprairie|\bheartland|\bmeadow|\bbarn\b/.test(words)) return "farm";
+  if (style === "resort") return "tropical";
+  // A parkland course with nothing else to go on: a steady pick among the inland scenes.
+  return (["parkland", "oak", "lakes", "mountains", "farm"] as const)[hashOf(event.name) % 5]!;
+}
+
+const SUFFIX = /^(.*\S)\s+(Championship|Classic|Challenge|Invitational|Tournament|Pro-Am|Cup|Shootout|Series)$/;
+
+/** Splits a name the way the hand-set logos do: "The" small above, the name large, "Championship" or "in ..." in italic. */
+export function wordmarkFor(name: string): Pick<LogoSpec, "pre" | "main" | "sub"> {
+  let rest = name.trim();
+  let pre: string | undefined;
+  let sub: string | undefined;
+  const lead = /^(The|THE)\s+(.+)$/.exec(rest);
+  if (lead) {
+    pre = "The";
+    rest = lead[2]!;
+  }
+  const suffix = SUFFIX.exec(rest);
+  const where = /^(.+?)\s+((?:in|of|at)\s+.+)$/.exec(rest);
+  if (suffix) {
+    rest = suffix[1]!;
+    sub = suffix[2]!;
+  } else if (where && where[1]!.split(" ").length >= 2) {
+    // "Zurich Classic of New Orleans", but not "Bank of Utah".
+    rest = where[1]!;
+    sub = where[2]!;
+  }
+  return { ...(pre ? { pre } : {}), main: rest, ...(sub ? { sub } : {}) };
+}
+
+type LogoCourse = Pick<Course, "style"> & Partial<Pick<Course, "id" | "name" | "info">>;
+
+/**
+ * The logo for any event. Hand-set for the real tour; a real event renamed in
+ * the editor keeps its colour (and its scene while it stays at its venue) with
+ * a wordmark from the new name; every other event, including future seasons,
+ * the developmental tour and events made in the editor, gets one built from
+ * its venue. Nothing is stored: the same event always gets the same logo.
+ */
+export function logoSpec(event: Pick<TourEvent, "name" | "tier"> & Partial<Pick<TourEvent, "id" | "courseId">>, course?: LogoCourse): LogoSpec {
   const known = SPECS[event.name];
   if (known) return known;
-  let h = 0;
-  for (const ch of event.name) h = (Math.imul(h, 31) + ch.charCodeAt(0)) >>> 0;
-  const byStyle: Record<string, Motif> = { desert: "desert", links: "links", resort: "tropical", parkland: "parkland" };
-  const motif = event.tier === "major" || event.tier === "finale" ? "laurel" : byStyle[course?.style ?? "parkland"] ?? "parkland";
-  // "Harrow Pines Classic" reads as the place large and the word under it.
-  const m = /^(.*)\s(Open|Classic|Championship|Challenge|Invitational)$/.exec(event.name);
-  return { motif, color: FALLBACK_COLORS[h % FALLBACK_COLORS.length]!, main: m ? m[1]! : event.name, sub: m ? m[2] : undefined };
+  const origin = event.id ? realEventOrigin(event.id) : undefined;
+  const handSet = origin ? SPECS[origin.name] : undefined;
+  if (handSet) {
+    const sameVenue = !event.courseId || event.courseId === origin!.courseId;
+    return { motif: sameVenue ? handSet.motif : motifFor(event, course), color: handSet.color, ...wordmarkFor(event.name) };
+  }
+  const grand = event.tier === "major" || event.tier === "finale" || event.tier === "playoff";
+  const palette = grand ? GRAND_COLORS : COLORS;
+  return { motif: motifFor(event, course), color: palette[hashOf(event.name) % palette.length]!, ...wordmarkFor(event.name) };
 }
 
 /** Every event with a hand-set logo. */
@@ -417,7 +494,7 @@ function Scene({ motif, color, id }: { motif: Motif; color: string; id: string }
 }
 
 /** The round emblem, at any size. */
-export function TournamentEmblem({ event, course, size = 72 }: { event: Pick<TourEvent, "name" | "tier">; course?: Pick<Course, "style">; size?: number }) {
+export function TournamentEmblem({ event, course, size = 72 }: { event: Pick<TourEvent, "name" | "tier"> & Partial<Pick<TourEvent, "id" | "courseId">>; course?: LogoCourse; size?: number }) {
   const spec = logoSpec(event, course);
   const id = `tl${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   return (
@@ -436,7 +513,7 @@ export function TournamentEmblem({ event, course, size = 72 }: { event: Pick<Tou
 }
 
 /** The emblem and wordmark together, and the week's numbers, like a tour's tournament card. */
-export function TournamentCard({ event, course, venue }: { event: TourEvent; course?: Pick<Course, "style">; venue?: string }) {
+export function TournamentCard({ event, course, venue }: { event: TourEvent; course?: LogoCourse; venue?: string }) {
   const spec = logoSpec(event, course);
   const points = event.winnerPoints ?? WINNER_POINTS[event.tier];
   return (

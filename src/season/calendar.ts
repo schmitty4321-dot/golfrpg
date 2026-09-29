@@ -58,6 +58,17 @@ const SCHEDULE: Slot[] = [
   [41, "standard", "sea-island-seaside", "The RSM Classic", 7_400_000, 156, 65],
 ];
 
+/**
+ * What a real-tour event (id "r01" onwards) was called and where it was played
+ * when the schedule was built, so it keeps its identity after the editor
+ * renames it or moves it.
+ */
+export function realEventOrigin(id: string): { name: string; courseId: string } | undefined {
+  const m = /^r(\d+)$/.exec(id);
+  const slot = m ? SCHEDULE[Number(m[1]) - 1] : undefined;
+  return slot ? { name: slot[3], courseId: slot[2] } : undefined;
+}
+
 /** Weeks in a new season (the real tour's). Saved careers keep their own calendar: use seasonWeeks(world). */
 export const SEASON_WEEKS = Math.max(...SCHEDULE.map((s) => s[0]));
 

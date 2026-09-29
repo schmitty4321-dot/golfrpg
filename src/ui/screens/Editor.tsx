@@ -27,6 +27,7 @@ import {
 import { downloadText } from "../download";
 import { TIER_LABELS, millions, signed } from "../format";
 import type { Game } from "../useGame";
+import { TournamentEmblem } from "../components/TournamentLogo";
 
 type View = "players" | "courses" | "calendar" | "share";
 const STYLES: CourseStyle[] = ["parkland", "links", "desert", "resort"];
@@ -407,7 +408,7 @@ function CalendarEditor({ world, game }: { world: World; game: Game }) {
   const courses = [...world.courses].sort((a, b) => a.name.localeCompare(b.name));
   return (
     <section className="panel">
-      <p className="secondary" style={{ marginTop: 0 }}>Rename events, change purses, or move an event to any venue, including one you designed. Changes apply from the next time the event is played.</p>
+      <p className="secondary" style={{ marginTop: 0 }}>Rename events, change purses, or move an event to any venue, including one you designed. Changes apply from the next time the event is played. Each event's logo follows: a renamed event keeps its colours with the new name, and a moved one takes a scene from its new venue.</p>
       <div className="table-wrap">
         <table>
           <thead><tr><th>Week</th><th>Event</th><th>Type</th><th>Venue</th><th>Purse ($M)</th><th /></tr></thead>
@@ -416,7 +417,12 @@ function CalendarEditor({ world, game }: { world: World; game: Game }) {
               eventsInWeek(world, week).map((e) => (
                 <tr key={e.id}>
                   <td>{week}</td>
-                  <td><input type="text" defaultValue={e.name} aria-label={`Name of ${e.name}`} onBlur={(ev) => ev.target.value !== e.name && apply(e.id, { name: ev.target.value })} style={{ width: 260 }} /></td>
+                  <td>
+                    <span className="cal-event">
+                      <TournamentEmblem event={e} course={world.courses.find((c) => c.id === e.courseId)} size={30} />
+                      <input type="text" defaultValue={e.name} aria-label={`Name of ${e.name}`} onBlur={(ev) => ev.target.value !== e.name && apply(e.id, { name: ev.target.value })} style={{ width: 260 }} />
+                    </span>
+                  </td>
                   <td><span className={`badge${e.tier === "major" ? " badge-major" : ""}`}>{TIER_LABELS[e.tier]}</span></td>
                   <td>
                     <select aria-label={`Venue of ${e.name}`} value={e.courseId} onChange={(ev) => apply(e.id, { courseId: ev.target.value })}>

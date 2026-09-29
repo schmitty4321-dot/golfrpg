@@ -214,8 +214,17 @@ of the world (surf and palms for Hawaii and the Caribbean, saguaros for Scottsda
 Head and Sea Island, dunes and wind for the Scottish Open and The Open, a laurel crest for the majors and
 playoffs) in its own colour, and a wordmark of its name. The emblem sits beside the event on the home screen,
 the event screen and every calendar row; the calendar opens with this week's full card: emblem, wordmark,
-venue, purse, winner's points and field. All 45 events on the real tour are hand-set; developmental-tour and
-generated events get one built from their course's style. The art is the game's own: only the event names
+venue, purse, winner's points and field. All 45 events on the real tour are hand-set.
+
+Any other event gets a logo the moment it exists, built the same way: future seasons' calendars,
+the developmental tour, and events renamed, moved or hosted at your own course in the editor. The scene
+comes from the venue: its country (Japan the rising sun, Canada the maple leaf, the British Isles links, the
+Caribbean and Mexico surf and palms), then words in the event, course and city names (lake, pines, oaks,
+mountains, island, desert...), then Texas cities and other big cities, then the course's style; majors, the
+playoffs and the finale take the laurel crest. The wordmark is set like the hand-set ones ("The" small, the
+name large, "Championship" or "in ..." in italic). A real event renamed in the editor keeps its colour, and
+its scene while it stays at its venue. Nothing is stored in the save: the same event always gets the same
+logo, and it follows the event through any edit. The art is the game's own: only the event names
 the schedule already uses appear, and no sponsor or tournament marks are reproduced.
 
 ### Player archetypes
