@@ -15,8 +15,7 @@ import {
   queueScouting,
   rankMap,
   scoutedAttribute,
-  type World,
-} from "../../season";
+  type World, knownArchetype } from "../../season";
 import { Stars } from "./Stars";
 import { TendenciesPanel } from "./TendenciesPanel";
 import { PortraitCard } from "./Portrait";
@@ -26,6 +25,7 @@ import { TraitChip, TraitList } from "./Traits";
 import { FamiliarityPanel } from "./Familiarity";
 import { money, plural } from "../format";
 import type { Game } from "../useGame";
+import { ArchetypePill } from "./Archetype";
 
 export function chanceWords(p: number): string {
   if (p < 0.1) return "Very unlikely";
@@ -74,6 +74,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
       : null;
   const ceiling = potential === null ? null : ceilingStars(potential);
   const traits = knownTraits(world, id);
+  const archetype = knownArchetype(world, id);
   const view = (key: AttributeKey) => {
     const v = scoutedAttribute(world, id, key)!;
     return { ...v, ...(potential === null ? {} : { potential: attributePotential(wp.player, key, potential, v.value) }) };
@@ -93,6 +94,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
                 {wp.player.age} · {nationInfo(wp.player.nationality).name} · {STATUS_LABELS[wp.career.status]}
                 <br />
                 {wp.client ? "Your client" : wp.agent ? `${wp.agent.agency} (until end of season ${wp.agent.untilSeason})` : "Free agent"}
+                {archetype && <div style={{ marginTop: 8 }}><ArchetypePill id={archetype} /></div>}
               </div>
             </div>
             <dl className="pp-kv">

@@ -6,6 +6,7 @@ import { TraitChips } from "../components/Traits";
 import { traitsOf } from "../../engine";
 import { money } from "../format";
 import type { Game } from "../useGame";
+import { ArchetypeBadge } from "../components/Archetype";
 
 const CATEGORY_LABELS = { equipment: "Equipment", apparel: "Apparel", watch: "Watch", financial: "Financial", automotive: "Automotive", beverage: "Beverage" } as const;
 
@@ -47,7 +48,7 @@ export function Agency({ world, game }: { world: World; game: Game }) {
                   return (
                     <Fragment key={id}>
                       <tr>
-                        <td><button className="linkish" onClick={() => setProfile(id)}>{wp.player.name}</button> <Nation nationality={wp.player.nationality} /> <span className="muted small">{wp.player.age}</span></td>
+                        <td>{wp.player.archetype && <ArchetypeBadge id={wp.player.archetype} size={18} />} <button className="linkish" onClick={() => setProfile(id)}>{wp.player.name}</button> <Nation nationality={wp.player.nationality} /> <span className="muted small">{wp.player.age}</span></td>
                         <td className="secondary small" style={{ whiteSpace: "normal", minWidth: 110 }}>{STATUS_LABELS[wp.career.status]}</td>
                         <td className="num">{pts.indexOf(id) >= 0 ? `#${pts.indexOf(id) + 1}` : "—"}</td>
                         <td className="num">#{ranks.get(id) ?? "—"}</td>

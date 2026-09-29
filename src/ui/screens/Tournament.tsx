@@ -1,5 +1,5 @@
 import { CourseCard, CourseFacts, CoursePhoto } from "../components/CourseHeader";
-import { familiarityTags, type World } from "../../season";
+import { familiarityTags, type World, knownArchetypes } from "../../season";
 import { Leaderboard } from "../components/Leaderboard";
 import { TIER_LABELS, millions } from "../format";
 import type { Game } from "../useGame";
@@ -53,7 +53,7 @@ export function Tournament({ world, game, eventId, setEventId }: { world: World;
             </span>
           ))}
         </div>
-        <Leaderboard key={event.id} result={result} clientIds={world.clientIds} limit={30} tags={familiarityTags(world, event.courseId, result.leaderboard.map((r) => r.player.id))} />
+        <Leaderboard key={event.id} result={result} archetypes={knownArchetypes(world, result.leaderboard.map((r) => r.player.id))} clientIds={world.clientIds} limit={30} tags={familiarityTags(world, event.courseId, result.leaderboard.map((r) => r.player.id))} />
       </section>
       <CourseCard course={c} />
     </main>

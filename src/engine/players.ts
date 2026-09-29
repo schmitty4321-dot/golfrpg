@@ -1,5 +1,6 @@
 import { ALL_ATTRIBUTES, TOUR_AVERAGE, type AttributeKey, type Attributes } from "./attributes";
 import { clamp, type Rng } from "./rng";
+import { APPLIED_SKEW, ARCHETYPES, archetypeFromRoll, type ArchetypeId } from "./archetypes";
 import { NATIONS, nationFromRoll } from "./nations";
 import type { CourseStyle, Player } from "./types";
 
@@ -15,18 +16,6 @@ const TIERS: Record<PlayerTier, { talent: [number, number]; age: [number, number
   veteran: { talent: [11.5, 1.2], age: [42, 50] },
 };
 
-/** Playing styles that skew a player's profile around their overall talent. */
-const ARCHETYPES: Record<string, Partial<Record<AttributeKey, number>>> = {
-  bomber: { drivingDistance: 3, drivingAccuracy: -2, aggression: 2, wedges: 1, flexibility: 2 },
-  plotter: { drivingDistance: -2, drivingAccuracy: 3, courseManagement: 2, fairwayWoods: 1, aggression: -2 },
-  ballStriker: { midIrons: 2, longIrons: 2, distanceControl: 2, shortPutts: -2, lagPutting: -1 },
-  wedgeWizard: { wedges: 3, pitching: 2, chipping: 2, drivingDistance: -1 },
-  flatStick: { shortPutts: 3, lagPutting: 2, greenReading: 2, speedControl: 2, longIrons: -2 },
-  grinder: { bounceBack: 3, composure: 2, bunkerPlay: 2, creativity: 2, drivingDistance: -2 },
-  shotmaker: { shotShaping: 3, trajectoryControl: 3, creativity: 2, windTolerance: 2, drivingAccuracy: -1 },
-  allRounder: {},
-};
-
 /** Attributes that aren't really golf skill, so they don't follow talent. */
 const PERSONALITY: readonly AttributeKey[] = ["aggression", "injuryProneness", "professionalism", "ambition", "coachability"];
 
@@ -34,7 +23,7 @@ let nextId = 1;
 
 export interface GenerateOptions {
   tier: PlayerTier;
-  archetype?: keyof typeof ARCHETYPES;
+  archetype?: ArchetypeId;
   nationality?: string;
   /** Names already taken in this world; the new player gets a different one. */
   usedNames?: Set<string>;
@@ -63,18 +52,20 @@ export function generatePlayer(rng: Rng, opts: GenerateOptions): Player {
   const tier = TIERS[opts.tier];
   // Capped so no generated player is untouchable: the very best are +3 a round, not +4.
   const talent = Math.min(16.5, rng.normal(tier.talent[0], tier.talent[1]));
-  const archetype = ARCHETYPES[opts.archetype ?? rng.pick(Object.keys(ARCHETYPES))] ?? {};
+  // The archetype is drawn here (one number, as before) and chosen once his age is known.
+  const archetypeRoll = opts.archetype ? 0 : rng.next();
   // Weighted like the real tour's membership (one draw, as a plain pick was).
   const nationality = opts.nationality ?? nationFromRoll(rng.next()).key;
   const nation = NATIONS[nationality] ?? NATIONS.USA!;
 
-  const attributes = {} as Attributes;
-  for (const k of ALL_ATTRIBUTES) {
-    const base = PERSONALITY.includes(k) ? rng.normal(10.5, 3) : talent + rng.normal(0, 1.4);
-    attributes[k] = Math.round(clamp(base + (archetype[k] ?? 0), 1, 20));
-  }
+  const base = {} as Attributes;
+  for (const k of ALL_ATTRIBUTES) base[k] = PERSONALITY.includes(k) ? rng.normal(10.5, 3) : talent + rng.normal(0, 1.4);
 
   const age = rng.int(tier.age[0], tier.age[1]);
+  const archetype = opts.archetype ?? archetypeFromRoll(archetypeRoll, { age, tier: opts.tier, nationality });
+  const skew = APPLIED_SKEW[archetype];
+  const attributes = {} as Attributes;
+  for (const k of ALL_ATTRIBUTES) attributes[k] = Math.round(clamp(base[k] + (skew[k] ?? 0), 1, 20));
   // Veterans have lost distance and nerve on the greens; experience helps elsewhere.
   if (age >= 40) {
     const years = age - 39;
@@ -89,6 +80,7 @@ export function generatePlayer(rng: Rng, opts: GenerateOptions): Player {
     styleComfort[s] = Math.round(clamp(rng.normal(TOUR_AVERAGE, 2.5), 1, 20));
   }
   if (nation.links) styleComfort.links = Math.min(20, styleComfort.links + 3);
+  for (const [st, d] of Object.entries(ARCHETYPES[archetype].style ?? {}) as [CourseStyle, number][]) styleComfort[st] = Math.min(20, styleComfort[st] + d);
 
   return {
     id: `p${nextId++}`,
@@ -101,6 +93,7 @@ export function generatePlayer(rng: Rng, opts: GenerateOptions): Player {
     peakAge: Math.round(clamp(rng.normal(31, 2.5), 26, 37)),
     form: clamp(rng.normal(0, 0.3), -1, 1),
     condition: Math.round(clamp(rng.normal(90, 6), 60, 100)),
+    archetype,
   };
 }
 

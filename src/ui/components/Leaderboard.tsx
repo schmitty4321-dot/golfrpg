@@ -1,10 +1,11 @@
 import { Fragment, useState } from "react";
-import type { PlayerEventResult, TournamentResult } from "../../engine";
+import type { ArchetypeId, PlayerEventResult, TournamentResult } from "../../engine";
 import { money, toPar } from "../format";
 import { Scorecard } from "./Scorecard";
 import { SgChart } from "./SgChart";
 import { ShotTracer } from "./ShotTracer";
 import { Nation } from "./Flag";
+import { ArchetypeBadge } from "./Archetype";
 
 interface Props {
   result: TournamentResult;
@@ -14,9 +15,11 @@ interface Props {
   limit?: number;
   /** Short tags by player id, e.g. "Debut" or "Course expert". */
   tags?: Record<string, string>;
+  /** Archetypes your agency knows, by player id. */
+  archetypes?: Record<string, ArchetypeId>;
 }
 
-export function Leaderboard({ result, clientIds, limit, tags }: Props) {
+export function Leaderboard({ result, clientIds, limit, tags, archetypes }: Props) {
   const [open, setOpen] = useState<string | null>(null);
   const [all, setAll] = useState(!limit);
   const rows = result.leaderboard;
@@ -44,7 +47,7 @@ export function Leaderboard({ result, clientIds, limit, tags }: Props) {
                 {idx === firstMc && all && (
                   <tr className="divider"><td colSpan={9}>Missed the cut{result.cutLine !== null ? ` (cut ${toPar(result.cutLine)})` : ""}</td></tr>
                 )}
-                <Row r={r} me={clientIds.includes(r.player.id)} tag={tags?.[r.player.id]} onClick={() => setOpen(open === r.player.id ? null : r.player.id)} />
+                <Row r={r} me={clientIds.includes(r.player.id)} tag={tags?.[r.player.id]} arch={archetypes?.[r.player.id]} onClick={() => setOpen(open === r.player.id ? null : r.player.id)} />
                 {open === r.player.id && (
                   <tr>
                     <td colSpan={9} style={{ whiteSpace: "normal", background: "var(--surface-2)" }}>
@@ -67,12 +70,12 @@ export function Leaderboard({ result, clientIds, limit, tags }: Props) {
   );
 }
 
-function Row({ r, me, tag, onClick }: { r: PlayerEventResult; me: boolean; tag?: string; onClick: () => void }) {
+function Row({ r, me, tag, arch, onClick }: { r: PlayerEventResult; me: boolean; tag?: string; arch?: ArchetypeId; onClick: () => void }) {
   return (
     <tr className={`clickable${me ? " me" : ""}`} onClick={onClick}>
       <td>{r.positionLabel}</td>
       <td>
-        {r.player.name} <Nation nationality={r.player.nationality} />
+        {arch && <ArchetypeBadge id={arch} size={18} />} {r.player.name} <Nation nationality={r.player.nationality} />
         {tag && <span className={`fam-tag${tag === "Debut" ? " fam-debut" : ""}`}>{tag}</span>}
       </td>
       <td className={`num ${r.toPar < 0 ? "good-text" : r.toPar > 0 ? "bad-text" : ""}`}>{toPar(r.toPar)}</td>

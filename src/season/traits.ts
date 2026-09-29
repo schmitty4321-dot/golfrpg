@@ -3,15 +3,22 @@
  * seen, and the effects off the course (fitness, injuries, mood, contracts,
  * sponsors, development, and the few traits that come and go).
  */
-import { clamp, hasTrait, homeRegion, rollTraits, traceSeed, traitsOf, type PlayerEventContext, type Rng } from "../engine";
+import { clamp, hasTrait, homeRegion, inferArchetype, rollTraits, traceSeed, traitsOf, type PlayerEventContext, type Rng } from "../engine";
 import { rankMap } from "./points";
 import { familiarityContext } from "./familiarity";
 import { caddieOnBag, travelMode } from "./team";
 import type { Region, SponsorCategory, TourEvent, World, WorldPlayer } from "./types";
 
-/** Gives every player without traits his roll. Run when a world is made or loaded, and each week. */
+/**
+ * Gives every player without traits his roll, and without an archetype the one
+ * his attributes fit best (older saves, database and editor players; nothing
+ * about him changes). Run when a world is made or loaded, and each week.
+ */
 export function ensureTraits(world: World): void {
-  for (const wp of Object.values(world.players)) if (!wp.player.traits) wp.player.traits = rollTraits(wp.player);
+  for (const wp of Object.values(world.players)) {
+    if (!wp.player.archetype) wp.player.archetype = inferArchetype(wp.player);
+    if (!wp.player.traits) wp.player.traits = rollTraits(wp.player);
+  }
 }
 
 export const has = (wp: WorldPlayer, id: string): boolean => hasTrait(wp.player, id);

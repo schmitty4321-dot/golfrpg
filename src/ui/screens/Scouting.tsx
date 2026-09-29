@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { REPORTS_PER_WEEK, STATUS_LABELS, approachBlock, knownTraits, pointsList, queueScouting, rankMap, weeklyScoutCost, type TourStatus, type World } from "../../season";
+import { REPORTS_PER_WEEK, STATUS_LABELS, approachBlock, knownTraits, pointsList, queueScouting, rankMap, weeklyScoutCost, type TourStatus, type World, knownArchetype } from "../../season";
 import { PlayerProfile } from "../components/PlayerProfile";
 import { Stars } from "../components/Stars";
 import { TraitChips } from "../components/Traits";
@@ -7,6 +7,7 @@ import { TRAITS } from "../../engine";
 import { money } from "../format";
 import type { Game } from "../useGame";
 import { Nation } from "../components/Flag";
+import { ArchetypeBadge } from "../components/Archetype";
 
 type Filter = "all" | "approachable" | "free";
 
@@ -118,7 +119,7 @@ export function Scouting({ world, game }: { world: World; game: Game }) {
                 const queued = a.scoutingQueue.includes(id);
                 return (
                   <tr key={id}>
-                    <td><button className="linkish" onClick={() => setProfile(id)}>{wp.player.name}</button> <Nation nationality={wp.player.nationality} /></td>
+                    <td>{(() => { const arch = knownArchetype(world, id); return arch ? <ArchetypeBadge id={arch} size={18} /> : null; })()} <button className="linkish" onClick={() => setProfile(id)}>{wp.player.name}</button> <Nation nationality={wp.player.nationality} /></td>
                     <td className="num">{wp.player.age}</td>
                     <td className="secondary small">{STATUS_LABELS[wp.career.status]}</td>
                     <td className="num">{ranks.get(id) ?? "—"}</td>

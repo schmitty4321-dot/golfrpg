@@ -1,4 +1,5 @@
 import {
+  ARCHETYPES,
   ATTRIBUTE_GROUPS,
   TOUR_AVERAGE,
   VISIBLE_ATTRIBUTES,
@@ -68,7 +69,7 @@ export function initialPotential(p: Player, rng: Rng): number {
   const now = overall(p);
   const room = p.age <= 22 ? Math.min(4.5, Math.abs(rng.normal(2.5, 1.3))) : p.age <= 27 ? Math.min(2.5, Math.abs(rng.normal(1, 0.8))) : Math.max(0, rng.normal(0.3, 0.5));
   // A generational talent is about 17: the very best seasons on record, not beyond.
-  return Math.round(Math.min(Math.max(now, MAX_POTENTIAL), now + room) * 10) / 10;
+  return Math.round(Math.min(Math.max(now, MAX_POTENTIAL), now + room + archetypeCeiling(p)) * 10) / 10;
 }
 
 /**
@@ -82,6 +83,9 @@ export function attributePotential(p: Player, key: AttributeKey, potential: numb
   const cap = Math.min(20, Math.ceil(potential + STRENGTH_ROOM));
   return Math.max(value, Math.min(cap, Math.round(value + Math.max(0, potential - overall(p)))));
 }
+
+/** Extra ceiling some archetypes carry (a Wunderkind's). */
+export const archetypeCeiling = (p: Player): number => (p.archetype ? ARCHETYPES[p.archetype].ceiling ?? 0 : 0);
 
 /** Ceilings top out here unless a player already starts above it. */
 export const MAX_POTENTIAL = 17;

@@ -1,4 +1,4 @@
-import { ALL_ATTRIBUTES, clamp, createRng, type AttributeKey } from "../engine";
+import { ALL_ATTRIBUTES, clamp, createRng, type ArchetypeId, type AttributeKey } from "../engine";
 import { coachFee } from "./staff";
 import { mixSeed } from "./entries";
 import { absWeek, type Scout, type World } from "./types";
@@ -90,6 +90,24 @@ export function scoutedAttribute(world: World, playerId: string, key: AttributeK
 
 /** Hidden traits come into view once a report is good enough. */
 export const HIDDEN_REVEAL_ACCURACY = 0.6;
+/** A report this good shows a player's archetype. Your clients are always fully known. */
+export const ARCHETYPE_REVEAL_ACCURACY = 0.4;
+
+/** A player's archetype, if your agency knows it. */
+export function knownArchetype(world: World, playerId: string): ArchetypeId | null {
+  const a = world.players[playerId]?.player.archetype;
+  return a && (world.agency.knowledge[playerId]?.accuracy ?? 0) >= ARCHETYPE_REVEAL_ACCURACY ? a : null;
+}
+
+/** The known archetypes among some players, for lists and leaderboards. */
+export function knownArchetypes(world: World, ids: Iterable<string>): Record<string, ArchetypeId> {
+  const out: Record<string, ArchetypeId> = {};
+  for (const id of ids) {
+    const a = knownArchetype(world, id);
+    if (a) out[id] = a;
+  }
+  return out;
+}
 
 export function knowsHidden(world: World, playerId: string): boolean {
   return (world.agency.knowledge[playerId]?.accuracy ?? 0) >= HIDDEN_REVEAL_ACCURACY;

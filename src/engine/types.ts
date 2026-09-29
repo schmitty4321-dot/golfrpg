@@ -1,3 +1,4 @@
+import type { ArchetypeId } from "./archetypes";
 import type { Attributes } from "./attributes";
 
 export type Grass = "bentgrass" | "bermuda" | "poa";
@@ -26,6 +27,8 @@ export interface Player {
   sgAdjust?: Partial<StrokesGained>;
   /** Trait ids (see traits.ts). Rolled once, then kept; absent until assigned. */
   traits?: string[];
+  /** The shape of his game (see archetypes.ts). Absent in older saves until filled in on load. */
+  archetype?: ArchetypeId;
   /** Model ids in his bag by slot (see equipment.ts); tour standard where absent. */
   equipment?: Partial<Record<"driver" | "irons" | "wedges" | "putter", string>>;
 }

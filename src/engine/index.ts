@@ -19,3 +19,4 @@ export * from "./pins";
 export * from "./familiarity";
 export * from "./equipment";
 export * from "./nations";
+export * from "./archetypes";

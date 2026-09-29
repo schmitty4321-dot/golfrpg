@@ -558,6 +558,10 @@ select, input[type="text"], input[type="number"] {
 .nation { display: inline-flex; align-items: center; gap: 4px; vertical-align: -2px; font-size: 11px; font-weight: 650; letter-spacing: 0.04em; color: var(--text-2); white-space: nowrap; }
 .flag { display: block; flex-shrink: 0; border-radius: 2px; }
 .pp-card .nation { color: rgba(255, 255, 255, 0.88); }
+/* Archetypes: a round badge, alone in lists or with the name on a player card. */
+.archetype-badge { display: inline-block; vertical-align: -4px; flex-shrink: 0; }
+.archetype-pill { display: inline-flex; align-items: center; gap: 8px; padding: 3px 12px 3px 3px; border-radius: 999px; background: var(--surface-2); color: var(--text); font-size: 13px; font-weight: 650; max-width: 100%; }
+.pp-card .archetype-pill { background: rgba(255, 255, 255, 0.13); color: #fff; }
 .pp-card h1 { font-size: 24px; font-weight: 800; }
 .pp-meta { color: rgba(255, 255, 255, 0.8); font-size: 13px; margin-top: 4px; }
 .pp-kv { margin: 0; display: grid; gap: 6px; }

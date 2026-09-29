@@ -7,6 +7,7 @@ import { TraitList } from "../components/Traits";
 import { FamiliarityPanel } from "../components/Familiarity";
 import { TendenciesPanel } from "../components/TendenciesPanel";
 import { formWord, money, signed, toPar } from "../format";
+import { ArchetypePill } from "../components/Archetype";
 
 export function PlayerScreen({ world, clientId }: { world: World; clientId: string }) {
   const wp = world.players[clientId]!;
@@ -23,6 +24,7 @@ export function PlayerScreen({ world, clientId }: { world: World; clientId: stri
           <div style={{ flex: 1 }}>
             <h1 style={{ fontSize: 22 }}>{p.name}</h1>
             <div className="secondary small">{p.age} · {nationInfo(p.nationality).name} · {STATUS_LABELS[c.status]}</div>
+            {p.archetype && <div style={{ marginTop: 6 }}><ArchetypePill id={p.archetype} /></div>}
           </div>
         </div>
         <div className="stat-row">

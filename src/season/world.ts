@@ -13,7 +13,7 @@ import {
   type Rng,
 } from "../engine";
 import { DEV_GRADUATES, buildTour, seasonWeeks } from "./calendar";
-import { newDevelopment, overall } from "./development";
+import { MAX_POTENTIAL, archetypeCeiling, newDevelopment, overall } from "./development";
 import { asSetUp, nextCourseSetup } from "./courseSetup";
 import { generateCoaches, offseason, OFFSEASON_WEEKS } from "./staff";
 import { STANDARD_COMMISSION, addReputation, agencySeasonEnd, clients, assignRivalAgents, emptyFinances, newAgency, newManagement } from "./agency";
@@ -91,7 +91,7 @@ const newCareer = (status: TourStatus): Career => ({
 
 export function makeAmateur(p: Player, rng: Rng): WorldPlayer {
   const wp = makeWorldPlayer(p, "amateur", rng);
-  wp.development.potential = amateurPotential(overall(p), rng);
+  wp.development.potential = Math.min(Math.max(MAX_POTENTIAL, overall(p)), amateurPotential(overall(p), rng) + archetypeCeiling(p));
   return wp;
 }
 

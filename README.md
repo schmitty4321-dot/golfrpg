@@ -207,6 +207,28 @@ You make the calls at the key moments; on the other holes he plays his own game.
 - Careers started before this change keep their players' nationalities; new players arrive with the
   new mix.
 
+### Player archetypes
+
+Every player has one of 20 archetypes (`src/engine/archetypes.ts`): the shape of his game, meaning which
+skills sit above or below his own overall level. Power Player, Precision Player, Ball-Striker, Shotmaker,
+Wedge Wizard, Pin Seeker, Short-Game Wizard, Grinder, Improviser, Flatstick, Lag Master, Ice Man,
+Riverboat Gambler, Closer, Wind Specialist, Athlete, Old Pro, Wunderkind, Range Rat and All-Rounder.
+
+- **Never better or worse, only different:** each profile is balanced to zero across the 16 golf skills, so
+  an archetype never changes a player's overall level. A Power Player hits it 3 points further than his level
+  and 2 points less straight; the rest of his golf skills give back the difference.
+- **Who gets which:** chosen when a player is generated, by age, tier and country. Old Pros only come at 38
+  and over, Wunderkinds at 22 and under (with an extra point of ceiling), Athletes under 32. Ice Men and
+  Closers are rarer below tour level, Wind Specialists commoner from the British Isles, Australia and New
+  Zealand, Flatsticks from Japan and Korea.
+- **What you see:** a round badge, with the name on the player card and the client screen, and beside the
+  name on leaderboards, the roster and scouting lists. Your clients' are always shown; anyone else's once a
+  scouting report reaches 40% accuracy.
+- **Older saves:** players get the archetype their attributes fit best when the career is loaded; nothing
+  about them changes. Players from a hand-made database or the editor are matched the same way.
+- Two traits were renamed so no trait shares an archetype's name: Grinder is now **Scrapper** and Wedge
+  Wizard is **Inside 130**. Their effects are unchanged.
+
 ### Player traits
 
 Every player has one to three of 100 traits (`src/engine/traits.ts`), rolled once from who he is (a Links Lifer is likelier from Scotland, a Sand Saver from a good bunker player) and kept in the save. Rarity weights are 60% common, 28% uncommon, 10% rare and 2% legendary, and clashing traits (Loyal and Mercenary, say) never go together.
