@@ -17,6 +17,12 @@ scorecard, choices, commentary, and replay controls remain normal UI.
 Open `/?demo=waialae-tracer&hole=2` to review Hole 2 directly. Large images
 under `public/art-demo/` remain ignored until explicitly approved.
 
+For visual calibration, open `/?demo=art-calibrator&course=waialae&hole=1`.
+Click the tee, landing area and green in that order. The page overlays the
+mapped playing line and produces a manifest entry ready to copy into
+`src/ui/illustratedArt.generated.json`. Use Undo or Reset when an anchor misses
+its landmark.
+
 ## Optional Blender reference workflow
 
 Export a mapped course and optional hole number from the repository root:

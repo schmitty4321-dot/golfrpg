@@ -22,6 +22,7 @@ import { SectionBar, StatusStrip, SubTabs } from "./components/Nav";
 import type { ClientChoices } from "../season";
 import { useGame } from "./useGame";
 import { WaialaeTracerPreview } from "./screens/WaialaeTracerPreview";
+import { IllustrationCalibrator } from "./screens/IllustrationCalibrator";
 
 type Theme = "system" | "light" | "dark";
 
@@ -54,8 +55,9 @@ export function App() {
     }
   }, [theme]);
 
-  const showTracerPreview = import.meta.env.DEV && new URLSearchParams(window.location.search).get("demo") === "waialae-tracer";
-  if (showTracerPreview) return <WaialaeTracerPreview />;
+  const demo = import.meta.env.DEV ? new URLSearchParams(window.location.search).get("demo") : null;
+  if (demo === "waialae-tracer") return <WaialaeTracerPreview />;
+  if (demo === "art-calibrator") return <IllustrationCalibrator />;
 
   const go: Go = (t, id) => {
     // Leaving the event screen finishes the week (anything unplayed plays itself), then moves on.

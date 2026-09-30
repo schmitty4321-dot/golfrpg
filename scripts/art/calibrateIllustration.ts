@@ -11,6 +11,8 @@ type ArtEntry = {
   meta?: unknown;
 };
 
+type CourseRecord = { id: string; name: string; holes: number[][] };
+
 const [, , course, holeText, image, widthText, heightText, ...anchorText] = process.argv;
 if (!course || !holeText || !image || !widthText || !heightText || anchorText.length !== 3) {
   throw new Error(
@@ -64,7 +66,14 @@ if (![width, height, hole].every(Number.isFinite)) throw new Error("Hole, width,
 const registryPath = path.resolve("src/ui/illustratedArt.generated.json");
 const registry = JSON.parse(await readFile(registryPath, "utf8")) as Record<string, ArtEntry>;
 const key = `${course}:${hole}`;
-const prior = registry[key];
+const courses = JSON.parse(await readFile(path.resolve("src/engine/realCourses.json"), "utf8")) as CourseRecord[];
+const courseData = courses.find((candidate) => candidate.id === course);
+const holeData = courseData?.holes[hole - 1];
+if (!courseData || !holeData) throw new Error(`Unknown course or hole: ${key}`);
+const difficulty = courseData.holes
+  .map((value, index) => ({ index, over: value[6]! - value[0]! }))
+  .sort((a, b) => b.over - a.over)
+  .findIndex((value) => value.index === hole - 1) + 1;
 registry[key] = {
   image: image.replaceAll("\\", "/").replace(/^public\//, ""),
   width,
@@ -73,7 +82,14 @@ registry[key] = {
     x: solve(anchors.map((anchor) => anchor.pixel[0]) as [number, number, number], anchors),
     y: solve(anchors.map((anchor) => anchor.pixel[1]) as [number, number, number], anchors),
   },
-  ...(prior?.meta === undefined ? {} : { meta: prior.meta }),
+  meta: {
+    number: hole,
+    par: holeData[0],
+    yards: holeData[1],
+    tourAverage: holeData[6],
+    difficulty,
+    course: courseData.name,
+  },
 };
 await writeFile(registryPath, `${JSON.stringify(registry, null, 2)}\n`);
 console.log(`Calibrated ${key} in ${registryPath}`);

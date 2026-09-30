@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { createRng, generatePlayer, REAL_COURSES, traceHole, traceSeed } from "../../engine";
 import { LiveScorecard } from "../components/LiveScorecard";
 import { HoleDrawing } from "../components/ShotTracer";
+import { hasIllustratedTracerArt, IllustratedTracer } from "../components/IllustratedTracer";
 
 const course = REAL_COURSES.find((item) => item.id === "waialae")!;
 const player = generatePlayer(createRng(19), { tier: "tour", nationality: "USA" });
@@ -45,7 +46,9 @@ export function WaialaeTracerPreview() {
           ))}
         </div>
         <div className="tracer-preview-layout">
-          <HoleDrawing trace={trace} step={step} photo={false} map={null} />
+          {hasIllustratedTracerArt(trace)
+            ? <IllustratedTracer trace={trace} step={step} courseName={course.name} />
+            : <HoleDrawing trace={trace} step={step} photo={false} map={null} />}
           <aside>
             <h2>Off the tee</h2>
             <p className="secondary">The fairway narrows around the first landing area. What is the call?</p>

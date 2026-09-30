@@ -23,5 +23,55 @@
       "difficulty": 3,
       "course": "Waialae Country Club"
     }
+  },
+  "waialae:1": {
+    "image": "art-demo/waialae/hole-01-illustrated.jpg",
+    "width": 1672,
+    "height": 941,
+    "matrix": {
+      "x": [
+        4.454046,
+        2.757447,
+        190
+      ],
+      "y": [
+        -3.747226,
+        -1.404442,
+        790
+      ]
+    },
+    "meta": {
+      "number": 1,
+      "par": 4,
+      "yards": 480,
+      "tourAverage": 4.026,
+      "difficulty": 9,
+      "course": "Waialae Country Club"
+    }
+  },
+  "waialae:3": {
+    "image": "art-demo/waialae/hole-03-illustrated.jpg",
+    "width": 1672,
+    "height": 941,
+    "matrix": {
+      "x": [
+        -3.322873,
+        3.182809,
+        115
+      ],
+      "y": [
+        10.047452,
+        -1.6651,
+        835
+      ]
+    },
+    "meta": {
+      "number": 3,
+      "par": 4,
+      "yards": 422,
+      "tourAverage": 3.933,
+      "difficulty": 13,
+      "course": "Waialae Country Club"
+    }
   }
 }
