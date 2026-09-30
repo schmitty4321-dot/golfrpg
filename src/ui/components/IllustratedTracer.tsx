@@ -21,7 +21,7 @@ function arc(a: Pt, b: Pt, shot: Shot): string {
 export function IllustratedTracer({ trace, step, courseName }: { trace: HoleTrace; step: number; courseName: string }) {
   const art = artForTrace(trace);
   if (!art) return null;
-  const revealed = illustratedShotPaths(art, trace.shots.slice(0, step));
+  const revealed = illustratedShotPaths(art, trace.shots.slice(0, step), trace.layout);
   const finalShot = revealed[revealed.length - 1]?.shot;
 
   return (

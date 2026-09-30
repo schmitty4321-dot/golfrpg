@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { holeLayout, REAL_COURSES, type Shot } from "../src/engine";
+import { holeLayout, pointAt, REAL_COURSES, type Shot } from "../src/engine";
 import { illustratedArtFor, illustratedShotPaths, pointInsideArt, projectArtPoint, solveArtMatrix, type ArtEntry } from "../src/ui/illustratedArt";
 
 describe("illustrated tracer art", () => {
@@ -77,5 +77,19 @@ describe("illustrated tracer art", () => {
     expect(paths[0]!.end).toEqual({ x: 780, y: 100 });
     expect(paths[1]!.start).toEqual(paths[0]!.end);
     expect(paths[1]!.end).toEqual({ x: 800, y: 80 });
+  });
+
+  it("maps a 300-yard Hole 3 drive about three quarters along the illustrated route", () => {
+    const course = REAL_COURSES.find((candidate) => candidate.id === "waialae")!;
+    const layout = holeLayout(course, course.holes[2]!);
+    const art = illustratedArtFor(course.id, 3)!;
+    const to = pointAt(layout.path, 300);
+    const shot: Shot = { stroke: 1, kind: "tee", club: "Driver", from: layout.tee, to, lie: "fairway", yards: 300, text: "Driver, 300 yds, finds the fairway." };
+    const path = illustratedShotPaths(art, [shot], layout)[0]!;
+    const tee = art.route![0]!;
+    const green = art.route!.at(-1)!;
+    const progress = Math.hypot(path.end.x - tee.x, path.end.y - tee.y) / Math.hypot(green.x - tee.x, green.y - tee.y);
+    expect(progress).toBeGreaterThan(0.68);
+    expect(progress).toBeLessThan(0.78);
   });
 });
