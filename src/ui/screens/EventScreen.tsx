@@ -1,4 +1,4 @@
-import { CourseCard, CourseFacts, CoursePhoto } from "../components/CourseHeader";
+import { CourseCard, CourseFacts } from "../components/CourseHeader";
 import { Fragment, useMemo, useState, type ReactNode } from "react";
 import { autoFinishRound, clientActive, fieldRoundStats, finishLive, liveSnapshot, standingsAfterRound, startLiveRound, type Course, type PlayerEventResult, type RoundStanding, type TournamentResult } from "../../engine";
 import { familiarityTags, theEvent, type LiveEvent, type TourEvent, type WeekReport, type World, knownArchetypes } from "../../season";
@@ -55,7 +55,6 @@ function EventTabs({ names, which, setWhich }: { names: string[]; which: number;
 function EventHeader({ event, course, week, players, hasCut, status, compact, children }: { event: TourEvent; course: Course; week: number; players: number; hasCut: boolean; status: string; compact?: boolean; children: ReactNode }) {
   return (
     <section className={`panel${compact ? " event-head-compact" : ""}`}>
-      <CoursePhoto course={course} />
       <div className="panel-head">
         <div>
           <div className="event-title">

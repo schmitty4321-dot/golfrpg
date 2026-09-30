@@ -426,7 +426,7 @@ select, input[type="text"], input[type="number"] {
 @media (max-width: 700px) {
   /* While walking the round, the event header shrinks to its title and buttons. */
   .event-head-compact { padding: 10px 12px; }
-  .event-head-compact .course-photo, .event-head-compact .facts { display: none; }
+  .event-head-compact .facts { display: none; }
   .event-head-compact h1 { font-size: 17px !important; }
   .event-head-compact .panel-head { margin-bottom: 6px; }
   .event-head-compact .btn { padding: 4px 10px; font-size: 13px; }
