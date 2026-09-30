@@ -53,6 +53,16 @@ export interface WeekChoices {
   setChoices: (f: (c: ClientChoices) => ClientChoices) => void;
 }
 
+/** A concrete visible choice for clients whose week has not been edited yet. */
+function defaultWeekChoice(world: World, id: string): ClientChoice {
+  const wp = world.players[id]!;
+  if (wp.injury) return { kind: "rest" };
+  const options = clientOptions(world, id).filter((o) => o.access !== "not-invited" && o.access !== "injured");
+  const preferredId = clientPreference(world, id);
+  const event = options.find((o) => o.event.id === preferredId) ?? options[0];
+  return event ? { kind: "enter", eventId: event.event.id } : { kind: "rest" };
+}
+
 export function Home({ world, game, go, week }: { world: World; game: Game; go: Go; week: WeekChoices }) {
   const seasonOver = world.week > seasonWeeks(world);
   const last = game.state.reports[game.state.reports.length - 1];
@@ -121,8 +131,8 @@ function WeekHero({ world, game, week }: { world: World; game: Game; week: WeekC
   // Where each client is headed with the choices made so far ("his call" = his own pick).
   const going = (eventId: string) =>
     world.clientIds.filter((id) => {
-      const c = week.choices[id] ?? { kind: "auto" };
-      return c.kind === "enter" ? c.eventId === eventId : c.kind === "auto" && clientPreference(world, id) === eventId;
+      const c = week.choices[id] ?? defaultWeekChoice(world, id);
+      return c.kind === "enter" && c.eventId === eventId;
     });
   const here = going(main.id).map((id) => world.players[id]!.player.name);
   return (
@@ -208,7 +218,8 @@ function ThisWeek({ world, game, week }: { world: World; game: Game; week: WeekC
   const remaining = seasonWeeks(world) - world.week + 1;
   const set = (id: string, c: ClientChoice) => setChoices((x) => ({ ...x, [id]: c }));
   const play = (weeks: number) => {
-    void game.play(choices, weeks);
+    const concrete = Object.fromEntries(world.clientIds.map((id) => [id, choices[id] ?? defaultWeekChoice(world, id)]));
+    void game.play(concrete, weeks);
     setChoices(() => ({}));
   };
   return (
@@ -218,7 +229,7 @@ function ThisWeek({ world, game, week }: { world: World; game: Game; week: WeekC
         <span className="muted small">{remaining} weeks left</span>
       </div>
       {world.clientIds.map((id) => (
-        <ClientWeek key={`${id}-${world.week}`} world={world} game={game} id={id} choice={choices[id] ?? { kind: "auto" }} onChoose={(c) => set(id, c)} />
+        <ClientWeek key={`${id}-${world.week}`} world={world} game={game} id={id} choice={choices[id] ?? defaultWeekChoice(world, id)} onChoose={(c) => set(id, c)} />
       ))}
       <div className="btn-row" style={{ marginTop: 14 }}>
         <button className="btn btn-primary" onClick={() => play(1)}>Play week {world.week}</button>
@@ -226,9 +237,6 @@ function ThisWeek({ world, game, week }: { world: World; game: Game; week: WeekC
         <button className="btn" onClick={() => play(Math.min(4, remaining))} title="Your clients pick their own schedules after this week">Auto 4 weeks</button>
         <button className="btn" onClick={() => play(remaining)} title="Your clients pick their own schedules after this week">Auto to season end</button>
       </div>
-      <p className="muted small" style={{ marginBottom: 0 }}>
-        "His call" lets a client choose for himself. Overrule him and keep him out of a major or signature event he's in, and he won't be happy.
-      </p>
     </section>
   );
 }
@@ -236,9 +244,6 @@ function ThisWeek({ world, game, week }: { world: World; game: Game; week: WeekC
 function ClientWeek({ world, game, id, choice, onChoose }: { world: World; game: Game; id: string; choice: ClientChoice; onChoose: (c: ClientChoice) => void }) {
   const wp = world.players[id]!;
   const options = clientOptions(world, id);
-  const pref = clientPreference(world, id);
-  const prefName = pref ? world.schedule.find((e) => e.id === pref)?.name : null;
-  const preferred = options.find((o) => o.event.id === pref);
   const sel = (c: ClientChoice) => JSON.stringify(c) === JSON.stringify(choice);
   const entered = choice.kind === "enter" ? options.find((o) => o.event.id === choice.eventId) : undefined;
   const courses = practiceCourses(world);
@@ -264,25 +269,6 @@ function ClientWeek({ world, game, id, choice, onChoose }: { world: World; game:
         </div>
       )}
       <div className="choice-list schedule-choice-list" role="radiogroup" aria-label={`${wp.player.name}'s week`}>
-        <button className="choice schedule-choice" role="radio" aria-checked={sel({ kind: "auto" })} onClick={() => onChoose({ kind: "auto" })}>
-          <span className="schedule-choice-head">
-            <span className="schedule-choice-logo">
-              {preferred ? <TournamentEmblem event={preferred.event} course={preferred.course} size={64} /> : <ScheduleChoiceIcon kind="call" />}
-            </span>
-            <span className="schedule-choice-title">
-              <span className="schedule-choice-kicker">Player's choice</span>
-              <strong>{wp.injury ? "Recover from injury" : prefName ?? "Rest this week"}</strong>
-              <span className="secondary small">Let {wp.player.name.split(" ")[0]} decide</span>
-            </span>
-          </span>
-          {preferred && (
-            <span className="schedule-choice-chips">
-              <span className="schedule-chip" style={{ borderColor: ACCESS_TONE[preferred.access] }}>{preferred.detail}</span>
-              <span className={`schedule-chip ${fitWord(preferred.fit).tone}`}>{fitWord(preferred.fit).label} fit</span>
-              <span className={`schedule-chip ${preferred.familiarity >= 40 ? "good" : "warn"}`}>{familiarityLabel(preferred.familiarity)} familiarity</span>
-            </span>
-          )}
-        </button>
         {options.map((o) => <EventChoice key={o.event.id} o={o} checked={choice.kind === "enter" && choice.eventId === o.event.id} onChoose={() => onChoose({ kind: "enter", eventId: o.event.id })} />)}
         <button className="choice schedule-choice" role="radio" aria-checked={sel({ kind: "rest" })} onClick={() => onChoose({ kind: "rest" })}>
           <span className="schedule-choice-head">
