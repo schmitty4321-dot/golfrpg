@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ATTRIBUTE_LABELS, createRng, describeTendencies, nationInfo, tendencies, type AttributeKey } from "../../engine";
+import { ATTRIBUTE_LABELS, createRng, describeTendencies, feetInches, nationInfo, tendencies, type AttributeKey } from "../../engine";
 import {
   STATUS_LABELS,
   abilityView,
@@ -15,7 +15,7 @@ import {
   queueScouting,
   rankMap,
   scoutedAttribute,
-  type World, knownArchetype } from "../../season";
+  type World, type WorldPlayer, knownArchetype } from "../../season";
 import { Stars } from "./Stars";
 import { TendenciesPanel } from "./TendenciesPanel";
 import { PortraitCard } from "./Portrait";
@@ -23,7 +23,7 @@ import { StatBoxes, StatLegend } from "./StatBoxes";
 import { SkillRadar } from "./SkillRadar";
 import { TraitChip, TraitList } from "./Traits";
 import { FamiliarityPanel } from "./Familiarity";
-import { money, plural } from "../format";
+import { money, plural, signed, TIER_LABELS, toPar } from "../format";
 import type { Game } from "../useGame";
 import { ArchetypePill } from "./Archetype";
 
@@ -41,6 +41,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
   const [commission, setCommission] = useState(10);
   const [years, setYears] = useState(2);
   const [result, setResult] = useState<string | null>(null);
+  const [tab, setTab] = useState<"profile" | "stats" | "results">("profile");
   // A full screen of its own: Escape goes back, and the page underneath doesn't scroll.
   const close = useRef(onClose);
   close.current = onClose;
@@ -125,6 +126,11 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
                 </div>
               </div>
             )}
+            <nav className="pp-nav" aria-label={`${wp.player.name} profile sections`}>
+              <button aria-current={tab === "profile" ? "page" : undefined} onClick={() => setTab("profile")}>Profile</button>
+              <button aria-current={tab === "stats" ? "page" : undefined} onClick={() => setTab("stats")}>Stats</button>
+              <button aria-current={tab === "results" ? "page" : undefined} onClick={() => setTab("results")}>Results</button>
+            </nav>
           </aside>
           {known && (
             <section className="panel pp-radar">
@@ -139,6 +145,8 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
           </div>
 
           <div className="pp-main">
+            {tab === "profile" ? (
+              <>
             <section className="panel">
               <div className="panel-head">
                 <h2>Skills</h2>
@@ -231,9 +239,118 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
             <strong>{result}</strong>
           </p>
         )}
+              </>
+            ) : tab === "stats" ? (
+              <PlayerStats wp={wp} season={world.season} />
+            ) : (
+              <PlayerResults wp={wp} />
+            )}
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+const per = (value: number, count: number) => (count > 0 ? value / count : null);
+const pct = (value: number, count: number) => (count > 0 ? (100 * value) / count : null);
+
+function StatValue({ label, value }: { label: string; value: string }) {
+  return <div className="player-stat"><span>{label}</span><strong>{value}</strong></div>;
+}
+
+function value(value: number | null, format: (n: number) => string): string {
+  return value === null ? "—" : format(value);
+}
+
+function PlayerStats({ wp, season }: { wp: WorldPlayer; season: number }) {
+  const stats = wp.career.stats?.season === season ? wp.career.stats : undefined;
+  if (!stats || stats.rounds === 0) {
+    return <section className="panel"><div className="panel-head"><h2>Season {season} stats</h2></div><p className="empty">No main-tour rounds recorded this season.</p></section>;
+  }
+  const rounds = stats.rounds;
+  const roundCount = stats.shots.holes / 18;
+  const sgTotal = stats.sg.offTheTee + stats.sg.approach + stats.sg.aroundTheGreen + stats.sg.putting;
+  const fixed = (n: number) => n.toFixed(2);
+  const percent = (n: number) => `${n.toFixed(1)}%`;
+  return (
+    <>
+      <section className="panel">
+        <div className="panel-head"><h2>Season {season} stats</h2><span className="muted small">Main-tour events</span></div>
+        <div className="player-stat-grid">
+          <StatValue label="Events" value={`${stats.events}`} />
+          <StatValue label="Rounds" value={`${rounds}`} />
+          <StatValue label="Wins" value={`${stats.wins}`} />
+          <StatValue label="Top 10s" value={`${stats.top10s}`} />
+          <StatValue label="Cuts made" value={value(pct(stats.cuts, stats.events), (n) => `${Math.round(n)}%`)} />
+          <StatValue label="Scoring average" value={value(per(stats.strokes, rounds), fixed)} />
+          <StatValue label="Season points" value={`${Math.round(stats.points)}`} />
+          <StatValue label="Earnings" value={money(stats.earnings)} />
+        </div>
+      </section>
+      <section className="panel">
+        <div className="panel-head"><h2>Strokes gained</h2><span className="muted small">Per round</span></div>
+        <div className="player-stat-grid">
+          <StatValue label="Total" value={signed(sgTotal / rounds, 2)} />
+          <StatValue label="Off the tee" value={signed(stats.sg.offTheTee / rounds, 2)} />
+          <StatValue label="Approach" value={signed(stats.sg.approach / rounds, 2)} />
+          <StatValue label="Around the green" value={signed(stats.sg.aroundTheGreen / rounds, 2)} />
+          <StatValue label="Putting" value={signed(stats.sg.putting / rounds, 2)} />
+        </div>
+      </section>
+      <div className="player-stat-sections">
+        <section className="panel">
+          <div className="panel-head"><h2>Ball striking</h2></div>
+          <div className="player-stat-grid">
+            <StatValue label="Driving distance" value={value(per(stats.shots.driveYards, stats.shots.drives), (n) => `${n.toFixed(1)} yds`)} />
+            <StatValue label="Fairways" value={value(pct(stats.shots.fairwaysHit, stats.shots.fairwayAttempts), percent)} />
+            <StatValue label="Greens in regulation" value={value(pct(stats.shots.gir, stats.shots.holes), percent)} />
+            <StatValue label="Proximity" value={value(per(stats.shots.proximityFeet, stats.shots.proximityCount), feetInches)} />
+          </div>
+        </section>
+        <section className="panel">
+          <div className="panel-head"><h2>Short game & putting</h2></div>
+          <div className="player-stat-grid">
+            <StatValue label="Scrambling" value={value(pct(stats.shots.scrambles, stats.shots.scrambleAttempts), percent)} />
+            <StatValue label="Sand saves" value={value(pct(stats.shots.sandSaves, stats.shots.sandAttempts), percent)} />
+            <StatValue label="Putts / round" value={value(per(stats.shots.putts, roundCount), fixed)} />
+            <StatValue label="Birdies+ / round" value={value(per(stats.shots.birdies + stats.shots.eagles, roundCount), fixed)} />
+          </div>
+        </section>
+      </div>
+    </>
+  );
+}
+
+function PlayerResults({ wp }: { wp: WorldPlayer }) {
+  const results = [...wp.career.results].sort((a, b) => b.season - a.season || b.week - a.week);
+  return (
+    <section className="panel">
+      <div className="panel-head"><h2>Career results</h2><span className="muted small">{plural(results.length, "recorded start")}</span></div>
+      {results.length === 0 ? (
+        <p className="empty">No tournament results recorded.</p>
+      ) : (
+        <div className="table-wrap">
+          <table>
+            <thead><tr><th>Season</th><th>Week</th><th>Event</th><th>Level</th><th>Finish</th><th className="num">Score</th><th className="num">Earnings</th><th className="num">Points</th><th className="num">SG / round</th></tr></thead>
+            <tbody>
+              {results.map((r, i) => (
+                <tr key={`${r.season}-${r.week}-${r.eventId}-${i}`}>
+                  <td>{r.season}</td>
+                  <td>{r.week}</td>
+                  <td>{r.eventName}{r.via === "monday" ? <span className="muted small"> · Monday qualifier</span> : null}</td>
+                  <td>{TIER_LABELS[r.tier]}</td>
+                  <td>{r.label}</td>
+                  <td className="num">{toPar(r.toPar)}</td>
+                  <td className="num">{r.earnings ? money(r.earnings) : "—"}</td>
+                  <td className="num">{Math.round(r.seasonPoints)}</td>
+                  <td className={`num ${r.sgPerRound >= 0 ? "good-text" : "bad-text"}`}>{signed(r.sgPerRound, 2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
   );
 }
