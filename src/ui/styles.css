@@ -391,6 +391,10 @@ select, input[type="text"], input[type="number"] {
 .illustrated-node { fill: #09140f; stroke: #fffbed; stroke-width: 2; }
 .illustrated-arcs text { fill: #fff; font-size: 19px; font-weight: 850; text-anchor: middle; }
 .illustrated-ball { fill: #fff; stroke: #0b2117; stroke-width: 2; animation: illustrated-land 0.3s 0.72s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.illustrated-penalty-line { fill: none; stroke: #fffbed; stroke-width: 4; stroke-dasharray: 11 9; opacity: 0.9; }
+.illustrated-penalty-node { fill: #b92e2e; stroke: #fffbed; stroke-width: 3; }
+.illustrated-arcs .illustrated-penalty-text { font-size: 15px; }
+.illustrated-arcs .illustrated-hazard-text { paint-order: stroke; stroke: rgba(4, 28, 20, 0.88); stroke-width: 7px; fill: #fff; font-size: 13px; letter-spacing: 0.08em; }
 .illustrated-live-caption { position: absolute; z-index: 4; right: 18px; bottom: 16px; max-width: 42%; padding: 8px 13px; border-radius: 6px; color: #fff; background: rgba(2, 39, 28, 0.88); font-size: 13px; font-weight: 650; }
 .illustrated-replay-controls { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 11px 2px 2px; color: var(--text); }
 @keyframes illustrated-draw { from { stroke-dasharray: 1; stroke-dashoffset: 1; } to { stroke-dasharray: 1; stroke-dashoffset: 0; } }

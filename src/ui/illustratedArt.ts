@@ -1,4 +1,4 @@
-import type { HoleTrace, Pt } from "../engine";
+import type { HoleTrace, Lie, Pt, Shot } from "../engine";
 import generatedArt from "./illustratedArt.generated.json";
 
 export interface ArtMatrix {
@@ -11,6 +11,8 @@ export interface ArtEntry {
   width: number;
   height: number;
   matrix: ArtMatrix;
+  /** Pixel-space landing points for hazards that the illustration depicts differently from the source map. */
+  targets?: Partial<Record<Extract<Lie, "water" | "ob" | "bunker">, Pt[]>>;
   meta?: {
     number?: number;
     par?: number;
@@ -19,6 +21,12 @@ export interface ArtEntry {
     difficulty?: number;
     course?: string;
   };
+}
+
+export interface IllustratedShotPath {
+  shot: Shot;
+  start: Pt;
+  end: Pt;
 }
 
 export interface CalibrationAnchor {
@@ -41,6 +49,28 @@ export function projectArtPoint(matrix: ArtMatrix, point: Pt): Pt {
   const [xx, xy, xo] = matrix.x;
   const [yx, yy, yo] = matrix.y;
   return { x: xx * point.x + xy * point.y + xo, y: yx * point.x + yy * point.y + yo };
+}
+
+function nearest(points: Pt[], target: Pt): Pt {
+  return points.reduce((best, point) =>
+    Math.hypot(point.x - target.x, point.y - target.y) < Math.hypot(best.x - target.x, best.y - target.y) ? point : best);
+}
+
+/**
+ * Builds a continuous replay path. Hazard landings can snap to calibrated
+ * artwork targets, while the following penalty/drop stroke begins at that
+ * same visible point so the picture matches the written play-by-play.
+ */
+export function illustratedShotPaths(art: ArtEntry, shots: Shot[]): IllustratedShotPath[] {
+  let previousEnd: Pt | undefined;
+  return shots.map((shot) => {
+    const start = previousEnd ?? projectArtPoint(art.matrix, shot.from);
+    const projectedEnd = projectArtPoint(art.matrix, shot.to);
+    const targets = shot.kind === "penalty" ? undefined : art.targets?.[shot.lie as "water" | "ob" | "bunker"];
+    const end = targets?.length ? nearest(targets, projectedEnd) : projectedEnd;
+    previousEnd = end;
+    return { shot, start, end };
+  });
 }
 
 function solve(values: [number, number, number], anchors: CalibrationAnchor[]): [number, number, number] {

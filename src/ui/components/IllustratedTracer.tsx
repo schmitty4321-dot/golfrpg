@@ -1,5 +1,5 @@
 import type { HoleTrace, Pt, Shot } from "../../engine";
-import { artForTrace, projectArtPoint, type ArtEntry } from "../illustratedArt";
+import { artForTrace, illustratedShotPaths } from "../illustratedArt";
 
 const SHOT_COLORS = ["#ffd84f", "#53d8ff", "#ff6d63", "#f7f4df", "#d59cff", "#ffad4a"];
 export function hasIllustratedTracerArt(trace: HoleTrace): boolean {
@@ -12,13 +12,7 @@ export function hasIllustratedTracerArt(trace: HoleTrace): boolean {
  * enough to solve this affine transform, so the artwork does not need to be
  * produced by the geometry renderer.
  */
-function project(art: ArtEntry, point: Pt): Pt {
-  return projectArtPoint(art.matrix, point);
-}
-
-function arc(art: ArtEntry, shot: Shot): string {
-  const a = project(art, shot.from);
-  const b = project(art, shot.to);
+function arc(a: Pt, b: Pt, shot: Shot): string {
   const distance = Math.hypot(b.x - a.x, b.y - a.y);
   const lift = shot.kind === "putt" ? 34 : Math.min(180, Math.max(72, distance * 0.28));
   return `M ${a.x.toFixed(1)} ${a.y.toFixed(1)} Q ${((a.x + b.x) / 2).toFixed(1)} ${((a.y + b.y) / 2 - lift).toFixed(1)} ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
@@ -27,9 +21,8 @@ function arc(art: ArtEntry, shot: Shot): string {
 export function IllustratedTracer({ trace, step, courseName }: { trace: HoleTrace; step: number; courseName: string }) {
   const art = artForTrace(trace);
   if (!art) return null;
-  const shots = trace.shots.filter((shot) => shot.kind !== "penalty");
-  const revealed = shots.slice(0, step);
-  const finalShot = revealed[revealed.length - 1];
+  const revealed = illustratedShotPaths(art, trace.shots.slice(0, step));
+  const finalShot = revealed[revealed.length - 1]?.shot;
 
   return (
     <section className="illustrated-replay" aria-label={`Illustrated replay of ${courseName}, hole ${trace.layout.real?.hole ?? 1}`}>
@@ -46,17 +39,26 @@ export function IllustratedTracer({ trace, step, courseName }: { trace: HoleTrac
           </dl>
         </div>
         <svg className="illustrated-arcs" viewBox={`0 0 ${art.width} ${art.height}`} aria-hidden>
-          {revealed.map((shot, index) => {
-            const start = project(art, shot.from);
-            const end = project(art, shot.to);
-            const color = SHOT_COLORS[index % SHOT_COLORS.length]!;
+          {revealed.map(({ shot, start, end }, index) => {
+            const color = SHOT_COLORS[(shot.stroke - 1) % SHOT_COLORS.length]!;
+            if (shot.kind === "penalty") {
+              return (
+                <g key={`${shot.stroke}-${index}`} className={index === revealed.length - 1 ? "is-current" : undefined}>
+                  <path className="illustrated-penalty-line" d={`M ${start.x.toFixed(1)} ${start.y.toFixed(1)} L ${end.x.toFixed(1)} ${end.y.toFixed(1)}`} />
+                  <circle className="illustrated-penalty-node" cx={(start.x + end.x) / 2} cy={(start.y + end.y) / 2} r={17} />
+                  <text className="illustrated-penalty-text" x={(start.x + end.x) / 2} y={(start.y + end.y) / 2 + 6}>+1</text>
+                  {index === revealed.length - 1 ? <circle className="illustrated-ball" cx={end.x} cy={end.y} r={7} /> : null}
+                </g>
+              );
+            }
             return (
               <g key={`${shot.stroke}-${index}`} className={index === revealed.length - 1 ? "is-current" : undefined}>
-                <path className="illustrated-arc-shadow" d={arc(art, shot)} />
-                <path className="illustrated-arc" d={arc(art, shot)} stroke={color} pathLength={1} />
+                <path className="illustrated-arc-shadow" d={arc(start, end, shot)} />
+                <path className="illustrated-arc" d={arc(start, end, shot)} stroke={color} pathLength={1} />
                 <circle className="illustrated-node-ring" cx={start.x} cy={start.y} r={19} stroke={color} />
                 <circle className="illustrated-node" cx={start.x} cy={start.y} r={15} />
-                <text x={start.x} y={start.y + 6}>{index + 1}</text>
+                <text x={start.x} y={start.y + 6}>{shot.stroke}</text>
+                {shot.lie === "water" || shot.lie === "ob" ? <text className="illustrated-hazard-text" x={end.x} y={end.y - 13}>{shot.lie === "water" ? "WATER" : "O.B."}</text> : null}
                 {index === revealed.length - 1 ? <circle className="illustrated-ball" cx={end.x} cy={end.y} r={7} /> : null}
               </g>
             );

@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { holeLayout, REAL_COURSES } from "../src/engine";
-import { illustratedArtFor, pointInsideArt, projectArtPoint, solveArtMatrix } from "../src/ui/illustratedArt";
+import { holeLayout, REAL_COURSES, type Shot } from "../src/engine";
+import { illustratedArtFor, illustratedShotPaths, pointInsideArt, projectArtPoint, solveArtMatrix, type ArtEntry } from "../src/ui/illustratedArt";
 
 describe("illustrated tracer art", () => {
   it("solves and applies the same three-point affine calibration used by the tracer", () => {
@@ -29,5 +29,24 @@ describe("illustrated tracer art", () => {
       expect(pointInsideArt(art!, layout.tee, 20), `Hole ${number} tee`).toBe(true);
       expect(pointInsideArt(art!, layout.green, 20), `Hole ${number} green`).toBe(true);
     }
+  });
+
+  it("keeps penalty strokes in sequence and carries a snapped hazard landing into the drop", () => {
+    const art: ArtEntry = {
+      image: "test.png", width: 1000, height: 600,
+      matrix: { x: [1, 0, 0], y: [0, 1, 0] },
+      targets: { water: [{ x: 300, y: 250 }] },
+    };
+    const shots: Shot[] = [
+      { stroke: 1, kind: "tee", club: "Driver", from: { x: 0, y: 0 }, to: { x: 200, y: 200 }, lie: "water", yards: 260, text: "Driver finds the water." },
+      { stroke: 2, kind: "penalty", club: "", from: { x: 200, y: 200 }, to: { x: 210, y: 205 }, lie: "rough", yards: 0, text: "Penalty stroke." },
+      { stroke: 3, kind: "approach", club: "5-iron", from: { x: 210, y: 205 }, to: { x: 400, y: 100 }, lie: "green", yards: 185, text: "5-iron to the green." },
+    ];
+
+    const paths = illustratedShotPaths(art, shots);
+    expect(paths.map((path) => path.shot.stroke)).toEqual([1, 2, 3]);
+    expect(paths[0]!.end).toEqual({ x: 300, y: 250 });
+    expect(paths[1]!.start).toEqual(paths[0]!.end);
+    expect(paths[2]!.start).toEqual(paths[1]!.end);
   });
 });
