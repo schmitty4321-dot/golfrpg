@@ -3,7 +3,6 @@ import {
   pinLabel,
   pinTuck,
   tuckWord,
-  callOdds,
   decisionsFor,
   holeLayout,
   liveBoard,
@@ -36,21 +35,6 @@ function situation(t: LiveTournament): HoleSituation {
   return { round: t.round, index: t.current!.holes.length, behind: me.toPar - board[0]!.toPar, cutMargin };
 }
 
-const pct = (x: number) => `${Math.round(x * 100)}%`;
-
-/** A call's odds: full words on a wide screen, just the numbers on a phone (the legend explains them). */
-function Odds({ o }: { o: { expected: number; birdie: number; bogey: number } }) {
-  return (
-    <span className="small secondary odds">
-      <span className="odds-long">Avg {o.expected.toFixed(2)} · Birdie {pct(o.birdie)} · Bogey+ {pct(o.bogey)}</span>
-      <span className="odds-short">
-        <span>{o.expected.toFixed(2)}</span>
-        <span>{pct(o.birdie)} / {pct(o.bogey)}</span>
-      </span>
-    </span>
-  );
-}
-
 /** True on phone-width screens. */
 function useNarrow(): boolean {
   const query = "(max-width: 700px)";
@@ -68,7 +52,7 @@ function useNarrow(): boolean {
 /**
  * Your client's round, a hole at a time. On key holes you make the calls
  * (off the tee, going for a par 5, attacking a pin, the putts on the closing
- * holes), with the odds of each; elsewhere he plays his own game. Each hole
+ * holes); elsewhere he plays his own game. Each hole
  * then plays out in the shot tracer.
  */
 export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTournament; name: string; onChange: () => void; onRoundDone: () => void }) {
@@ -84,14 +68,6 @@ export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTourname
   const index = cur ? cur.holes.length : course.holes.length;
   const upcoming = cur ? course.holes[index]! : null;
   const decisions = useMemo(() => (cur && upcoming ? decisionsFor(upcoming, course, player, situation(t)) : []), [cur, upcoming, course, player, t, index]); // eslint-disable-line react-hooks/exhaustive-deps
-  const odds = useMemo(() => {
-    if (!cur || !decisions.length) return null;
-    const own = callOdds(t, null);
-    const byOption: Record<string, ReturnType<typeof callOdds>> = {};
-    for (const d of decisions) for (const o of d.options) byOption[`${d.kind}:${o.value}`] = callOdds(t, { [d.kind]: o.value } as HoleCall);
-    return { own, byOption };
-  }, [decisions]); // eslint-disable-line react-hooks/exhaustive-deps
-
   // What the drawing shows: the hole just played (animated), or the next one.
   const preview: HoleTrace | null = upcoming ? { layout: holeLayout(course, upcoming, t.round - 1), shots: [], score: 0, result: "" } : null;
   const shown = played ?? (preview ? { index, trace: preview } : null);
@@ -247,21 +223,17 @@ export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTourname
               ) : (
                 decisions.map((d) => {
                   const chosen = calls[d.kind];
-                  const own = odds?.own;
                   return (
                     <fieldset key={d.kind} className="call">
                       <legend>{d.question}</legend>
                       <div className="call-options">
                         <button className="choice" aria-pressed={chosen === undefined} onClick={() => pick(d.kind, undefined)}>
                           <strong>His call</strong>
-                          {own && <Odds o={own} />}
                         </button>
                         {d.options.map((o) => {
-                          const od = odds?.byOption[`${d.kind}:${o.value}`];
                           return (
                             <button key={o.value} className="choice" aria-pressed={chosen === o.value} onClick={() => pick(d.kind, o.value)} title={o.blurb}>
                               <strong>{o.label}</strong>
-                              {od && <Odds o={od} />}
                               <span className="small muted call-blurb">{o.blurb}</span>
                             </button>
                           );
@@ -270,12 +242,6 @@ export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTourname
                     </fieldset>
                   );
                 })
-              )}
-              {decisions.length > 0 && (
-                <p className="muted small call-legend">
-                  <span className="odds-long">Averages and chances are for this hole, from his game today and the conditions.</span>
-                  <span className="odds-short">Each option: average score, then birdie / bogey-or-worse chances on this hole.</span>
-                </p>
               )}
               <div className="btn-row hbh-actions">
                 <button className="btn btn-primary" onClick={play}>Play hole {index + 1}</button>
