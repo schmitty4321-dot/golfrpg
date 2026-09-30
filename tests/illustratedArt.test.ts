@@ -31,6 +31,18 @@ describe("illustrated tracer art", () => {
     }
   });
 
+  it("places Hole 2's illustrated water landing near driver distance", () => {
+    const course = REAL_COURSES.find((candidate) => candidate.id === "waialae")!;
+    const layout = holeLayout(course, course.holes[1]!);
+    const art = illustratedArtFor(course.id, 2)!;
+    const tee = projectArtPoint(art.matrix, layout.tee);
+    const green = projectArtPoint(art.matrix, layout.green);
+    const water = art.targets!.water![0]!;
+    const progress = Math.hypot(water.x - tee.x, water.y - tee.y) / Math.hypot(green.x - tee.x, green.y - tee.y);
+    expect(progress).toBeGreaterThan(0.65);
+    expect(progress).toBeLessThan(0.78);
+  });
+
   it("keeps penalty strokes in sequence and carries a snapped hazard landing into the drop", () => {
     const art: ArtEntry = {
       image: "test.png", width: 1000, height: 600,
