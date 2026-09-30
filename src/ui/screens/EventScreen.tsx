@@ -138,6 +138,7 @@ function LiveWeekView({ world, game, lw }: { world: World; game: Game; lw: LiveW
 }
 
 type PreRoundTab = "command" | "scouting" | "matchup" | "tournament" | "preparation";
+type PreRoundStrategy = "aggression" | "position";
 
 function PreRoundHub({ world, event, tournament: t, clientId, mondayQualifier, onPlay, onSim }: {
   world: World;
@@ -149,6 +150,7 @@ function PreRoundHub({ world, event, tournament: t, clientId, mondayQualifier, o
   onSim: () => void;
 }) {
   const [tab, setTab] = useState<PreRoundTab>("command");
+  const [strategy, setStrategy] = useState<PreRoundStrategy>("aggression");
   const wp = world.players[clientId]!;
   const p = wp.player;
   const course = t.config.course;
@@ -173,7 +175,7 @@ function PreRoundHub({ world, event, tournament: t, clientId, mondayQualifier, o
         <section className="panel preround-main"><div className="panel-head"><h2>Pre-round command center</h2><span className="secondary small">Decision summary</span></div>
           <div className="preround-player"><div><strong>{p.name}</strong><span>{archetype} · form {formWord(p.form).toLowerCase()} · familiarity {familiarity}</span></div><b>{Math.round(p.condition)}% condition</b></div>
           <div className="preround-metrics"><Metric label="World rank" value={`#${worldRank}`} /><Metric label="Course fit" value={signed(fit, 2)} /><Metric label="Wind" value={`${wind} mph`} /><Metric label="Field" value={`${t.config.field.length}`} /></div>
-          <div className="preround-choices"><InfoCard title="Controlled aggression" selected text="Favor fairways, attack accessible pins, and respect water on the danger holes." /><InfoCard title="Play for position" text="Reduce double-bogey risk and accept longer approaches when the landing area tightens." /></div>{startButtons}
+          <div className="preround-choices"><InfoCard title="Controlled aggression" selected={strategy === "aggression"} onClick={() => setStrategy("aggression")} text="Favor fairways, attack accessible pins, and respect water on the danger holes." /><InfoCard title="Play for position" selected={strategy === "position"} onClick={() => setStrategy("position")} text="Reduce double-bogey risk and accept longer approaches when the landing area tightens." /></div>{startButtons}
         </section>
         <aside className="panel"><div className="panel-head"><h2>What matters today</h2></div><Fact label="Driving accuracy" value={`${p.attributes.drivingAccuracy}/20`} /><Fact label={`${course.grass} greens`} value={p.grassPreference === course.grass ? "Familiar" : "Adjustment"} /><Fact label="Key stretch" value={`Holes ${hard.map((h) => h.number).join(", ")}`} />{mondayQualifier && <p className="preround-note">In the field through Monday qualifying.</p>}</aside>
       </div>}
@@ -184,7 +186,7 @@ function PreRoundHub({ world, event, tournament: t, clientId, mondayQualifier, o
 
       {tab === "tournament" && <div className="preround-grid"><section className="panel preround-main"><div className="panel-head"><h2>Tournament dashboard</h2><span className="secondary small">Round 1</span></div><div className="preround-metrics"><Metric label="Field size" value={`${t.config.field.length}`} /><Metric label="Cut after" value={t.config.cutTop ? `${t.config.cutTop} & ties` : "No cut"} /><Metric label="Purse" value={millions(event.purse)} /><Metric label="Your player" value={`#${worldRank}`} /></div><h3 className="preround-section-title">Players to watch</h3><div className="preround-watch">{t.config.field.slice(0, 3).map((player) => <div key={player.id}><strong>{player.name}</strong><span>{player.id === clientId ? "Your client" : `World-class field`}</span></div>)}</div>{startButtons}</section><aside className="panel"><div className="panel-head"><h2>Conditions</h2></div><Fact label="Wind" value={`${wind} mph`} /><Fact label="Greens" value={course.firmness > .55 ? "Firm" : "Receptive"} /><Fact label="Weather" value={weather?.rain ? "Rain" : "Dry"} /><Fact label="Course fit" value={signed(fit, 2)} /></aside></div>}
 
-      {tab === "preparation" && <div className="preround-grid"><section className="panel preround-main"><div className="panel-head"><h2>Round preparation checklist</h2><span className="secondary small">Ready to play</span></div><Check title="Course strategy" text="Controlled aggression is the recommended starting plan." /><Check title="Danger holes reviewed" text={`Pay attention on holes ${hard.map((h) => h.number).join(", ")}.`} /><Check title="Player status checked" text={`${Math.round(p.condition)}% condition · form ${formWord(p.form).toLowerCase()}.`} /><Check title="Round control" text="Choose every key call hole by hole, or simulate the full round." />{startButtons}</section><aside className="panel"><div className="panel-head"><h2>Round control</h2></div><InfoCard title="Walk every hole" selected text="Make the key decisions and watch each shot." /><InfoCard title="Simulate" text="Return at the end of the round with complete results." /></aside></div>}
+      {tab === "preparation" && <div className="preround-grid"><section className="panel preround-main"><div className="panel-head"><h2>Round preparation checklist</h2><span className="secondary small">Ready to play</span></div><Check title="Course strategy" text={`${strategy === "aggression" ? "Controlled aggression" : "Play for position"} selected.`} /><Check title="Danger holes reviewed" text={`Pay attention on holes ${hard.map((h) => h.number).join(", ")}.`} /><Check title="Player status checked" text={`${Math.round(p.condition)}% condition · form ${formWord(p.form).toLowerCase()}.`} /><Check title="Round control" text="Choose every key call hole by hole, or simulate the full round." />{startButtons}</section><aside className="panel"><div className="panel-head"><h2>Selected strategy</h2></div><InfoCard title="Controlled aggression" selected={strategy === "aggression"} onClick={() => setStrategy("aggression")} text="Favor scoring chances while respecting the largest hazards." /><InfoCard title="Play for position" selected={strategy === "position"} onClick={() => setStrategy("position")} text="Favor safe targets and reduce the chance of a damaging number." /></aside></div>}
 
       <CourseCard course={course} />
     </div>
@@ -193,7 +195,9 @@ function PreRoundHub({ world, event, tournament: t, clientId, mondayQualifier, o
 
 function Metric({ label, value }: { label: string; value: string }) { return <div><span>{label}</span><strong>{value}</strong></div>; }
 function Fact({ label, value }: { label: string; value: string }) { return <div className="preround-fact"><span>{label}</span><strong>{value}</strong></div>; }
-function InfoCard({ title, text, selected = false }: { title: string; text: string; selected?: boolean }) { return <div className={`preround-choice${selected ? " selected" : ""}`}><strong>{title}</strong><span>{text}</span></div>; }
+function InfoCard({ title, text, selected = false, onClick }: { title: string; text: string; selected?: boolean; onClick?: () => void }) {
+  return <button type="button" className={`preround-choice${selected ? " selected" : ""}`} aria-pressed={onClick ? selected : undefined} onClick={onClick}><strong>{title}</strong><span>{text}</span></button>;
+}
 function Check({ title, text }: { title: string; text: string }) { return <div className="preround-check"><b aria-hidden>✓</b><div><strong>{title}</strong><span>{text}</span></div></div>; }
 
 function FinalView({ world, report, onDone }: { world: World; report: WeekReport; onDone: () => void }) {
