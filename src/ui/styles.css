@@ -271,6 +271,28 @@ select, input[type="text"], input[type="number"] {
 .choice-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
 .choice[aria-checked="true"] { border-color: var(--accent); box-shadow: 0 0 0 1.5px var(--accent); background: var(--accent-soft); }
 .choice:disabled { opacity: 0.5; cursor: not-allowed; }
+.schedule-choice-list { grid-template-columns: repeat(auto-fit, minmax(min(100%, 310px), 1fr)); gap: 12px; }
+.choice.schedule-choice { position: relative; overflow: hidden; min-height: 178px; padding: 0; gap: 0; align-content: start; background: var(--surface); }
+.choice.schedule-choice:hover { border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); background: var(--surface); transform: translateY(-1px); box-shadow: var(--shadow); }
+.choice.schedule-choice[aria-checked="true"] { background: var(--surface); }
+.choice.schedule-choice[aria-checked="true"]::after {
+  content: "✓"; position: absolute; top: 10px; right: 10px; display: grid; place-items: center;
+  width: 24px; height: 24px; border-radius: 50%; color: #fff; background: var(--accent); font-weight: 800;
+}
+.schedule-choice-head { display: flex; align-items: center; gap: 13px; padding: 15px 40px 12px 14px; min-width: 0; }
+.schedule-choice-logo { display: grid; place-items: center; width: 68px; min-width: 68px; height: 68px; border-radius: 50%; background: #fff; box-shadow: 0 1px 5px rgba(18, 43, 29, 0.16); }
+.schedule-choice-title { display: grid; gap: 2px; min-width: 0; }
+.schedule-choice-title strong { font-size: 17px; line-height: 1.15; }
+.schedule-choice-kicker { color: var(--accent); font-size: 10px; font-weight: 750; letter-spacing: 0.07em; text-transform: uppercase; }
+.schedule-choice-details { display: grid; gap: 2px; padding: 0 14px 11px; }
+.schedule-choice-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 14px 14px; border-top: 1px solid var(--border); margin-top: auto; }
+.schedule-chip { padding: 4px 7px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface-2); font-size: 11px; line-height: 1.2; }
+.schedule-chip.good { color: var(--good); border-color: color-mix(in srgb, var(--good) 38%, var(--border)); background: color-mix(in srgb, var(--good) 10%, var(--surface)); }
+.schedule-chip.warn { color: #8a6110; border-color: color-mix(in srgb, var(--warning) 45%, var(--border)); background: color-mix(in srgb, var(--warning) 13%, var(--surface)); }
+.schedule-chip.bad { color: var(--serious); border-color: color-mix(in srgb, var(--serious) 38%, var(--border)); background: color-mix(in srgb, var(--serious) 9%, var(--surface)); }
+.schedule-choice-icon { display: grid; place-items: center; width: 58px; height: 58px; border: 4px double currentColor; border-radius: 50%; color: var(--muted); background: var(--surface); font-size: 10px; font-weight: 850; }
+.schedule-choice-icon.call { color: var(--accent); }
+.schedule-choice-icon.practice { color: #a66f0b; }
 .attr-bar.range > span { border-radius: 3px; }
 
 /* Scouting ranges need room for "11-15". */

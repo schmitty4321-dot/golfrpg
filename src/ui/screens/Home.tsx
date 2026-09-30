@@ -238,6 +238,7 @@ function ClientWeek({ world, game, id, choice, onChoose }: { world: World; game:
   const options = clientOptions(world, id);
   const pref = clientPreference(world, id);
   const prefName = pref ? world.schedule.find((e) => e.id === pref)?.name : null;
+  const preferred = options.find((o) => o.event.id === pref);
   const sel = (c: ClientChoice) => JSON.stringify(c) === JSON.stringify(choice);
   const entered = choice.kind === "enter" ? options.find((o) => o.event.id === choice.eventId) : undefined;
   const courses = practiceCourses(world);
@@ -262,20 +263,45 @@ function ClientWeek({ world, game, id, choice, onChoose }: { world: World; game:
           </span>
         </div>
       )}
-      <div className="choice-list" role="radiogroup" aria-label={`${wp.player.name}'s week`}>
-        <button className="choice" role="radio" aria-checked={sel({ kind: "auto" })} onClick={() => onChoose({ kind: "auto" })}>
-          <strong>His call</strong>
-          <span className="secondary small">{wp.injury ? "He's injured." : prefName ? `He'd play ${prefName}.` : "He'd rest."}</span>
+      <div className="choice-list schedule-choice-list" role="radiogroup" aria-label={`${wp.player.name}'s week`}>
+        <button className="choice schedule-choice" role="radio" aria-checked={sel({ kind: "auto" })} onClick={() => onChoose({ kind: "auto" })}>
+          <span className="schedule-choice-head">
+            <span className="schedule-choice-logo">
+              {preferred ? <TournamentEmblem event={preferred.event} course={preferred.course} size={64} /> : <ScheduleChoiceIcon kind="call" />}
+            </span>
+            <span className="schedule-choice-title">
+              <span className="schedule-choice-kicker">Player's choice</span>
+              <strong>{wp.injury ? "Recover from injury" : prefName ?? "Rest this week"}</strong>
+              <span className="secondary small">Let {wp.player.name.split(" ")[0]} decide</span>
+            </span>
+          </span>
+          {preferred && (
+            <span className="schedule-choice-chips">
+              <span className="schedule-chip" style={{ borderColor: ACCESS_TONE[preferred.access] }}>{preferred.detail}</span>
+              <span className={`schedule-chip ${fitWord(preferred.fit).tone}`}>{fitWord(preferred.fit).label} fit</span>
+              <span className={`schedule-chip ${preferred.familiarity >= 40 ? "good" : "warn"}`}>{familiarityLabel(preferred.familiarity)} familiarity</span>
+            </span>
+          )}
         </button>
         {options.map((o) => <EventChoice key={o.event.id} o={o} checked={choice.kind === "enter" && choice.eventId === o.event.id} onChoose={() => onChoose({ kind: "enter", eventId: o.event.id })} />)}
-        <button className="choice" role="radio" aria-checked={sel({ kind: "rest" })} onClick={() => onChoose({ kind: "rest" })}>
-          <strong>Rest</strong>
-          <span className="secondary small">Recover condition.</span>
+        <button className="choice schedule-choice" role="radio" aria-checked={sel({ kind: "rest" })} onClick={() => onChoose({ kind: "rest" })}>
+          <span className="schedule-choice-head">
+            <span className="schedule-choice-logo"><ScheduleChoiceIcon kind="rest" /></span>
+            <span className="schedule-choice-title"><span className="schedule-choice-kicker">Recovery</span><strong>Rest week</strong><span className="secondary small">Recover condition from {Math.round(wp.player.condition)}%</span></span>
+          </span>
+          <span className="schedule-choice-chips"><span className="schedule-chip good">No travel</span><span className="schedule-chip">No entry fees</span></span>
         </button>
         {tripCourse && !wp.injury && wp.career.status !== "amateur" && (
-          <button className="choice" role="radio" aria-checked={choice.kind === "practice"} onClick={() => onChoose({ kind: "practice", courseId: tripCourse })}>
-            <strong>Practice trip</strong>
-            <span className="secondary small">A week learning a course of your choice instead of an event. Costs travel, fees and most of a week's rest.</span>
+          <button className="choice schedule-choice" role="radio" aria-checked={choice.kind === "practice"} onClick={() => onChoose({ kind: "practice", courseId: tripCourse })}>
+            <span className="schedule-choice-head">
+              <span className="schedule-choice-logo"><ScheduleChoiceIcon kind="practice" /></span>
+              <span className="schedule-choice-title"><span className="schedule-choice-kicker">Preparation</span><strong>Practice trip</strong><span className="secondary small">{courses.find((c) => c.courseId === tripCourse)?.name ?? "Choose a course"}</span></span>
+            </span>
+            <span className="schedule-choice-chips">
+              <span className="schedule-chip good">Familiarity {Math.round(familiarityWith(wp, tripCourse))} → {Math.round(afterPracticeTrip(wp, tripCourse))}</span>
+              <span className="schedule-chip warn">−{PRACTICE_TRIP_FATIGUE}% condition</span>
+              <span className="schedule-chip">{money(practiceTripCost(world, tripCourse))}</span>
+            </span>
           </button>
         )}
       </div>
@@ -361,28 +387,30 @@ function EventChoice({ o, checked, onChoose }: { o: EntryOption; checked: boolea
   const fit = fitWord(o.fit);
   const disabled = o.access === "not-invited" || o.access === "injured";
   return (
-    <button className="choice" role="radio" aria-checked={checked} disabled={disabled} onClick={onChoose}>
-      <span className="event-title" style={{ gap: 6 }}>
-        <span className={`badge${e.tier === "major" ? " badge-major" : ""}`}>{TIER_LABELS[e.tier]}</span>
-        <strong>{e.name}</strong>
+    <button className="choice schedule-choice" role="radio" aria-checked={checked} disabled={disabled} onClick={onChoose}>
+      <span className="schedule-choice-head">
+        <span className="schedule-choice-logo"><TournamentEmblem event={e} course={o.course} size={64} /></span>
+        <span className="schedule-choice-title">
+          <span className="schedule-choice-kicker">{TIER_LABELS[e.tier]}</span>
+          <strong>{e.name}</strong>
+          <span className="secondary small">{o.course.name}{o.course.info ? `, ${o.course.info.city}` : ""}</span>
+        </span>
       </span>
-      <span className="secondary small">
-        {o.course.name} ({o.course.style}), par {coursePar(o.course)}, {courseYards(o.course).toLocaleString("en-US")} yds · {REGION_NAMES[e.region]} · {millions(e.purse)}
+      <span className="schedule-choice-details secondary small">
+        <span>{o.course.style} · par {coursePar(o.course)} · {courseYards(o.course).toLocaleString("en-US")} yds</span>
+        <span>{REGION_NAMES[e.region]} · {millions(e.purse)}</span>
       </span>
-      <span className="access small">
-        <span className="dot" style={{ background: ACCESS_TONE[o.access] }} aria-hidden />
-        <span>{o.detail}</span>
-      </span>
-      <span className="access small">
-        <span className="dot" style={{ background: fit.tone === "good" ? "var(--good)" : fit.tone === "bad" ? "var(--serious)" : "var(--muted)" }} aria-hidden />
-        <span>{fit.label} ({signed(o.fit, 2)}/round)</span>
-      </span>
-      <span className="access small">
-        <span className="dot" style={{ background: o.debut ? "var(--muted)" : o.familiarity >= 40 ? "var(--good)" : "var(--warning)" }} aria-hidden />
-        <span>{o.debut ? "Course debut: never played it" : `Familiarity: ${familiarityLabel(o.familiarity).toLowerCase()} (${Math.round(o.familiarity)})`}</span>
+      <span className="schedule-choice-chips">
+        <span className="schedule-chip" style={{ borderColor: ACCESS_TONE[o.access] }}>{o.detail}</span>
+        <span className={`schedule-chip ${fit.tone}`}>{fit.label} {signed(o.fit, 2)}/round</span>
+        <span className={`schedule-chip ${!o.debut && o.familiarity >= 40 ? "good" : "warn"}`}>{o.debut ? "Course debut" : `${familiarityLabel(o.familiarity)} ${Math.round(o.familiarity)}`}</span>
       </span>
     </button>
   );
+}
+
+function ScheduleChoiceIcon({ kind }: { kind: "call" | "rest" | "practice" }) {
+  return <span className={`schedule-choice-icon ${kind}`} aria-hidden>{kind === "call" ? "CALL" : kind === "rest" ? "REST" : "PRACT"}</span>;
 }
 
 function LastWeek({ world, report, go }: { world: World; report: Game["state"]["reports"][number]; go: Go }) {
