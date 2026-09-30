@@ -68,6 +68,23 @@ describe("traceHole", () => {
     expect(avg(19)).toBeGreaterThan(avg(7) + 40);
   });
 
+  it("keeps full tee shots near their intended distance and reports that distance", () => {
+    const course = getCourse("waialae");
+    const hole = course.holes[2]!;
+    for (let seed = 0; seed < 100; seed++) {
+      const shot = traceHole({ course, hole, score: 4, player: flatPlayer("p", 12), seed }).shots[0]!;
+      expect(shot.yards).toBeGreaterThan(220);
+      expect(shot.text).toContain(`${shot.yards} yds`);
+    }
+  });
+
+  it("labels approach yardage as distance remaining", () => {
+    const course = getCourse("waialae");
+    const hole = course.holes[2]!;
+    const approach = traceHole({ course, hole, score: 4, player: flatPlayer("p", 12), seed: 7 }).shots.find((shot) => shot.kind === "approach")!;
+    expect(approach.text).toMatch(/from \d+ yards out/);
+  });
+
   it("names scores", () => {
     expect(scoreName(1, 3)).toBe("Hole in one");
     expect(scoreName(3, 4)).toBe("Birdie");
