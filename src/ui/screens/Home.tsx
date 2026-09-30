@@ -98,10 +98,7 @@ export function Home({ world, game, go, week }: { world: World; game: Game; go: 
   );
 }
 
-/**
- * The top of the dashboard: this week's main event over its course photo,
- * which of your clients are in it, and the button that plays the week.
- */
+/** The top of the dashboard: this week's main event and which clients are in it. */
 function WeekHero({ world, game, week }: { world: World; game: Game; week: WeekChoices }) {
   const weeks = seasonWeeks(world);
   const a = world.agency;
@@ -121,7 +118,6 @@ function WeekHero({ world, game, week }: { world: World; game: Game; week: WeekC
   const main = events[0];
   if (!main) return null;
   const course = courseById(world, main.courseId);
-  const photo = course.info?.photo;
   // Where each client is headed with the choices made so far ("his call" = his own pick).
   const going = (eventId: string) =>
     world.clientIds.filter((id) => {
@@ -129,12 +125,8 @@ function WeekHero({ world, game, week }: { world: World; game: Game; week: WeekC
       return c.kind === "enter" ? c.eventId === eventId : c.kind === "auto" && clientPreference(world, id) === eventId;
     });
   const here = going(main.id).map((id) => world.players[id]!.player.name);
-  const play = () => {
-    void game.play(week.choices, 1);
-    week.setChoices(() => ({}));
-  };
   return (
-    <section className={`hero${photo ? " hero-photo" : ""}`} style={photo ? { backgroundImage: `url(${import.meta.env.BASE_URL}${photo.file})` } : undefined}>
+    <section className="hero">
       <div className="hero-logo"><TournamentEmblem event={main} course={course} size={84} /></div>
       <div className="hero-body">
         <div className="hero-kicker">{a.name} · Week {world.week} of {weeks}</div>
@@ -154,8 +146,6 @@ function WeekHero({ world, game, week }: { world: World; game: Game; week: WeekC
           {events.length > 1 && <span className="hero-also"> · also this week: {events.slice(1).map((e) => e.name).join(", ")}</span>}
         </div>
       </div>
-      <button className="btn btn-primary hero-play" onClick={play}>Play week {world.week} <span aria-hidden>▸</span></button>
-      {photo && <div className="hero-credit">Photo: <a href={photo.page} target="_blank" rel="noreferrer">{photo.artist || "Wikimedia Commons"}</a>, {photo.license}</div>}
     </section>
   );
 }
