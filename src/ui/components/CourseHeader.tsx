@@ -1,6 +1,4 @@
-import { coursePar, courseYards, holeBaseline, holeLayout, type Course, type Hole } from "../../engine";
-import { useHoleMap } from "../holeMaps";
-import { HoleDrawing } from "./ShotTracer";
+import { coursePar, courseYards, holeBaseline, type Course, type Hole } from "../../engine";
 
 const COUNTRY: Record<string, string> = { USA: "USA", PUR: "Puerto Rico", CAN: "Canada", SCO: "Scotland", ENG: "England", DOM: "Dominican Republic", JPN: "Japan", BER: "Bermuda", MEX: "Mexico" };
 
@@ -48,16 +46,6 @@ export function strokeIndex(course: Course): Map<number, number> {
   return out;
 }
 
-function HoleThumb({ course, hole }: { course: Course; hole: Hole }) {
-  const layout = holeLayout(course, hole);
-  const map = useHoleMap(layout.real);
-  return (
-    <div className="sc-thumb" title={`Hole ${hole.number}: par ${hole.par}, ${hole.yards} yards`}>
-      <HoleDrawing trace={{ layout, shots: [], score: 0, result: "" }} step={0} photo={false} map={map} />
-    </div>
-  );
-}
-
 function Nine({ course, holes, label, index, total }: { course: Course; holes: Hole[]; label: "Out" | "In"; index: Map<number, number>; total: boolean }) {
   const real = course.holes.some((h) => h.tourAverage !== undefined);
   const sum = (f: (h: Hole) => number, hs = holes) => hs.reduce((s, h) => s + f(h), 0);
@@ -65,12 +53,6 @@ function Nine({ course, holes, label, index, total }: { course: Course; holes: H
   const all = course.holes;
   return (
     <div className="sc-nine">
-      <div className="sc-thumbs" style={{ gridTemplateColumns: `var(--sc-label) repeat(${holes.length}, minmax(0, 1fr)) var(--sc-sum)${total ? " var(--sc-tot)" : ""}` }}>
-        <span />
-        {holes.map((h) => <HoleThumb key={h.number} course={course} hole={h} />)}
-        <span />
-        {total && <span />}
-      </div>
       <table className="sc-table">
         <tbody>
           <tr className="sc-hole">

@@ -1,14 +1,14 @@
 import { CourseCard, CourseFacts } from "../components/CourseHeader";
 import { Fragment, useMemo, useState, type ReactNode } from "react";
 import { autoFinishRound, clientActive, fieldRoundStats, finishLive, liveSnapshot, standingsAfterRound, startLiveRound, type Course, type PlayerEventResult, type RoundStanding, type TournamentResult } from "../../engine";
-import { familiarityTags, theEvent, type LiveEvent, type TourEvent, type WeekReport, type World, knownArchetypes } from "../../season";
+import { courseFit, familiarityTags, familiarityWith, rankMap, theEvent, type LiveEvent, type TourEvent, type WeekReport, type World, knownArchetypes } from "../../season";
 import { HoleByHole } from "../components/HoleByHole";
 import type { Game, LiveWeek } from "../useGame";
 import { Scorecard } from "../components/Scorecard";
 import { ShotTracer } from "../components/ShotTracer";
 import { RoundLeaders, RoundStatsPanel } from "../components/RoundStatsPanel";
 import { Leaderboard } from "../components/Leaderboard";
-import { TIER_LABELS, millions, toPar } from "../format";
+import { TIER_LABELS, formWord, millions, signed, toPar } from "../format";
 import { TournamentEmblem } from "../components/TournamentLogo";
 
 interface EventView {
@@ -96,7 +96,7 @@ function LiveWeekView({ world, game, lw }: { world: World; game: Game; lw: LiveW
     <main>
       <EventTabs names={lw.events.map((e) => e.event.name)} which={which} setWhich={setWhich} />
       <EventHeader event={ev.event} course={t.config.course} week={world.week} players={t.config.field.length} hasCut={t.config.cutTop !== undefined} status={status} compact={inHbh}>
-        {!inHbh && !done(ev) && stillIn && (
+        {!inHbh && t.round > 0 && !done(ev) && stillIn && (
           <>
             <button className="btn btn-primary" onClick={() => game.liveAct(() => { startLiveRound(t); autoFinishRound(t); })}>Play round {next}</button>
             {(t.round < 2 || clientActive(t)) && (
@@ -121,29 +121,80 @@ function LiveWeekView({ world, game, lw }: { world: World; game: Game; lw: LiveW
           onRoundDone={() => setHoleByHole((h) => ({ ...h, [ev.event.id]: false }))}
         />
       ) : t.round === 0 ? (
-        <>
-          <section className="panel">
-            <div className="panel-head"><h2>Your clients in the field</h2></div>
-            <ul className="news">
-              {ev.clientIds.map((id) => (
-                <li key={id} style={{ color: "var(--text)" }}>
-                  <strong>{world.players[id]!.player.name}</strong>
-                  {ev.field.mondayQualifiers.includes(id) ? " · got in through the Monday qualifier" : ""}
-                </li>
-              ))}
-            </ul>
-            <p className="muted small" style={{ marginBottom: 0 }}>
-              Play a round at a time, or walk with {walker} hole by hole: you make the calls on the key holes (off the tee, going for par 5s, attacking pins, the closing putts) and watch every shot.
-            </p>
-          </section>
-          <CourseCard course={t.config.course} />
-        </>
+        <PreRoundHub
+          world={world}
+          event={ev.event}
+          tournament={t}
+          clientId={t.controlledId}
+          mondayQualifier={ev.field.mondayQualifiers.includes(t.controlledId)}
+          onPlay={() => { game.liveAct(() => startLiveRound(t)); setHoleByHole((h) => ({ ...h, [ev.event.id]: true })); }}
+          onSim={() => game.liveAct(() => { startLiveRound(t); autoFinishRound(t); })}
+        />
       ) : (
         <RoundView live={view} round={t.round} rows={rows} />
       )}
     </main>
   );
 }
+
+type PreRoundTab = "command" | "scouting" | "matchup" | "tournament" | "preparation";
+
+function PreRoundHub({ world, event, tournament: t, clientId, mondayQualifier, onPlay, onSim }: {
+  world: World;
+  event: TourEvent;
+  tournament: LiveEvent["tournament"];
+  clientId: string;
+  mondayQualifier: boolean;
+  onPlay: () => void;
+  onSim: () => void;
+}) {
+  const [tab, setTab] = useState<PreRoundTab>("command");
+  const wp = world.players[clientId]!;
+  const p = wp.player;
+  const course = t.config.course;
+  const fit = courseFit(wp, course);
+  const familiarity = Math.round(familiarityWith(wp, course.id));
+  const worldRank = rankMap(world).get(clientId) ?? 400;
+  const hard = [...course.holes].sort((a, b) => ((b.tourAverage ?? b.par) - b.par) - ((a.tourAverage ?? a.par) - a.par)).slice(0, 3);
+  const chances = [...course.holes].filter((hole) => hole.par === 5 || (hole.tourAverage ?? hole.par) < hole.par).sort((a, b) => ((a.tourAverage ?? a.par) - a.par) - ((b.tourAverage ?? b.par) - b.par)).slice(0, 3);
+  const weather = t.weather[0];
+  const wind = weather ? Math.round((weather.windMph.AM + weather.windMph.PM) / 2) : Math.round(course.windiness * 20);
+  const archetype = p.archetype ? p.archetype.split("-").map((word) => word[0]!.toUpperCase() + word.slice(1)).join(" ") : "Tour professional";
+  const startButtons = <div className="btn-row preround-actions"><button className="btn btn-primary" onClick={onPlay}>Play round 1 hole by hole</button><button className="btn" onClick={onSim}>Sim round 1</button></div>;
+  const labels: [PreRoundTab, string][] = [["command", "Command Center"], ["scouting", "Scouting"], ["matchup", "Matchup"], ["tournament", "Tournament"], ["preparation", "Preparation"]];
+
+  return (
+    <div className="preround-hub">
+      <div className="tabs preround-tabs" role="tablist" aria-label="Pre-round views">
+        {labels.map(([id, label]) => <button key={id} role="tab" aria-selected={tab === id} onClick={() => setTab(id)}>{label}</button>)}
+      </div>
+
+      {tab === "command" && <div className="preround-grid">
+        <section className="panel preround-main"><div className="panel-head"><h2>Pre-round command center</h2><span className="secondary small">Decision summary</span></div>
+          <div className="preround-player"><div><strong>{p.name}</strong><span>{archetype} · form {formWord(p.form).toLowerCase()} · familiarity {familiarity}</span></div><b>{Math.round(p.condition)}% condition</b></div>
+          <div className="preround-metrics"><Metric label="World rank" value={`#${worldRank}`} /><Metric label="Course fit" value={signed(fit, 2)} /><Metric label="Wind" value={`${wind} mph`} /><Metric label="Field" value={`${t.config.field.length}`} /></div>
+          <div className="preround-choices"><InfoCard title="Controlled aggression" selected text="Favor fairways, attack accessible pins, and respect water on the danger holes." /><InfoCard title="Play for position" text="Reduce double-bogey risk and accept longer approaches when the landing area tightens." /></div>{startButtons}
+        </section>
+        <aside className="panel"><div className="panel-head"><h2>What matters today</h2></div><Fact label="Driving accuracy" value={`${p.attributes.drivingAccuracy}/20`} /><Fact label={`${course.grass} greens`} value={p.grassPreference === course.grass ? "Familiar" : "Adjustment"} /><Fact label="Key stretch" value={`Holes ${hard.map((h) => h.number).join(", ")}`} />{mondayQualifier && <p className="preround-note">In the field through Monday qualifying.</p>}</aside>
+      </div>}
+
+      {tab === "scouting" && <div className="preround-grid"><section className="panel preround-main"><div className="panel-head"><h2>Course scouting report</h2><span className="secondary small">{course.name}</span></div><div className="preround-scout"><div className="preround-par"><b>{course.holes.reduce((sum, h) => sum + h.par, 0)}</b><span>Par · {course.holes.reduce((sum, h) => sum + h.yards, 0).toLocaleString("en-US")} yards</span></div><div><h2>Accuracy, wind and {course.grass}</h2><p className="secondary">A quick read of the course before choosing how aggressively to play.</p><Fact label="Fairway demand" value={course.holes.filter((h) => h.par > 3).reduce((sum, h) => sum + h.fairwayWidth, 0) / course.holes.filter((h) => h.par > 3).length < 31 ? "Narrow" : "Average"} /><Fact label="Wind exposure" value={`${wind} mph`} /><Fact label="Green speed" value={`${course.greenSpeed.toFixed(1)} ft`} /></div></div>{startButtons}</section><aside className="panel"><div className="panel-head"><h2>Decisive holes</h2></div>{hard.map((h) => <Fact key={h.number} label={`Hole ${h.number} · ${h.yards} yd par ${h.par}`} value="Caution" />)}{chances.map((h) => <Fact key={`c${h.number}`} label={`Hole ${h.number} · ${h.yards} yd par ${h.par}`} value="Opportunity" />)}</aside></div>}
+
+      {tab === "matchup" && <div className="preround-grid"><section className="panel preround-main"><div className="panel-head"><h2>Player versus course</h2><span className="secondary small">Where the matchup is won</span></div><div className="preround-versus"><div><span className="stat-label">{p.name}</span><h2>{archetype}</h2><Fact label="Driving accuracy" value={`${p.attributes.drivingAccuracy}`} /><Fact label="Mid irons" value={`${p.attributes.midIrons}`} /><Fact label="Green reading" value={`${p.attributes.greenReading}`} /></div><b>VS</b><div><span className="stat-label">{course.name} asks for</span><h2>Control</h2><Fact label="Tee accuracy" value="High" /><Fact label="Wind control" value={course.windiness > 0.5 ? "High" : "Medium"} /><Fact label={`${course.grass} reading`} value="Important" /></div></div><div className="preround-metrics"><Metric label="Overall fit" value={signed(fit, 2)} /><Metric label="Best edge" value={p.attributes.drivingAccuracy >= p.attributes.drivingDistance ? "Accuracy" : "Distance"} /><Metric label="Familiarity" value={`${familiarity}`} /><Metric label="Condition" value={`${Math.round(p.condition)}%`} /></div>{startButtons}</section><aside className="panel"><div className="panel-head"><h2>Manager recommendation</h2></div><div className="preround-grade">{fit > .05 ? "Good fit" : fit < -.05 ? "Tough fit" : "Neutral fit"}</div><p className="secondary">Lean on {p.attributes.drivingAccuracy >= p.attributes.drivingDistance ? "accuracy and disciplined targets" : "distance while leaving safe misses"}.</p></aside></div>}
+
+      {tab === "tournament" && <div className="preround-grid"><section className="panel preround-main"><div className="panel-head"><h2>Tournament dashboard</h2><span className="secondary small">Round 1</span></div><div className="preround-metrics"><Metric label="Field size" value={`${t.config.field.length}`} /><Metric label="Cut after" value={t.config.cutTop ? `${t.config.cutTop} & ties` : "No cut"} /><Metric label="Purse" value={millions(event.purse)} /><Metric label="Your player" value={`#${worldRank}`} /></div><h3 className="preround-section-title">Players to watch</h3><div className="preround-watch">{t.config.field.slice(0, 3).map((player) => <div key={player.id}><strong>{player.name}</strong><span>{player.id === clientId ? "Your client" : `World-class field`}</span></div>)}</div>{startButtons}</section><aside className="panel"><div className="panel-head"><h2>Conditions</h2></div><Fact label="Wind" value={`${wind} mph`} /><Fact label="Greens" value={course.firmness > .55 ? "Firm" : "Receptive"} /><Fact label="Weather" value={weather?.rain ? "Rain" : "Dry"} /><Fact label="Course fit" value={signed(fit, 2)} /></aside></div>}
+
+      {tab === "preparation" && <div className="preround-grid"><section className="panel preround-main"><div className="panel-head"><h2>Round preparation checklist</h2><span className="secondary small">Ready to play</span></div><Check title="Course strategy" text="Controlled aggression is the recommended starting plan." /><Check title="Danger holes reviewed" text={`Pay attention on holes ${hard.map((h) => h.number).join(", ")}.`} /><Check title="Player status checked" text={`${Math.round(p.condition)}% condition · form ${formWord(p.form).toLowerCase()}.`} /><Check title="Round control" text="Choose every key call hole by hole, or simulate the full round." />{startButtons}</section><aside className="panel"><div className="panel-head"><h2>Round control</h2></div><InfoCard title="Walk every hole" selected text="Make the key decisions and watch each shot." /><InfoCard title="Simulate" text="Return at the end of the round with complete results." /></aside></div>}
+
+      <CourseCard course={course} />
+    </div>
+  );
+}
+
+function Metric({ label, value }: { label: string; value: string }) { return <div><span>{label}</span><strong>{value}</strong></div>; }
+function Fact({ label, value }: { label: string; value: string }) { return <div className="preround-fact"><span>{label}</span><strong>{value}</strong></div>; }
+function InfoCard({ title, text, selected = false }: { title: string; text: string; selected?: boolean }) { return <div className={`preround-choice${selected ? " selected" : ""}`}><strong>{title}</strong><span>{text}</span></div>; }
+function Check({ title, text }: { title: string; text: string }) { return <div className="preround-check"><b aria-hidden>✓</b><div><strong>{title}</strong><span>{text}</span></div></div>; }
 
 function FinalView({ world, report, onDone }: { world: World; report: WeekReport; onDone: () => void }) {
   const events = reportEvents(report);
