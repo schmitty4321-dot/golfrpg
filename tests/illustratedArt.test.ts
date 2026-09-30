@@ -49,4 +49,21 @@ describe("illustrated tracer art", () => {
     expect(paths[1]!.start).toEqual(paths[0]!.end);
     expect(paths[2]!.start).toEqual(paths[1]!.end);
   });
+
+  it("snaps green approaches and the holed putt to the illustrated green", () => {
+    const art: ArtEntry = {
+      image: "test.png", width: 1000, height: 600,
+      matrix: { x: [1, 0, 0], y: [0, 1, 0] },
+      targets: { green: [{ x: 780, y: 100 }], holed: [{ x: 800, y: 80 }] },
+    };
+    const shots: Shot[] = [
+      { stroke: 1, kind: "approach", club: "6-iron", from: { x: 200, y: 300 }, to: { x: 700, y: 100 }, lie: "green", yards: 179, feet: 5, text: "6-iron to 5 ft." },
+      { stroke: 2, kind: "putt", club: "Putter", from: { x: 700, y: 100 }, to: { x: 710, y: 90 }, lie: "holed", yards: 2, feet: 0, text: "Holes the 5-footer." },
+    ];
+
+    const paths = illustratedShotPaths(art, shots);
+    expect(paths[0]!.end).toEqual({ x: 780, y: 100 });
+    expect(paths[1]!.start).toEqual(paths[0]!.end);
+    expect(paths[1]!.end).toEqual({ x: 800, y: 80 });
+  });
 });

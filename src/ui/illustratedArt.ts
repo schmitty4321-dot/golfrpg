@@ -12,7 +12,7 @@ export interface ArtEntry {
   height: number;
   matrix: ArtMatrix;
   /** Pixel-space landing points for hazards that the illustration depicts differently from the source map. */
-  targets?: Partial<Record<Extract<Lie, "water" | "ob" | "bunker">, Pt[]>>;
+  targets?: Partial<Record<Extract<Lie, "water" | "ob" | "bunker" | "green" | "holed">, Pt[]>>;
   meta?: {
     number?: number;
     par?: number;
@@ -66,7 +66,8 @@ export function illustratedShotPaths(art: ArtEntry, shots: Shot[]): IllustratedS
   return shots.map((shot) => {
     const start = previousEnd ?? projectArtPoint(art.matrix, shot.from);
     const projectedEnd = projectArtPoint(art.matrix, shot.to);
-    const targets = shot.kind === "penalty" ? undefined : art.targets?.[shot.lie as "water" | "ob" | "bunker"];
+    const targetLie = shot.lie === "holed" && !art.targets?.holed && art.targets?.green ? "green" : shot.lie;
+    const targets = shot.kind === "penalty" ? undefined : art.targets?.[targetLie as "water" | "ob" | "bunker" | "green" | "holed"];
     const end = targets?.length ? nearest(targets, projectedEnd) : projectedEnd;
     previousEnd = end;
     return { shot, start, end };
