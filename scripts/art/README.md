@@ -1,4 +1,23 @@
-# Blender hole art
+# Illustrated hole art
+
+The preferred tracer workflow uses a finished 16:9 illustration as a flat
+background. Create the image without tracer lines, copy it under
+`public/art-demo/<course>/`, then calibrate three landmarks from yard
+coordinates to pixels:
+
+```powershell
+npm run art:calibrate -- waialae 2 public/art-demo/waialae/hole-02-course.png 1672 941 "0,0:204,780" "-36,268:1010,426" "-20,419:1518,122"
+```
+
+Use the tee, a landing-area turn, and the green as anchors. The command updates
+the runtime art registry with an affine transform. Fairway Manager then draws
+live SVG arcs and numbered positions over the static illustration while the
+scorecard, choices, commentary, and replay controls remain normal UI.
+
+Open `/?demo=waialae-tracer&hole=2` to review Hole 2 directly. Large images
+under `public/art-demo/` remain ignored until explicitly approved.
+
+## Optional Blender reference workflow
 
 Export a mapped course and optional hole number from the repository root:
 

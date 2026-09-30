@@ -174,7 +174,7 @@ export function HoleDrawing({ trace, step, photo, map }: { trace: HoleTrace; ste
   const Y = (p: Pt) => maxY - p.y;
   const poly = (pts: Pt[]) => pts.map((p) => `${X(p).toFixed(1)},${Y(p).toFixed(1)}`).join(" ");
   const shots = trace.shots.slice(0, step).filter((s) => s.kind !== "penalty");
-  const illustrated = L.real?.courseId === "waialae";
+  const illustrated = hasIllustratedTracerArt(trace);
   const curve = (s: Shot, i: number) => {
     const a = { x: X(s.from), y: Y(s.from) };
     const b = { x: X(s.to), y: Y(s.to) };

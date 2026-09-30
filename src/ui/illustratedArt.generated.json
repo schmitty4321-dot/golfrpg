@@ -1,0 +1,27 @@
+{
+  "waialae:2": {
+    "image": "art-demo/waialae/hole-02-course.png",
+    "width": 1672,
+    "height": 941,
+    "matrix": {
+      "x": [
+        1.48478,
+        3.206911,
+        204
+      ],
+      "y": [
+        -2.881325,
+        -1.707939,
+        780
+      ]
+    },
+    "meta": {
+      "number": 2,
+      "par": 4,
+      "yards": 423,
+      "tourAverage": 4.155,
+      "difficulty": 3,
+      "course": "Waialae Country Club"
+    }
+  }
+}

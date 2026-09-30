@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit",
     "calibrate": "tsx scripts/calibrate.ts",
     "demo": "tsx scripts/demo.ts",
-    "worldcheck": "tsx scripts/worldcheck.ts"
+    "worldcheck": "tsx scripts/worldcheck.ts",
+    "art:calibrate": "node --experimental-strip-types scripts/art/calibrateIllustration.ts"
   },
   "devDependencies": {
     "@types/node": "^26.6.3",

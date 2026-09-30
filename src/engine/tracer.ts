@@ -13,6 +13,7 @@ import { clamp, createRng, type Rng } from "./rng";
 import type { Course, CourseStyle, Hole, Player } from "./types";
 import { tendencies } from "./tendencies";
 import realHoles from "./realHoles.json";
+import realHoleOverrides from "./realHoleOverrides.json";
 import type { HoleCall } from "./calls";
 
 export interface Pt {
@@ -61,9 +62,10 @@ interface RealHole {
   fw?: number;
 }
 const REAL_HOLES = realHoles as unknown as Record<string, Record<string, RealHole>>;
+const REAL_HOLE_OVERRIDES = realHoleOverrides as unknown as Record<string, Record<string, RealHole>>;
 
 /** Whether a course has real hole maps (and so a drawing to load). */
-export const hasRealHoles = (courseId: string): boolean => !!REAL_HOLES[courseId];
+export const hasRealHoles = (courseId: string): boolean => !!REAL_HOLES[courseId] || !!REAL_HOLE_OVERRIDES[courseId];
 
 export type Lie = "tee" | "fairway" | "rough" | "bunker" | "trees" | "water" | "ob" | "green" | "fringe" | "holed";
 
@@ -134,7 +136,7 @@ const layoutCache = new WeakMap<Hole, HoleLayout>();
 export function holeLayout(course: Course, hole: Hole, round?: number): HoleLayout {
   let layout = layoutCache.get(hole);
   if (!layout) {
-    const real = REAL_HOLES[course.id]?.[String(hole.number)];
+    const real = REAL_HOLES[course.id]?.[String(hole.number)] ?? REAL_HOLE_OVERRIDES[course.id]?.[String(hole.number)];
     layout = real ? realLayout(course, hole, real) : buildLayout(course, hole);
     layoutCache.set(hole, layout);
   }
