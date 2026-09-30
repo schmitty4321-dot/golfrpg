@@ -179,8 +179,6 @@ export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTourname
         </div>
       </div>
 
-      <LiveScorecard course={course} scores={today} current={cur ? index : null} onPick={replay} />
-
       {showHole && (
         <p className="hbh-hole">
           <strong>Hole {(shown?.index ?? 0) + 1}</strong>
@@ -217,7 +215,8 @@ export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTourname
           </div>
         </div>
 
-        <div>
+        <div className="hbh-side">
+          <LiveScorecard course={course} scores={today} current={cur ? index : null} onPick={replay} activeNineOnly />
           {played ? (
             <>
               <p style={{ marginTop: 0 }}>
