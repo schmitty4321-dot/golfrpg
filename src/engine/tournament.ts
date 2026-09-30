@@ -556,7 +556,9 @@ export function liveSnapshot(t: LiveTournament): TournamentResult {
  */
 export function liveBoard(t: LiveTournament): { player: Player; toPar: number; thru: number; active: boolean }[] {
   const cur = t.current;
-  const thru = cur ? cur.holes.length : 0;
+  // Once the controlled player finishes, `current` is cleared. Keep showing
+  // the completed round rather than resetting every row to "thru 0".
+  const thru = cur ? cur.holes.length : t.round > 0 ? t.config.course.holes.length : 0;
   const r = t.round - 1;
   return t.entries
     .filter((e) => e.active)
