@@ -56,8 +56,10 @@ const weeks = (wp: WorldPlayer, n: number, i: DevelopmentInputs, seed = 1) => {
 
 describe("development", () => {
   it("grows a young player with room towards his ceiling", () => {
-    const wp = weeks(person(19, 9, 15), 150, inputs());
-    expect(overall(wp.player)).toBeGreaterThan(11.5);
+    // About three seasons of playing every week at 19: Data Golf has young players gaining
+    // about +0.7 of overall a year, so a point and a half or so, not a leap to his ceiling.
+    const wp = weeks(person(19, 9, 15), 150, inputs({ competed: true }));
+    expect(overall(wp.player)).toBeGreaterThanOrEqual(10);
     expect(overall(wp.player)).toBeLessThanOrEqual(15.5);
   });
 
@@ -67,13 +69,13 @@ describe("development", () => {
   });
 
   it("takes distance from veterans first, while experience still grows", () => {
-    const wp = weeks(person(44, 13, 13), 100, inputs());
+    const wp = weeks(person(44, 13, 13), 160, inputs());
     expect(wp.player.attributes.drivingDistance).toBeLessThan(13);
     expect(wp.player.attributes.courseManagement).toBeGreaterThanOrEqual(13);
   });
 
   it("grows the focused area faster than the rest", () => {
-    const focused = weeks(person(20, 9, 15), 80, inputs({ plan: { focus: "putting", intensity: "normal" } }));
+    const focused = weeks(person(20, 9, 15), 200, inputs({ competed: true, plan: { focus: "putting", intensity: "normal" } }));
     const avg = (wp: WorldPlayer, keys: readonly string[]) => keys.reduce((s, k) => s + wp.player.attributes[k as "shortPutts"], 0) / keys.length;
     expect(avg(focused, ["lagPutting", "shortPutts", "greenReading", "speedControl"])).toBeGreaterThan(avg(focused, ["chipping", "pitching", "bunkerPlay", "creativity"]));
   });
@@ -107,7 +109,8 @@ describe("development", () => {
       wp.development.progress = { ...progress };
       const rng = createRng(3);
       let most = 0;
-      for (let k = 0; k < 40; k++) most = Math.max(most, developWeek(wp, inputs(), rng).length);
+      const busy = inputs({ competed: true, managed: true, plan: { focus: "balanced", intensity: "heavy" }, coachQuality: { swing: 18, shortGame: 18, putting: 18, mental: 18, fitness: 18 } });
+      for (let k = 0; k < 60; k++) most = Math.max(most, developWeek(wp, busy, rng).length);
       return most;
     };
     const staggered = busiest(staggeredProgress(person(19, 9, 15).player));
@@ -121,12 +124,12 @@ describe("development", () => {
     for (const k of ["courseManagement", "composure", "sundayNerves", "bounceBack", "focus"] as const) expect(capped.player.attributes[k]).toBeLessThanOrEqual(12);
     const room = person(30, 12, 15);
     room.player.attributes.composure = 10;
-    weeks(room, 200, competing);
+    weeks(room, 520, competing);
     expect(room.player.attributes.composure).toBeGreaterThan(10);
   });
 
   it("reports what changed this season", () => {
-    const wp = weeks(person(19, 9, 15), 100, inputs());
+    const wp = weeks(person(19, 9, 15), 200, inputs({ competed: true }));
     const change = seasonChange(wp);
     expect(Object.values(change).some((d) => (d ?? 0) > 0)).toBe(true);
   });

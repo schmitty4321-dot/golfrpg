@@ -59,11 +59,9 @@ export const INTENSITY: Record<Intensity, { growth: number; condition: number; i
 /** Everything training can move: the visible attributes plus wind tolerance. */
 const TRAINABLE: readonly AttributeKey[] = [...VISIBLE_ATTRIBUTES, "windTolerance"];
 
-/** Growth per week for a young player well short of his ceiling, before modifiers. */
-const BASE_GROWTH = 0.045;
 /**
- * A client's growth per week at full speed. Unlike the computer players he
- * doesn't rush at his ceiling: he grows at the pace his management sets
+ * Growth per week at full speed, for every player. Unlike the old model a player
+ * doesn't rush at his ceiling: he grows at the pace his week sets
  * (Data Golf: about +0.2 of overall a year from 23 for a typical pro, +0.6
  * for a well-run one) and only slows in the last point below it, so whether
  * he gets there before his peak age is up to you.
@@ -75,7 +73,7 @@ const STRENGTH_ROOM = 4;
 /** A hidden ceiling for a player, by age: young players have room to grow. */
 export function initialPotential(p: Player, rng: Rng): number {
   const now = overall(p);
-  const room = p.age <= 22 ? Math.min(4.5, Math.abs(rng.normal(2.5, 1.3))) : p.age <= 27 ? Math.min(2.5, Math.abs(rng.normal(1, 0.8))) : Math.max(0, rng.normal(0.3, 0.5));
+  const room = p.age <= 22 ? Math.min(4.5, Math.abs(rng.normal(2.5, 1.3))) : p.age <= 27 ? Math.min(3, Math.abs(rng.normal(1.5, 0.9))) : Math.max(0, rng.normal(0.3, 0.5));
   // A generational talent is about 17: the very best seasons on record, not beyond.
   return Math.round(Math.min(Math.max(now, MAX_POTENTIAL), now + room + archetypeCeiling(p)) * 10) / 10;
 }
@@ -117,9 +115,13 @@ export function staggeredProgress(p: Player): Development["progress"] {
 
 /** Growth multiplier from age: fast when young, tapering into the peak, none after it. */
 function ageGrowth(age: number, peak: number): number {
-  if (age <= peak - 5) return 1.2;
-  if (age < peak) return 0.3 + (0.9 * (peak - age)) / 5;
-  if (age === peak) return 0.1;
+  // Data Golf (players' strokes gained by age, 2026): about +0.7 of overall a year up to
+  // 21, +0.35 in the early twenties, +0.2 in the mid-twenties, then flat at the peak.
+  const before = peak - age;
+  if (before >= 8) return 2.3;
+  if (before >= 5) return 1.15;
+  if (before >= 2) return 0.65;
+  if (before >= 1) return 0.2;
   return 0;
 }
 
@@ -130,8 +132,8 @@ function ageGrowth(age: number, peak: number): number {
  * steepens, capped so a 45-year-old fades rather than collapses.
  */
 const declineYears = (yearsPast: number): number => (yearsPast > 0 ? DECLINE_ONSET + DECLINE_PER_YEAR * yearsPast : 0);
-const DECLINE_ONSET = 2.5;
-const DECLINE_PER_YEAR = 0.75;
+const DECLINE_ONSET = 4.5;
+const DECLINE_PER_YEAR = 0.25;
 const MAX_YEARS_PAST = 9;
 
 /**
@@ -220,11 +222,11 @@ export function developWeek(wp: WorldPlayer, inputs: DevelopmentInputs, rng: Rng
   const learn = (a.professionalism + a.coachability) / (2 * TOUR_AVERAGE);
   // A Plateau player stops growing half a point above where he is from 25.
   const ceiling = has(wp, "plateau") && p.age >= 25 ? Math.min(dev.potential, overall(p) + 0.5) : dev.potential;
-  const gap = inputs.managed ? clamp(ceiling - overall(p), -0.5, 1) : clamp((ceiling - overall(p)) / 4, -0.5, 1.5);
+  // Everyone grows at the pace his week sets, slowing only in the last point below his ceiling.
+  const gap = clamp(ceiling - overall(p), -0.5, 1);
   const peak = effectivePeak(wp);
   const growAge = ageGrowth(p.age, peak) * (has(wp, "early-peaker") && p.age <= 24 ? 1.25 : 1);
   const yearsPast = Math.min(MAX_YEARS_PAST, Math.max(0, p.age - peak + (has(wp, "early-peaker") ? 1 : 0)));
-  const intensity = INTENSITY[inputs.plan.intensity].growth;
   const injured = wp.injury !== null;
   const selfTaught = has(wp, "self-taught");
   const coachQ = (key: AttributeKey) => {
@@ -242,14 +244,11 @@ export function developWeek(wp: WorldPlayer, inputs: DevelopmentInputs, rng: Rng
   for (const key of TRAINABLE) {
     if (FIXED.includes(key)) continue;
     const body = key === "stamina" || key === "flexibility";
-    let work: number;
-    if (inputs.managed) {
-      const coaching = clamp((coachQ(key) - 12) * MANAGED.coachPerPoint, MANAGED.coachMin, MANAGED.coachMax);
-      work = MANAGED.base * Math.max(0.2, 1 + coaching + managedWeek + (winter ? (body ? winter.fitness : winter.golf) : 0));
-    } else {
-      work = (0.6 + coachQ(key) / 20) * intensity;
-    }
-    let delta = (inputs.managed ? CLIENT_GROWTH : BASE_GROWTH) * growAge * gap * learn * work * focusMultiplier(key, inputs.plan.focus) * boost;
+    // One model for everyone: a computer player's week is his implied coaching and his events;
+    // your clients add training load, range days, winters and the Performance Center.
+    const coaching = clamp((coachQ(key) - 12) * MANAGED.coachPerPoint, MANAGED.coachMin, MANAGED.coachMax);
+    const work = MANAGED.base * Math.max(0.2, 1 + coaching + managedWeek + (winter ? (body ? winter.fitness : winter.golf) : 0));
+    let delta = CLIENT_GROWTH * growAge * gap * learn * work * focusMultiplier(key, inputs.plan.focus) * boost;
     if (has(wp, "sponge") && inputs.plan.focus !== "balanced" && FOCUS_GROUPS[inputs.plan.focus].includes(key)) delta *= 1.25;
     if (has(wp, "gym-rat") && body) delta *= 1.3;
     // Range days are already in a client's budget; gym days still speed up the body.
