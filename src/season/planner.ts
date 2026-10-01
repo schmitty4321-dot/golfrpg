@@ -1,3 +1,4 @@
+import { followers } from "./showcase";
 /**
  * The weekly planner: a client's days before an event (Monday to Wednesday)
  * or his whole week off. Travel takes the first days (fewer with a better
@@ -85,6 +86,7 @@ export function applyPlan(world: World, wp: WorldPlayer, plan: DayActivity[]): n
   const media = count(plan, "media");
   if (media) {
     world.agency.reputation = clamp(world.agency.reputation + media * 0.15, 0, 100);
+    c.followers = Math.round(followers(world, wp) * (1 + 0.02 * media));
     const t = wp.player.traits ?? [];
     mood += media * (t.includes("media-darling") ? 1 : t.includes("hothead") || t.includes("anonymous-grinder") ? -2 : -0.5);
   }

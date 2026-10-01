@@ -1,10 +1,11 @@
+import { brandLift, followerLift } from "./showcase";
 import { sponsorBoost } from "./market";
 import { clamp, type Rng } from "../engine";
 import { rankMap } from "./points";
 import { absWeek, type SponsorCategory, type SponsorOffer, type World, type WorldPlayer } from "./types";
 import { bonusMultiplier, offerChanceMultiplier, sponsorValueMultiplier } from "./traits";
 
-const BRANDS: Record<SponsorCategory, string[]> = {
+export const BRANDS: Record<SponsorCategory, string[]> = {
   equipment: ["Talon Golf", "Kinetic Clubs", "Forged Theory", "Arcline", "Vantage Irons"],
   apparel: ["Northcourse", "Linksmith", "Grayson & Pike", "Fescue Athletic", "Hollow Oak"],
   watch: ["Meridian Watches", "Calloway & Sons", "Stellan", "Horologe Nine"],
@@ -48,7 +49,7 @@ export function maybeOffer(world: World, wp: WorldPlayer, rng: Rng, chance: numb
   const category = rng.pick(open);
   const m = marketability(world, wp);
   const scale = Math.min(1, m);
-  const annualValue = Math.round((TOP_VALUE[category] * scale * scale * (0.7 + rng.next() * 0.6) * sponsorValueMultiplier(world, wp, category) * sponsorBoost(world)) / 5_000) * 5_000;
+  const annualValue = Math.round((TOP_VALUE[category] * scale * scale * (0.7 + rng.next() * 0.6) * sponsorValueMultiplier(world, wp, category) * sponsorBoost(world) * brandLift(world, category) * followerLift(world, wp)) / 5_000) * 5_000;
   if (annualValue < 20_000) return null;
   const offer: SponsorOffer = {
     id: `sp${world.season}-${world.week}-${wp.player.id}-${category}`,

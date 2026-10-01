@@ -13,6 +13,7 @@ import {
   potentialEstimate,
   rankMap,
   toggleShortlist,
+  type Trophy,
   type World,
 } from "../../season";
 import { PlayerProfile } from "../components/PlayerProfile";
@@ -112,6 +113,74 @@ export function Rivals({ world }: { world: World }) {
           </ul>
         )}
         <p className="muted small" style={{ marginBottom: 0 }}>If a rival takes a client mid-contract they pay you a buyout of about half a season's commission.</p>
+      </section>
+    </main>
+  );
+}
+
+const TROPHY_LABELS: Record<Trophy["kind"], string> = { major: "Majors", win: "Wins", pointsTitle: "Points titles", award: "Awards" };
+
+/** The trophy cabinet: what your clients have won for you, the agency's awards, and its reputation over time. */
+export function Trophies({ world }: { world: World }) {
+  const list = [...(world.agency.trophies ?? [])].reverse();
+  const count = (k: Trophy["kind"]) => list.filter((t) => t.kind === k).length;
+  const rep = world.agency.repHistory ?? [];
+  const W = 640;
+  const H = 160;
+  const x = (i: number) => 40 + (rep.length > 1 ? (i / (rep.length - 1)) * (W - 56) : 0);
+  const y = (v: number) => 12 + ((100 - v) / 100) * (H - 36);
+  return (
+    <main>
+      <section className="panel">
+        <div className="panel-head"><h2>Trophy cabinet</h2><span className="muted small">Won while they were your clients</span></div>
+        <div className="player-stat-grid">
+          {(["major", "win", "pointsTitle", "award"] as Trophy["kind"][]).map((k) => (
+            <div key={k} className="player-stat"><span>{TROPHY_LABELS[k]}</span><strong>{count(k)}</strong></div>
+          ))}
+        </div>
+      </section>
+      <section className="panel">
+        <div className="panel-head"><h2>Reputation</h2><span className="muted small">At each season's end · now {Math.round(world.agency.reputation)}</span></div>
+        {rep.length === 0 ? (
+          <p className="empty">The line starts when your first season closes.</p>
+        ) : (
+          <svg className="sg-chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Reputation by season: ${rep.map((r) => `season ${r.season} ${Math.round(r.reputation)}`).join(", ")}`}>
+            {[0, 25, 50, 75, 100].map((t) => (
+              <g key={t}>
+                <line x1={40} x2={W - 16} y1={y(t)} y2={y(t)} className="chart-grid" />
+                <text x={34} y={y(t) + 4} textAnchor="end" className="chart-axis">{t}</text>
+              </g>
+            ))}
+            <path d={rep.map((r, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(r.reputation).toFixed(1)}`).join("")} className="chart-line" />
+            {rep.map((r, i) => (
+              <g key={r.season}>
+                <circle cx={x(i)} cy={y(r.reputation)} r="3.5" className="dev-dot" />
+                <text x={x(i)} y={H - 6} textAnchor="middle" className="chart-axis">S{r.season}</text>
+              </g>
+            ))}
+          </svg>
+        )}
+      </section>
+      <section className="panel">
+        <div className="panel-head"><h2>Honours</h2></div>
+        {list.length === 0 ? (
+          <p className="empty">Nothing in the cabinet yet. A client win puts the first trophy in it.</p>
+        ) : (
+          <div className="table-wrap">
+            <table>
+              <thead><tr><th>Season</th><th>Honour</th><th>Player</th></tr></thead>
+              <tbody>
+                {list.map((t, i) => (
+                  <tr key={i}>
+                    <td>{t.season}</td>
+                    <td>{t.kind === "major" ? <strong>{t.title} (major)</strong> : t.title}</td>
+                    <td>{t.player ?? world.agency.name}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </section>
     </main>
   );

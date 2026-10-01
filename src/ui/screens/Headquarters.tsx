@@ -1,4 +1,5 @@
-import { CENTER_TIERS, HQ_TIERS, STAFF_LABELS, STAFF_ROLES, buildCenter, centerBlock, dealClients, hireStaffer, hiredStaffer, hqBlock, releaseStaffer, rosterLimit, staffMarket, staffWages, upgradeHq, type World } from "../../season";
+import { useState } from "react";
+import { CENTER_TIERS, HQ_TIERS, AGENCY_EVENTS, STAFF_LABELS, STAFF_ROLES, brandOffers, buildCenter, eventBlock, eventTakings, followers, holdEvent, signBrand, centerBlock, dealClients, hireStaffer, hiredStaffer, hqBlock, releaseStaffer, rosterLimit, staffMarket, staffWages, upgradeHq, type AgencyEventKind, type World } from "../../season";
 import { money } from "../format";
 import type { Game } from "../useGame";
 
@@ -8,6 +9,10 @@ export function Headquarters({ world, game }: { world: World; game: Game }) {
     <main>
       <HqPanel world={world} game={game} />
       <StaffPanel world={world} game={game} />
+      <div className="grid-2">
+        <BrandsPanel world={world} game={game} />
+        <EventsPanel world={world} game={game} />
+      </div>
       <div className="grid-2">
         <CenterPanel world={world} game={game} />
         <DealsPanel world={world} />
@@ -162,6 +167,77 @@ function StaffPanel({ world, game }: { world: World; game: Game }) {
           </tbody>
         </table>
       </div>
+    </section>
+  );
+}
+
+function BrandsPanel({ world, game }: { world: World; game: Game }) {
+  const deals = world.agency.brands ?? [];
+  const offers = brandOffers(world);
+  return (
+    <section className="panel">
+      <div className="panel-head"><h2>Brand partnerships</h2><span className="muted small">Agency-wide deals: a yearly fee, and better offers for your clients</span></div>
+      {deals.length > 0 && (
+        <table>
+          <tbody>
+            {deals.map((b) => (
+              <tr key={b.id}><td><strong>{b.brand}</strong> <span className="muted small">{b.category}</span></td><td className="num">{money(b.annual)}/season</td><td className="num">+{Math.round(b.lift * 100)}% offers</td><td className="num muted small">to S{b.untilSeason}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      <div className="pp-label" style={{ marginTop: 10 }}>On offer this season</div>
+      {offers.length === 0 ? (
+        <p className="empty">{world.agency.reputation < 15 ? "Brands start calling at reputation 15." : "No more offers this season."}</p>
+      ) : (
+        <table>
+          <tbody>
+            {offers.map((b) => (
+              <tr key={b.id}>
+                <td><strong>{b.brand}</strong> <span className="muted small">{b.category}</span></td>
+                <td className="num">{money(b.annual)}/season</td>
+                <td className="num">+{Math.round(b.lift * 100)}% offers</td>
+                <td className="num muted small">to S{b.untilSeason}</td>
+                <td><button className="btn btn-small" onClick={() => game.act((w) => signBrand(w, b.id))}>Sign</button></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </section>
+  );
+}
+
+function EventsPanel({ world, game }: { world: World; game: Game }) {
+  const [message, setMessage] = useState<string | null>(null);
+  const kinds = Object.keys(AGENCY_EVENTS) as AgencyEventKind[];
+  return (
+    <section className="panel">
+      <div className="panel-head"><h2>Agency events and media</h2><span className="muted small">Each once a season</span></div>
+      <table>
+        <tbody>
+          {kinds.map((k) => {
+            const e = AGENCY_EVENTS[k];
+            const block = eventBlock(world, k);
+            return (
+              <tr key={k}>
+                <td><strong>{e.label}</strong><div className="secondary small">{e.blurb}</div></td>
+                <td className="num small">costs {money(e.cost)}<br />takes about {money(eventTakings(world, k))}</td>
+                <td>
+                  <button className="btn btn-small" disabled={!!block} onClick={() => game.act((w) => { const net = holdEvent(w, k); setMessage(`${e.label}: ${net >= 0 ? "made" : "lost"} ${money(Math.abs(net))}.`); })}>Hold it</button>
+                  {block && <div className="muted small">{block}</div>}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      {message && <p className="small" role="status">{message}</p>}
+      <div className="pp-label" style={{ marginTop: 10 }}>Your clients' following</div>
+      <p className="small" style={{ marginTop: 4 }}>
+        {world.clientIds.map((id) => `${world.players[id]!.player.name} ${Math.round(followers(world, world.players[id]!) / 1000)}k`).join(" · ") || "No clients."}
+      </p>
+      <p className="muted small" style={{ marginBottom: 0 }}>Wins, top 10s, media days and events grow a following; a bigger one means bigger sponsorship offers.</p>
     </section>
   );
 }

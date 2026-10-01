@@ -1,3 +1,4 @@
+import { brandSeasonEnd, trophiesSeasonEnd } from "./showcase";
 import { negotiationBonus, rivalPoaching, shortlistAlerts } from "./market";
 import { financeMood } from "./finance";
 import { clamp, createRng, type Rng } from "../engine";
@@ -301,7 +302,8 @@ export function agencySeasonEnd(world: World, rng: Rng): string[] {
     }
   }
   // Rivals circle unhappy clients; the recruitment board reports who came free.
-  for (const line of [...rivalPoaching(world, rng), ...shortlistAlerts(world)]) world.news.unshift(line);
+  for (const line of [...rivalPoaching(world, rng), ...shortlistAlerts(world), ...trophiesSeasonEnd(world)]) world.news.unshift(line);
+  brandSeasonEnd(world);
   // Reputation fades a little each winter unless results keep it up.
   world.agency.reputation = clamp(world.agency.reputation * 0.95 + clients(world).length * 0.5, 0, 100);
   return departures;

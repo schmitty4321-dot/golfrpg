@@ -19,6 +19,7 @@ export * from "./charts";
 export * from "./finance";
 export * from "./business";
 export * from "./market";
+export * from "./showcase";
 export * from "./traits";
 export * from "./familiarity";
 export * from "./practice";

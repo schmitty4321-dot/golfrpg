@@ -6,7 +6,7 @@ import { Scouting } from "./screens/Scouting";
 import { Career } from "./screens/Career";
 import { Finances } from "./screens/Finances";
 import { Headquarters } from "./screens/Headquarters";
-import { Recruiting, Rivals } from "./screens/Market";
+import { Recruiting, Rivals, Trophies } from "./screens/Market";
 import { HistoryScreen } from "./screens/History";
 import { Editor } from "./screens/Editor";
 import { EventScreen } from "./screens/EventScreen";
@@ -167,6 +167,8 @@ export function App() {
         <HistoryScreen world={world} />
       ) : tab === "recruiting" ? (
         <Recruiting world={world} game={game} />
+      ) : tab === "trophies" ? (
+        <Trophies world={world} />
       ) : tab === "rivals" ? (
         <Rivals world={world} />
       ) : tab === "hq" ? (

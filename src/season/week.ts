@@ -1,3 +1,4 @@
+import { payBrands, recordClientWin, updateFollowers } from "./showcase";
 import { payStaff } from "./market";
 import { payCenter, payInterest, recordBank, recordDealCommission } from "./business";
 import { COACH_PRIZE_SHARE, chargeDevelopment, coachesHired } from "./finance";
@@ -274,6 +275,8 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
         if (bonus > 0) payEndorsement(world, wp.player.id, bonus);
         addReputation(world.agency, reputationFor(r.position, r.madeCut, f.event.tier) + (f.event.tier === "dev" ? 0 : reputationBonus(wp, r.position, r.madeCut)));
         if (!r.madeCut) hotheadHeadline(world, wp, rng);
+        updateFollowers(world, wp, { position: r.position, madeCut: r.madeCut }, 0);
+        if (r.position === 1 && f.event.tier !== "dev") recordClientWin(world, wp, f.event.name, f.event.tier === "major");
         eventOf.set(wp.player.id, f.event);
         report.clients[wp.player.id] = { summary: "", record, result };
       }
@@ -351,6 +354,7 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
     world.agency.ledger.scouts += costs - office;
     payCenter(world);
     payStaff(world);
+    payBrands(world);
     payInterest(world);
     recordBank(world);
   }

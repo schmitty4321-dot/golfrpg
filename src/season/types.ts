@@ -226,6 +226,8 @@ export interface ClientManagement {
   devFunding?: 0 | 0.5 | 1;
   /** A development deal: the agency funds his coaching and camps in return for better terms. */
   devDeal?: DevDeal;
+  /** His media following (older saves: worked out from his standing when first needed). */
+  followers?: number;
   /** This season's goals, agreed with him (see goals.ts), and the ones on offer. */
   goals?: SeasonGoal[];
   goalOffers?: SeasonGoal[];
@@ -321,6 +323,15 @@ export interface Agency {
   staffHired?: Partial<Record<StaffRole, string>>;
   /** Players on the recruitment board, by id. */
   shortlist?: string[];
+  /** Agency-wide brand partnerships, and the ones on offer this season. */
+  brands?: BrandDeal[];
+  brandOffers?: BrandDeal[];
+  /** Agency events held, by season. */
+  eventsHeld?: Record<number, AgencyEventKind[]>;
+  /** Your clients' wins and titles, and the agency's awards. */
+  trophies?: Trophy[];
+  /** Reputation at each season's end. */
+  repHistory?: { season: number; reputation: number }[];
 }
 
 export type TravelClass = "economy" | "business" | "charter";
@@ -495,4 +506,25 @@ export interface AgencyStaffer {
   /** 1-20. */
   quality: number;
   weeklyFee: number;
+}
+
+/** An agency-wide deal with a brand: a yearly fee, and its sponsorship offers to your clients are worth more. */
+export interface BrandDeal {
+  id: string;
+  brand: string;
+  category: SponsorCategory;
+  /** Paid to the agency each season, by the week. */
+  annual: number;
+  /** Extra value on this category's sponsorship offers to your clients. */
+  lift: number;
+  untilSeason: number;
+}
+
+export type AgencyEventKind = "clinic" | "proAm" | "exhibition";
+
+export interface Trophy {
+  season: number;
+  kind: "win" | "major" | "pointsTitle" | "award";
+  title: string;
+  player?: string;
 }
