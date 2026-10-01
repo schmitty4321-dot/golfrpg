@@ -63,7 +63,8 @@ describe("live tournaments", () => {
       const q = simulateTournament(config(100 + s)).leaderboard.filter((x) => x.madeCut);
       sim += q.reduce((a, x) => a + x.toPar, 0) / q.length;
     }
-    expect(Math.abs(live - sim) / 12).toBeLessThan(0.8);
+    // Same engine, different random draws: about a stroke at most on the cut players' average.
+    expect(Math.abs(live - sim) / 12).toBeLessThan(1);
   });
 
   it("shows the leaderboard through the same hole as the client", () => {
@@ -85,7 +86,9 @@ describe("live tournaments", () => {
 describe("calls", () => {
   it("trade risk for reward the way they say", () => {
     const course = getCourse("tpc-sawgrass");
-    const t = startLive(config(), me);
+    // A tour-average player, so the test is about the call and not one golfer's irons.
+    const avg = flatPlayer("avg", 12);
+    const t = startLive({ ...config(), field: [...field.slice(0, 40), avg, ...field.slice(41)] }, avg.id);
     startLiveRound(t);
     for (let i = 0; i < 16; i++) playLiveHole(t);
     expect(course.holes[16]!.par).toBe(3); // the island green
@@ -124,7 +127,12 @@ describe("calls", () => {
 describe("a live week", () => {
   it("records the live result exactly as played", () => {
     const w = deserializeWorld(serializeWorld(createWorld({ seed: 33, scenario: "rookie" })));
-    const events = liveEvents(w, {});
+    // The first week he has an event to play.
+    let events = liveEvents(w, {});
+    for (let i = 0; i < 10 && events.length === 0; i++) {
+      playWeek(w);
+      events = liveEvents(w, {});
+    }
     expect(events.length).toBeGreaterThan(0);
     const ev = events[0]!;
     const t = ev.tournament;

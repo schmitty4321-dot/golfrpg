@@ -244,7 +244,8 @@ describe("injuries", () => {
     }
     const perWeek = count / SEASON_WEEKS;
     expect(perWeek).toBeGreaterThan(0.5);
-    expect(perWeek).toBeLessThan(15);
+    // About one start in a hundred ends in an injury (real withdrawals 1.8%), and some last weeks.
+    expect(perWeek).toBeLessThan(25);
   });
 });
 

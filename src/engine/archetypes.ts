@@ -47,7 +47,7 @@ const BRITISH_ISLES = ["England", "Scotland", "Ireland", "Northern Ireland"];
 
 export const ARCHETYPE_LIST: readonly Archetype[] = [
   { id: "power", name: "Power Player", group: "Off the tee", color: "#d9442e", blurb: "Overpowers courses and lives with the misses.",
-    skew: { drivingDistance: 3, drivingAccuracy: -2, aggression: 2, wedges: 1, flexibility: 2 },
+    skew: { drivingDistance: 2, drivingAccuracy: -2, aggression: 2, wedges: 1, flexibility: 2 },
     weight: (c) => 6 * (c.age < 30 ? 1.3 : 1) * (c.nationality === "USA" ? 1.2 : 1) },
   { id: "precision", name: "Precision Player", group: "Iron play", color: "#6d4bc2", blurb: "Fairways and the fat part of every green.",
     skew: { drivingDistance: -2, drivingAccuracy: 3, courseManagement: 2, fairwayWoods: 1, aggression: -2 },
@@ -111,25 +111,74 @@ export const ARCHETYPE_LIST: readonly Archetype[] = [
 export const ARCHETYPES: Readonly<Record<ArchetypeId, Archetype>> = Object.fromEntries(ARCHETYPE_LIST.map((a) => [a.id, a])) as Record<ArchetypeId, Archetype>;
 
 /**
- * The profile as applied: the designed skew, plus one-point offsets spread over
- * the golf skills it doesn't touch, so the golf skills still sum to zero and
- * the player's overall level is unchanged.
+ * What one rating point of each golf skill is worth in strokes a round, on the
+ * real tour courses (measured 2026-10-01 with expectedStrokesGained; see
+ * tests/archetypes.test.ts). The overall rating is a plain average of the golf
+ * skills, but they aren't worth the same: a point of driving distance is worth
+ * fifteen of creativity.
  */
-function balanced(a: Archetype, index: number): Partial<Record<AttributeKey, number>> {
+export const SKILL_STROKES: Readonly<Partial<Record<AttributeKey, number>>> = {
+  drivingDistance: 0.165, drivingAccuracy: 0.025, longIrons: 0.045, fairwayWoods: 0.015,
+  midIrons: 0.074, wedges: 0.049, distanceControl: 0.057, shotShaping: 0.025, trajectoryControl: 0.025,
+  chipping: 0.027, pitching: 0.022, bunkerPlay: 0.022, creativity: 0.011,
+  lagPutting: 0.02, shortPutts: 0.035, greenReading: 0.025, speedControl: 0.02,
+};
+
+/**
+ * Strokes a round an archetype gains or loses through things the skill
+ * weights don't see (nerve and composure work only under pressure; aggression
+ * changes strategy), measured with scripts/balance.ts and paid back in skills.
+ */
+export const STROKE_BIAS: Readonly<Partial<Record<ArchetypeId, number>>> = { ice: -0.27, oldpro: 0.15 };
+
+/** Most an applied profile moves a skill the design doesn't mention. */
+const MAX_OFFSET = 2;
+
+/**
+ * The profile as applied: the designed skew, plus offsets on the golf skills it
+ * doesn't touch, chosen so the golf skills still sum to zero (his overall level
+ * is unchanged) and the profile is worth nothing in strokes either (he plays to
+ * that level). Balancing points alone let bombers beat their rating by a third
+ * of a shot and short-game players fall a quarter short (scripts/balance.ts).
+ */
+function balanced(a: Archetype): Partial<Record<AttributeKey, number>> {
   const out: Partial<Record<AttributeKey, number>> = { ...a.skew };
-  let net = GOLF.reduce((s, k) => s + (a.skew[k] ?? 0), 0);
   const free = GOLF.filter((k) => a.skew[k] === undefined);
-  for (let i = 0; net !== 0 && free.length; i++) {
-    const k = free[(index * 3 + i) % free.length]!;
-    const step = net > 0 ? -1 : 1;
-    out[k] = (out[k] ?? 0) + step;
-    net += step;
+  const points = () => GOLF.reduce((t, k) => t + (out[k] ?? 0), 0);
+  const strokes = () => GOLF.reduce((t, k) => t + (out[k] ?? 0) * (SKILL_STROKES[k] ?? 0), 0) + (STROKE_BIAS[a.id] ?? 0);
+  // What matters is that he plays to his rating: strokes against what the rating change predicts
+  // (a point of overall is about 0.66 strokes, so a point of one skill about 0.039). Keep the
+  // level near unchanged, and touch as few extra skills as possible.
+  const touched = () => free.filter((k) => out[k] !== undefined).length;
+  const cost = () => ((strokes() - 0.039 * points()) / 0.02) ** 2 + 0.3 * points() ** 2 + 0.05 * touched();
+  for (let step = 0; step < 24; step++) {
+    let best: [AttributeKey, number] | null = null;
+    let bestCost = cost() - 1e-9;
+    for (const k of free) {
+      for (const d of [-1, 1]) {
+        const v = (out[k] ?? 0) + d;
+        if (Math.abs(v) > MAX_OFFSET) continue;
+        const was = out[k];
+        out[k] = v;
+        const c = cost();
+        if (was === undefined) delete out[k];
+        else out[k] = was;
+        if (c < bestCost) {
+          bestCost = c;
+          best = [k, d];
+        }
+      }
+    }
+    if (!best) break;
+    const v = (out[best[0]] ?? 0) + best[1];
+    if (v === 0) delete out[best[0]];
+    else out[best[0]] = v;
   }
   return out;
 }
 
 export const APPLIED_SKEW: Readonly<Record<ArchetypeId, Partial<Record<AttributeKey, number>>>> = Object.fromEntries(
-  ARCHETYPE_LIST.map((a, i) => [a.id, balanced(a, i)]),
+  ARCHETYPE_LIST.map((a) => [a.id, balanced(a)]),
 ) as Record<ArchetypeId, Partial<Record<AttributeKey, number>>>;
 
 /** An archetype for a new player, from one uniform number in [0, 1). */

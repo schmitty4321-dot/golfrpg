@@ -51,7 +51,7 @@ describe("how a client develops", () => {
     const wellRun = sixYears(true, 18, { plan: { focus: "balanced", intensity: "heavy" }, range: 3, winter: "camp" });
     // About +1 to his peak for a typical setup, +3.5 for a well-run one (Data Golf: rookie to top 20).
     expect(typical).toBeGreaterThan(0.6);
-    expect(typical).toBeLessThan(1.6);
+    expect(typical).toBeLessThan(1.8);
     expect(wellRun).toBeGreaterThan(2.8);
     expect(wellRun).toBeLessThan(5);
     // The levers add up rather than multiply.

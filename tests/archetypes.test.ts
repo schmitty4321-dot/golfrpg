@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
+  ALL_ATTRIBUTES,
+  REAL_COURSES,
+  SKILL_STROKES,
+  STROKE_BIAS,
+  expectedStrokesGained,
+  totalSg,
+  type Attributes,
   APPLIED_SKEW,
   ARCHETYPES,
   ARCHETYPE_LIST,
@@ -18,10 +25,27 @@ const GOLF: AttributeKey[] = [...ATTRIBUTE_GROUPS.longGame, ...ATTRIBUTE_GROUPS.
 const world = createWorld({ seed: 17, scenario: "rookie" });
 
 describe("archetypes", () => {
-  it("has the twenty, each balanced to zero across the golf skills", () => {
+  it("has the twenty, each balanced so he plays to his rating", () => {
     expect(ARCHETYPE_LIST).toHaveLength(20);
     expect(new Set(ARCHETYPE_LIST.map((a) => a.id)).size).toBe(20);
-    for (const a of ARCHETYPE_LIST) expect(GOLF.reduce((s, k) => s + (APPLIED_SKEW[a.id][k] ?? 0), 0)).toBe(0);
+    for (const a of ARCHETYPE_LIST) {
+      const s = APPLIED_SKEW[a.id];
+      const points = GOLF.reduce((t, k) => t + (s[k] ?? 0), 0);
+      const strokes = GOLF.reduce((t, k) => t + (s[k] ?? 0) * (SKILL_STROKES[k] ?? 0), 0) + (STROKE_BIAS[a.id] ?? 0);
+      // Strokes against what the rating change predicts (about 0.039 a point of one skill).
+      expect(Math.abs(strokes - 0.039 * points), a.id).toBeLessThan(0.05);
+      expect(Math.abs(points), a.id).toBeLessThanOrEqual(3);
+    }
+  });
+
+  it("puts each skill's stroke value where the engine does", () => {
+    const course = REAL_COURSES[0]!;
+    const flat = Object.fromEntries(ALL_ATTRIBUTES.map((k) => [k, 12])) as Attributes;
+    const base = { ...generatePlayer(createRng(1), { tier: "tour" }), attributes: flat };
+    const at = (k: AttributeKey) => totalSg(expectedStrokesGained({ ...base, attributes: { ...flat, [k]: 13 } }, course)) - totalSg(expectedStrokesGained(base, course));
+    // The table is an average over the tour's courses, so a single course is only roughly the same.
+    for (const k of ["midIrons", "shortPutts", "chipping"] as const) expect(Math.abs(at(k) - SKILL_STROKES[k]!)).toBeLessThan(0.02);
+    expect(at("drivingDistance")).toBeGreaterThan(SKILL_STROKES.drivingDistance! * 0.5);
   });
 
   it("changes the shape of a player's game, never his overall level", () => {
