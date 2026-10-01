@@ -20,11 +20,12 @@ import {
  * Day-to-day spread of each strokes-gained category, per round, for a
  * tour-average player (roughly what tour ShotLink data shows).
  */
-export const DAY_SD: StrokesGained = { offTheTee: 0.4, approach: 0.6, aroundTheGreen: 0.45, putting: 0.6 };
+// Scaled so a player's scores scatter about 2.75 strokes from round to round, as Data Golf measures.
+export const DAY_SD: StrokesGained = { offTheTee: 0.38, approach: 0.57, aroundTheGreen: 0.43, putting: 0.57 };
 /** Spread of a player's level from one week to the next, strokes per round. */
 export const WEEK_SD = 0.4;
 /** Leftover hole-to-hole luck (bounces, lip-outs) not tied to a category. */
-export const HOLE_SD = 0.41;
+export const HOLE_SD = 0.35;
 
 /**
  * Expected score before blow-ups for a tour-average player on a standard

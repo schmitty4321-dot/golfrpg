@@ -4,8 +4,9 @@
  * shows whether it made the game more or less like the PGA TOUR.
  *
  * Strokes gained are per round against the field. One point of overall
- * rating is about 0.46 strokes a round (measured in this engine, 2026-09-30),
- * so Data Golf's strokes convert to ratings at about 2.17 points per stroke.
+ * rating is about 0.57 strokes a round (measured in this engine after the
+ * approach rescale, 2026-10-01), so Data Golf's strokes convert to ratings at
+ * about 1.76 points per stroke.
  */
 import { careerLines } from "./charts";
 import { seasonVsReal } from "./courseSetup";
@@ -15,7 +16,7 @@ import { seasonWeeks } from "./calendar";
 import { playWeek } from "./week";
 import type { SeasonLine, World } from "./types";
 
-const RATING_PER_STROKE = 1 / 0.46;
+const RATING_PER_STROKE = 1 / 0.568;
 
 export interface Anchor {
   label: string;
@@ -40,12 +41,12 @@ export const REALISM_ANCHORS = {
   spreadAroundGreen: { label: "Skill spread between players: around the green", real: 0.16, tolerance: 0.1, unit: "strokes/rd", source: "Data Golf skill-profile standard deviation, SG around the green" },
   spreadPutting: { label: "Skill spread between players: putting", real: 0.24, tolerance: 0.12, unit: "strokes/rd", source: "Data Golf skill-profile standard deviation, SG putting" },
   fieldVsReal: { label: "Field scoring vs real hole averages", real: 0, tolerance: 0.3, unit: "strokes/rd", source: "Real hole averages from the PGA TOUR courses in this game (realHoles.json)" },
-  age23to25: { label: "Change a year, ages 23-25", real: 0.12, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, 98 players' strokes gained by age (2026), converted" },
-  age26to28: { label: "Change a year, ages 26-28", real: 0.27, tolerance: 0.2, unit: "overall/yr", source: "Data Golf profiles, as above" },
-  age29to31: { label: "Change a year, ages 29-31", real: -0.15, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, as above" },
-  age32to34: { label: "Change a year, ages 32-34", real: -0.16, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, as above" },
-  age35to37: { label: "Change a year, ages 35-37", real: -0.15, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, as above" },
-  age38to41: { label: "Change a year, ages 38-41", real: -0.25, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, as above" },
+  age23to25: { label: "Change a year, ages 23-25", real: 0.1, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, 98 players' strokes gained by age (2026), converted" },
+  age26to28: { label: "Change a year, ages 26-28", real: 0.22, tolerance: 0.2, unit: "overall/yr", source: "Data Golf profiles, as above" },
+  age29to31: { label: "Change a year, ages 29-31", real: -0.12, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, as above" },
+  age32to34: { label: "Change a year, ages 32-34", real: -0.13, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, as above" },
+  age35to37: { label: "Change a year, ages 35-37", real: -0.12, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, as above" },
+  age38to41: { label: "Change a year, ages 38-41", real: -0.2, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, as above" },
   neverWin: { label: "Rookies who never win", real: 65, tolerance: 12, unit: "%", source: "Data Golf careers: 205 PGA TOUR rookies, 1990-2014 debuts" },
   bustTwoSeasons: { label: "Rookies with 2 or fewer full seasons", real: 31, tolerance: 12, unit: "%", source: "Data Golf careers, as above (players with 25+ starts; the true rate is higher)" },
   tenSeasons: { label: "Rookies with 10+ full seasons", real: 33, tolerance: 12, unit: "%", source: "Data Golf careers, as above" },

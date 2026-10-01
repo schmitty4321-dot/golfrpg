@@ -68,18 +68,19 @@ export function chargeWinterPrograms(world: World): void {
 }
 
 /**
- * Season earnings by overall level: medians from a simulated tour season
- * (seed 11, 2026-09-30), interpolated on a log scale.
+ * Season earnings by overall level: medians from simulated tour seasons
+ * (seed 11, 2026-09-30 and again after the approach rescale on 2026-10-01),
+ * smoothed and interpolated on a log scale.
  */
 const EARNINGS_BY_LEVEL: [number, number][] = [
-  [9.5, 250_000],
-  [10.5, 500_000],
-  [11.5, 730_000],
-  [12.5, 1_780_000],
-  [13.5, 3_080_000],
-  [14.5, 6_740_000],
-  [15.5, 10_500_000],
-  [16.5, 22_000_000],
+  [9.5, 220_000],
+  [10.5, 450_000],
+  [11.5, 780_000],
+  [12.5, 1_820_000],
+  [13.5, 3_250_000],
+  [14.5, 6_300_000],
+  [15.5, 11_500_000],
+  [16.5, 21_000_000],
 ];
 
 export function earningsAtLevel(level: number): number {

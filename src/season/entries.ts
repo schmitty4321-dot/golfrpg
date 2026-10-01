@@ -99,7 +99,8 @@ export function invitedField(world: World, ctx: WeekContext, event: TourEvent): 
       id === amateurChamp ||
       (world.players[id]!.career.priorPointsRank ?? 999) <= 50,
   );
-  const set = new Set(guaranteed.sort((a, b) => owgr(a) - owgr(b)).slice(0, event.fieldSize));
+  // The amateur champion has no world ranking; his invitation must survive the cut to the field size.
+  const set = new Set(guaranteed.sort((a, b) => (a === amateurChamp ? -1 : b === amateurChamp ? 1 : owgr(a) - owgr(b))).slice(0, event.fieldSize));
   for (const id of [...pros].sort((a, b) => owgr(a) - owgr(b))) {
     if (set.size >= event.fieldSize) break;
     set.add(id);

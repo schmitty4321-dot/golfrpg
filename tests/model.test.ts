@@ -30,10 +30,14 @@ describe("skill model", () => {
     expect(Math.abs(totalSg(expectedStrokesGained(flatPlayer("a", 12), course)))).toBeLessThan(0.3);
   });
 
-  it("puts a best-in-the-world player 3-4 strokes a round ahead", () => {
-    const sg = totalSg(expectedStrokesGained(flatPlayer("a", 20), course)) - totalSg(expectedStrokesGained(flatPlayer("b", 12), course));
-    expect(sg).toBeGreaterThan(3);
-    expect(sg).toBeLessThan(4.5);
+  it("puts a generational talent about 2.5-3 strokes a round ahead, like the very best seasons", () => {
+    // Ceilings top out at 17 (MAX_POTENTIAL). Data Golf: a top-5 player is about +2, and seasons
+    // above +2.5 are very rare; the rescaled approach weights (2026-10-01) put 17 at about +2.8.
+    const ahead = (level: number) => totalSg(expectedStrokesGained(flatPlayer("a", level), course)) - totalSg(expectedStrokesGained(flatPlayer("b", 12), course));
+    expect(ahead(17)).toBeGreaterThan(2.5);
+    expect(ahead(17)).toBeLessThan(3.2);
+    // A player rated 20 at everything can't exist, but even he isn't absurd.
+    expect(ahead(20)).toBeLessThan(5.5);
   });
 
   it("rewards distance more on a long course than a short one", () => {

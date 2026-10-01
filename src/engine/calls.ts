@@ -137,7 +137,8 @@ export function callEffect(call: HoleCall | null | undefined, hole: Hole, player
     if (call.approach === "attack") {
       // Going at a tucked pin brings the edge of the green, and what's beyond it, into play.
       mod.mean += -0.06 - (d("midIrons") + d("wedges") + d("distanceControl")) * 0.002 + (tuck - 0.5) * 0.04;
-      mod.sd *= 1.1;
+      // Tuned with the hole-to-hole luck (HOLE_SD): attacking keeps its extra misses.
+      mod.sd *= 1.17;
       mod.blowup *= (1 + hole.hazard * 1.5 + hole.bunkers * 0.05) * (1 + (tuck - 0.5) * 0.6);
     } else {
       mod.mean += 0.04 - (tuck - 0.5) * 0.03;

@@ -36,16 +36,24 @@ export function courseDemands(course: Course): CourseDemands {
  * average, before course demands. With every skill at 20 a player gains about
  * 3.5 strokes a round, roughly the best seasons on record.
  */
+/**
+ * Approach play separates tour players most: Data Golf's skill profiles put
+ * the spread between players at 0.37 strokes a round in approach, against
+ * 0.24 putting and 0.16 around the green. The approach weights are scaled
+ * so a field shows that spread (realism report, 2026-10-01).
+ */
+export const APPROACH_SCALE = 1.6;
+
 const W = {
   drivingDistance: 0.055,
   drivingAccuracy: 0.04,
   fairwayWoods: 0.015,
-  midIrons: 0.045,
-  wedges: 0.03,
-  distanceControl: 0.035,
-  longIrons: 0.025,
-  shotShaping: 0.015,
-  trajectoryControl: 0.015,
+  midIrons: 0.045 * APPROACH_SCALE,
+  wedges: 0.03 * APPROACH_SCALE,
+  distanceControl: 0.035 * APPROACH_SCALE,
+  longIrons: 0.025 * APPROACH_SCALE,
+  shotShaping: 0.015 * APPROACH_SCALE,
+  trajectoryControl: 0.015 * APPROACH_SCALE,
   chipping: 0.025,
   pitching: 0.02,
   bunkerPlay: 0.015,
