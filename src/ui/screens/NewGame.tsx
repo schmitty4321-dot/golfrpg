@@ -17,9 +17,10 @@ export function NewGame({ game }: { game: Game }) {
       <div className="hero">
         <h1>Fairway Manager</h1>
         <p className="secondary" style={{ margin: 0, maxWidth: 640 }}>
-          You've just opened a golf agency. Your first client has signed. Plan his schedule, hire his coaches, find him
-          sponsors, then scout the tour for more players and grow the business. You earn a commission on everything
-          your clients win and endorse.
+          You've just opened a golf agency with three clients: a rookie, a 25-year-old and a veteran. Plan their
+          schedules, hire their coaches, find them sponsors, then scout the tour for more players and grow the
+          business. You earn a commission on everything your clients win and endorse, and every dollar you spend
+          on one is a dollar you can't spend on the others.
         </p>
       </div>
       <section className="panel">
