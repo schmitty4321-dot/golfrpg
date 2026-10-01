@@ -3,6 +3,7 @@ import {
   COACH_ROLES,
   REBUILD_WEEKS,
   ROLE_LABELS,
+  WINTER,
   canStartRebuild,
   ceilingEstimate,
   mixSeed,
@@ -14,6 +15,7 @@ import {
   type CoachRole,
   type Intensity,
   type TrainingFocus,
+  type WinterProgram,
   type World,
 } from "../../season";
 import { money } from "../format";
@@ -76,6 +78,15 @@ export function Training({ world, game, clientId }: { world: World; game: Game; 
                 <button key={f.id} className="choice" aria-pressed={m.training.intensity === f.id} onClick={() => act((w) => (w.players[clientId]!.client!.training.intensity = f.id))}>
                   <strong>{f.label}</strong>
                   <span className="secondary small">{f.blurb}</span>
+                </button>
+              ))}
+            </div>
+            <div className="panel-head" style={{ marginTop: 16 }}><h2>Winter program</h2><span className="muted small">The ten weeks between seasons</span></div>
+            <div className="choice-grid">
+              {(Object.keys(WINTER) as WinterProgram[]).map((id) => (
+                <button key={id} className="choice" aria-pressed={(m.training.winter ?? "standard") === id} onClick={() => act((w) => (w.players[clientId]!.client!.training.winter = id))}>
+                  <strong>{WINTER[id].label}</strong>
+                  <span className="secondary small">{WINTER[id].blurb}</span>
                 </button>
               ))}
             </div>

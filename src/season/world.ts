@@ -233,8 +233,11 @@ function createClient(rng: Rng, scenario: Scenario, usedNames: Set<string>, shap
   };
   switch (scenario) {
     // Pitched so each start is a fight for a card, not a cruise.
-    case "rookie":
-      return make("fringe", 23, "graduate", 1, 2, (p) => shapeRookie(p, shapeRng));
+    case "rookie": {
+      const wp = make("fringe", 23, "graduate", 1, 2, (p) => shapeRookie(p, shapeRng));
+      wp.development.potential = rookieCeiling(overall(wp.player), shapeRng);
+      return wp;
+    }
     case "journeyman":
       return make("fringe", 32, "conditional", 0, 0.3);
     case "grinder":
@@ -252,6 +255,19 @@ function createClient(rng: Rng, scenario: Scenario, usedNames: Set<string>, shap
 
 const GOLF_SKILLS = [...ATTRIBUTE_GROUPS.longGame, ...ATTRIBUTE_GROUPS.approach, ...ATTRIBUTE_GROUPS.shortGame, ...ATTRIBUTE_GROUPS.putting];
 const ROOKIE_MENTAL = ATTRIBUTE_GROUPS.mental.filter((k) => k !== "aggression");
+
+/**
+ * The Rookie's ceiling, from a bell curve as real careers are: Data Golf's
+ * 1990-2014 PGA TOUR rookies peaked in a normal spread (sd about 1 stroke a
+ * round, about 2 of overall here). Centred so roughly 3% have a legend's
+ * ceiling (16.3+), 13% a star's, 19% a top-25 player's, a third an average
+ * pro's and the rest below; some can't grow at all. Reaching it is up to you.
+ */
+export const ROOKIE_CEILING = { mean: 12.8, sd: 1.8 };
+
+export function rookieCeiling(now: number, rng: Rng): number {
+  return Math.round(clamp(rng.normal(ROOKIE_CEILING.mean, ROOKIE_CEILING.sd), now, MAX_POTENTIAL) * 10) / 10;
+}
 
 /**
  * A developmental-tour graduate: one real strength (14-16), two or three

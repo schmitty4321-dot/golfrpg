@@ -211,7 +211,7 @@ export function endOfWeek(world: World, competed: Set<string>, rng: Rng, boosts:
 
     const mentored = mentor && isClient && wp.player.age < 25 && !has(wp, "mentor");
     const boost = boosts.get(wp.player.id);
-    const changes = developWeek(wp, { plan, coachQuality: quality, competed: played, mentored, ...(boost ? { boost } : {}) }, rng);
+    const changes = developWeek(wp, { plan, coachQuality: quality, competed: played, mentored, managed: isClient, ...(boost ? { boost } : {}) }, rng);
     if (isClient) {
       wp.player.condition = clamp(wp.player.condition + INTENSITY[plan.intensity].condition, 0, 100);
       for (const c of changes) {
@@ -246,10 +246,22 @@ export function offseason(world: World, weeks: number, rng: Rng): void {
           plan: wp.client ? wp.client.training : { focus: "balanced", intensity: "normal" },
           coachQuality: wp.client ? staffQuality(world, wp.player.id) : impliedStaff(wp),
           competed: false,
+          ...(wp.client ? { managed: true, winter: wp.client.training.winter ?? "standard" } : {}),
         },
         rng,
       );
       if (wp.client) progressRebuild(world, wp, rng);
+    }
+  }
+  // How the winter leaves him: a camp's hard work makes him rusty, a rest leaves him fresh.
+  for (const id of world.clientIds) {
+    const wp = world.players[id];
+    const winter = wp?.client?.training.winter;
+    if (!wp || !winter) continue;
+    if (winter === "camp") wp.player.form = clamp(wp.player.form - 0.4, -1, 1);
+    if (winter === "rest") {
+      wp.player.form = clamp(wp.player.form + 0.3, -1, 1);
+      wp.player.condition = 100;
     }
   }
 }

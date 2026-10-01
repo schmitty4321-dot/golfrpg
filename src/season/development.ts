@@ -12,7 +12,7 @@ import {
   type Rng,
   type VisibleAttribute,
 } from "../engine";
-import type { CoachRole, Development, Intensity, TrainingFocus, TrainingPlan, WorldPlayer } from "./types";
+import type { CoachRole, Development, Intensity, TrainingFocus, TrainingPlan, WinterProgram, WorldPlayer } from "./types";
 import { effectivePeak, has } from "./traits";
 
 /** Skills that decide scoring: the average of these is a player's overall level. */
@@ -61,6 +61,14 @@ const TRAINABLE: readonly AttributeKey[] = [...VISIBLE_ATTRIBUTES, "windToleranc
 
 /** Growth per week for a young player well short of his ceiling, before modifiers. */
 const BASE_GROWTH = 0.045;
+/**
+ * A client's growth per week at full speed. Unlike the computer players he
+ * doesn't rush at his ceiling: he grows at the pace his management sets
+ * (Data Golf: about +0.2 of overall a year from 23 for a typical pro, +0.6
+ * for a well-run one) and only slows in the last point below it, so whether
+ * he gets there before his peak age is up to you.
+ */
+const CLIENT_GROWTH = 0.0038;
 /** A strength can sit this far above the player's overall ceiling. */
 const STRENGTH_ROOM = 4;
 
@@ -107,13 +115,52 @@ export function staggeredProgress(p: Player): Development["progress"] {
   return progress;
 }
 
-/** Growth multiplier from age: fast when young, flat around the peak. */
+/** Growth multiplier from age: fast when young, tapering into the peak, none after it. */
 function ageGrowth(age: number, peak: number): number {
   if (age <= peak - 5) return 1.2;
   if (age < peak) return 0.3 + (0.9 * (peak - age)) / 5;
-  if (age <= peak + 2) return 0.1;
+  if (age === peak) return 0.1;
   return 0;
 }
+
+/**
+ * Ageing, per year past the peak. Data Golf's careers (2026) slip about 0.08
+ * strokes a round a year from 30 to 36 and 0.2 from 37: about 0.17 and 0.4
+ * of overall here. So it bites from the first year past the peak, then
+ * steepens, capped so a 45-year-old fades rather than collapses.
+ */
+const declineYears = (yearsPast: number): number => (yearsPast > 0 ? DECLINE_ONSET + DECLINE_PER_YEAR * yearsPast : 0);
+const DECLINE_ONSET = 2.5;
+const DECLINE_PER_YEAR = 0.75;
+const MAX_YEARS_PAST = 9;
+
+/**
+ * Your clients' growth, as additions to what a computer player gets from the
+ * same weeks (coaching 40%, training 30%, tournaments 15%, the winter 15% of
+ * the extra). They add rather than multiply, so stacking every lever makes a
+ * well-run young client about three times as quick, not six.
+ */
+export const MANAGED = {
+  /** A computer player's coaching factor (exempt players' implied staff of 12). */
+  base: 0.6 + 12 / 20,
+  /** Per point of coach quality above or below 12, up to +1 (no coach: -0.5). */
+  coachPerPoint: 1 / 6,
+  coachMin: -0.5,
+  coachMax: 1,
+  intensity: { light: -0.2, normal: 0, heavy: 0.4 } as Record<Intensity, number>,
+  /** Per range day in the week's plan. */
+  perRangeDay: 0.12,
+  /** A week he plays an event: reps under the gun. */
+  competing: 0.6,
+};
+
+/** The off-season programs: extra growth for golf skills and the body, and how fast age bites. */
+export const WINTER: Record<WinterProgram, { label: string; blurb: string; golf: number; fitness: number; decline: number }> = {
+  standard: { label: "Standard winter", blurb: "The usual off-season work.", golf: 0, fitness: 0, decline: 1 },
+  camp: { label: "Skills camp", blurb: "Ten weeks of hard work on his game. Big gains, but he starts the season rusty.", golf: 2, fitness: 0, decline: 1 },
+  fitness: { label: "Fitness block", blurb: "Gym and conditioning: stamina and flexibility, and the years bite less.", golf: 0.5, fitness: 1.5, decline: 0.4 },
+  rest: { label: "Rest and recharge", blurb: "Little work, but he starts the season fresh and in form.", golf: -0.3, fitness: -0.3, decline: 1 },
+};
 
 export interface DevelopmentInputs {
   plan: TrainingPlan;
@@ -125,6 +172,10 @@ export interface DevelopmentInputs {
   mentored?: boolean;
   /** This week's planner: extra range work and gym time. */
   boost?: { training: number; fitness: number };
+  /** One of your clients: growth comes from the MANAGED budget. */
+  managed?: boolean;
+  /** An off-season week, and what he's doing with it. */
+  winter?: WinterProgram;
 }
 
 /** The coach quality a computer player works with, by standing. */
@@ -167,10 +218,10 @@ export function developWeek(wp: WorldPlayer, inputs: DevelopmentInputs, rng: Rng
   const learn = (a.professionalism + a.coachability) / (2 * TOUR_AVERAGE);
   // A Plateau player stops growing half a point above where he is from 25.
   const ceiling = has(wp, "plateau") && p.age >= 25 ? Math.min(dev.potential, overall(p) + 0.5) : dev.potential;
-  const gap = clamp((ceiling - overall(p)) / 4, -0.5, 1.5);
+  const gap = inputs.managed ? clamp(ceiling - overall(p), -0.5, 1) : clamp((ceiling - overall(p)) / 4, -0.5, 1.5);
   const peak = effectivePeak(wp);
   const growAge = ageGrowth(p.age, peak) * (has(wp, "early-peaker") && p.age <= 24 ? 1.25 : 1);
-  const yearsPast = Math.max(0, p.age - peak - (has(wp, "early-peaker") ? 1 : 2));
+  const yearsPast = Math.min(MAX_YEARS_PAST, Math.max(0, p.age - peak + (has(wp, "early-peaker") ? 1 : 0)));
   const intensity = INTENSITY[inputs.plan.intensity].growth;
   const injured = wp.injury !== null;
   const selfTaught = has(wp, "self-taught");
@@ -181,22 +232,35 @@ export function developWeek(wp: WorldPlayer, inputs: DevelopmentInputs, rng: Rng
   };
   const fitnessQ = inputs.coachQuality.fitness ?? SELF_TAUGHT;
   const boost = (wp.comebackWeeks ? 1.5 : 1) * (inputs.mentored ? 1.1 : 1);
+  const winter = inputs.winter ? WINTER[inputs.winter] : null;
+  // A client's week apart from coaching: training load, range days, competing.
+  const rangeDays = inputs.boost ? (inputs.boost.training - 1) / 0.15 : 0;
+  const managedWeek = MANAGED.intensity[inputs.plan.intensity] + MANAGED.perRangeDay * rangeDays + (inputs.competed && !winter ? MANAGED.competing : 0);
 
   for (const key of TRAINABLE) {
     if (FIXED.includes(key)) continue;
-    const coach = 0.6 + coachQ(key) / 20;
-    let delta = BASE_GROWTH * growAge * gap * learn * coach * focusMultiplier(key, inputs.plan.focus) * intensity * boost;
+    const body = key === "stamina" || key === "flexibility";
+    let work: number;
+    if (inputs.managed) {
+      const coaching = clamp((coachQ(key) - 12) * MANAGED.coachPerPoint, MANAGED.coachMin, MANAGED.coachMax);
+      work = MANAGED.base * Math.max(0.2, 1 + coaching + managedWeek + (winter ? (body ? winter.fitness : winter.golf) : 0));
+    } else {
+      work = (0.6 + coachQ(key) / 20) * intensity;
+    }
+    let delta = (inputs.managed ? CLIENT_GROWTH : BASE_GROWTH) * growAge * gap * learn * work * focusMultiplier(key, inputs.plan.focus) * boost;
     if (has(wp, "sponge") && inputs.plan.focus !== "balanced" && FOCUS_GROUPS[inputs.plan.focus].includes(key)) delta *= 1.25;
-    if (has(wp, "gym-rat") && (key === "stamina" || key === "flexibility")) delta *= 1.3;
-    if (inputs.boost && delta > 0) delta *= key === "stamina" || key === "flexibility" ? inputs.boost.fitness : inputs.boost.training;
+    if (has(wp, "gym-rat") && body) delta *= 1.3;
+    // Range days are already in a client's budget; gym days still speed up the body.
+    if (inputs.boost && delta > 0 && (body || !inputs.managed)) delta *= body ? inputs.boost.fitness : inputs.boost.training;
     if (injured) delta *= 0.3;
 
     // Ageing: power goes first, then the short putts; fitness work slows it.
     if (yearsPast > 0) {
-      const slow = clamp(1 - (fitnessQ - SELF_TAUGHT) / 30, 0.5, 1) * (inputs.plan.focus === "fitness" ? 0.7 : 1) * (has(wp, "ageless") ? 0.5 : 1);
-      if (PHYSICAL.includes(key)) delta -= 0.0015 * yearsPast * slow;
-      else if (key === "shortPutts") delta -= 0.0009 * yearsPast;
-      else if (!EXPERIENCE.includes(key)) delta -= 0.0006 * yearsPast;
+      const slow = clamp(1 - (fitnessQ - SELF_TAUGHT) / 30, 0.5, 1) * (inputs.plan.focus === "fitness" ? 0.7 : 1) * (has(wp, "ageless") ? 0.5 : 1) * (winter?.decline ?? 1);
+      const years = declineYears(yearsPast);
+      if (PHYSICAL.includes(key)) delta -= 0.0015 * years * slow;
+      else if (key === "shortPutts") delta -= 0.0009 * years;
+      else if (!EXPERIENCE.includes(key)) delta -= 0.0006 * years;
     }
     // Experience: the mind keeps improving into the forties, faster when competing,
     // up to his ceiling (without one, the whole tour drifts to 16s in composure).

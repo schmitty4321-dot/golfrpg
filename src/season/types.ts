@@ -115,9 +115,12 @@ export interface SeasonStats {
 
 export type TrainingFocus = "balanced" | "longGame" | "approach" | "shortGame" | "putting" | "mental" | "fitness";
 export type Intensity = "light" | "normal" | "heavy";
+/** What a client does with the off-season (older saves: standard). */
+export type WinterProgram = "standard" | "camp" | "fitness" | "rest";
 export interface TrainingPlan {
   focus: TrainingFocus;
   intensity: Intensity;
+  winter?: WinterProgram;
 }
 
 export type CoachRole = "swing" | "shortGame" | "putting" | "mental" | "fitness";
