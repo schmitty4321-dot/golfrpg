@@ -176,7 +176,8 @@ export function aiChoice(world: World, ctx: WeekContext, wp: WorldPlayer, events
   const weeksLeft = Math.max(1, lastWeek - world.week + 1);
   const remaining = wp.targetEvents - c.seasonEvents;
   let p = clamp(remaining / weeksLeft, 0.05, 0.95);
-  if (c.status === "conditional") p = 0.9;
+  // Conditional members live week to week: they get in when the field is short, about half the time.
+  if (c.status === "conditional") p = 0.55;
   const pr = ctx.pointsRank.get(id) ?? 999;
   if (world.week >= lastWeek - 11 && pr > 100 && pr <= 160) p = 0.95; // fighting for a card
   // After the finale the stars are done for the year; the fall is for those still chasing cards.

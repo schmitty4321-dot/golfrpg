@@ -71,6 +71,8 @@ export const FULL_CARD = 125;
 export const CONDITIONAL_CARD = 150;
 /** Q-School hands out this many cards. */
 export const QSCHOOL_CARDS = 5;
+/** How much better than an average fringe pro a walk-on joining the developmental tour is. */
+export const WALK_ON_EDGE = 1;
 
 const newCareer = (status: TourStatus): Career => ({
   status,
@@ -453,6 +455,9 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
     const p = generatePlayer(rng, { tier: "fringe", usedNames });
     p.id = `s${season}w${++n}`;
     p.age = rng.int(22, 28);
+    // Walk-ons are the best of a deep pool of mini-tour players, not an average one: the
+    // developmental tour needs graduates who can keep a card about half the time, as real ones do.
+    for (const k of GOLF_SKILLS) p.attributes[k] = clamp(Math.round(p.attributes[k] + WALK_ON_EDGE), 1, 20);
     world.players[p.id] = makeWorldPlayer(p, "none", rng);
   }
 

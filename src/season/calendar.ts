@@ -134,7 +134,7 @@ export function buildTour(seed: number): { courses: Course[]; schedule: TourEven
 /** Weeks the developmental tour plays: most weeks, but not the majors, the playoffs or the finale. */
 export const DEV_WEEKS = [3, 4, 5, 6, 8, 9, 10, 11, 12, 14, 15, 16, 17, 19, 20, 21, 22, 24, 25, 26, 28, 29, 30, 34, 35, 36];
 /** The top of the developmental tour's points list earns main-tour cards. */
-export const DEV_GRADUATES = 25;
+export const DEV_GRADUATES = 20;
 
 const DEV_TOWNS = ["Boise", "Wichita", "Knoxville", "Omaha", "Savannah", "Tulsa", "Spokane", "Fresno", "Lincoln", "Chattanooga", "Des Moines", "Albuquerque", "Greenville", "Lafayette", "Macon", "Reno", "Billings", "Tallahassee", "Charleston", "Pueblo", "Evansville", "Duluth", "Bakersfield", "Wilmington", "Sioux Falls", "Little Rock"];
 

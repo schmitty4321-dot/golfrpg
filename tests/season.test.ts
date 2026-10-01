@@ -4,7 +4,9 @@ import {
   CONDITIONAL_CARD,
   OFFICE_COST,
   STARTING_BANK,
+  DEV_GRADUATES,
   FULL_CARD,
+  QSCHOOL_CARDS,
   MONDAY_SPOTS,
   SEASON_WEEKS,
   WINNER_POINTS,
@@ -140,7 +142,7 @@ describe("createWorld", () => {
     const counts = { exempt: 0, graduate: 0, conditional: 0, none: 0, amateur: 0 };
     for (const wp of Object.values(base.players)) counts[wp.career.status]++;
     expect(counts.exempt).toBeGreaterThanOrEqual(FULL_CARD);
-    expect(counts.graduate).toBeGreaterThanOrEqual(30);
+    expect(counts.graduate).toBeGreaterThanOrEqual(DEV_GRADUATES + QSCHOOL_CARDS);
     expect(counts.conditional).toBeGreaterThan(0);
     expect(counts.none).toBeGreaterThan(0);
     expect(worldRanking(base)[0]!.average).toBeGreaterThan(1);
