@@ -1,3 +1,5 @@
+import { stafferQuality } from "./market";
+const analystQuality = (world: World) => stafferQuality(world, "analyst");
 import { centerTier } from "./business";
 import { chargeDevelopment } from "./finance";
 import { clamp, createRng, type Rng } from "../engine";
@@ -275,7 +277,8 @@ export function offseason(world: World, weeks: number, rng: Rng): void {
  */
 export function abilityView(world: World, clientId: string): { current: number; potential: number; coachQuality: number } {
   const wp = world.players[clientId]!;
-  const coachQuality = Math.max(4, ...Object.values(staffQuality(world, clientId)));
+  // An agency analyst reads a ceiling as well as a coach of his quality would.
+  const coachQuality = Math.max(4, analystQuality(world), ...Object.values(staffQuality(world, clientId)));
   const estimate = potentialEstimate(wp, coachQuality, createRng(mixSeed(world.seed, world.season, 77)));
   const current = overall(wp.player);
   return { current, potential: Math.max(current, estimate), coachQuality };

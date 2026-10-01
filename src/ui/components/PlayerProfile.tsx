@@ -15,7 +15,7 @@ import {
   queueScouting,
   rankMap,
   scoutedAttribute,
-  type LiveEvent, type World, type WorldPlayer, knownArchetype } from "../../season";
+  type LiveEvent, type World, type WorldPlayer, knownArchetype, onShortlist, toggleShortlist } from "../../season";
 import { Stars } from "./Stars";
 import { TendenciesPanel } from "./TendenciesPanel";
 import { PortraitCard } from "./Portrait";
@@ -98,6 +98,11 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
                 {wp.player.age} · {nationInfo(wp.player.nationality).name} · {STATUS_LABELS[wp.career.status]}
                 <br />
                 {wp.client ? "Your client" : wp.agent ? `${wp.agent.agency} (until end of season ${wp.agent.untilSeason})` : "Free agent"}
+                {!wp.client && (
+                  <div style={{ marginTop: 8 }}>
+                    <button className="btn btn-small" onClick={() => game.act((w) => toggleShortlist(w, id))}>{onShortlist(world, id) ? "On your board ✓" : "Add to board"}</button>
+                  </div>
+                )}
                 {archetype && <div style={{ marginTop: 8 }}><ArchetypePill id={archetype} /></div>}
               </div>
             </div>

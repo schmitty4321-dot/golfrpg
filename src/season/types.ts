@@ -288,6 +288,8 @@ export interface AgencyLedger {
   brands?: number;
   /** Agency events: takings less costs. */
   events?: number;
+  /** Buyout fees from rivals who poached a client. */
+  buyouts?: number;
 }
 
 export interface Agency {
@@ -314,6 +316,11 @@ export interface Agency {
   loan?: number;
   /** Bank balance at the end of each week, for the finance chart. */
   bankHistory?: { season: number; week: number; bank: number }[];
+  /** People the agency could hire, and who it has (one per role). */
+  staffMarket?: AgencyStaffer[];
+  staffHired?: Partial<Record<StaffRole, string>>;
+  /** Players on the recruitment board, by id. */
+  shortlist?: string[];
 }
 
 export type TravelClass = "economy" | "business" | "charter";
@@ -476,4 +483,16 @@ export interface DevDeal {
   funded: number;
   /** Commission earned from him since the deal began. */
   commissionSince: number;
+}
+
+/** Agency staff: an agent closes deals, an analyst reads ceilings, marketing finds sponsors, a lawyer keeps contracts. */
+export type StaffRole = "agent" | "analyst" | "marketing" | "lawyer";
+
+export interface AgencyStaffer {
+  id: string;
+  name: string;
+  role: StaffRole;
+  /** 1-20. */
+  quality: number;
+  weeklyFee: number;
 }

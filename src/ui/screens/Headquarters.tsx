@@ -1,4 +1,4 @@
-import { CENTER_TIERS, HQ_TIERS, buildCenter, centerBlock, dealClients, hqBlock, rosterLimit, upgradeHq, type World } from "../../season";
+import { CENTER_TIERS, HQ_TIERS, STAFF_LABELS, STAFF_ROLES, buildCenter, centerBlock, dealClients, hireStaffer, hiredStaffer, hqBlock, releaseStaffer, rosterLimit, staffMarket, staffWages, upgradeHq, type World } from "../../season";
 import { money } from "../format";
 import type { Game } from "../useGame";
 
@@ -7,6 +7,7 @@ export function Headquarters({ world, game }: { world: World; game: Game }) {
   return (
     <main>
       <HqPanel world={world} game={game} />
+      <StaffPanel world={world} game={game} />
       <div className="grid-2">
         <CenterPanel world={world} game={game} />
         <DealsPanel world={world} />
@@ -118,6 +119,49 @@ function HqPanel({ world, game }: { world: World; game: Game }) {
           {block && <span className="muted small">{block}</span>}
         </div>
       )}
+    </section>
+  );
+}
+
+function StaffPanel({ world, game }: { world: World; game: Game }) {
+  const market = staffMarket(world);
+  return (
+    <section className="panel">
+      <div className="panel-head"><h2>Agency staff</h2><span className="muted small">{money(staffWages(world))} a week in wages · one per role</span></div>
+      <div className="table-wrap">
+        <table>
+          <thead><tr><th>Role</th><th>Hired</th><th>Candidates</th></tr></thead>
+          <tbody>
+            {STAFF_ROLES.map((role) => {
+              const hired = hiredStaffer(world, role);
+              return (
+                <tr key={role}>
+                  <td><strong>{STAFF_LABELS[role].label}</strong><div className="secondary small">{STAFF_LABELS[role].blurb}</div></td>
+                  <td>
+                    {hired ? (
+                      <>
+                        {hired.name} · {hired.quality}/20 · {money(hired.weeklyFee)}/wk{" "}
+                        <button className="btn btn-small" onClick={() => game.act((w) => releaseStaffer(w, role))}>Let go</button>
+                      </>
+                    ) : (
+                      <span className="muted">Nobody</span>
+                    )}
+                  </td>
+                  <td>
+                    <div className="btn-row">
+                      {market.filter((s) => s.role === role && s.id !== hired?.id).map((s) => (
+                        <button key={s.id} className="btn btn-small" onClick={() => game.act((w) => hireStaffer(w, s.id))}>
+                          {s.name} · {s.quality}/20 · {money(s.weeklyFee)}/wk
+                        </button>
+                      ))}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 }

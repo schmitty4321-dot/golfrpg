@@ -1,3 +1,4 @@
+import { negotiationBonus, staffWages } from "./market";
 /**
  * The agency as a business beyond signing players: the Performance Center
  * it can build for its clients, and development deals where it funds a
@@ -90,7 +91,7 @@ export function dealChance(world: World, id: string, offer: DealOffer): number {
   const wp = world.players[id]!;
   const m = wp.client!;
   const a = wp.player.attributes;
-  let score = m.happiness - 60 + offer.share * 12 + (a.ambition - 10) * 0.8;
+  let score = m.happiness - 60 + offer.share * 12 + (a.ambition - 10) * 0.8 + negotiationBonus(world, "agent");
   if (offer.terms === "commission") score -= DEAL_ASK.commission[offer.share] * 100 * 3 * commissionWeight(wp);
   else score += wp.player.age <= 25 ? 5 : wp.player.age >= 33 ? -8 : 0;
   return clamp(1 / (1 + Math.exp(-score / 7)), 0.03, 0.97);
@@ -211,7 +212,7 @@ export function recordBank(world: World): void {
 
 // ------------------------------------------------------------------ the books
 
-export const agencyIncome = (l: AgencyLedger): number => l.prizeCommission + l.endorsementCommission + (l.brands ?? 0) + Math.max(0, l.events ?? 0);
+export const agencyIncome = (l: AgencyLedger): number => l.prizeCommission + l.endorsementCommission + (l.brands ?? 0) + (l.buyouts ?? 0) + Math.max(0, l.events ?? 0);
 export const agencyCosts = (l: AgencyLedger): number =>
   l.office + l.scouts + (l.development ?? 0) + (l.facility ?? 0) + (l.interest ?? 0) + (l.staff ?? 0) + Math.max(0, -(l.events ?? 0));
 export const agencyProfit = (l: AgencyLedger): number => agencyIncome(l) - agencyCosts(l);
@@ -219,7 +220,7 @@ export const agencyProfit = (l: AgencyLedger): number => agencyIncome(l) - agenc
 /** Weekly running costs: office, scouts, center, staff, interest and the jet. */
 export function weeklyRunningCosts(world: World, scouts: number, staff = 0): number {
   const jet = world.agency.jet === "lease" ? JET_LEASE_WEEKLY : world.agency.jet === "own" ? JET_UPKEEP_WEEKLY : 0;
-  return hqTier(world.agency).office + scouts + centerTier(world).upkeep + staff + jet + Math.round(((world.agency.loan ?? 0) * CREDIT_RATE) / 41);
+  return hqTier(world.agency).office + scouts + centerTier(world).upkeep + Math.max(staff, staffWages(world)) + jet + Math.round(((world.agency.loan ?? 0) * CREDIT_RATE) / 41);
 }
 
 /**

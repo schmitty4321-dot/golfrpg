@@ -1,3 +1,4 @@
+import { negotiationBonus, rivalPoaching, shortlistAlerts } from "./market";
 import { financeMood } from "./finance";
 import { clamp, createRng, type Rng } from "../engine";
 import { amateurRanking } from "./amateurs";
@@ -165,6 +166,7 @@ export function acceptChance(world: World, id: string, offer: Offer): number {
   let score = world.agency.reputation - expectedReputation(world, id);
   score += (STANDARD_COMMISSION - offer.commission) * 100 * 3 * commissionWeight(wp); // each point under 10% helps
   score += recruitingBonus(world);
+  score += negotiationBonus(world, "agent");
   // Ambitious players want a big-name agency; young ones like security, veterans like flexibility.
   score -= Math.max(0, a.ambition - 12) * 1.5;
   score += wp.player.age <= 25 ? (offer.years - 1) * 3 : wp.player.age >= 36 ? (1 - offer.years) * 2 : 0;
@@ -214,7 +216,8 @@ export function extendContract(world: World, id: string, offer: Offer): OfferRes
     55 +
     (wp.client.contract.commission - offer.commission) * 100 * 3 * commissionWeight(wp) -
     Math.max(0, expectedReputation(world, id) - world.agency.reputation) * 0.5 +
-    extensionBias(world, wp);
+    extensionBias(world, wp) +
+    negotiationBonus(world, "lawyer");
   const chance = clamp(1 / (1 + Math.exp(-score / 7)), 0.02, 0.98);
   const rng = createRng(mixSeed(world.seed, world.season, world.week, 600, Number(id.replace(/\D/g, "")) || 1));
   if (!rng.chance(chance)) {
@@ -297,6 +300,8 @@ export function agencySeasonEnd(world: World, rng: Rng): string[] {
       wp.agent = { agency: rng.pick(RIVAL_AGENCIES), untilSeason: world.season + 1 + rng.int(0, 2) };
     }
   }
+  // Rivals circle unhappy clients; the recruitment board reports who came free.
+  for (const line of [...rivalPoaching(world, rng), ...shortlistAlerts(world)]) world.news.unshift(line);
   // Reputation fades a little each winter unless results keep it up.
   world.agency.reputation = clamp(world.agency.reputation * 0.95 + clients(world).length * 0.5, 0, 100);
   return departures;

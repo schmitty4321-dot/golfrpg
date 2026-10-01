@@ -1,3 +1,4 @@
+import { sponsorBoost } from "./market";
 import { clamp, type Rng } from "../engine";
 import { rankMap } from "./points";
 import { absWeek, type SponsorCategory, type SponsorOffer, type World, type WorldPlayer } from "./types";
@@ -47,7 +48,7 @@ export function maybeOffer(world: World, wp: WorldPlayer, rng: Rng, chance: numb
   const category = rng.pick(open);
   const m = marketability(world, wp);
   const scale = Math.min(1, m);
-  const annualValue = Math.round((TOP_VALUE[category] * scale * scale * (0.7 + rng.next() * 0.6) * sponsorValueMultiplier(world, wp, category)) / 5_000) * 5_000;
+  const annualValue = Math.round((TOP_VALUE[category] * scale * scale * (0.7 + rng.next() * 0.6) * sponsorValueMultiplier(world, wp, category) * sponsorBoost(world)) / 5_000) * 5_000;
   if (annualValue < 20_000) return null;
   const offer: SponsorOffer = {
     id: `sp${world.season}-${world.week}-${wp.player.id}-${category}`,

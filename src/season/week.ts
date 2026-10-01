@@ -1,3 +1,4 @@
+import { payStaff } from "./market";
 import { payCenter, payInterest, recordBank, recordDealCommission } from "./business";
 import { COACH_PRIZE_SHARE, chargeDevelopment, coachesHired } from "./finance";
 import { recordEventStats } from "./stats";
@@ -349,6 +350,7 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
     world.agency.ledger.office += office;
     world.agency.ledger.scouts += costs - office;
     payCenter(world);
+    payStaff(world);
     payInterest(world);
     recordBank(world);
   }
