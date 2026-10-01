@@ -20,6 +20,7 @@ import { DEV_GRADUATES, buildTour, seasonWeeks } from "./calendar";
 import { MAX_POTENTIAL, archetypeCeiling, newDevelopment, overall } from "./development";
 import { asSetUp, nextCourseSetup } from "./courseSetup";
 import { generateCoaches, offseason, OFFSEASON_WEEKS } from "./staff";
+import { rivalSeasonEnd } from "./rivals";
 import { STANDARD_COMMISSION, addReputation, agencySeasonEnd, clients, assignRivalAgents, emptyFinances, newAgency, newManagement } from "./agency";
 import { generateScouts } from "./scouting";
 import { AMATEUR_CLASS_SIZE, PRO_AGE, amateurPotential, amateurRanking, generateAmateur } from "./amateurs";
@@ -502,6 +503,8 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   const courseSetup = nextCourseSetup(world);
   for (const wp of Object.values(world.players)) expireSponsors(world, wp);
   const departures = world.clientIds.length ? agencySeasonEnd(world, rng) : [];
+  // The rivals' winter: reputations, the market for every free player, deals and winter plans.
+  for (const line of rivalSeasonEnd(world).slice(0, 8).reverse()) world.news.unshift(line);
   const summary: SeasonSummary | null = world.clientIds.length || clientSummaries.length
     ? { ...seasonHeadlines(world), clients: clientSummaries, agency: { reputationBefore: repBefore, reputationAfter: world.agency.reputation, ledger, departures }, courseSetup }
     : null;

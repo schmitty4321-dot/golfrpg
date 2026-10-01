@@ -1,9 +1,10 @@
 import { stafferQuality } from "./market";
 const analystQuality = (world: World) => stafferQuality(world, "analyst");
+import { rivalCoaching } from "./rivals";
 import { centerTier } from "./business";
 import { chargeDevelopment } from "./finance";
 import { clamp, createRng, type Rng } from "../engine";
-import { COACH_GROUPS, INTENSITY, developWeek, impliedStaff, overall, potentialEstimate } from "./development";
+import { COACH_GROUPS, INTENSITY, developWeek, overall, potentialEstimate } from "./development";
 import { mixSeed } from "./entries";
 import { has, injuryLength, injuryRisk, returnFromInjury } from "./traits";
 import type { Coach, CoachRole, Injury, World, WorldPlayer } from "./types";
@@ -198,7 +199,7 @@ export function endOfWeek(world: World, competed: Set<string>, rng: Rng, boosts:
   for (const wp of Object.values(world.players)) {
     const isClient = !!wp.client;
     const plan = wp.client ? wp.client.training : { focus: "balanced" as const, intensity: "normal" as const };
-    const quality = isClient ? staffQuality(world, wp.player.id) : impliedStaff(wp);
+    const quality = isClient ? staffQuality(world, wp.player.id) : rivalCoaching(world, wp);
     // Amateurs are playing college and amateur events most weeks.
     const played = competed.has(wp.player.id) || wp.career.status === "amateur";
 
@@ -249,9 +250,9 @@ export function offseason(world: World, weeks: number, rng: Rng): void {
         wp,
         {
           plan: wp.client ? wp.client.training : { focus: "balanced", intensity: "normal" },
-          coachQuality: wp.client ? staffQuality(world, wp.player.id) : impliedStaff(wp),
+          coachQuality: wp.client ? staffQuality(world, wp.player.id) : rivalCoaching(world, wp),
           competed: false,
-          ...(wp.client ? { managed: true, winter: wp.client.training.winter ?? "standard", facility: centerTier(world).growth } : {}),
+          ...(wp.client ? { managed: true, winter: wp.client.training.winter ?? "standard", facility: centerTier(world).growth } : wp.agent?.winter ? { winter: wp.agent.winter } : {}),
         },
         rng,
       );

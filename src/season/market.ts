@@ -3,7 +3,8 @@
  * tracking, and the rival agencies it competes with for talent.
  */
 import { clamp, createRng, type Rng } from "../engine";
-import { RIVAL_AGENCIES, clients, releaseClient } from "./agency";
+import { STANDARD_COMMISSION, clients, releaseClient } from "./agency";
+import { ensureRivals, likeliestSuitor } from "./rivals";
 import { earningsAtLevel } from "./finance";
 import { overall } from "./development";
 import { rankMap } from "./points";
@@ -130,7 +131,7 @@ export function agencyTable(world: World): AgencyRow[] {
     return r;
   };
   row(world.agency.name, true);
-  for (const n of RIVAL_AGENCIES) row(n, false);
+  for (const r of ensureRivals(world)) row(r.name, false);
   for (const wp of Object.values(world.players)) {
     const name = wp.client ? world.agency.name : wp.agent?.agency;
     if (!name) continue;
@@ -157,13 +158,13 @@ export function rivalPoaching(world: World, rng: Rng): string[] {
     const m = wp.client!;
     if (m.contract.untilSeason <= world.season || m.happiness >= 40) continue;
     if (!rng.chance(0.35)) continue;
-    const rival = rng.pick(RIVAL_AGENCIES);
+    const rival = likeliestSuitor(world, wp.player.id, rng);
     if (m.happiness < 30 && rng.chance(0.5)) {
       const buyout = Math.round((earningsAtLevel(overall(wp.player)) * m.contract.commission) / 2);
       world.agency.bank += buyout;
       world.agency.ledger.buyouts = (world.agency.ledger.buyouts ?? 0) + buyout;
       releaseClient(world, wp.player.id);
-      wp.agent = { agency: rival, untilSeason: world.season + 2 };
+      wp.agent = { agency: rival, untilSeason: world.season + 2, commission: STANDARD_COMMISSION };
       news.push(`${rival} poach ${wp.player.name}; they pay a ${Math.round(buyout / 1000)}k buyout.`);
     } else {
       m.happiness = clamp(m.happiness - 4, 0, 100);

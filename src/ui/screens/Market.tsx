@@ -10,6 +10,9 @@ import {
   mixSeed,
   overall,
   poachRisk,
+  RIVAL_STYLES,
+  competingBid,
+  rivalSummaries,
   potentialEstimate,
   rankMap,
   toggleShortlist,
@@ -55,7 +58,7 @@ export function Recruiting({ world, game }: { world: World; game: Game }) {
                       <td>{wp!.agent ? `${wp!.agent.agency} (to S${wp!.agent.untilSeason})` : <strong>Free agent</strong>}</td>
                       <td>{accuracy > 0 ? `${Math.round(accuracy * 100)}% sure · level ~${overall(wp!.player).toFixed(0)}` : <span className="muted">Not scouted</span>}</td>
                       <td>{ceiling === null ? <span className="muted">—</span> : <Stars value={ceilingStars(ceiling)} />}</td>
-                      <td className="small">{block ?? `${Math.round(chance * 100)}% at 10%, 2 seasons`}</td>
+                      <td className="small">{block ?? `${Math.round(chance * 100)}% at 10%, 2 seasons`}{!block && competingBid(world, id) ? <><br /><span className="muted">vs {competingBid(world, id)!.agency}</span></> : null}</td>
                       <td><button className="btn btn-small" onClick={() => game.act((w) => toggleShortlist(w, id))}>Remove</button></td>
                     </tr>
                   );
@@ -98,6 +101,7 @@ export function Rivals({ world }: { world: World }) {
           </table>
         </div>
       </section>
+      <RivalAgencies world={world} />
       <section className="panel">
         <div className="panel-head"><h2>Rivals circling</h2><span className="muted small">Unhappy clients get calls at season's end</span></div>
         {watched.length === 0 ? (
@@ -115,6 +119,49 @@ export function Rivals({ world }: { world: World }) {
         <p className="muted small" style={{ marginBottom: 0 }}>If a rival takes a client mid-contract they pay you a buyout of about half a season's commission.</p>
       </section>
     </main>
+  );
+}
+
+/** Who the rivals are, how they work, and what they did last winter. */
+function RivalAgencies({ world }: { world: World }) {
+  const rows = rivalSummaries(world).sort((a, b) => b.rival.reputation - a.rival.reputation);
+  const [open, setOpen] = useState<string | null>(null);
+  return (
+    <section className="panel">
+      <div className="panel-head"><h2>The rivals</h2><span className="muted small">Your reputation: {Math.round(world.agency.reputation)}</span></div>
+      <div className="table-wrap">
+        <table>
+          <thead><tr><th>Agency</th><th>Style</th><th className="num">Reputation</th><th className="num">Players</th><th className="num">Dev deals</th><th>Coaching</th><th>Last winter</th></tr></thead>
+          <tbody>
+            {rows.map(({ rival, style, players, deals }) => (
+              <tr key={rival.name}>
+                <td>{rival.name}</td>
+                <td title={style.blurb}>{style.label}</td>
+                <td className="num">{Math.round(rival.reputation)}</td>
+                <td className="num">{players} / {style.capacity}</td>
+                <td className="num">{deals}</td>
+                <td className="small">{style.coach > 0 ? `Better than average (+${style.coach})` : style.coach < 0 ? `Cheap (${style.coach})` : "Average"}</td>
+                <td className="small">
+                  {rival.moves.length === 0 ? (
+                    <span className="muted">—</span>
+                  ) : (
+                    <button className="linkish" onClick={() => setOpen(open === rival.name ? null : rival.name)}>{rival.moves.length} move{rival.moves.length === 1 ? "" : "s"}</button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {open && (
+        <ul className="small" style={{ marginTop: 10 }}>
+          {(rows.find((r) => r.rival.name === open)?.rival.moves ?? []).slice(0, 25).map((m, i) => <li key={i}>{m}</li>)}
+        </ul>
+      )}
+      <p className="muted small" style={{ marginBottom: 0 }}>
+        {Object.values(RIVAL_STYLES).map((s) => `${s.label}: ${s.blurb}`).join(" ")} Every player who comes free in the winter goes to the best bid, so sign the ones you want first.
+      </p>
+    </section>
   );
 }
 

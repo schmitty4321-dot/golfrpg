@@ -1,4 +1,5 @@
 import { createRng, type Player } from "../engine";
+import { ensureRivals } from "./rivals";
 import { assignRivalAgents, emptyFinances, newAgency, newManagement } from "./agency";
 import { newDevelopment } from "./development";
 import { generateScouts } from "./scouting";
@@ -33,6 +34,7 @@ export function deserializeWorld(json: string): World {
   ensureTraits(world);
   ensureFamiliarity(world);
   world.caddies ??= generateCaddies(world.seed);
+  ensureRivals(world);
   ensureGoals(world);
   // Coaches are priced by the current fee curve (it changed in the 2026 finance model).
   for (const c of world.coaches) c.weeklyFee = coachFee(c.quality);

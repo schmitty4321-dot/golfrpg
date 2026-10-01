@@ -4,6 +4,7 @@ import {
   STATUS_LABELS,
   abilityView,
   acceptChance,
+  competingBid,
   knownTraits,
   approachBlock,
   attributePotential,
@@ -69,6 +70,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
   const block = approachBlock(world, id);
   const offer = { commission: commission / 100, years };
   const chance = block ? 0 : acceptChance(world, id, offer);
+  const bid = block ? null : competingBid(world, id);
   const queued = world.agency.scoutingQueue.includes(id);
   // His ceiling: the coaches' estimate for a client, the scouts' once a report is good enough.
   const potential = wp.client
@@ -97,7 +99,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
               <div className="pp-meta">
                 {wp.player.age} · {nationInfo(wp.player.nationality).name} · {STATUS_LABELS[wp.career.status]}
                 <br />
-                {wp.client ? "Your client" : wp.agent ? `${wp.agent.agency} (until end of season ${wp.agent.untilSeason})` : "Free agent"}
+                {wp.client ? "Your client" : wp.agent ? `${wp.agent.agency} (until end of season ${wp.agent.untilSeason})${wp.agent.deal ? " · development deal" : ""}` : "Free agent"}
                 {!wp.client && (
                   <div style={{ marginTop: 8 }}>
                     <button className="btn btn-small" onClick={() => game.act((w) => toggleShortlist(w, id))}>{onShortlist(world, id) ? "On your board ✓" : "Add to board"}</button>
@@ -239,6 +241,11 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
                     Make offer
                   </button>
                 </div>
+                {bid && (
+                  <p className="small" style={{ marginBottom: 0 }}>
+                    <strong>{bid.agency}</strong> {wp.career.status === "amateur" ? "will bid when he turns pro" : "are bidding too"}: {Math.round(bid.commission * 100)}% for {bid.years} season{bid.years === 1 ? "" : "s"}. Their name and their commission count against yours.
+                  </p>
+                )}
                 <p className="muted small">Players weigh your reputation against their standing, the commission, the length, and their own ambition. Turn-downs mean a four-week wait.</p>
               </>
             )}

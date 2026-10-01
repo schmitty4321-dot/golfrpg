@@ -7,6 +7,7 @@ import { mixSeed } from "./entries";
 import { rankMap } from "./points";
 import { absWeek, type Agency, type ClientManagement, type World, type WorldPlayer } from "./types";
 import { ensureGoals } from "./goals";
+import { competingBid, planRivalWinters, rivalMarket } from "./rivals";
 import { commissionWeight, decisionSensitivity, extensionBias, heldOutPenalty, onSigned, recruitingBonus } from "./traits";
 
 export const RIVAL_AGENCIES = [
@@ -84,20 +85,12 @@ export function newManagement(season: number, commission: number, years: number)
 export const clients = (world: World): WorldPlayer[] => world.clientIds.map((id) => world.players[id]!).filter(Boolean);
 export const isClient = (world: World, id: string): boolean => world.clientIds.includes(id);
 
-/** Rival agencies sign most players with status; the rest are free agents. */
-export function assignRivalAgents(world: World, rng: Rng): void {
-  const ranks = rankMap(world);
-  for (const wp of Object.values(world.players)) {
-    if (wp.client) continue;
-    const rank = ranks.get(wp.player.id) ?? 999;
-    if (wp.career.status === "amateur") {
-      wp.agent = null; // amateurs don't have agents
-      continue;
-    }
-    // The best players are almost never without an agent.
-    const represented = rng.chance(rank <= 50 ? 0.97 : wp.career.status === "none" ? 0.35 : 0.8);
-    wp.agent = represented ? { agency: rng.pick(RIVAL_AGENCIES), untilSeason: world.season + rng.int(0, 2) } : null;
-  }
+/** Rival agencies bid for every professional in a new world (see rivals.ts); the ones nobody wants are free agents. */
+export function assignRivalAgents(world: World, _rng?: Rng): void {
+  for (const wp of Object.values(world.players)) if (!wp.client && wp.career.status === "amateur") wp.agent = null; // amateurs don't have agents
+  rivalMarket(world, { initial: true });
+  planRivalWinters(world);
+  for (const r of world.rivals ?? []) r.moves = [];
 }
 
 // ------------------------------------------------------------------ signing
@@ -173,7 +166,17 @@ export function acceptChance(world: World, id: string, offer: Offer): number {
   score += wp.player.age <= 25 ? (offer.years - 1) * 3 : wp.player.age >= 36 ? (1 - offer.years) * 2 : 0;
   // Someone with a rival agency is happy where he is unless you beat them.
   if (wp.agent) score -= 6;
+  // A rival bidding for a free player: its name and commission count against yours.
+  const bid = competingBid(world, id);
+  if (bid) score -= competitionPenalty(world, wp, bid);
   return clamp(1 / (1 + Math.exp(-score / 7)), 0.02, 0.97);
+}
+
+/** How much a rival's bid takes off your chances: its name against yours, and its commission against the standard. */
+export function competitionPenalty(world: World, wp: WorldPlayer, bid: { agency: string; commission: number }): number {
+  const rival = world.rivals?.find((r) => r.name === bid.agency);
+  const rep = rival?.reputation ?? 50;
+  return 3 + Math.max(0, rep - world.agency.reputation) * 0.25 + Math.max(0, STANDARD_COMMISSION - bid.commission) * 100 * 3 * commissionWeight(wp);
 }
 
 /** Makes the offer. On a yes he becomes a client from now until the end of the contract. */
@@ -188,7 +191,9 @@ export function offerRepresentation(world: World, id: string, offer: Offer): Off
   const wp = world.players[id]!;
   if (!rng.chance(chance)) {
     world.agency.cooldowns[id] = absWeek(world.season, world.week) + 4;
-    return { accepted: false, chance, message: `${wp.player.name} turns you down${wp.agent ? ` and stays with ${wp.agent.agency}` : ""}.` };
+    const bid = competingBid(world, id);
+    const went = wp.agent ? ` and stays with ${wp.agent.agency}` : bid ? `; ${bid.agency} are offering ${Math.round(bid.commission * 100)}%` : "";
+    return { accepted: false, chance, message: `${wp.player.name} turns you down${went}.` };
   }
   signClient(world, id, offer);
   return { accepted: true, chance, message: `${wp.player.name} signs with ${world.agency.name}!` };
@@ -288,17 +293,8 @@ export function agencySeasonEnd(world: World, rng: Rng): string[] {
   for (const wp of [...clients(world)]) {
     if (wp.client!.contract.untilSeason <= world.season) {
       departures.push(wp.player.name);
+      // He goes to the winter market, where the rivals bid for him (rivals.ts).
       releaseClient(world, wp.player.id);
-      wp.agent = { agency: rng.pick(RIVAL_AGENCIES), untilSeason: world.season + 1 + rng.int(0, 2) };
-    }
-  }
-  const ranks = rankMap(world);
-  for (const wp of Object.values(world.players)) {
-    if (wp.client) continue;
-    if (wp.agent && wp.agent.untilSeason <= world.season) {
-      wp.agent = rng.chance(0.65) ? { agency: rng.pick(RIVAL_AGENCIES), untilSeason: world.season + 1 + rng.int(0, 2) } : null;
-    } else if (!wp.agent && wp.career.status !== "none" && wp.career.status !== "amateur" && rng.chance((ranks.get(wp.player.id) ?? 999) <= 50 ? 0.9 : 0.35)) {
-      wp.agent = { agency: rng.pick(RIVAL_AGENCIES), untilSeason: world.season + 1 + rng.int(0, 2) };
     }
   }
   // Rivals circle unhappy clients; the recruitment board reports who came free.

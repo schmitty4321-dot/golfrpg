@@ -240,6 +240,26 @@ export interface ClientManagement {
 export interface Representation {
   agency: string;
   untilSeason: number;
+  /** The commission he signed for (older saves: standard). */
+  commission?: number;
+  /** His agency funds extra coaching (a rival's development deal). */
+  deal?: boolean;
+  /** The winter programme his agency chose for the coming off-season. */
+  winter?: WinterProgram;
+}
+
+/** How a rival agency does business (see rivals.ts). */
+export type RivalStyle = "starHunter" | "developer" | "volume" | "boutique";
+
+/** A rival agency: reputation, style, and last winter's moves for the Rivals screen. */
+export interface RivalAgency {
+  name: string;
+  style: RivalStyle;
+  reputation: number;
+  /** Reputation at the end of each season, oldest first. */
+  repHistory: number[];
+  /** Signings, deals and departures from the last market, newest first. */
+  moves: string[];
 }
 
 export interface WorldPlayer {
@@ -487,6 +507,8 @@ export interface World {
   courseSetup?: number;
   /** This season's scoring on real courses against their real averages, for next winter's setup. */
   setupTally?: { strokes: number; rounds: number };
+  /** The rival agencies (older saves get them on load). */
+  rivals?: RivalAgency[];
   /** Set once anything has been changed in the editor, like an "edited" save in FM. */
   edited?: boolean;
 }
