@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createRng } from "../src/engine";
 import {
   COACH_GROUPS,
+  COACH_PRIZE_SHARE,
   REBUILD_WEEKS,
   SEASON_WEEKS,
   canStartRebuild,
@@ -147,10 +148,13 @@ describe("coaches", () => {
     hireCoach(w, "client", coach.id);
     expect(weeklyStaffCost(w, "client")).toBe(coach.weeklyFee);
     playWeek(w);
-    expect(w.players.client!.client!.finances.coaching).toBe(coach.weeklyFee);
+    // The retainer, plus the coach's share of any prize money he won that week.
+    const f = w.players.client!.client!.finances;
+    const firstWeek = coach.weeklyFee + Math.round(f.prizeMoney * COACH_PRIZE_SHARE);
+    expect(f.coaching).toBe(firstWeek);
     releaseCoach(w, "client", "putting");
     playWeek(w);
-    expect(w.players.client!.client!.finances.coaching).toBe(coach.weeklyFee);
+    expect(w.players.client!.client!.finances.coaching).toBe(firstWeek);
   });
 });
 
