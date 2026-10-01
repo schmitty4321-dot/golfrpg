@@ -91,7 +91,7 @@ export function generatePlayer(rng: Rng, opts: GenerateOptions): Player {
     grassPreference: rng.pick(nation.grass),
     styleComfort,
     // Data Golf (2026): the median player's best two seasons come at 29-30, and he is slipping by 30.
-    peakAge: Math.round(clamp(rng.normal(29, 2), 25, 34)),
+    peakAge: Math.round(clamp(rng.normal(28, 1.5), 24, 33)),
     form: clamp(rng.normal(0, 0.3), -1, 1),
     condition: Math.round(clamp(rng.normal(90, 6), 60, 100)),
     archetype,

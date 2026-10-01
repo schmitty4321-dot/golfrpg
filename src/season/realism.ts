@@ -41,12 +41,12 @@ export const REALISM_ANCHORS = {
   spreadAroundGreen: { label: "Skill spread between players: around the green", real: 0.16, tolerance: 0.1, unit: "strokes/rd", source: "Data Golf skill-profile standard deviation, SG around the green" },
   spreadPutting: { label: "Skill spread between players: putting", real: 0.24, tolerance: 0.12, unit: "strokes/rd", source: "Data Golf skill-profile standard deviation, SG putting" },
   fieldVsReal: { label: "Field scoring vs real hole averages", real: 0, tolerance: 0.3, unit: "strokes/rd", source: "Real hole averages from the PGA TOUR courses in this game (realHoles.json)" },
-  age23to25: { label: "Change a year, ages 23-25", real: 0.1, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, 98 players' strokes gained by age (2026), converted" },
-  age26to28: { label: "Change a year, ages 26-28", real: 0.22, tolerance: 0.2, unit: "overall/yr", source: "Data Golf profiles, as above" },
-  age29to31: { label: "Change a year, ages 29-31", real: -0.12, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, as above" },
-  age32to34: { label: "Change a year, ages 32-34", real: -0.13, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, as above" },
-  age35to37: { label: "Change a year, ages 35-37", real: -0.12, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, as above" },
-  age38to41: { label: "Change a year, ages 38-41", real: -0.2, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, as above" },
+  age23to25: { label: "Change a year, ages 23-25 (card holders)", real: 0.17, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, 98 players' strokes gained by age (2026): mean change from each age in the band to the next, converted" },
+  age26to28: { label: "Change a year, ages 26-28", real: 0.07, tolerance: 0.2, unit: "overall/yr", source: "Data Golf profiles, as above" },
+  age29to31: { label: "Change a year, ages 29-31", real: -0.11, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, as above" },
+  age32to34: { label: "Change a year, ages 32-34", real: -0.16, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, as above" },
+  age35to37: { label: "Change a year, ages 35-37", real: -0.2, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, as above" },
+  age38to41: { label: "Change a year, ages 38-41", real: -0.24, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, as above" },
   neverWin: { label: "Rookies who never win", real: 65, tolerance: 12, unit: "%", source: "Data Golf careers: 205 PGA TOUR rookies, 1990-2014 debuts" },
   bustTwoSeasons: { label: "Rookies with 2 or fewer full seasons", real: 31, tolerance: 12, unit: "%", source: "Data Golf careers, as above (players with 25+ starts; the true rate is higher)" },
   tenSeasons: { label: "Rookies with 10+ full seasons", real: 33, tolerance: 12, unit: "%", source: "Data Golf careers, as above" },
@@ -96,7 +96,13 @@ export function measureRealism(world: World, seasons: number): RealismMetrics {
   const firstSeason = world.season;
 
   for (let s = 0; s < seasons; s++) {
-    const start = new Map(Object.values(world.players).filter((wp) => wp.career.status !== "amateur").map((wp) => [wp.player.id, { age: wp.player.age, level: overall(wp.player) }]));
+    // The age curve compares like with like: Data Golf's profiles are players who made the tour,
+    // so count players holding a main-tour card at the start of the season.
+    const start = new Map(
+      Object.values(world.players)
+        .filter((wp) => wp.career.status !== "amateur" && wp.career.status !== "none")
+        .map((wp) => [wp.player.id, { age: wp.player.age, level: overall(wp.player) }]),
+    );
     const won = new Set<string>();
     while (world.week <= seasonWeeks(world)) {
       const report = playWeek(world);

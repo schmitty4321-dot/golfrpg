@@ -118,10 +118,12 @@ function ageGrowth(age: number, peak: number): number {
   // Data Golf (players' strokes gained by age, 2026): about +0.7 of overall a year up to
   // 21, +0.35 in the early twenties, +0.2 in the mid-twenties, then flat at the peak.
   const before = peak - age;
+  // Mid-career growth holds up until close to the peak, then turns (Data Golf: +0.22 a year
+  // at 26-28, then about -0.12 from 29).
   if (before >= 8) return 2.3;
-  if (before >= 5) return 1.15;
-  if (before >= 2) return 0.65;
-  if (before >= 1) return 0.2;
+  if (before >= 5) return 1.25;
+  if (before >= 2) return 0.9;
+  if (before >= 1) return 0.6;
   return 0;
 }
 
@@ -131,10 +133,19 @@ function ageGrowth(age: number, peak: number): number {
  * of overall here. So it bites from the first year past the peak, then
  * steepens, capped so a 45-year-old fades rather than collapses.
  */
-const declineYears = (yearsPast: number): number => (yearsPast > 0 ? DECLINE_ONSET + DECLINE_PER_YEAR * yearsPast : 0);
-const DECLINE_ONSET = 4.5;
-const DECLINE_PER_YEAR = 0.25;
-const MAX_YEARS_PAST = 9;
+const declineYears = (yearsPast: number): number =>
+  yearsPast > 0 ? DECLINE_ONSET + DECLINE_PER_YEAR * yearsPast + LATE_DECLINE * Math.max(0, yearsPast - LATE_FROM) : 0;
+/**
+ * Decline from the first year past the peak, steepening steadily (Data Golf, mean change from
+ * each age to the next: about -0.11 at 29-31, -0.16 at 32-34, -0.2 at 35-37, -0.24 at 38-41).
+ * Set a little above those figures: players who fade lose their cards and retire, so the
+ * survivors measured decline less than the formula.
+ */
+const DECLINE_ONSET = 5.6;
+const DECLINE_PER_YEAR = 0.15;
+const LATE_DECLINE = 0;
+const LATE_FROM = 7;
+const MAX_YEARS_PAST = 12;
 
 /**
  * Your clients' growth, as additions to what a computer player gets from the
