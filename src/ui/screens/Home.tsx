@@ -87,7 +87,6 @@ export function Home({ world, game, go, week }: { world: World; game: Game; go: 
           ) : (
             <ThisWeek world={world} game={game} week={week} />
           )}
-          <GoalsPanel world={world} game={game} />
           {last && <LastWeek world={world} report={last} go={go} />}
         </div>
         <div className="stack">
@@ -102,6 +101,7 @@ export function Home({ world, game, go, week }: { world: World; game: Game; go: 
               </ul>
             )}
           </section>
+          <GoalsPanel world={world} game={game} />
         </div>
       </div>
     </main>
