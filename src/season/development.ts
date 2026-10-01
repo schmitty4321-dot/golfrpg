@@ -67,6 +67,9 @@ const TRAINABLE: readonly AttributeKey[] = [...VISIBLE_ATTRIBUTES, "windToleranc
  * he gets there before his peak age is up to you.
  */
 const CLIENT_GROWTH = 0.0038;
+/** Only the gifted race ahead: extra growth for an amateur per point of ceiling above PRODIGY_FROM. */
+const PRODIGY_RATE = 0.5;
+const PRODIGY_FROM = 13.5;
 /** A strength can sit this far above the player's overall ceiling. */
 const STRENGTH_ROOM = 4;
 
@@ -120,8 +123,8 @@ function ageGrowth(age: number, peak: number): number {
   const before = peak - age;
   // Mid-career growth holds up until close to the peak, then turns (Data Golf: +0.22 a year
   // at 26-28, then about -0.12 from 29).
-  if (before >= 8) return 2.3;
-  if (before >= 5) return 1.25;
+  if (before >= 8) return 3;
+  if (before >= 5) return 1.7;
   if (before >= 2) return 0.9;
   if (before >= 1) return 0.6;
   return 0;
@@ -235,6 +238,9 @@ export function developWeek(wp: WorldPlayer, inputs: DevelopmentInputs, rng: Rng
   const ceiling = has(wp, "plateau") && p.age >= 25 ? Math.min(dev.potential, overall(p) + 0.5) : dev.potential;
   // Everyone grows at the pace his week sets, slowing only in the last point below his ceiling.
   const gap = clamp(ceiling - overall(p), -0.5, 1);
+  // A gifted amateur races towards his ceiling: real winners are often in their twenties
+  // (PGA TOUR: 48% of wins), so the best prospects must arrive good, not mature at 30.
+  const prodigy = wp.career.status === "amateur" ? 1 + PRODIGY_RATE * Math.max(0, ceiling - PRODIGY_FROM) : 1;
   const peak = effectivePeak(wp);
   const growAge = ageGrowth(p.age, peak) * (has(wp, "early-peaker") && p.age <= 24 ? 1.25 : 1);
   const yearsPast = Math.min(MAX_YEARS_PAST, Math.max(0, p.age - peak + (has(wp, "early-peaker") ? 1 : 0)));
@@ -259,7 +265,7 @@ export function developWeek(wp: WorldPlayer, inputs: DevelopmentInputs, rng: Rng
     // your clients add training load, range days, winters and the Performance Center.
     const coaching = clamp((coachQ(key) - 12) * MANAGED.coachPerPoint, MANAGED.coachMin, MANAGED.coachMax);
     const work = MANAGED.base * Math.max(0.2, 1 + coaching + managedWeek + (winter ? (body ? winter.fitness : winter.golf) : 0));
-    let delta = CLIENT_GROWTH * growAge * gap * learn * work * focusMultiplier(key, inputs.plan.focus) * boost;
+    let delta = CLIENT_GROWTH * prodigy * growAge * gap * learn * work * focusMultiplier(key, inputs.plan.focus) * boost;
     if (has(wp, "sponge") && inputs.plan.focus !== "balanced" && FOCUS_GROUPS[inputs.plan.focus].includes(key)) delta *= 1.25;
     if (has(wp, "gym-rat") && body) delta *= 1.3;
     // Range days are already in a client's budget; gym days still speed up the body.

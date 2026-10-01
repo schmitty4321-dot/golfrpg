@@ -30,8 +30,13 @@ export const AMATEUR_CLASS_SIZE = 24;
  * talent level stays put across decades: most amateurs top out as journeymen,
  * a few as tour winners, and a generational talent (17) is very rare.
  */
+/** The spread of amateur ceilings (was 11.6 and 1.6 before 2026-10-01). */
+export const AMATEUR_CEILING = { mean: 12, sd: 1.7 };
+
 export function amateurPotential(currentOverall: number, rng: Rng): number {
-  const drawn = rng.normal(11.6, 1.6);
+  // Centred a little above tour average: about half of real PGA TOUR wins go to players in
+  // their twenties (PGA TOUR, 2022-23 by the numbers), so the best of each class arrive good.
+  const drawn = rng.normal(AMATEUR_CEILING.mean, AMATEUR_CEILING.sd);
   return Math.round(clamp(drawn, currentOverall + 0.5, 17) * 10) / 10;
 }
 
