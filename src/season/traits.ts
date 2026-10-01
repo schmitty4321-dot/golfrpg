@@ -78,6 +78,7 @@ export function eventContext(world: World, event: TourEvent, id: string): Player
     consecutiveStarts: streakBefore(world, wp) + 1,
     weeksOff: last === 0 ? 99 : world.week - 1 - last,
     lateSeason: world.week > 30,
+    ...(wp.seasonForm?.season === world.season ? { seasonForm: wp.seasonForm.sg } : {}),
     ...familiarityContext(wp, event),
     ...(wp.client ? { caddie: caddieOnBag(world, wp), flewPrivate: travelMode(world, wp).private } : {}),
   };

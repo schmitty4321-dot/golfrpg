@@ -1,3 +1,4 @@
+import { GOLF_SKILLS } from "./development";
 import { clamp, createRng, generatePlayer, nationFromRoll, type AttributeKey, type CourseStyle, type Rng } from "../engine";
 import { overall } from "./development";
 import { mixSeed } from "./entries";
@@ -43,11 +44,13 @@ function pickRegion(rng: Rng): { nationality: string; bias: Partial<Record<Attri
 }
 
 /** One amateur, shaped by where he learned the game. */
-export function generateAmateur(rng: Rng, id: string, age: number, usedNames: Set<string>): WorldPlayer["player"] {
+export function generateAmateur(rng: Rng, id: string, age: number, usedNames: Set<string>, generation = 0): WorldPlayer["player"] {
   const region = pickRegion(rng);
   const p = generatePlayer(rng, { tier: age <= 17 ? "junior" : "college", nationality: region.nationality, usedNames });
   p.id = id;
   p.age = age;
+  // A strong or weak generation lifts or lowers the whole class a little.
+  if (generation) for (const k of GOLF_SKILLS) p.attributes[k] = clamp(Math.round(p.attributes[k] + generation), 1, 20);
   for (const [k, d] of Object.entries(region.bias) as [AttributeKey, number][]) p.attributes[k] = clamp(p.attributes[k] + d, 1, 20);
   for (const [k, d] of Object.entries(region.style ?? {}) as [CourseStyle, number][]) p.styleComfort[k] = clamp(p.styleComfort[k] + d, 1, 20);
   return p;

@@ -255,6 +255,8 @@ export interface PlayerEventContext {
   weeksOff: number;
   /** Past week 30 of the season. */
   lateSeason: boolean;
+  /** A breakout (+) or slump (-) season: strokes gained a round, all season. */
+  seasonForm?: number;
 }
 
 /** The round being played, as the trait effects see it. */

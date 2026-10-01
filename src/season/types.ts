@@ -252,6 +252,8 @@ export interface WorldPlayer {
   rebuild: SwingRebuild | null;
   /** A rival agency, or null for a free agent. Your clients use `client` instead. */
   agent: Representation | null;
+  /** A breakout or slump season, drawn each winter (strokes gained a round). */
+  seasonForm?: { season: number; sg: number };
   /** Present only for your agency's clients. */
   client?: ClientManagement;
   /** Comeback Kids: weeks of faster development left after a long injury. */
@@ -477,6 +479,8 @@ export interface World {
   /** Caddies available to hire (older saves get them on load). */
   caddies?: Caddie[];
   history: History;
+  /** This generation's strength: added to each new amateur class (older saves: 0). */
+  generation?: number;
   /** Strokes a round the tour's course setup adds this season (see courseSetup.ts). Missing in older saves: 0. */
   courseSetup?: number;
   /** This season's scoring on real courses against their real averages, for next winter's setup. */

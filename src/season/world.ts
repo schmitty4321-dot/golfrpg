@@ -295,6 +295,45 @@ export function shapeRookie(p: Player, rng: Rng): void {
 }
 
 /**
+ * Generations vary: each new amateur class has a strength that carries over
+ * partly from the last (Data Golf finds generations peak at different ages
+ * and rates). Some worlds get a golden era, some a weak spell. Drawn from
+ * its own stream so the rest of the world's luck is untouched.
+ */
+export function nextGeneration(world: World): number {
+  const rng = createRng(mixSeed(world.seed, world.season, 1301));
+  const g = clamp(0.6 * (world.generation ?? 0) + rng.normal(0, 0.35), -0.9, 0.9);
+  world.generation = Math.round(g * 100) / 100;
+  if (g >= 0.45) world.news.unshift("Scouts call the new amateur class the strongest in years.");
+  else if (g <= -0.45) world.news.unshift("This year's amateur class looks thin.");
+  return world.generation;
+}
+
+/** Share of pros who have a breakout season, and who slump, each year. */
+export const BREAKOUT_CHANCE = 0.04;
+export const SLUMP_CHANCE = 0.04;
+/** How far a breakout or slump moves him, strokes gained a round. */
+export const SEASON_FORM_SG = 0.5;
+
+/**
+ * Each winter a few players find something and a few lose it: a season-long
+ * lift or drag on their golf, on top of their level. Your coaches can tell
+ * you which way a client is heading; everyone else you see in the results.
+ */
+export function drawSeasonForm(world: World): void {
+  const rng = createRng(mixSeed(world.seed, world.season, 1302));
+  for (const wp of Object.values(world.players)) {
+    delete wp.seasonForm;
+    if (wp.career.status === "amateur") continue;
+    const u = rng.next();
+    const sg = u < BREAKOUT_CHANCE ? SEASON_FORM_SG : u < BREAKOUT_CHANCE + SLUMP_CHANCE ? -SEASON_FORM_SG : 0;
+    if (!sg) continue;
+    wp.seasonForm = { season: world.season, sg };
+    if (wp.client) world.news.unshift(sg > 0 ? `${wp.player.name}'s coaches say he has found something this winter.` : `${wp.player.name} doesn't look himself in practice this winter.`);
+  }
+}
+
+/**
  * The chance a player without a card gives it up this winter. Real careers
  * are short for most (Data Golf: about a third of PGA TOUR rookies last ten
  * full seasons): each season off the main tour makes quitting likelier, more
@@ -363,8 +402,9 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
     }
   });
   const usedNames = new Set(Object.values(world.players).map((wp) => wp.player.name));
+  const generation = nextGeneration(world);
   for (let i = 0; i < AMATEUR_CLASS_SIZE; i++) {
-    const p = generateAmateur(rng, `s${season}a${i + 1}`, rng.pick([16, 17, 17, 18, 18, 19]), usedNames);
+    const p = generateAmateur(rng, `s${season}a${i + 1}`, rng.pick([16, 17, 17, 18, 18, 19]), usedNames, generation);
     world.players[p.id] = makeAmateur(p, rng);
   }
 
@@ -439,6 +479,7 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   world.season++;
   world.week = 1;
   adoptRealTour(world);
+  drawSeasonForm(world);
   for (const wp of clients(world)) wp.client!.finances = emptyFinances();
   world.agency.ledger = { prizeCommission: 0, endorsementCommission: 0, office: 0, scouts: 0, development: 0 };
   // The winter program he just did goes on the new season's books.
