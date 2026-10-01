@@ -505,14 +505,14 @@ export function traceHole({ course, hole, score, player, windMph = 0, seed, call
     const yards = Math.round(dist(from, pin));
     const name = club ?? clubFor(yards, stroke === 0);
     if (plan.chips === 0 && plan.putts === 0) {
-      push({ kind: stroke === 0 ? "tee" : "approach", club: name, to: pin, lie: "holed", text: `${name} from ${yards} yds... and it's in!` });
+      push({ kind: stroke === 0 ? "tee" : "approach", club: name, to: pin, lie: "holed", text: `${name} from ${yards} yards out... and it's in!` });
     } else if (plan.missGreen) {
       const g = aroundGreen();
-      push({ kind: stroke === 0 ? "tee" : "approach", club: name, to: g.at, lie: g.lie, feet: toPinFt(g.at), text: `${name} from ${yards} yds misses the green${g.lie === "bunker" ? ", into a bunker" : ""}.` });
+      push({ kind: stroke === 0 ? "tee" : "approach", club: name, to: g.at, lie: g.lie, feet: toPinFt(g.at), text: `${name} from ${yards} yards out misses the green${g.lie === "bunker" ? ", into a bunker" : ""}.` });
     } else {
       const ft = approachFeet();
       const to = onGreen(ft, from);
-      push({ kind: stroke === 0 ? "tee" : "approach", club: name, to, lie: "green", feet: toPinFt(to), text: `${name} from ${yards} yds to ${toPinFt(to)} ft.` });
+      push({ kind: stroke === 0 ? "tee" : "approach", club: name, to, lie: "green", feet: toPinFt(to), text: `${name} from ${yards} yards out to ${toPinFt(to)} ft.` });
     }
   };
 
@@ -538,7 +538,7 @@ export function traceHole({ course, hole, score, player, windMph = 0, seed, call
     // Tee shot.
     let tee: Pt;
     let lie: Lie;
-    let teeText: string;
+    let teeOutcome: string;
     const teeClub = call?.tee === "iron" ? "Long iron" : call?.tee === "3-wood" ? "3-wood" : call?.tee === "driver" ? "Driver" : Y < 360 || (w < 24 && a.courseManagement >= 13) ? "3-wood" : "Driver";
     const len = Math.min(teeClub === "Long iron" ? driveLen - 55 : teeClub === "3-wood" ? driveLen - 25 : driveLen, Y - 70);
     if (plan.penalties > 0) {
@@ -546,33 +546,37 @@ export function traceHole({ course, hole, score, player, windMph = 0, seed, call
       const landing = pointAt(layout.path, len - 20, (layout.water[0]?.[0]?.x ?? 0) > 0 ? w / 2 + 22 : -(w / 2 + 22));
       tee = wet ? (layout.real ? inWater(pointAt(layout.path, len)) ?? landing : landing) : pointAt(layout.path, len, missSide() * (w / 2 + 50));
       lie = wet ? "water" : "ob";
-      teeText = `${teeClub} ${wet ? "finds the water" : "goes out of bounds"}.`;
+      teeOutcome = wet ? "finds the water" : "goes out of bounds";
     } else if (plan.recoveries > 0) {
       const side = missSide();
       tee = pointAt(layout.path, len - 10, side * (w / 2 + (layout.trees.length ? 24 : 14)));
       lie = layout.trees.length ? "trees" : "rough";
-      teeText = `${teeClub}, ${Math.round(len - 10)} yds, ${lie === "trees" ? "blocked out in the trees" : "buried in deep rough"}.`;
+      teeOutcome = lie === "trees" ? "blocked out in the trees" : "buried in deep rough";
     } else if (rng.chance(accurate)) {
       tee = pointAt(layout.path, len, rng.normal(0, w / 6));
       lie = "fairway";
-      teeText = `${teeClub}, ${Math.round(len)} yds, finds the fairway.`;
+      teeOutcome = "finds the fairway";
     } else {
       const fb = layout.bunkers.filter((b) => dist(b, layout.green) > layout.green.r + 12);
-      if (fb.length && rng.chance(0.35)) {
-        tee = { ...rng.pick(fb) };
+      // Only use a bunker in the drive's actual landing zone. Choosing any
+      // fairway bunker on the hole can turn a full drive into a 100-yard shot.
+      const reachable = fb.filter((b) => Math.abs(projectAlong(layout.path, b) - len) <= 45);
+      if (reachable.length && rng.chance(0.35)) {
+        tee = { ...rng.pick(reachable) };
         lie = "bunker";
-        teeText = `${teeClub} runs into a fairway bunker.`;
+        teeOutcome = "finds a fairway bunker";
       } else {
         tee = pointAt(layout.path, len, missSide() * (w / 2 + 4 + rng.next() * 8));
         lie = "rough";
-        teeText = `${teeClub}, ${Math.round(len)} yds, just in the rough.`;
+        teeOutcome = "finishes just in the rough";
       }
     }
     if (lastLong === 1) {
       // A drivable par 4 (rare): the tee shot is the approach.
       finalLong(teeClub);
     } else {
-      push({ kind: "tee", club: teeClub, to: tee, lie, text: teeText, yards: Math.round(len) });
+      const teeYards = Math.round(dist(cur, tee));
+      push({ kind: "tee", club: teeClub, to: tee, lie, text: `${teeClub}, ${teeYards} yds, ${teeOutcome}.`, yards: teeYards });
       for (let i = 0; i < plan.penalties; i++) {
         penalty(i === 0 ? `Penalty stroke: drops ${lie === "water" ? "beside the water" : "back in play"}.` : "Another penalty stroke.", pointAt(layout.path, Math.max(150, len - 40), (lie === "water" ? 1 : 0) * Math.sign(tee.x) * (w / 2)));
       }
@@ -587,7 +591,7 @@ export function traceHole({ course, hole, score, player, windMph = 0, seed, call
           const target = Math.max(alongNow + 60, Y - rng.int(85, 115));
           const to = pointAt(layout.path, Math.min(target, Y - 60), rng.normal(0, w / 7));
           const club = clubFor(dist(cur, to), false);
-          push({ kind: "layup", club, to, lie: "fairway", text: `${club} lays up, ${Math.round(Y - projectAlong(layout.path, to))} yds out.` });
+          push({ kind: "layup", club, to, lie: "fairway", text: `${club}, ${Math.round(dist(cur, to))} yds, lays up to ${Math.round(Y - projectAlong(layout.path, to))} yards out.` });
         }
       }
       finalLong();

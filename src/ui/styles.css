@@ -399,8 +399,6 @@ select, input[type="text"], input[type="number"] {
 .illustrated-replay-controls { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 11px 2px 2px; color: var(--text); }
 @keyframes illustrated-draw { from { stroke-dasharray: 1; stroke-dashoffset: 1; } to { stroke-dasharray: 1; stroke-dashoffset: 0; } }
 @keyframes illustrated-land { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
-.hbh-drawing:has(.illustrated-replay) { grid-column: 1 / -1; }
-.hbh-body:has(.illustrated-replay) > div:last-child { grid-column: 1 / -1; }
 @media (max-width: 700px) {
   .modal.tracer.tracer-cinematic { width: calc(100vw - 12px); padding: 6px; }
   .illustrated-hole-card { top: 8px; left: 8px; width: auto; padding: 8px 10px; }
@@ -438,6 +436,11 @@ select, input[type="text"], input[type="number"] {
 
 /* ---------- hole by hole ---------- */
 .hbh-hole { margin-top: 0; }
+.hbh-body { grid-template-columns: minmax(0, 1.75fr) minmax(340px, .8fr); gap: 16px; }
+.hbh-side { position: sticky; top: 64px; align-self: start; max-height: calc(100vh - 84px); overflow-y: auto; padding: 0 2px 2px; scrollbar-width: thin; }
+.hbh-side .live-card { margin-bottom: 12px; }
+.hbh-side .hbh-actions { position: sticky; bottom: 0; z-index: 2; margin-top: 10px; padding: 9px 0 2px; background: var(--surface); }
+.hbh-drawing .illustrated-stage { max-height: calc(100vh - 210px); }
 .call { border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px 10px; margin: 0 0 10px; }
 .call legend { font-weight: 600; padding: 0 4px; }
 .call-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px; }
@@ -462,6 +465,7 @@ select, input[type="text"], input[type="number"] {
   .hbh .panel-head h2 { font-size: 16px; }
   .hbh-hole { position: sticky; top: 52px; z-index: 3; background: var(--surface); margin: 0 -12px 8px; padding: 6px 12px; border-bottom: 1px solid var(--border); font-size: 14px; }
   .hbh-body { display: block; }
+  .hbh-side { position: static; max-height: none; overflow: visible; padding: 0; }
   .hbh-drawing .hole-svg { display: block; max-height: 36vh; width: auto; max-width: 100%; margin: 0 auto; }
   .hbh-drawing .hole-credit { justify-content: center; font-size: 11px; }
 
@@ -554,6 +558,7 @@ select, input[type="text"], input[type="number"] {
 
 /* ---------- live scorecard ---------- */
 .live-card { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 16px; margin: 0 0 12px; overflow-x: auto; }
+.live-card.active-nine { grid-template-columns: minmax(0, 1fr); }
 .live-scorecard { width: 100%; }
 .live-scorecard th, .live-scorecard td { min-width: 0; }
 .live-scorecard .sc-score td { padding: 5px 0; }
@@ -792,7 +797,10 @@ select, input[type="text"], input[type="number"] {
 .preround-metrics span { color: var(--muted); font-size: 10px; letter-spacing: .05em; text-transform: uppercase; }
 .preround-metrics strong { font-size: 18px; }
 .preround-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.preround-choice { display: grid; gap: 5px; padding: 12px; border: 1px solid var(--border); border-radius: 9px; }
+.preround-choice { display: grid; gap: 5px; width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 9px; color: var(--text); background: var(--surface); text-align: left; }
+.preround-choice[aria-pressed] { cursor: pointer; }
+.preround-choice[aria-pressed]:hover { border-color: var(--accent); background: var(--surface-2); }
+.preround-choice[aria-pressed]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .preround-choice + .preround-choice { margin-top: 10px; }
 .preround-choices .preround-choice + .preround-choice { margin-top: 0; }
 .preround-choice.selected { border: 2px solid var(--accent); background: var(--accent-soft); }

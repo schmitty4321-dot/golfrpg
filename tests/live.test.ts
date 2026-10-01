@@ -73,6 +73,11 @@ describe("live tournaments", () => {
     const board = liveBoard(t);
     expect(board.every((r) => r.thru === 5)).toBe(true);
     autoFinishRound(t);
+    const completed = liveBoard(t);
+    expect(completed.every((r) => r.thru === 18)).toBe(true);
+    expect(completed.find((r) => r.player.id === me)!.toPar).toBe(
+      t.entries.find((entry) => entry.player.id === me)!.rounds[0]! - t.par,
+    );
     expect(clientActive(t)).toBe(true);
   });
 });

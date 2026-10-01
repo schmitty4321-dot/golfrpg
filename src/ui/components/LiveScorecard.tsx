@@ -15,7 +15,7 @@ function cellClass(score: number, par: number): string {
  * (circles and squares as on every card) and where he stands against par,
  * with the hole he's on marked. Tap a score to watch that hole again.
  */
-export function LiveScorecard({ course, scores, current, onPick }: { course: Course; scores: number[]; current: number | null; onPick?: (hole: number) => void }) {
+export function LiveScorecard({ course, scores, current, onPick, activeNineOnly = false }: { course: Course; scores: number[]; current: number | null; onPick?: (hole: number) => void; activeNineOnly?: boolean }) {
   const halves = [course.holes.slice(0, 9), course.holes.slice(9)];
   const sum = (xs: number[]) => xs.reduce((s, x) => s + x, 0);
   let running = 0;
@@ -23,8 +23,9 @@ export function LiveScorecard({ course, scores, current, onPick }: { course: Cou
   // On a phone only the nine being played is shown (the back nine's card carries the total).
   const nine = (current ?? scores.length - 1) >= 9 ? 1 : 0;
   return (
-    <div className="live-card" aria-label="Scorecard">
+    <div className={`live-card${activeNineOnly ? " active-nine" : ""}`} aria-label="Scorecard">
       {halves.map((holes, half) => {
+        if (activeNineOnly && half !== nine) return null;
         const played = scores.slice(half * 9, half * 9 + 9);
         return (
           <table className={`scorecard live-scorecard${half === nine ? "" : " sc-other-nine"}`} key={half}>

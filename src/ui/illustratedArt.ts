@@ -1,4 +1,4 @@
-import type { HoleTrace, Lie, Pt, Shot } from "../engine";
+import { projectAlong, type HoleLayout, type HoleTrace, type Lie, type Pt, type Shot } from "../engine";
 import generatedArt from "./illustratedArt.generated.json";
 
 export interface ArtMatrix {
@@ -11,8 +11,10 @@ export interface ArtEntry {
   width: number;
   height: number;
   matrix: ArtMatrix;
+  /** The visible playing line through the illustration, keyed by fraction of hole yardage. */
+  route?: (Pt & { at: number })[];
   /** Pixel-space landing points for hazards that the illustration depicts differently from the source map. */
-  targets?: Partial<Record<Extract<Lie, "water" | "ob" | "bunker">, Pt[]>>;
+  targets?: Partial<Record<Extract<Lie, "water" | "ob" | "bunker" | "green" | "holed">, Pt[]>>;
   meta?: {
     number?: number;
     par?: number;
@@ -51,6 +53,22 @@ export function projectArtPoint(matrix: ArtMatrix, point: Pt): Pt {
   return { x: xx * point.x + xy * point.y + xo, y: yx * point.x + yy * point.y + yo };
 }
 
+function pointOnRoute(route: NonNullable<ArtEntry["route"]>, progress: number): Pt {
+  const p = Math.max(0, Math.min(1, progress));
+  const after = route.findIndex((point) => point.at >= p);
+  if (after <= 0) return route[0]!;
+  if (after < 0) return route[route.length - 1]!;
+  const a = route[after - 1]!;
+  const b = route[after]!;
+  const t = (p - a.at) / Math.max(0.0001, b.at - a.at);
+  return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
+}
+
+function projectShotPoint(art: ArtEntry, point: Pt, layout?: HoleLayout): Pt {
+  if (!art.route?.length || !layout) return projectArtPoint(art.matrix, point);
+  return pointOnRoute(art.route, projectAlong(layout.path, point) / layout.yards);
+}
+
 function nearest(points: Pt[], target: Pt): Pt {
   return points.reduce((best, point) =>
     Math.hypot(point.x - target.x, point.y - target.y) < Math.hypot(best.x - target.x, best.y - target.y) ? point : best);
@@ -61,12 +79,13 @@ function nearest(points: Pt[], target: Pt): Pt {
  * artwork targets, while the following penalty/drop stroke begins at that
  * same visible point so the picture matches the written play-by-play.
  */
-export function illustratedShotPaths(art: ArtEntry, shots: Shot[]): IllustratedShotPath[] {
+export function illustratedShotPaths(art: ArtEntry, shots: Shot[], layout?: HoleLayout): IllustratedShotPath[] {
   let previousEnd: Pt | undefined;
   return shots.map((shot) => {
-    const start = previousEnd ?? projectArtPoint(art.matrix, shot.from);
-    const projectedEnd = projectArtPoint(art.matrix, shot.to);
-    const targets = shot.kind === "penalty" ? undefined : art.targets?.[shot.lie as "water" | "ob" | "bunker"];
+    const start = previousEnd ?? projectShotPoint(art, shot.from, layout);
+    const projectedEnd = projectShotPoint(art, shot.to, layout);
+    const targetLie = shot.lie === "holed" && !art.targets?.holed && art.targets?.green ? "green" : shot.lie;
+    const targets = shot.kind === "penalty" ? undefined : art.targets?.[targetLie as "water" | "ob" | "bunker" | "green" | "holed"];
     const end = targets?.length ? nearest(targets, projectedEnd) : projectedEnd;
     previousEnd = end;
     return { shot, start, end };

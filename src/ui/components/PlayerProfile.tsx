@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ATTRIBUTE_LABELS, createRng, describeTendencies, feetInches, nationInfo, tendencies, type AttributeKey } from "../../engine";
+import { ATTRIBUTE_LABELS, createRng, describeTendencies, feetInches, liveBoard, nationInfo, tendencies, type AttributeKey } from "../../engine";
 import {
   STATUS_LABELS,
   abilityView,
@@ -15,7 +15,7 @@ import {
   queueScouting,
   rankMap,
   scoutedAttribute,
-  type World, type WorldPlayer, knownArchetype } from "../../season";
+  type LiveEvent, type World, type WorldPlayer, knownArchetype } from "../../season";
 import { Stars } from "./Stars";
 import { TendenciesPanel } from "./TendenciesPanel";
 import { PortraitCard } from "./Portrait";
@@ -62,6 +62,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
   const rank = rankMap(world).get(id);
   const pr = pointsList(world).indexOf(id) + 1;
   const season = wp.career.results.filter((r) => r.season === world.season);
+  const liveEvent = game.state.liveWeek?.events.find((e) => e.clientIds.includes(id));
   const best = season.filter((r) => r.madeCut).sort((a, b) => a.position - b.position)[0];
   const block = approachBlock(world, id);
   const offer = { commission: commission / 100, years };
@@ -101,7 +102,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
             <dl className="pp-kv">
               <div><dt>World rank</dt><dd>{rank ? `#${rank}` : "—"}</dd></div>
               <div><dt>Points list</dt><dd>{pr ? `#${pr}` : "—"}</dd></div>
-              <div><dt>This season</dt><dd>{plural(season.length, "start")} · {season.filter((r) => r.madeCut).length} cuts{best ? ` · best ${best.label}` : ""}</dd></div>
+              <div><dt>This season</dt><dd>{plural(season.length + (liveEvent ? 1 : 0), "start")} · {season.filter((r) => r.madeCut).length} cuts{liveEvent ? " · playing now" : best ? ` · best ${best.label}` : ""}</dd></div>
               <div><dt>Career</dt><dd>{plural(wp.career.careerWins, "win")} · {plural(wp.career.careerMajors, "major")}</dd></div>
               <div><dt>Earnings</dt><dd>{money(wp.career.careerEarnings)}</dd></div>
               {ceiling !== null && <div><dt>Ceiling</dt><dd><Stars value={ceiling} /></dd></div>}
@@ -241,9 +242,9 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
         )}
               </>
             ) : tab === "stats" ? (
-              <PlayerStats wp={wp} season={world.season} />
+              <PlayerStats wp={wp} season={world.season} liveEvent={liveEvent} />
             ) : (
-              <PlayerResults wp={wp} />
+              <PlayerResults wp={wp} season={world.season} liveEvent={liveEvent} />
             )}
           </div>
         </div>
@@ -263,10 +264,48 @@ function value(value: number | null, format: (n: number) => string): string {
   return value === null ? "—" : format(value);
 }
 
-function PlayerStats({ wp, season }: { wp: WorldPlayer; season: number }) {
+function liveProgress(liveEvent: LiveEvent | undefined, playerId: string) {
+  if (!liveEvent) return null;
+  const t = liveEvent.tournament;
+  const board = liveBoard(t);
+  const standing = board.find((row) => row.player.id === playerId);
+  const position = standing ? board.findIndex((row) => row.player.id === playerId) + 1 : null;
+  const entry = t.entries.find((row) => row.player.id === playerId);
+  const completedRounds = entry?.rounds.length ?? 0;
+  const currentHoles = t.current && t.controlledId === playerId ? t.current.holes.length : 0;
+  const round = t.round || 1;
+  const status = t.done
+    ? "Complete"
+    : currentHoles > 0
+      ? `Round ${round} · thru ${currentHoles}`
+      : completedRounds > 0
+        ? `After round ${completedRounds}`
+        : "Before round 1";
+  return { event: liveEvent.event, standing, position, completedRounds, currentHoles, status };
+}
+
+function LiveTournamentPanel({ liveEvent, playerId }: { liveEvent: LiveEvent; playerId: string }) {
+  const live = liveProgress(liveEvent, playerId)!;
+  return (
+    <section className="panel">
+      <div className="panel-head"><h2>Playing now</h2><span className="muted small">In-progress scores update after every hole</span></div>
+      <div className="player-stat-grid">
+        <StatValue label="Event" value={live.event.name} />
+        <StatValue label="Status" value={live.status} />
+        <StatValue label="Score" value={live.standing ? toPar(live.standing.toPar) : "—"} />
+        <StatValue label="Live position" value={live.position ? `#${live.position}` : "—"} />
+      </div>
+    </section>
+  );
+}
+
+function PlayerStats({ wp, season, liveEvent }: { wp: WorldPlayer; season: number; liveEvent?: LiveEvent }) {
   const stats = wp.career.stats?.season === season ? wp.career.stats : undefined;
   if (!stats || stats.rounds === 0) {
-    return <section className="panel"><div className="panel-head"><h2>Season {season} stats</h2></div><p className="empty">No main-tour rounds recorded this season.</p></section>;
+    return <>
+      {liveEvent && <LiveTournamentPanel liveEvent={liveEvent} playerId={wp.player.id} />}
+      <section className="panel"><div className="panel-head"><h2>Season {season} stats</h2></div><p className="empty">Finalized season stats will appear after the tournament. The live event is shown above.</p></section>
+    </>;
   }
   const rounds = stats.rounds;
   const roundCount = stats.shots.holes / 18;
@@ -275,6 +314,7 @@ function PlayerStats({ wp, season }: { wp: WorldPlayer; season: number }) {
   const percent = (n: number) => `${n.toFixed(1)}%`;
   return (
     <>
+      {liveEvent && <LiveTournamentPanel liveEvent={liveEvent} playerId={wp.player.id} />}
       <section className="panel">
         <div className="panel-head"><h2>Season {season} stats</h2><span className="muted small">Main-tour events</span></div>
         <div className="player-stat-grid">
@@ -322,18 +362,30 @@ function PlayerStats({ wp, season }: { wp: WorldPlayer; season: number }) {
   );
 }
 
-function PlayerResults({ wp }: { wp: WorldPlayer }) {
+function PlayerResults({ wp, season, liveEvent }: { wp: WorldPlayer; season: number; liveEvent?: LiveEvent }) {
   const results = [...wp.career.results].sort((a, b) => b.season - a.season || b.week - a.week);
+  const live = liveProgress(liveEvent, wp.player.id);
   return (
     <section className="panel">
-      <div className="panel-head"><h2>Career results</h2><span className="muted small">{plural(results.length, "recorded start")}</span></div>
-      {results.length === 0 ? (
+      <div className="panel-head"><h2>Tournament results</h2><span className="muted small">{plural(results.length + (live ? 1 : 0), "start")} including events in progress</span></div>
+      {results.length === 0 && !live ? (
         <p className="empty">No tournament results recorded.</p>
       ) : (
         <div className="table-wrap">
           <table>
             <thead><tr><th>Season</th><th>Week</th><th>Event</th><th>Level</th><th>Finish</th><th className="num">Score</th><th className="num">Earnings</th><th className="num">Points</th><th className="num">SG / round</th></tr></thead>
             <tbody>
+              {live && (
+                <tr>
+                  <td>{season}</td>
+                  <td>{live.event.week}</td>
+                  <td><strong>{live.event.name}</strong> <span className="muted small">· in progress</span></td>
+                  <td>{TIER_LABELS[live.event.tier]}</td>
+                  <td>{live.status}</td>
+                  <td className="num">{live.standing ? toPar(live.standing.toPar) : "—"}</td>
+                  <td className="num">—</td><td className="num">—</td><td className="num">—</td>
+                </tr>
+              )}
               {results.map((r, i) => (
                 <tr key={`${r.season}-${r.week}-${r.eventId}-${i}`}>
                   <td>{r.season}</td>
