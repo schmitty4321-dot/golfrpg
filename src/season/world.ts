@@ -37,9 +37,13 @@ import { generateCaddies } from "./team";
 import { ensureGoals, settleGoals } from "./goals";
 
 /** How your first client's career starts. */
-export type Scenario = "rookie" | "journeyman" | "grinder" | "veteran";
+export type Scenario = "agency" | "rookie" | "journeyman" | "grinder" | "veteran";
 
 export const SCENARIOS: Record<Scenario, { title: string; blurb: string }> = {
+  agency: {
+    title: "Your first three clients",
+    blurb: "A rookie fighting for his card, a 25-year-old who needs to kick on, and a veteran on the last year of his exemption. Three careers, one bank account.",
+  },
   rookie: {
     title: "The Rookie",
     blurb: "A 23-year-old just up from the developmental tour. Decent status, no margin for error: finish top 125 or lose the card.",
@@ -200,11 +204,26 @@ export function createWorld(opts: CreateWorldOptions): World {
   world.agency.scouts = generateScouts(opts.seed);
   // The warm-up season brought in new amateurs and walk-ons: their names are taken too.
   for (const wp of Object.values(world.players)) usedNames.add(wp.player.name);
-  const client = createClient(rng, opts.scenario, usedNames, createRng(mixSeed(opts.seed, 23)));
-  client.client = newManagement(world.season, STANDARD_COMMISSION, 3);
-  world.players[client.player.id] = client;
-  world.clientIds = [client.player.id];
-  world.agency.knowledge[client.player.id] = { accuracy: 1, reports: 99, absWeek: 0 };
+  // The agency opens with its first clients: one, or the usual three (a rookie, a 25-year-old and a
+  // veteran) on staggered contracts, so money and decisions bite from the first week.
+  const shapeRng = createRng(mixSeed(opts.seed, 23));
+  const starters: { scenario: StarterKind; id: string; years: number }[] =
+    opts.scenario === "agency"
+      ? [
+          { scenario: "rookie", id: "client", years: 3 },
+          { scenario: "prospect", id: "client2", years: 2 },
+          { scenario: "veteran", id: "client3", years: 1 },
+        ]
+      : [{ scenario: opts.scenario, id: "client", years: 3 }];
+  world.clientIds = [];
+  for (const s of starters) {
+    const client = createClient(rng, s.scenario, usedNames, shapeRng, s.id);
+    usedNames.add(client.player.name);
+    client.client = newManagement(world.season, STANDARD_COMMISSION, s.years);
+    world.players[client.player.id] = client;
+    world.clientIds.push(client.player.id);
+    world.agency.knowledge[client.player.id] = { accuracy: 1, reports: 99, absWeek: 0 };
+  }
   setTargets(world);
   ensureTraits(world);
   ensureFamiliarity(world);
@@ -216,7 +235,10 @@ function prefixIds(players: Player[], prefix: string): void {
   players.forEach((p, i) => (p.id = `${prefix}${i + 1}`));
 }
 
-function createClient(rng: Rng, scenario: Scenario, usedNames: Set<string>, shapeRng: Rng): WorldPlayer {
+/** The kinds of player an agency can start with (a scenario's single client, or one of the three). */
+type StarterKind = Exclude<Scenario, "agency"> | "prospect";
+
+function createClient(rng: Rng, scenario: StarterKind, usedNames: Set<string>, shapeRng: Rng, id = "client"): WorldPlayer {
   const make = (tier: PlayerTier, age: number, status: TourStatus, boost = 0, room = 0, shape?: (p: Player) => void): WorldPlayer => {
     const p = generatePlayer(rng, { tier, usedNames, nationality: "USA" });
     // His ceiling comes from the player as drawn (with any boost), before reshaping.
@@ -228,7 +250,7 @@ function createClient(rng: Rng, scenario: Scenario, usedNames: Set<string>, shap
       }
       before = overall(p);
     }
-    p.id = "client";
+    p.id = id;
     p.age = age;
     p.form = 0;
     p.condition = 95;
@@ -247,6 +269,14 @@ function createClient(rng: Rng, scenario: Scenario, usedNames: Set<string>, shap
     }
     case "journeyman":
       return make("fringe", 32, "conditional", 0, 0.3);
+    // Kept his card last season, just: a little below tour average, with a couple of years to grow.
+    case "prospect":
+      return make("fringe", 25, "exempt", 1, 1.5, (p) => {
+        // Around tour average, never a ready-made star: between 11.2 and 12.8.
+        const target = clamp(overall(p) + 1, 11.2, 12.8);
+        const shift = Math.round(target - overall(p));
+        for (const k of GOLF_SKILLS) p.attributes[k] = clamp(p.attributes[k] + shift, 1, 20);
+      });
     case "grinder":
       // A standout: near the top of what college players are, but still raw.
       return make("college", 21, "none", 1, 3.5);

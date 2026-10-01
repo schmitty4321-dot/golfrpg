@@ -3,7 +3,7 @@ import { SCENARIOS, STYLES, parsePlayerDatabase, type DatabasePlayer, type Scena
 import type { Game } from "../useGame";
 
 export function NewGame({ game }: { game: Game }) {
-  const [scenario, setScenario] = useState<Scenario>("rookie");
+  const [scenario, setScenario] = useState<Scenario>("agency");
   const [style, setStyle] = useState<WorldStyle>("realistic");
   const [seed, setSeed] = useState("");
   const [name, setName] = useState("");
@@ -23,9 +23,9 @@ export function NewGame({ game }: { game: Game }) {
         </p>
       </div>
       <section className="panel">
-        <div className="panel-head"><h2>Choose your first client</h2></div>
+        <div className="panel-head"><h2>Your agency</h2></div>
         <div className="scenario-grid">
-          {(Object.keys(SCENARIOS) as Scenario[]).map((k) => (
+          {(["agency"] as Scenario[]).map((k) => (
             <button key={k} className="scenario" aria-pressed={scenario === k} onClick={() => setScenario(k)}>
               <strong>{SCENARIOS[k].title}</strong>
               <span className="secondary small">{SCENARIOS[k].blurb}</span>
