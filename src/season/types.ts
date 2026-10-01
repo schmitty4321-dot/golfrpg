@@ -481,6 +481,8 @@ export interface World {
   history: History;
   /** This generation's strength: added to each new amateur class (older saves: 0). */
   generation?: number;
+  /** Realism setting chosen at the start of the career (older saves: realistic). */
+  style?: WorldStyle;
   /** Strokes a round the tour's course setup adds this season (see courseSetup.ts). Missing in older saves: 0. */
   courseSetup?: number;
   /** This season's scoring on real courses against their real averages, for next winter's setup. */
@@ -534,3 +536,6 @@ export interface Trophy {
   title: string;
   player?: string;
 }
+
+/** Realistic: tuned to Data Golf. Lively: more scatter, more breakouts and slumps, bigger swings between generations. */
+export type WorldStyle = "realistic" | "lively";

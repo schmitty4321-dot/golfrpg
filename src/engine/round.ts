@@ -188,7 +188,7 @@ export function playHole({ ctx, hole, dayForm, teeShotHoles, state, mod }: HoleI
 
   if (mod) mean += mod.mean;
 
-  let sd = HOLE_SD * (1 + (a.aggression - TOUR_AVERAGE) * 0.015) * (mod?.sd ?? 1) * t.sd;
+  let sd = HOLE_SD * (1 + (a.aggression - TOUR_AVERAGE) * 0.015) * (mod?.sd ?? 1) * t.sd * (ctx.event?.scatter ?? 1);
   if (pressure > 0) sd *= 1 + pressure * 3; // nervy players get wilder, not just worse
 
   // Big numbers: trouble on the hole, wind, and poor decisions.

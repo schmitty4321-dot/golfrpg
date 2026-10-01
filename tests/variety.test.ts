@@ -27,3 +27,18 @@ describe("variety between worlds and seasons", () => {
     expect(eventContext(world, world.schedule[0]!, hot.player.id).seasonForm).toBe(hot.seasonForm!.sg);
   });
 });
+
+describe("the Realism setting", () => {
+  it("makes a lively world scatter more and break out more often; realistic stays the default", () => {
+    const realistic = createWorld({ seed: 4, scenario: "rookie" });
+    const lively = createWorld({ seed: 4, scenario: "rookie", style: "lively" });
+    expect(realistic.style).toBeUndefined();
+    expect(lively.style).toBe("lively");
+    const id = Object.values(lively.players).find((wp) => wp.career.status === "exempt")!.player.id;
+    expect(eventContext(realistic, realistic.schedule[0]!, id).scatter).toBeUndefined();
+    expect(eventContext(lively, lively.schedule[0]!, id).scatter).toBeGreaterThan(1);
+    drawSeasonForm(lively);
+    const pros = Object.values(lively.players).filter((wp) => wp.career.status !== "amateur");
+    expect(pros.filter((wp) => wp.seasonForm).length / pros.length).toBeGreaterThan(2 * (BREAKOUT_CHANCE + SLUMP_CHANCE) * 0.6);
+  });
+});

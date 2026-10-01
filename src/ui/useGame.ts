@@ -1,3 +1,4 @@
+import type { WorldStyle } from "../season";
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as season from "../season";
 import {
@@ -76,10 +77,10 @@ export function useGame() {
   }, [publish]);
 
   const newGame = useCallback(
-    async (scenario: Scenario, seed: number, agencyName?: string, database?: DatabasePlayer[]) => {
+    async (scenario: Scenario, seed: number, agencyName?: string, database?: DatabasePlayer[], style?: WorldStyle) => {
       publish({ busy: "Building the golf world and playing a warm-up season…" });
       await nextFrame();
-      worldRef.current = createWorld({ seed, scenario, agencyName, database });
+      worldRef.current = createWorld({ seed, scenario, agencyName, database, ...(style ? { style } : {}) });
       reportsRef.current = [];
       liveWeekRef.current = null;
       publish({ busy: null, review: null });

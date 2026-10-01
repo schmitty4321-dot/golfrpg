@@ -29,7 +29,7 @@ import { expireSponsors } from "./sponsors";
 import { canPlayDev, devPriority, courseFit, courseById, eventsInWeek, isInvitational, mixSeed, planWeek, priorityCompare, MONDAY_SPOTS } from "./entries";
 import { pointsList, rankMap } from "./points";
 import type { Course } from "../engine";
-import { SAVE_VERSION, absWeek, type Career, type ClientSeasonSummary, type SeasonRecord, type SeasonSummary, type TourEvent, type TourStatus, type World, type WorldPlayer } from "./types";
+import { SAVE_VERSION, absWeek, type Career, type ClientSeasonSummary, type SeasonRecord, type SeasonSummary, type TourEvent, type TourStatus, type World, type WorldPlayer, type WorldStyle } from "./types";
 import { playWeek } from "./week";
 import { ensureTraits, seasonEndTraits } from "./traits";
 import { ensureFamiliarity, fadeFamiliarity, familiarityWith } from "./familiarity";
@@ -117,6 +117,8 @@ function setTargets(world: World): void {
 export interface CreateWorldOptions {
   seed: number;
   scenario: Scenario;
+  /** Realism setting: realistic (default) or lively. */
+  style?: WorldStyle;
   agencyName?: string;
   /**
    * Players from a database file. They replace generated players: pros
@@ -169,6 +171,7 @@ export function createWorld(opts: CreateWorldOptions): World {
     coaches: generateCoaches(opts.seed),
     caddies: generateCaddies(opts.seed),
     history: newHistory(),
+    ...(opts.style && opts.style !== "realistic" ? { style: opts.style } : {}),
   };
   for (const [id, pot] of dbPotential) if (pot !== undefined) world.players[id]!.development.potential = pot;
   // Amateurs from the database, then generated classes to fill three years' worth.
@@ -302,18 +305,31 @@ export function shapeRookie(p: Player, rng: Rng): void {
  */
 export function nextGeneration(world: World): number {
   const rng = createRng(mixSeed(world.seed, world.season, 1301));
-  const g = clamp(0.6 * (world.generation ?? 0) + rng.normal(0, 0.35), -0.9, 0.9);
+  const st = styleOf(world);
+  const g = clamp(0.6 * (world.generation ?? 0) + rng.normal(0, st.generationSd), -st.generationCap, st.generationCap);
   world.generation = Math.round(g * 100) / 100;
   if (g >= 0.45) world.news.unshift("Scouts call the new amateur class the strongest in years.");
   else if (g <= -0.45) world.news.unshift("This year's amateur class looks thin.");
   return world.generation;
 }
 
-/** Share of pros who have a breakout season, and who slump, each year. */
+/** Share of pros who have a breakout season, and who slump, each year (realistic worlds). */
 export const BREAKOUT_CHANCE = 0.04;
 export const SLUMP_CHANCE = 0.04;
 /** How far a breakout or slump moves him, strokes gained a round. */
 export const SEASON_FORM_SG = 0.5;
+
+/**
+ * The Realism setting. Realistic is tuned to Data Golf (see realism.ts);
+ * Lively turns up the drama: rounds scatter more, more players break out or
+ * slump and by more, and generations swing further.
+ */
+export const STYLES: Record<WorldStyle, { label: string; blurb: string; scatter: number; seasonFormChance: number; seasonFormSg: number; generationSd: number; generationCap: number }> = {
+  realistic: { label: "Realistic", blurb: "Tuned to real PGA TOUR data: rounds, careers and winners behave like the real thing.", scatter: 1, seasonFormChance: BREAKOUT_CHANCE, seasonFormSg: SEASON_FORM_SG, generationSd: 0.35, generationCap: 0.9 },
+  lively: { label: "Lively", blurb: "More upsets, hot streaks and slumps, and wilder generations. Less predictable, more drama.", scatter: 1.15, seasonFormChance: 0.08, seasonFormSg: 0.7, generationSd: 0.5, generationCap: 1.2 },
+};
+
+export const styleOf = (world: World) => STYLES[world.style ?? "realistic"];
 
 /**
  * Each winter a few players find something and a few lose it: a season-long
@@ -326,7 +342,8 @@ export function drawSeasonForm(world: World): void {
     delete wp.seasonForm;
     if (wp.career.status === "amateur") continue;
     const u = rng.next();
-    const sg = u < BREAKOUT_CHANCE ? SEASON_FORM_SG : u < BREAKOUT_CHANCE + SLUMP_CHANCE ? -SEASON_FORM_SG : 0;
+    const st = styleOf(world);
+    const sg = u < st.seasonFormChance ? st.seasonFormSg : u < 2 * st.seasonFormChance ? -st.seasonFormSg : 0;
     if (!sg) continue;
     wp.seasonForm = { season: world.season, sg };
     if (wp.client) world.news.unshift(sg > 0 ? `${wp.player.name}'s coaches say he has found something this winter.` : `${wp.player.name} doesn't look himself in practice this winter.`);

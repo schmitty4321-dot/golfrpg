@@ -1,3 +1,4 @@
+import { STYLES } from "./world";
 /**
  * The season's side of player traits: who has them, what your scouts have
  * seen, and the effects off the course (fitness, injuries, mood, contracts,
@@ -79,6 +80,7 @@ export function eventContext(world: World, event: TourEvent, id: string): Player
     weeksOff: last === 0 ? 99 : world.week - 1 - last,
     lateSeason: world.week > 30,
     ...(wp.seasonForm?.season === world.season ? { seasonForm: wp.seasonForm.sg } : {}),
+    ...(world.style === "lively" ? { scatter: STYLES.lively.scatter } : {}),
     ...familiarityContext(wp, event),
     ...(wp.client ? { caddie: caddieOnBag(world, wp), flewPrivate: travelMode(world, wp).private } : {}),
   };

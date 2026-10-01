@@ -1,15 +1,16 @@
 import { useState } from "react";
-import { SCENARIOS, parsePlayerDatabase, type DatabasePlayer, type Scenario } from "../../season";
+import { SCENARIOS, STYLES, parsePlayerDatabase, type DatabasePlayer, type Scenario, type WorldStyle } from "../../season";
 import type { Game } from "../useGame";
 
 export function NewGame({ game }: { game: Game }) {
   const [scenario, setScenario] = useState<Scenario>("rookie");
+  const [style, setStyle] = useState<WorldStyle>("realistic");
   const [seed, setSeed] = useState("");
   const [name, setName] = useState("");
   const [db, setDb] = useState<{ players: DatabasePlayer[]; errors: string[]; file: string } | null>(null);
   const start = () => {
     const n = seed.trim() === "" ? Math.floor(Math.random() * 1e9) : Number(seed) || hash(seed);
-    void game.newGame(scenario, n, name.trim() || undefined, db?.players.length ? db.players : undefined);
+    void game.newGame(scenario, n, name.trim() || undefined, db?.players.length ? db.players : undefined, style);
   };
   return (
     <main>
@@ -28,6 +29,15 @@ export function NewGame({ game }: { game: Game }) {
             <button key={k} className="scenario" aria-pressed={scenario === k} onClick={() => setScenario(k)}>
               <strong>{SCENARIOS[k].title}</strong>
               <span className="secondary small">{SCENARIOS[k].blurb}</span>
+            </button>
+          ))}
+        </div>
+        <div className="panel-head" style={{ marginTop: 16 }}><h2>Realism</h2></div>
+        <div className="scenario-grid">
+          {(Object.keys(STYLES) as WorldStyle[]).map((k) => (
+            <button key={k} className="scenario" aria-pressed={style === k} onClick={() => setStyle(k)}>
+              <strong>{STYLES[k].label}</strong>
+              <span className="secondary small">{STYLES[k].blurb}</span>
             </button>
           ))}
         </div>
