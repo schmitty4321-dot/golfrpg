@@ -52,6 +52,20 @@ export const REALISM_ANCHORS = {
   tenSeasons: { label: "Rookies with 10+ full seasons", real: 33, tolerance: 12, unit: "%", source: "Data Golf careers, as above" },
   tierStarPlus: { label: "Rookies who become stars or legends", real: 12, tolerance: 7, unit: "%", source: "Data Golf careers: peak 2-season SG +1.25 or better, or 5+ wins" },
   tierAverage: { label: "Rookies who peak as average tour pros or better", real: 46, tolerance: 15, unit: "%", source: "Data Golf careers: peak 2-season SG 0 or better" },
+  leader54: { label: "54-hole leaders (incl. co-leaders) who win", real: 34, tolerance: 8, unit: "%", source: "Golf Channel: 34.6% over 15 seasons; Justin Ray: 33% over 5 seasons" },
+  margin: { label: "Average winning margin (playoffs count as 0)", real: 1.98, tolerance: 0.6, unit: "strokes", source: "PGA TOUR, 2022-23 Season by the Numbers: 1.98 strokes" },
+  playoffRate: { label: "Events decided in a playoff", real: 20, tolerance: 8, unit: "%", source: "PGA TOUR, 2022-23 Season by the Numbers: 10 playoffs in 51 stroke-play events" },
+  closeFinish: { label: "Events decided by one shot or fewer", real: 47, tolerance: 12, unit: "%", source: "PGA TOUR, 2022-23 Season by the Numbers: 24 of 51" },
+  winsTwenties: { label: "Wins by players in their 20s", real: 48, tolerance: 10, unit: "%", source: "PGA TOUR, 2022-23 Season by the Numbers: 225 of the last 472 wins (10 seasons)" },
+  winsForties: { label: "Wins by players 40 or older", real: 8, tolerance: 5, unit: "%", source: "PGA TOUR, 2022-23 Season by the Numbers: about 41 of 472 wins (10 seasons)" },
+  gir: { label: "Tour average: greens in regulation", real: 66.3, tolerance: 4, unit: "%", source: "PGA TOUR, 2022-23 Season by the Numbers" },
+  fairways: { label: "Tour average: fairways hit", real: 59.1, tolerance: 5, unit: "%", source: "PGA TOUR, 2022-23 Season by the Numbers" },
+  scrambling: { label: "Tour average: scrambling", real: 58.7, tolerance: 5, unit: "%", source: "PGA TOUR, 2022-23 Season by the Numbers" },
+  sandSaves: { label: "Tour average: sand saves", real: 49.6, tolerance: 6, unit: "%", source: "PGA TOUR, 2022-23 Season by the Numbers" },
+  putts: { label: "Tour average: putts per round", real: 29.02, tolerance: 0.6, unit: "putts", source: "PGA TOUR, 2022-23 Season by the Numbers" },
+  birdies: { label: "Tour average: birdies or better per round", real: 3.72, tolerance: 0.4, unit: "per rd", source: "PGA TOUR, 2022-23 Season by the Numbers" },
+  bogeys: { label: "Tour average: bogeys or worse per round", real: 2.59, tolerance: 0.4, unit: "per rd", source: "PGA TOUR, 2022-23 Season by the Numbers (bogey average)" },
+  drive: { label: "Tour average: driving distance (all drives)", real: 291.9, tolerance: 10, unit: "yards", source: "PGA TOUR, 2022-23 Season by the Numbers" },
 } satisfies Record<string, Anchor>;
 
 export type MetricKey = keyof typeof REALISM_ANCHORS;
@@ -91,6 +105,14 @@ export function measureRealism(world: World, seasons: number): RealismMetrics {
   const winners: number[] = [];
   const winningToPar: number[] = [];
   const winnerSg: number[] = [];
+  let leaderInstances = 0;
+  let leaderWins = 0;
+  const margins: number[] = [];
+  let playoffs = 0;
+  let events = 0;
+  let close = 0;
+  const winnerAges: number[] = [];
+  const shots = { holes: 0, gir: 0, fa: 0, fh: 0, sa: 0, sc: 0, bunk: 0, ss: 0, putts: 0, birdies: 0, bogeys: 0, drives: 0, yards: 0 };
   const ageDeltas = new Map<MetricKey, number[]>();
   const lines = new Map<string, (SeasonLine & { current: boolean })[]>();
   const firstSeason = world.season;
@@ -119,11 +141,45 @@ export function measureRealism(world: World, seasons: number): RealismMetrics {
         won.add(w.player.id);
         winningToPar.push(w.toPar);
         winnerSg.push(w.sgPerRound);
+        events++;
+        winnerAges.push(world.players[w.player.id]?.player.age ?? w.player.age);
+        // Who led after 54 holes, and did one of them win?
+        const thru54 = board.filter((e) => e.rounds.length >= 4).map((e) => ({ id: e.player.id, s: e.rounds[0]! + e.rounds[1]! + e.rounds[2]! }));
+        if (thru54.length) {
+          const best = Math.min(...thru54.map((e) => e.s));
+          const leaders = thru54.filter((e) => e.s === best);
+          leaderInstances += leaders.length;
+          if (leaders.some((e) => e.id === w.player.id)) leaderWins++;
+        }
+        const playoff = x.result.playoff !== null;
+        if (playoff) playoffs++;
+        const margin = playoff ? 0 : (board[1]?.total ?? w.total) - w.total;
+        margins.push(margin);
+        if (margin <= 1) close++;
       }
     }
     winners.push(won.size);
     const v = seasonVsReal(world);
     if (v !== null) vsReal.push(v);
+    // Tour-wide shot stats, from everyone's main-tour rounds.
+    for (const wp of Object.values(world.players)) {
+      const st = wp.career.stats;
+      if (!st || st.season !== world.season || st.rounds === 0) continue;
+      const x = st.shots;
+      shots.holes += x.holes;
+      shots.gir += x.gir;
+      shots.fa += x.fairwayAttempts;
+      shots.fh += x.fairwaysHit;
+      shots.sa += x.scrambleAttempts;
+      shots.sc += x.scrambles;
+      shots.bunk += x.sandAttempts;
+      shots.ss += x.sandSaves;
+      shots.putts += x.putts;
+      shots.birdies += x.birdies + x.eagles;
+      shots.bogeys += x.bogeys + x.doublesOrWorse;
+      shots.drives += x.drives;
+      shots.yards += x.driveYards;
+    }
     // Skill spread between regulars (40+ main-tour rounds), by category.
     for (const wp of Object.values(world.players)) {
       const st = wp.career.stats;
@@ -151,6 +207,21 @@ export function measureRealism(world: World, seasons: number): RealismMetrics {
   values.spreadAroundGreen = sd(spreads.aroundTheGreen);
   values.spreadPutting = sd(spreads.putting);
   values.fieldVsReal = mean(vsReal);
+  values.leader54 = leaderInstances ? (100 * leaderWins) / leaderInstances : NaN;
+  values.margin = mean(margins);
+  values.playoffRate = events ? (100 * playoffs) / events : NaN;
+  values.closeFinish = events ? (100 * close) / events : NaN;
+  values.winsTwenties = winnerAges.length ? (100 * winnerAges.filter((a) => a >= 20 && a <= 29).length) / winnerAges.length : NaN;
+  values.winsForties = winnerAges.length ? (100 * winnerAges.filter((a) => a >= 40).length) / winnerAges.length : NaN;
+  const rounds = shots.holes / 18;
+  values.gir = (100 * shots.gir) / shots.holes;
+  values.fairways = (100 * shots.fh) / shots.fa;
+  values.scrambling = (100 * shots.sc) / shots.sa;
+  values.sandSaves = (100 * shots.ss) / shots.bunk;
+  values.putts = shots.putts / rounds;
+  values.birdies = shots.birdies / rounds;
+  values.bogeys = shots.bogeys / rounds;
+  values.drive = shots.yards / shots.drives;
   for (const [key] of AGE_BANDS) {
     const xs = ageDeltas.get(key) ?? [];
     if (xs.length >= 20) values[key] = mean(xs);
@@ -189,7 +260,7 @@ export function measureRealism(world: World, seasons: number): RealismMetrics {
     values,
     info: {
       "Distinct winners per season": mean(winners),
-      "Average winning score to par": mean(winningToPar),
+      "Average winning score to par (real: -16.6 in 2017-18, lower since)": mean(winningToPar),
       "Winner's strokes gained per round": mean(winnerSg),
     },
   };

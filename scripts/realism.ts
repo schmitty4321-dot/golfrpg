@@ -14,7 +14,8 @@ const world = createWorld({ seed, scenario: "rookie", style });
 const metrics = measureRealism(world, seasons);
 const rows = compareToAnchors(metrics);
 
-const fmt = (v: number | null, unit: string) => (v === null ? "  (needs a longer run)" : `${v >= 0 && unit !== "%" && unit !== "strokes" ? "+" : ""}${v.toFixed(unit === "%" ? 0 : 2)}${unit === "%" ? "%" : ""}`);
+const plain = new Set(["%", "strokes", "putts", "per rd", "yards"]);
+const fmt = (v: number | null, unit: string) => (v === null ? "  (needs a longer run)" : `${v >= 0 && !plain.has(unit) ? "+" : ""}${v.toFixed(unit === "%" || unit === "yards" ? (unit === "%" ? 0 : 1) : 2)}${unit === "%" ? "%" : ""}`);
 console.log(`Realism report (${style}): seed ${seed}, ${seasons} seasons (${Math.round((Date.now() - started) / 1000)}s)\n`);
 console.log(`${"".padEnd(2)}${"Measure".padEnd(52)}${"Sim".padStart(12)}${"Real".padStart(10)}  Unit`);
 for (const r of rows) {
