@@ -1,5 +1,7 @@
 import { closeSeasonStats } from "./stats";
 import {
+  APPLIED_SKEW,
+  ATTRIBUTE_GROUPS,
   COURSES,
   clamp,
   createRng,
@@ -191,7 +193,7 @@ export function createWorld(opts: CreateWorldOptions): World {
   world.agency.scouts = generateScouts(opts.seed);
   // The warm-up season brought in new amateurs and walk-ons: their names are taken too.
   for (const wp of Object.values(world.players)) usedNames.add(wp.player.name);
-  const client = createClient(rng, opts.scenario, usedNames);
+  const client = createClient(rng, opts.scenario, usedNames, createRng(mixSeed(opts.seed, 23)));
   client.client = newManagement(world.season, STANDARD_COMMISSION, 3);
   world.players[client.player.id] = client;
   world.clientIds = [client.player.id];
@@ -207,11 +209,17 @@ function prefixIds(players: Player[], prefix: string): void {
   players.forEach((p, i) => (p.id = `${prefix}${i + 1}`));
 }
 
-function createClient(rng: Rng, scenario: Scenario, usedNames: Set<string>): WorldPlayer {
-  const make = (tier: PlayerTier, age: number, status: TourStatus, boost = 0, room = 0): WorldPlayer => {
+function createClient(rng: Rng, scenario: Scenario, usedNames: Set<string>, shapeRng: Rng): WorldPlayer {
+  const make = (tier: PlayerTier, age: number, status: TourStatus, boost = 0, room = 0, shape?: (p: Player) => void): WorldPlayer => {
     const p = generatePlayer(rng, { tier, usedNames, nationality: "USA" });
-    for (const k of Object.keys(p.attributes) as (keyof Player["attributes"])[]) {
-      p.attributes[k] = Math.max(1, Math.min(20, p.attributes[k] + boost));
+    // His ceiling comes from the player as drawn (with any boost), before reshaping.
+    let before = overall(p) + boost;
+    if (shape) shape(p);
+    else {
+      for (const k of Object.keys(p.attributes) as (keyof Player["attributes"])[]) {
+        p.attributes[k] = Math.max(1, Math.min(20, p.attributes[k] + boost));
+      }
+      before = overall(p);
     }
     p.id = "client";
     p.age = age;
@@ -219,14 +227,14 @@ function createClient(rng: Rng, scenario: Scenario, usedNames: Set<string>): Wor
     p.condition = 95;
     const wp = makeWorldPlayer(p, status, rng);
     // How much he can still grow, by scenario (hidden from the player).
-    wp.development.potential = Math.round(Math.min(18.5, overall(p) + room + clamp(rng.normal(0, 0.5), -0.5, 0.5)) * 10) / 10;
+    wp.development.potential = Math.round(Math.min(18.5, before + room + clamp(rng.normal(0, 0.5), -0.5, 0.5)) * 10) / 10;
     wp.targetEvents = 27;
     return wp;
   };
   switch (scenario) {
     // Pitched so each start is a fight for a card, not a cruise.
     case "rookie":
-      return make("fringe", 23, "graduate", 1, 2);
+      return make("fringe", 23, "graduate", 1, 2, (p) => shapeRookie(p, shapeRng));
     case "journeyman":
       return make("fringe", 32, "conditional", 0, 0.3);
     case "grinder":
@@ -240,6 +248,32 @@ function createClient(rng: Rng, scenario: Scenario, usedNames: Set<string>): Wor
       return wp;
     }
   }
+}
+
+const GOLF_SKILLS = [...ATTRIBUTE_GROUPS.longGame, ...ATTRIBUTE_GROUPS.approach, ...ATTRIBUTE_GROUPS.shortGame, ...ATTRIBUTE_GROUPS.putting];
+const ROOKIE_MENTAL = ATTRIBUTE_GROUPS.mental.filter((k) => k !== "aggression");
+
+/**
+ * A developmental-tour graduate: one real strength (14-16), two or three
+ * clear weaknesses (7-9), the rest 10-12, and an unproven head (8-11).
+ * About 3.5-4 points of overall behind the world's top 20, so early weeks
+ * are won by scheduling and strategy. His archetype picks where the
+ * strength and weaknesses fall; a separate RNG keeps the rest of the world unchanged.
+ */
+export function shapeRookie(p: Player, rng: Rng): void {
+  const a = p.attributes;
+  const skew: Partial<Record<string, number>> = p.archetype ? APPLIED_SKEW[p.archetype] : {};
+  const strong = GOLF_SKILLS.filter((k) => (skew[k] ?? 0) > 0);
+  const specialty = rng.pick(strong.length ? strong : GOLF_SKILLS);
+  // Weaknesses: his archetype's weak spots first, then whatever he's worst at.
+  const others = GOLF_SKILLS.filter((k) => k !== specialty).sort((x, y) => (skew[x] ?? 0) - (skew[y] ?? 0) || a[x] - a[y]);
+  const weak = new Set(others.slice(0, rng.int(2, 3)));
+  const rest = others.filter((k) => !weak.has(k));
+  const mid = [...rest].map((k) => a[k]).sort((x, y) => x - y)[Math.floor(rest.length / 2)]!;
+  for (const k of rest) a[k] = clamp(Math.round(11 + (a[k] - mid) / 2), 10, 12);
+  for (const k of weak) a[k] = rng.int(7, 9);
+  a[specialty] = rng.int(14, 16);
+  for (const k of ROOKIE_MENTAL) a[k] = clamp(Math.round(a[k] - 2.5), 8, 11);
 }
 
 /**
