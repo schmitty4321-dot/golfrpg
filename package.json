@@ -13,6 +13,7 @@
     "calibrate": "tsx scripts/calibrate.ts",
     "demo": "tsx scripts/demo.ts",
     "worldcheck": "tsx scripts/worldcheck.ts",
+    "realism": "tsx scripts/realism.ts",
     "art:calibrate": "node --experimental-strip-types scripts/art/calibrateIllustration.ts"
   },
   "devDependencies": {
