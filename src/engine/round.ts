@@ -26,8 +26,8 @@ export const DAY_SD: StrokesGained = { offTheTee: 0.38, approach: 0.57, aroundTh
 export const WEEK_SD = 0.4;
 /** Leftover hole-to-hole luck (bounces, lip-outs) not tied to a category. */
 export const HOLE_SD = 0.35;
-/** Strokes a hole added for a final-round leader (or one behind): about a quarter of a shot a round. */
-export const LEADER_BURDEN = 0.03;
+/** Strokes a hole added for a final-round leader (or one behind): about 0.8 a round. Data Golf: leaders play 0.44 below expectation. */
+export const LEADER_BURDEN = 0.045;
 /** Extra hole-to-hole spread in the final round for everyone in contention. */
 export const SUNDAY_SPREAD = 1.15;
 
@@ -57,9 +57,28 @@ export function holeBaseline(hole: Hole, course: Course, weather: RoundWeather):
   return mean;
 }
 
-/** Strokes added by wind on one hole for a tour-average player. */
-export const windPenalty = (hole: Hole, windMph: number): number =>
-  hole.exposure * 0.06 * Math.pow(Math.max(0, windMph) / 10, 1.6);
+/**
+ * Strokes added by wind on one hole for a tour-average player. Tuned so a field
+ * scores about 0.75 a round higher in 10-15 mph than in calm, and 1.5-3 higher
+ * in 20+ mph (PGA TOUR wind trends, golfweatherscore.com).
+ */
+export const WIND_STROKES = 0.15;
+export const WIND_POWER = 1.25;
+const windStrokes = (hole: Hole, windMph: number): number => hole.exposure * WIND_STROKES * Math.pow(Math.max(0, windMph) / 10, WIND_POWER);
+/**
+ * Wind's effect against the course's typical day: real hole averages already
+ * include a normal day's breeze there, so a calm day plays easier than them
+ * and a windy one harder.
+ */
+export const windPenalty = (hole: Hole, windMph: number, typicalMph = 0): number =>
+  fittedTypicalWind(hole, typicalMph) + windStrokes(hole, windMph) - windStrokes(hole, typicalMph);
+/**
+ * The real courses' hole difficulty was fitted (scripts/fitRealCourses.ts) with the old wind
+ * curve, which charged a typical day this much; keep it so they still play to their averages.
+ */
+const fittedTypicalWind = (hole: Hole, typicalMph: number): number => hole.exposure * 0.06 * Math.pow(Math.max(0, typicalMph) / 10, 1.6);
+/** A course's usual wind (see drawWeather): its windiness, plus the afternoon's extra breeze. */
+export const typicalWind = (course: Course): number => course.windiness * 18 + 1.25;
 
 /** How strongly wind affects this player: 1 = average, lower is better. */
 export function windMultiplier(player: Player): number {
@@ -168,7 +187,7 @@ export function playHole({ ctx, hole, dayForm, teeShotHoles, state, mod }: HoleI
   // His bag: wide-soled wedges in the sand, a long driver on tight holes.
   const bag = equipmentHole(player, hole.par > 3 ? hole.fairwayWidth : 0, hole.bunkers * 0.008);
   mean += bag.mean;
-  mean += windPenalty(hole, weather.windMph[wave]) * windMultiplier(player) * t.wind;
+  mean += windPenalty(hole, weather.windMph[wave], typicalWind(course)) * windMultiplier(player) * t.wind;
 
   // Today's category form, spread over the holes where it applies.
   if (hole.par > 3) mean -= dayForm.offTheTee / teeShotHoles;

@@ -45,8 +45,10 @@ export function courseDemands(course: Course): CourseDemands {
 export const APPROACH_SCALE = 1.6;
 
 const W = {
-  drivingDistance: 0.055,
-  drivingAccuracy: 0.04,
+  // Data Golf: 10 more yards off the tee is worth about half a stroke a round (it shortens
+  // every approach), and distance counts for more than accuracy.
+  drivingDistance: 0.15,
+  drivingAccuracy: 0.025,
   fairwayWoods: 0.015,
   midIrons: 0.045 * APPROACH_SCALE,
   wedges: 0.03 * APPROACH_SCALE,

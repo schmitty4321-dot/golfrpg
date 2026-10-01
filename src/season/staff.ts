@@ -160,7 +160,8 @@ const INJURIES: [string, number, number][] = [
 
 /** Weekly injury chance for a player who competed (training alone is much safer). */
 export function injuryChance(wp: WorldPlayer, competed: boolean, intensityRisk: number, fitnessQuality: number): number {
-  const base = competed ? 0.004 : 0.001;
+  // About one start in a hundred ends in an injury (real withdrawals: 1.8% of starts, all causes).
+  const base = competed ? 0.009 : 0.002;
   const prone = wp.player.attributes.injuryProneness / 10;
   const tired = wp.player.condition < 60 ? 2 : 1;
   const fit = clamp(1 - (fitnessQuality - 4) / 40, 0.6, 1.1);

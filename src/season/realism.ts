@@ -4,10 +4,11 @@
  * shows whether it made the game more or less like the PGA TOUR.
  *
  * Strokes gained are per round against the field. One point of overall
- * rating is about 0.57 strokes a round (measured in this engine after the
- * approach rescale, 2026-10-01), so Data Golf's strokes convert to ratings at
- * about 1.76 points per stroke.
+ * rating is about 0.66 strokes a round on the real courses (measured after the
+ * approach and distance rescales, 2026-10-01), so Data Golf's strokes convert
+ * to ratings at about 1.52 points per stroke.
  */
+import { ALL_ATTRIBUTES, YARDS_PER_POINT, expectedStrokesGained, totalSg } from "../engine";
 import { careerLines } from "./charts";
 import { seasonVsReal } from "./courseSetup";
 import { overall } from "./development";
@@ -16,7 +17,7 @@ import { seasonWeeks } from "./calendar";
 import { playWeek } from "./week";
 import type { SeasonLine, World } from "./types";
 
-const RATING_PER_STROKE = 1 / 0.568;
+const RATING_PER_STROKE = 1 / 0.66;
 
 export interface Anchor {
   label: string;
@@ -41,12 +42,12 @@ export const REALISM_ANCHORS = {
   spreadAroundGreen: { label: "Skill spread between players: around the green", real: 0.16, tolerance: 0.1, unit: "strokes/rd", source: "Data Golf skill-profile standard deviation, SG around the green" },
   spreadPutting: { label: "Skill spread between players: putting", real: 0.24, tolerance: 0.12, unit: "strokes/rd", source: "Data Golf skill-profile standard deviation, SG putting" },
   fieldVsReal: { label: "Field scoring vs real hole averages", real: 0, tolerance: 0.3, unit: "strokes/rd", source: "Real hole averages from the PGA TOUR courses in this game (realHoles.json)" },
-  age23to25: { label: "Change a year, ages 23-25 (card holders)", real: 0.17, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, 98 players' strokes gained by age (2026): mean change from each age in the band to the next, converted" },
-  age26to28: { label: "Change a year, ages 26-28", real: 0.07, tolerance: 0.2, unit: "overall/yr", source: "Data Golf profiles, as above" },
-  age29to31: { label: "Change a year, ages 29-31", real: -0.11, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, as above" },
-  age32to34: { label: "Change a year, ages 32-34", real: -0.16, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, as above" },
-  age35to37: { label: "Change a year, ages 35-37", real: -0.2, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, as above" },
-  age38to41: { label: "Change a year, ages 38-41", real: -0.24, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, as above" },
+  age23to25: { label: "Change a year, ages 23-25 (card holders)", real: 0.15, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, 98 players' strokes gained by age (2026): mean change from each age in the band to the next, converted" },
+  age26to28: { label: "Change a year, ages 26-28", real: 0.06, tolerance: 0.2, unit: "overall/yr", source: "Data Golf profiles, as above" },
+  age29to31: { label: "Change a year, ages 29-31", real: -0.09, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, as above" },
+  age32to34: { label: "Change a year, ages 32-34", real: -0.14, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, as above" },
+  age35to37: { label: "Change a year, ages 35-37", real: -0.17, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, as above" },
+  age38to41: { label: "Change a year, ages 38-41", real: -0.21, tolerance: 0.15, unit: "overall/yr", source: "Data Golf profiles, as above" },
   neverWin: { label: "Rookies who never win", real: 65, tolerance: 12, unit: "%", source: "Data Golf careers: 205 PGA TOUR rookies, 1990-2014 debuts" },
   bustTwoSeasons: { label: "Rookies with 2 or fewer full seasons", real: 31, tolerance: 12, unit: "%", source: "Data Golf careers, as above (players with 25+ starts; the true rate is higher)" },
   tenSeasons: { label: "Rookies with 10+ full seasons", real: 33, tolerance: 12, unit: "%", source: "Data Golf careers, as above" },
@@ -66,6 +67,11 @@ export const REALISM_ANCHORS = {
   birdies: { label: "Tour average: birdies or better per round", real: 3.72, tolerance: 0.4, unit: "per rd", source: "PGA TOUR, 2022-23 Season by the Numbers" },
   bogeys: { label: "Tour average: bogeys or worse per round", real: 2.59, tolerance: 0.4, unit: "per rd", source: "PGA TOUR, 2022-23 Season by the Numbers (bogey average)" },
   drive: { label: "Tour average: driving distance (all drives)", real: 291.9, tolerance: 10, unit: "yards", source: "PGA TOUR, 2022-23 Season by the Numbers" },
+  wind10: { label: "Extra strokes a round in 10-15 mph wind (vs calm)", real: 0.75, tolerance: 0.5, unit: "strokes", source: "golfweatherscore.com, PGA TOUR wind trends: +0.5 to +1.0" },
+  wind20: { label: "Extra strokes a round in 20+ mph wind (vs calm)", real: 2.25, tolerance: 1, unit: "strokes", source: "golfweatherscore.com, PGA TOUR wind trends: +1.5 to +3.0" },
+  distance10: { label: "Worth of 10 more yards off the tee", real: 0.5, tolerance: 0.2, unit: "strokes/rd", source: "Data Golf, How much is 10 yards worth?: about 0.5 strokes a round" },
+  leaderFinal: { label: "Final-round leaders vs expectation", real: -0.44, tolerance: 0.3, unit: "strokes", source: "Data Golf, Pressure and Performance: -0.44 a round" },
+  withdrawals: { label: "Injuries per 100 starts (real: all withdrawals 1.8)", real: 1.0, tolerance: 0.6, unit: "per 100", source: "Golf Digest: 2,100 WDs, 1.8% of starts 2015-24, all causes; injuries taken as about half" },
 } satisfies Record<string, Anchor>;
 
 export type MetricKey = keyof typeof REALISM_ANCHORS;
@@ -112,6 +118,10 @@ export function measureRealism(world: World, seasons: number): RealismMetrics {
   let events = 0;
   let close = 0;
   const winnerAges: number[] = [];
+  const windRounds: { wind: number; excess: number }[] = [];
+  const leaderFinals: number[] = [];
+  let starts = 0;
+  let injuries = 0;
   const shots = { holes: 0, gir: 0, fa: 0, fh: 0, sa: 0, sc: 0, bunk: 0, ss: 0, putts: 0, birdies: 0, bogeys: 0, drives: 0, yards: 0 };
   const ageDeltas = new Map<MetricKey, number[]>();
   const lines = new Map<string, (SeasonLine & { current: boolean })[]>();
@@ -127,7 +137,14 @@ export function measureRealism(world: World, seasons: number): RealismMetrics {
     );
     const won = new Set<string>();
     while (world.week <= seasonWeeks(world)) {
+      const hurtBefore = new Set(Object.values(world.players).filter((wp) => wp.injury).map((wp) => wp.player.id));
       const report = playWeek(world);
+      for (const x of report.results) {
+        for (const id of x.field.field) {
+          starts++;
+          if (world.players[id]?.injury && !hurtBefore.has(id)) injuries++;
+        }
+      }
       for (const x of report.results) {
         if (x.event.tier === "dev") continue;
         const board = x.result.leaderboard;
@@ -137,6 +154,13 @@ export function measureRealism(world: World, seasons: number): RealismMetrics {
           const field = mean(scores);
           for (const e of board) if (e.rounds.length > r) (roundSg.get(e.player.id) ?? roundSg.set(e.player.id, []).get(e.player.id)!).push(field - e.rounds[r]!);
         }
+        // Wind: each round's field average against the event's own average, by the day's wind.
+        const fieldAvg: number[] = [];
+        for (let r = 0; r < rounds; r++) fieldAvg.push(mean(board.filter((e) => e.rounds.length > r).map((e) => e.rounds[r]!)));
+        const eventAvg = mean(fieldAvg);
+        x.result.weather.forEach((wx, r) => {
+          if (r < fieldAvg.length) windRounds.push({ wind: (wx.windMph.AM + wx.windMph.PM) / 2, excess: fieldAvg[r]! - eventAvg });
+        });
         const w = board[0]!;
         won.add(w.player.id);
         winningToPar.push(w.toPar);
@@ -150,6 +174,13 @@ export function measureRealism(world: World, seasons: number): RealismMetrics {
           const leaders = thru54.filter((e) => e.s === best);
           leaderInstances += leaders.length;
           if (leaders.some((e) => e.id === w.player.id)) leaderWins++;
+          // Their final round against what their level says they'd gain on the field.
+          const r4 = mean(board.filter((e) => e.rounds.length >= 4).map((e) => e.rounds[3]!));
+          for (const l of leaders) {
+            const e = board.find((b) => b.player.id === l.id)!;
+            const lp = world.players[l.id];
+            if (lp) leaderFinals.push(r4 - e.rounds[3]! - (overall(lp.player) - 12) / RATING_PER_STROKE);
+          }
         }
         const playoff = x.result.playoff !== null;
         if (playoff) playoffs++;
@@ -222,6 +253,14 @@ export function measureRealism(world: World, seasons: number): RealismMetrics {
   values.birdies = shots.birdies / rounds;
   values.bogeys = shots.bogeys / rounds;
   values.drive = shots.yards / shots.drives;
+  const calm = windRounds.filter((r) => r.wind < 8).map((r) => r.excess);
+  const mid = windRounds.filter((r) => r.wind >= 10 && r.wind <= 15).map((r) => r.excess);
+  const big = windRounds.filter((r) => r.wind >= 20).map((r) => r.excess);
+  if (calm.length >= 10 && mid.length >= 10) values.wind10 = mean(mid) - mean(calm);
+  if (calm.length >= 10 && big.length >= 5) values.wind20 = mean(big) - mean(calm);
+  values.distance10 = distanceValue(world);
+  values.leaderFinal = mean(leaderFinals);
+  values.withdrawals = starts ? (100 * injuries) / starts : NaN;
   for (const [key] of AGE_BANDS) {
     const xs = ageDeltas.get(key) ?? [];
     if (xs.length >= 20) values[key] = mean(xs);
@@ -294,3 +333,18 @@ export function compareToAnchors(m: RealismMetrics): RealismRow[] {
 }
 
 export { RATING_PER_STROKE };
+
+/**
+ * What 10 more yards off the tee are worth, strokes a round, averaged over the
+ * tour's courses: a tour-average player against the same player hitting it
+ * 10 yards further (YARDS_PER_POINT yards a rating point).
+ */
+export function distanceValue(world: World): number {
+  const base = { id: "dist", name: "dist", nationality: "USA", age: 28, peakAge: 28, form: 0, condition: 95, grassPreference: "bermuda", styleComfort: { links: 12, parkland: 12, desert: 12, resort: 12 } } as unknown as import("../engine").Player;
+  const flat = Object.fromEntries(ALL_ATTRIBUTES.map((k) => [k, 12])) as import("../engine").Player["attributes"];
+  const longer = { ...flat, drivingDistance: 14 };
+  let gain = 0;
+  for (const c of world.courses) gain += totalSg(expectedStrokesGained({ ...base, attributes: longer }, c)) - totalSg(expectedStrokesGained({ ...base, attributes: flat }, c));
+  // Two points is 2 x YARDS_PER_POINT yards.
+  return ((gain / world.courses.length) * 10) / (2 * YARDS_PER_POINT);
+}

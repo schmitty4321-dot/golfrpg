@@ -394,6 +394,9 @@ export interface TraceInput {
 }
 
 /** The shots behind a hole score. The strokes (shots plus penalties) always equal the score. */
+/** Yards of drive per point of driving distance: tour regulars spread about 8 yards (Data Golf skill profiles). */
+export const YARDS_PER_POINT = 4.2;
+
 export function traceHole({ course, hole, score, player, windMph = 0, seed, call, round }: TraceInput): HoleTrace {
   const layout = holeLayout(course, hole, round);
   const rng = createRng(seed);
@@ -407,7 +410,7 @@ export function traceHole({ course, hole, score, player, windMph = 0, seed, call
   }
   // Going for a par 5 in two and missing (then chipping) scores the same as laying up and pitching on:
   // aggressive long hitters take that route more often.
-  const reach = hole.yards - (300 + (a.drivingDistance - TOUR_AVERAGE) * 6);
+  const reach = hole.yards - (300 + (a.drivingDistance - TOUR_AVERAGE) * YARDS_PER_POINT);
   if (hole.par === 5 && plan.long === 3 && plan.recoveries === 0 && plan.penalties === 0 && reach < 270) {
     const natural = (habits.strategy === "aggressive" ? 0.95 : habits.strategy === "conservative" ? 0.35 : 0.7) * (reach < 240 ? 1 : 0.6);
     const goChance = call?.second === "go" ? 1 : call?.second === "layup" ? 0 : natural;
@@ -499,7 +502,7 @@ export function traceHole({ course, hole, score, player, windMph = 0, seed, call
   // ---- long shots
   // Every player has a favourite miss: some fight a slice, some a hook.
   const missSide = () => (rng.chance(habits.missRight) ? 1 : -1);
-  const driveLen = clamp(305 + (a.drivingDistance - TOUR_AVERAGE) * 6 + rng.normal(0, 9) - windMph * 0.6, 230, 345);
+  const driveLen = clamp(305 + (a.drivingDistance - TOUR_AVERAGE) * YARDS_PER_POINT + rng.normal(0, 9) - windMph * 0.6, 230, 345);
   // Fairways lead to greens: a hole where the approach finds the green was usually played from the short grass.
   const accurate = clamp(0.62 + (a.drivingAccuracy - TOUR_AVERAGE) * 0.03 + (plan.missGreen ? -0.25 : 0.12), 0.1, 0.95);
   const lastLong = plan.long;

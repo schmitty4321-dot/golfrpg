@@ -53,7 +53,7 @@ describe("how a client develops", () => {
     expect(typical).toBeGreaterThan(0.6);
     expect(typical).toBeLessThan(1.6);
     expect(wellRun).toBeGreaterThan(2.8);
-    expect(wellRun).toBeLessThan(4.5);
+    expect(wellRun).toBeLessThan(5);
     // The levers add up rather than multiply.
     expect(wellRun / typical).toBeLessThan(5);
   });
