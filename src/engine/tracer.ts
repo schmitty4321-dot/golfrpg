@@ -314,9 +314,11 @@ export function planHole(par: number, score: number, hazard: number, rng: Rng): 
   }
   if (d === -1) {
     if (par === 5 && rng.chance(0.35)) return plan({ long: 2, putts: 2 });
-    return rng.chance(0.85) ? plan({ putts: 1 }) : plan({ missGreen: true, chips: 1 });
+    // Chip-in birdies are rare (PGA TOUR, 2022-23: about seven hole-outs a player a season).
+    return rng.chance(0.96) ? plan({ putts: 1 }) : plan({ missGreen: true, chips: 1 });
   }
-  if (d === 0) return rng.chance(0.68) ? plan({ putts: 2 }) : plan({ missGreen: true, chips: 1, putts: 1 });
+  // About 70% of tour pars come with a green in regulation (66% GIR, 59% scrambling, 2022-23).
+  if (d === 0) return rng.chance(0.7) ? plan({ putts: 2 }) : plan({ missGreen: true, chips: 1, putts: 1 });
 
   // Bogey or worse: start from a way to make bogey, then add trouble.
   const options: [number, ShotPlan][] = [
@@ -474,7 +476,8 @@ export function traceHole({ course, hole, score, player, windMph = 0, seed, call
   const aroundGreen = (): { at: Pt; lie: Lie } => {
     const greenside = layout.bunkers.filter((b) => dist(b, layout.green) < layout.green.r + 12);
     // Greenside bunkers cost more shots than rough: they turn up more on the bogey holes.
-    const bunkerOdds = trace_scoreOver(score, hole.par) ? 0.55 : 0.25;
+    // Tuned so tour sand saves come out near the real 50% (PGA TOUR, 2022-23).
+    const bunkerOdds = trace_scoreOver(score, hole.par) ? 0.55 : 0.18;
     if (greenside.length && rng.chance(bunkerOdds)) {
       const b = rng.pick(greenside);
       return { at: { x: b.x + rng.normal(0, 1), y: b.y + rng.normal(0, 1) }, lie: "bunker" };
@@ -498,7 +501,7 @@ export function traceHole({ course, hole, score, player, windMph = 0, seed, call
   const missSide = () => (rng.chance(habits.missRight) ? 1 : -1);
   const driveLen = clamp(305 + (a.drivingDistance - TOUR_AVERAGE) * 6 + rng.normal(0, 9) - windMph * 0.6, 230, 345);
   // Fairways lead to greens: a hole where the approach finds the green was usually played from the short grass.
-  const accurate = clamp(0.66 + (a.drivingAccuracy - TOUR_AVERAGE) * 0.03 + (plan.missGreen ? -0.25 : 0.12), 0.1, 0.95);
+  const accurate = clamp(0.62 + (a.drivingAccuracy - TOUR_AVERAGE) * 0.03 + (plan.missGreen ? -0.25 : 0.12), 0.1, 0.95);
   const lastLong = plan.long;
   const finalLong = (club?: string) => {
     const from = cur;

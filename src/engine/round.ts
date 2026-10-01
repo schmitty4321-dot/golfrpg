@@ -26,6 +26,10 @@ export const DAY_SD: StrokesGained = { offTheTee: 0.38, approach: 0.57, aroundTh
 export const WEEK_SD = 0.4;
 /** Leftover hole-to-hole luck (bounces, lip-outs) not tied to a category. */
 export const HOLE_SD = 0.35;
+/** Strokes a hole added for a final-round leader (or one behind): about a quarter of a shot a round. */
+export const LEADER_BURDEN = 0.03;
+/** Extra hole-to-hole spread in the final round for everyone in contention. */
+export const SUNDAY_SPREAD = 1.15;
 
 /**
  * Expected score before blow-ups for a tour-average player on a standard
@@ -190,6 +194,14 @@ export function playHole({ ctx, hole, dayForm, teeShotHoles, state, mod }: HoleI
 
   let sd = HOLE_SD * (1 + (a.aggression - TOUR_AVERAGE) * 0.015) * (mod?.sd ?? 1) * t.sd * (ctx.event?.scatter ?? 1);
   if (pressure > 0) sd *= 1 + pressure * 3; // nervy players get wilder, not just worse
+  // Sunday with a lead is hard: real 54-hole leaders win only about a third of the time
+  // (Golf Channel, 34.6% over 15 seasons). The leader feels it; the chasers swing freely.
+  if (ctx.round === 4 && !ctx.playoff && ctx.shotsBehind !== null) {
+    if (ctx.shotsBehind <= 1) {
+      mean += LEADER_BURDEN;
+      sd *= SUNDAY_SPREAD;
+    } else if (ctx.shotsBehind <= 6) sd *= SUNDAY_SPREAD;
+  }
 
   // Big numbers: trouble on the hole, wind, and poor decisions.
   const blowupChance = clamp(

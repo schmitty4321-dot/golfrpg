@@ -8,7 +8,7 @@ import type { CourseStyle, Player } from "./types";
 export type PlayerTier = "elite" | "tour" | "fringe" | "college" | "junior" | "veteran";
 
 const TIERS: Record<PlayerTier, { talent: [number, number]; age: [number, number] }> = {
-  elite: { talent: [15.0, 1.0], age: [24, 36] },
+  elite: { talent: [14.6, 0.9], age: [24, 36] },
   tour: { talent: [12.3, 1.1], age: [23, 40] },
   fringe: { talent: [10.8, 1.0], age: [22, 38] },
   college: { talent: [9.5, 1.5], age: [18, 22] },
@@ -50,8 +50,9 @@ function uniqueName(rng: Rng, nation: { first: string[]; last: string[] }, used?
 
 export function generatePlayer(rng: Rng, opts: GenerateOptions): Player {
   const tier = TIERS[opts.tier];
-  // Capped so no generated player is untouchable: the very best are +3 a round, not +4.
-  const talent = Math.min(16.5, rng.normal(tier.talent[0], tier.talent[1]));
+  // Capped so no generated player is untouchable: the best are about +2.3 a round, as the real
+  // tour's best season was (PGA TOUR, 2022-23: Scheffler +2.31).
+  const talent = Math.min(16, rng.normal(tier.talent[0], tier.talent[1]));
   // The archetype is drawn here (one number, as before) and chosen once his age is known.
   const archetypeRoll = opts.archetype ? 0 : rng.next();
   // Weighted like the real tour's membership (one draw, as a plain pick was).
