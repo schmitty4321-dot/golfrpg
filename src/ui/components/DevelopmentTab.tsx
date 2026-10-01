@@ -1,8 +1,12 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { ATTRIBUTE_LABELS, type AttributeKey } from "../../engine";
 import {
   COACH_ROLES,
-  DEV_FUNDING,
+  DEAL_ASK,
+  dealBlock,
+  dealChance,
+  endDevelopmentDeal,
+  offerDevelopmentDeal,
   GOLF_SKILLS,
   RETAINER_WEEKS,
   ROLE_LABELS,
@@ -21,7 +25,8 @@ import {
   projectDevelopment,
   seasonChange,
   winterCost,
-  type DevFunding,
+  type DealShare,
+  type DealTerms,
   type Intensity,
   type Projection,
   type TrainingFocus,
@@ -143,14 +148,7 @@ export function DevelopmentTab({ world, game, wp, potential, known }: { world: W
 
         <section className="panel">
           <div className="panel-head"><h2>Budget</h2><span className="muted small">This season</span></div>
-          <div className="choice-grid dev-funding">
-            {DEV_FUNDING.map((f) => (
-              <button key={f.value} className="choice" aria-pressed={funding === f.value} onClick={() => set((w) => (w.players[id]!.client!.devFunding = f.value as DevFunding))}>
-                <strong>{f.label}</strong>
-                <span className="secondary small">{f.blurb}</span>
-              </button>
-            ))}
-          </div>
+          <DealPanel world={world} game={game} wp={wp} funding={funding} />
           <table className="dev-budget">
             <tbody>
               <tr><td>Coaches' retainers</td><td className="num">{money(cost.coaches)}</td></tr>
@@ -281,5 +279,57 @@ function OtherPlayer({ world, wp, potential, known }: { world: World; wp: WorldP
         </>
       )}
     </section>
+  );
+}
+
+/** Who pays: he does, or the agency funds part or all of it under a development deal. */
+function DealPanel({ world, game, wp, funding }: { world: World; game: Game; wp: WorldPlayer; funding: number }) {
+  const id = wp.player.id;
+  const deal = wp.client!.devDeal;
+  const [share, setShare] = useState<DealShare>(1);
+  const [terms, setTerms] = useState<DealTerms>("commission");
+  const [message, setMessage] = useState<string | null>(null);
+  if (deal) {
+    const back = deal.commissionSince - deal.funded;
+    return (
+      <div className="dev-deal">
+        <p style={{ marginTop: 0 }}>
+          <strong>Development deal since season {deal.since}:</strong> the agency pays {deal.share === 1 ? "all" : "half"} of it,
+          in return for {deal.terms === "commission" ? "a higher commission" : "a longer contract"}.
+        </p>
+        <p className="small">
+          Funded so far {money(deal.funded)} · commission from him since {money(deal.commissionSince)} ·{" "}
+          <span className={back >= 0 ? "good-text" : "bad-text"}>{back >= 0 ? "ahead" : "behind"} by {money(Math.abs(back))}</span>
+        </p>
+        <button className="btn" onClick={() => game.act((w) => endDevelopmentDeal(w, id))}>Stop funding him</button>
+      </div>
+    );
+  }
+  const block = dealBlock(world, id);
+  const chance = block ? 0 : dealChance(world, id, { share, terms });
+  const ask = terms === "commission" ? `+${(DEAL_ASK.commission[share] * 100).toFixed(1)} points of commission` : `+${DEAL_ASK.years[share]} season${DEAL_ASK.years[share] === 1 ? "" : "s"} on his contract`;
+  return (
+    <div className="dev-deal">
+      <p className="small" style={{ marginTop: 0 }}>{funding ? "" : "He pays for his own development. "}Offer a development deal: the agency funds it, and asks for something back.</p>
+      <div className="dev-form">
+        <label>
+          <span>The agency pays</span>
+          <select value={share} onChange={(e) => setShare(Number(e.target.value) as DealShare)}>
+            <option value={0.5}>Half</option>
+            <option value={1}>All of it</option>
+          </select>
+        </label>
+        <label>
+          <span>In return</span>
+          <select value={terms} onChange={(e) => setTerms(e.target.value as DealTerms)}>
+            <option value="commission">Higher commission</option>
+            <option value="years">Longer contract</option>
+          </select>
+        </label>
+      </div>
+      <p className="small">You ask for {ask}. {block ?? `About ${Math.round(chance * 100)}% he says yes.`}</p>
+      <button className="btn btn-primary" disabled={!!block} onClick={() => game.act((w) => setMessage(offerDevelopmentDeal(w, id, { share, terms }).message))}>Offer the deal</button>
+      {message && <p className="small" role="status">{message}</p>}
+    </div>
   );
 }

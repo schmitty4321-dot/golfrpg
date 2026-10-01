@@ -176,6 +176,8 @@ export interface DevelopmentInputs {
   managed?: boolean;
   /** An off-season week, and what he's doing with it. */
   winter?: WinterProgram;
+  /** The agency's Performance Center: added to a client's budget. */
+  facility?: number;
 }
 
 /** The coach quality a computer player works with, by standing. */
@@ -235,7 +237,7 @@ export function developWeek(wp: WorldPlayer, inputs: DevelopmentInputs, rng: Rng
   const winter = inputs.winter ? WINTER[inputs.winter] : null;
   // A client's week apart from coaching: training load, range days, competing.
   const rangeDays = inputs.boost ? (inputs.boost.training - 1) / 0.15 : 0;
-  const managedWeek = MANAGED.intensity[inputs.plan.intensity] + MANAGED.perRangeDay * rangeDays + (inputs.competed && !winter ? MANAGED.competing : 0);
+  const managedWeek = MANAGED.intensity[inputs.plan.intensity] + MANAGED.perRangeDay * rangeDays + (inputs.competed && !winter ? MANAGED.competing : 0) + (inputs.facility ?? 0);
 
   for (const key of TRAINABLE) {
     if (FIXED.includes(key)) continue;

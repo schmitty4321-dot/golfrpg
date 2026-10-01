@@ -1,0 +1,149 @@
+/**
+ * The agency as a business beyond signing players: the Performance Center
+ * it can build for its clients, and development deals where it funds a
+ * client's coaching and camps in return for better terms.
+ */
+import { clamp, createRng } from "../engine";
+import { mixSeed } from "./entries";
+import { addReputation, clients } from "./agency";
+import { commissionWeight } from "./traits";
+import { absWeek, type World } from "./types";
+
+// ------------------------------------------------------------------ Performance Center
+
+export interface CenterTier {
+  name: string;
+  blurb: string;
+  /** What it costs to build this tier (from the one below). */
+  build: number;
+  /** Weekly upkeep in the season. */
+  upkeep: number;
+  /** Added to every client's development budget (see MANAGED in development.ts). */
+  growth: number;
+  /** Off the price of winter programs. */
+  campDiscount: number;
+  /** Reputation the agency needs before it can build it. */
+  reputation: number;
+}
+
+export const CENTER_TIERS: CenterTier[] = [
+  { name: "No center", blurb: "Clients train wherever their coaches are.", build: 0, upkeep: 0, growth: 0, campDiscount: 0, reputation: 0 },
+  { name: "Training base", blurb: "A range, a short-game area and a gym your clients can use year round.", build: 1_500_000, upkeep: 8_000, growth: 0.15, campDiscount: 0.25, reputation: 20 },
+  { name: "Academy", blurb: "Launch monitors, putting lab, full-time staff: winters here are cheaper and better.", build: 4_000_000, upkeep: 18_000, growth: 0.3, campDiscount: 0.4, reputation: 40 },
+  { name: "Elite institute", blurb: "A world-class campus. Players want to sign just to train here.", build: 9_000_000, upkeep: 35_000, growth: 0.5, campDiscount: 0.6, reputation: 60 },
+];
+
+export const centerTier = (world: World): CenterTier => CENTER_TIERS[world.agency.center ?? 0]!;
+
+/** Why the next tier can't be built yet, or null if it can. */
+export function centerBlock(world: World): string | null {
+  const next = CENTER_TIERS[(world.agency.center ?? 0) + 1];
+  if (!next) return "Your center is already the best there is.";
+  if (world.agency.reputation < next.reputation) return `Needs reputation ${next.reputation}.`;
+  if (world.agency.bank < next.build) return "Not enough in the bank.";
+  return null;
+}
+
+export function buildCenter(world: World): void {
+  const block = centerBlock(world);
+  if (block) throw new Error(block);
+  const tier = (world.agency.center ?? 0) + 1;
+  const next = CENTER_TIERS[tier]!;
+  world.agency.bank -= next.build;
+  world.agency.ledger.facility = (world.agency.ledger.facility ?? 0) + next.build;
+  world.agency.center = tier;
+  addReputation(world.agency, 2 * tier);
+  world.news.unshift(`${world.agency.name} opens its ${next.name.toLowerCase()}.`);
+}
+
+/** The week's upkeep, in the season. */
+export function payCenter(world: World): void {
+  const upkeep = centerTier(world).upkeep;
+  if (!upkeep) return;
+  world.agency.bank -= upkeep;
+  world.agency.ledger.facility = (world.agency.ledger.facility ?? 0) + upkeep;
+}
+
+// ------------------------------------------------------------------ development deals
+
+export type DealShare = 0.5 | 1;
+export type DealTerms = "commission" | "years";
+
+/** What the agency asks for in return. */
+export const DEAL_ASK: Record<DealTerms, Record<DealShare, number>> = {
+  /** Commission points added. */
+  commission: { 0.5: 0.015, 1: 0.03 },
+  /** Seasons added to the contract. */
+  years: { 0.5: 1, 1: 2 },
+};
+
+export interface DealOffer {
+  share: DealShare;
+  terms: DealTerms;
+}
+
+/** The chance he takes a development deal: he likes being invested in, not paying more for it. */
+export function dealChance(world: World, id: string, offer: DealOffer): number {
+  const wp = world.players[id]!;
+  const m = wp.client!;
+  const a = wp.player.attributes;
+  let score = m.happiness - 60 + offer.share * 12 + (a.ambition - 10) * 0.8;
+  if (offer.terms === "commission") score -= DEAL_ASK.commission[offer.share] * 100 * 3 * commissionWeight(wp);
+  else score += wp.player.age <= 25 ? 5 : wp.player.age >= 33 ? -8 : 0;
+  return clamp(1 / (1 + Math.exp(-score / 7)), 0.03, 0.97);
+}
+
+/** Why a deal can't be offered right now, or null. */
+export function dealBlock(world: World, id: string): string | null {
+  const m = world.players[id]?.client;
+  if (!m) return "He isn't your client.";
+  const until = world.agency.cooldowns[id];
+  if (until !== undefined && until > absWeek(world.season, world.week)) return "He's not ready to talk again yet.";
+  return null;
+}
+
+/** Offers the deal. On a yes the agency starts paying its share and the terms change. */
+export function offerDevelopmentDeal(world: World, id: string, offer: DealOffer): { accepted: boolean; chance: number; message: string } {
+  const block = dealBlock(world, id);
+  if (block) return { accepted: false, chance: 0, message: block };
+  const wp = world.players[id]!;
+  const m = wp.client!;
+  const chance = dealChance(world, id, offer);
+  const rng = createRng(mixSeed(world.seed, world.season, world.week, 700, Number(id.replace(/\D/g, "")) || 1));
+  if (!rng.chance(chance)) {
+    world.agency.cooldowns[id] = absWeek(world.season, world.week) + 4;
+    return { accepted: false, chance, message: `${wp.player.name} would rather keep things as they are.` };
+  }
+  if (offer.terms === "commission") m.contract = { ...m.contract, commission: Math.min(0.2, m.contract.commission + DEAL_ASK.commission[offer.share]) };
+  else m.contract = { ...m.contract, untilSeason: Math.min(world.season + 4, m.contract.untilSeason + DEAL_ASK.years[offer.share]) };
+  m.devFunding = offer.share;
+  m.devDeal = { share: offer.share, terms: offer.terms, since: world.season, funded: 0, commissionSince: 0 };
+  const what = offer.terms === "commission" ? `${Math.round(m.contract.commission * 100)}% commission` : `a contract to the end of season ${m.contract.untilSeason}`;
+  world.news.unshift(`${world.agency.name} will fund ${offer.share === 1 ? "all" : "half"} of ${wp.player.name}'s development (${what}).`);
+  return { accepted: true, chance, message: `${wp.player.name} agrees: you fund ${offer.share === 1 ? "all" : "half"} of his development, for ${what}.` };
+}
+
+/** Stops funding him. The terms he agreed stay; he takes it badly. */
+export function endDevelopmentDeal(world: World, id: string): void {
+  const wp = world.players[id];
+  const m = wp?.client;
+  if (!m) return;
+  m.devFunding = 0;
+  delete m.devDeal;
+  m.happiness = clamp(m.happiness - 8, 0, 100);
+  world.news.unshift(`${world.agency.name} stops paying for ${wp.player.name}'s development.`);
+}
+
+/** Keeps a deal's books: what the agency paid in and the commission it has had back. */
+export function recordDealFunding(world: World, id: string, agencyPaid: number): void {
+  const d = world.players[id]?.client?.devDeal;
+  if (d) d.funded += agencyPaid;
+}
+
+export function recordDealCommission(world: World, id: string, commission: number): void {
+  const d = world.players[id]?.client?.devDeal;
+  if (d) d.commissionSince += commission;
+}
+
+/** All clients on a deal, for the agency view. */
+export const dealClients = (world: World) => clients(world).filter((wp) => wp.client!.devDeal);

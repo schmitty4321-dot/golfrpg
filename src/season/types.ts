@@ -224,6 +224,8 @@ export interface ClientManagement {
   ownedEquipment?: string[];
   /** Share of his coaching and camps the agency pays (0, 0.5 or 1; older saves: 0). */
   devFunding?: 0 | 0.5 | 1;
+  /** A development deal: the agency funds his coaching and camps in return for better terms. */
+  devDeal?: DevDeal;
   /** This season's goals, agreed with him (see goals.ts), and the ones on offer. */
   goals?: SeasonGoal[];
   goalOffers?: SeasonGoal[];
@@ -276,6 +278,16 @@ export interface AgencyLedger {
   scouts: number;
   /** Development costs the agency funded for its clients. */
   development?: number;
+  /** Performance Center upkeep. */
+  facility?: number;
+  /** Interest on the credit line. */
+  interest?: number;
+  /** Agency staff wages. */
+  staff?: number;
+  /** Brand partnership fees received. */
+  brands?: number;
+  /** Agency events: takings less costs. */
+  events?: number;
 }
 
 export interface Agency {
@@ -294,6 +306,14 @@ export interface Agency {
   cooldowns: Record<string, number>;
   /** The agency's private jet: leased by the week, or owned. */
   jet?: "lease" | "own" | null;
+  /** The agency's Performance Center tier (0 = none). */
+  center?: number;
+  /** Headquarters tier (0 = the boutique office you start in). */
+  hq?: number;
+  /** Owed on the credit line. */
+  loan?: number;
+  /** Bank balance at the end of each week, for the finance chart. */
+  bankHistory?: { season: number; week: number; bank: number }[];
 }
 
 export type TravelClass = "economy" | "business" | "charter";
@@ -446,3 +466,14 @@ export interface World {
 }
 
 export const absWeek = (season: number, week: number): number => season * 52 + week;
+
+/** What the agency gave and got in a development deal. */
+export interface DevDeal {
+  share: 0.5 | 1;
+  terms: "commission" | "years";
+  since: number;
+  /** What the agency has paid towards his development under the deal. */
+  funded: number;
+  /** Commission earned from him since the deal began. */
+  commissionSince: number;
+}

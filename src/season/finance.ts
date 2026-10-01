@@ -5,6 +5,7 @@
  * all of it. The payoff is prize money: in this world each point of overall
  * roughly doubles a season's earnings, and the agency takes its commission.
  */
+import { centerTier, recordDealFunding } from "./business";
 import { clamp, createRng, traceSeed } from "../engine";
 import { COACH_ROLES, abilityView, coachFee, staffQuality } from "./staff";
 import { GOLF_SKILLS, developWeek, overall } from "./development";
@@ -40,6 +41,7 @@ export function chargeDevelopment(world: World, id: string, amount: number, kind
   if (agency > 0) {
     world.agency.bank -= agency;
     world.agency.ledger.development = (world.agency.ledger.development ?? 0) + agency;
+    recordDealFunding(world, id, agency);
   }
   if (kind === "coaching") m.finances.coaching += his;
   else m.finances.training = (m.finances.training ?? 0) + his;
@@ -52,10 +54,9 @@ export const coachesHired = (world: World, id: string): number =>
 /** A winter program's price: a camp scales with his swing coach, a fitness block with his trainer. */
 export function winterCost(world: World, id: string, program: WinterProgram): number {
   const q = staffQuality(world, id);
-  if (program === "camp") return 60_000 + clamp((q.swing ?? 8) - 8, 0, 12) * 10_000;
-  if (program === "fitness") return 40_000 + clamp((q.fitness ?? 8) - 8, 0, 8) * 5_000;
-  if (program === "rest") return 15_000;
-  return 0;
+  const base = program === "camp" ? 60_000 + clamp((q.swing ?? 8) - 8, 0, 12) * 10_000 : program === "fitness" ? 40_000 + clamp((q.fitness ?? 8) - 8, 0, 8) * 5_000 : program === "rest" ? 15_000 : 0;
+  // The agency's Performance Center hosts camps for less.
+  return program === "rest" ? base : Math.round((base * (1 - centerTier(world).campDiscount)) / 1_000) * 1_000;
 }
 
 /** Charges each client's winter program to the new season's books (call after the books are reset). */
@@ -165,6 +166,7 @@ export interface Projection {
 export function projectDevelopment(world: World, id: string, plan: DevPlan, runs = 3): Projection {
   const start = world.players[id]!;
   const ceiling = abilityView(world, id).potential;
+  const facility = centerTier(world).growth;
   const seasons = clamp(effectivePeak(start) - start.player.age + 1, 1, 8);
   const sums = Array<number>(seasons).fill(0);
   for (let run = 0; run < runs; run++) {
@@ -177,9 +179,9 @@ export function projectDevelopment(world: World, id: string, plan: DevPlan, runs
       for (let wk = 0; wk < 41; wk++) {
         const competed = Math.floor(((wk + 1) * events) / 41) > Math.floor((wk * events) / 41);
         const boost = plan.range ? { training: 1 + 0.15 * plan.range, fitness: 1 } : undefined;
-        developWeek(wp, { plan: { focus: plan.focus, intensity: plan.intensity }, coachQuality: plan.coachQuality, competed, managed: true, ...(boost ? { boost } : {}) }, rng);
+        developWeek(wp, { plan: { focus: plan.focus, intensity: plan.intensity }, coachQuality: plan.coachQuality, competed, managed: true, facility, ...(boost ? { boost } : {}) }, rng);
       }
-      for (let wk = 0; wk < 10; wk++) developWeek(wp, { plan: { focus: plan.focus, intensity: plan.intensity }, coachQuality: plan.coachQuality, competed: false, managed: true, winter: plan.winter }, rng);
+      for (let wk = 0; wk < 10; wk++) developWeek(wp, { plan: { focus: plan.focus, intensity: plan.intensity }, coachQuality: plan.coachQuality, competed: false, managed: true, winter: plan.winter, facility }, rng);
       wp.player.age++;
       sums[s]! += trueLevel(wp);
     }

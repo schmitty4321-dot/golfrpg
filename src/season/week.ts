@@ -1,3 +1,4 @@
+import { payCenter, recordDealCommission } from "./business";
 import { COACH_PRIZE_SHARE, chargeDevelopment, coachesHired } from "./finance";
 import { recordEventStats } from "./stats";
 import { clamp, createRng, expectedStrokesGained, simulateTournament, startLive, totalSg, type LiveTournament, type TournamentConfig, type TournamentResult } from "../engine";
@@ -265,6 +266,7 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
         m.finances.travel += Math.round(TRAVEL_COST[f.event.region] * mode.cost);
         const commission = Math.round(r.earnings * m.contract.commission);
         m.finances.commission += commission;
+        recordDealCommission(world, wp.player.id, commission);
         world.agency.bank += commission;
         world.agency.ledger.prizeCommission += commission;
         const bonus = sponsorBonus(wp, r.position, f.event.tier === "major");
@@ -345,6 +347,7 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
     world.agency.bank -= costs;
     world.agency.ledger.office += OFFICE_COST;
     world.agency.ledger.scouts += costs - OFFICE_COST;
+    payCenter(world);
   }
 
   world.news = world.news.slice(0, 40);
@@ -359,6 +362,7 @@ function payEndorsement(world: World, clientId: string, amount: number): void {
   m.finances.endorsements += amount;
   m.finances.commission += cut;
   world.agency.bank += cut;
+  recordDealCommission(world, clientId, cut);
   world.agency.ledger.endorsementCommission += cut;
 }
 

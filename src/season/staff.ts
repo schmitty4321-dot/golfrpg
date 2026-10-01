@@ -1,3 +1,4 @@
+import { centerTier } from "./business";
 import { chargeDevelopment } from "./finance";
 import { clamp, createRng, type Rng } from "../engine";
 import { COACH_GROUPS, INTENSITY, developWeek, impliedStaff, overall, potentialEstimate } from "./development";
@@ -212,7 +213,7 @@ export function endOfWeek(world: World, competed: Set<string>, rng: Rng, boosts:
 
     const mentored = mentor && isClient && wp.player.age < 25 && !has(wp, "mentor");
     const boost = boosts.get(wp.player.id);
-    const changes = developWeek(wp, { plan, coachQuality: quality, competed: played, mentored, managed: isClient, ...(boost ? { boost } : {}) }, rng);
+    const changes = developWeek(wp, { plan, coachQuality: quality, competed: played, mentored, managed: isClient, ...(isClient ? { facility: centerTier(world).growth } : {}), ...(boost ? { boost } : {}) }, rng);
     if (isClient) {
       wp.player.condition = clamp(wp.player.condition + INTENSITY[plan.intensity].condition, 0, 100);
       for (const c of changes) {
@@ -247,7 +248,7 @@ export function offseason(world: World, weeks: number, rng: Rng): void {
           plan: wp.client ? wp.client.training : { focus: "balanced", intensity: "normal" },
           coachQuality: wp.client ? staffQuality(world, wp.player.id) : impliedStaff(wp),
           competed: false,
-          ...(wp.client ? { managed: true, winter: wp.client.training.winter ?? "standard" } : {}),
+          ...(wp.client ? { managed: true, winter: wp.client.training.winter ?? "standard", facility: centerTier(world).growth } : {}),
         },
         rng,
       );

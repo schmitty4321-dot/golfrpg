@@ -948,3 +948,4 @@ select, input[type="text"], input[type="number"] {
 .dev-key-best { border-color: var(--warning); border-top-style: dotted; }
 .dev-key-basic { border-color: var(--muted); border-top-style: dashed; border-top-width: 1.5px; }
 .neg { color: var(--neg); }
+.row-current td { background: var(--accent-soft); }
