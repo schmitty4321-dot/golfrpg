@@ -38,6 +38,7 @@ const SPECS: Record<string, LogoSpec> = {
   "Valspar Championship": { motif: "oak", color: "#2c6fa8", main: "Valspar", sub: "Championship" },
   "Texas Children's Houston Open": { motif: "skyline", color: "#c8372d", pre: "Texas Children's", main: "Houston Open" },
   "Valero Texas Open": { motif: "star", color: "#1d4f8c", pre: "Valero", main: "Texas Open" },
+  "Match Play Championship": { motif: "star", color: "#7a1f2b", main: "Match Play", sub: "Championship" },
   "Masters Tournament": { motif: "blossom", color: "#1f6b45", main: "Masters", sub: "Tournament" },
   "RBC Heritage": { motif: "lighthouse", color: "#b8322a", pre: "RBC", main: "Heritage" },
   "Zurich Classic of New Orleans": { motif: "oak", color: "#5c3a8f", main: "Zurich Classic", sub: "of New Orleans" },

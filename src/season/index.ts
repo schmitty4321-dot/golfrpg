@@ -28,3 +28,5 @@ export * from "./planner";
 export * from "./goals";
 export * from "./courseSetup";
 export * from "./rivals";
+export * from "./ryderCup";
+export * from "./matchPlayEvent";

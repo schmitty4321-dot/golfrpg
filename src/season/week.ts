@@ -3,6 +3,8 @@ import { payStaff } from "./market";
 import { payCenter, payInterest, recordBank, recordDealCommission } from "./business";
 import { COACH_PRIZE_SHARE, chargeDevelopment, coachesHired } from "./finance";
 import { recordEventStats } from "./stats";
+import { finalLine, simulateMatchPlay } from "./matchPlayEvent";
+import { playerRecord, ryderCupWeekEnd } from "./ryderCup";
 import { clamp, createRng, expectedStrokesGained, simulateTournament, startLive, totalSg, type LiveTournament, type TournamentConfig, type TournamentResult } from "../engine";
 import { seasonWeeks, majorSetup } from "./calendar";
 import { asSetUp, tallyRealScoring } from "./courseSetup";
@@ -161,7 +163,8 @@ export function liveEvents(world: World, choices: ClientChoices = {}): LiveEvent
   const out: LiveEvent[] = [];
   fields.forEach((f, i) => {
     const clientIds = f.field.filter((id) => world.clientIds.includes(id));
-    if (!clientIds.length || f.field.length < 2) return;
+    // Match play is simulated: its draw and bracket are shown afterwards.
+    if (!clientIds.length || f.field.length < 2 || f.event.format === "matchplay") return;
     out.push({ event: f.event, field: f, clientIds, tournament: startLive(tournamentConfig(world, f, i, practising(choices)), clientIds[0]!) });
   });
   return out;
@@ -196,9 +199,9 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
     const expected = new Map(players.map((p) => [p.id, totalSg(expectedStrokesGained(p, course))]));
     const fieldExpected = [...expected.values()].reduce((s, x) => s + x, 0) / players.length;
 
-    const result = played[f.event.id] ?? simulateTournament(config);
-    // Main-tour scoring on real courses sets next winter's course setup.
-    if (f.event.tier !== "dev") tallyRealScoring(world, course, result);
+    const result = played[f.event.id] ?? (f.event.format === "matchplay" ? simulateMatchPlay(config, ctxBefore.owgrRank) : simulateTournament(config));
+    // Main-tour scoring on real courses sets next winter's course setup (stroke play only).
+    if (f.event.tier !== "dev" && !result.bracket) tallyRealScoring(world, course, result);
     const ties = tieCounts(result);
     const winnerOwgr = owgrWinnerPoints(f.event.tier, f.field.map((id) => ctxBefore.owgrRank.get(id) ?? 9999));
 
@@ -223,7 +226,8 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
         via: f.mondayQualifiers.includes(r.player.id) ? "monday" : "field",
       };
       c.results.push(record);
-      recordEventStats(c, world.season, f.event.tier, result, r, record.seasonPoints);
+      // Season shot stats are stroke play's: partial match-play rounds would skew them.
+      if (!result.bracket) recordEventStats(c, world.season, f.event.tier, result, r, record.seasonPoints);
       // Developmental tour points go on their own list.
       if (f.event.tier === "dev") c.devPoints += record.seasonPoints;
       else c.seasonPoints += record.seasonPoints;
@@ -283,14 +287,30 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
     }
 
     recordEvent(world, f.event, result);
+    if (result.bracket) {
+      world.lastBracket = {
+        season: world.season,
+        week: world.week,
+        eventId: f.event.id,
+        name: f.event.name,
+        venue: course.name,
+        bracket: result.bracket,
+        names: Object.fromEntries(result.leaderboard.map((r) => [r.player.id, r.player.name])),
+      };
+    }
     const w = result.leaderboard[0]!;
     if (f.event.tier === "dev" && !world.players[w.player.id]?.client) {
       report.results.push({ event: f.event, result, field: f });
       return; // dev tour winners don't make the headlines unless they're yours
     }
-    world.news.unshift(`Week ${world.week}: ${w.player.name} wins ${theEvent(f.event.name)} at ${w.toPar > 0 ? "+" : ""}${w.toPar}.`);
+    const mp = finalLine(result);
+    world.news.unshift(mp ? `Week ${world.week}: ${mp} to win ${theEvent(f.event.name)}.` : `Week ${world.week}: ${w.player.name} wins ${theEvent(f.event.name)} at ${w.toPar > 0 ? "+" : ""}${w.toPar}.`);
     report.results.push({ event: f.event, result, field: f });
   });
+
+  // The Ryder Cup, in its week: its players count as having played.
+  const ryder = ryderCupWeekEnd(world);
+  if (ryder) for (const id of Object.keys(ryder.names)) playedIds.add(id);
 
   // Everyone who didn't play rests.
   for (const wp of Object.values(world.players)) {
@@ -340,9 +360,12 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
     const planned = applyPlan(world, wp, dayPlan);
     wp.client!.happiness = clamp(wp.client!.happiness + mood + loves + planned, 0, 100);
     settleHappiness(wp, before, world);
-    report.clients[id]!.summary = tripTo.has(id)
-      ? `${wp.player.name} spent the week practising at ${courseById(world, tripTo.get(id)!).name}.`
-      : describeClientWeek(world, id, plan.choices.get(id) ?? null, fields, rec);
+    const rc = ryder && ryder.names[id] ? playerRecord(ryder, id) : null;
+    report.clients[id]!.summary = rc
+      ? `${wp.player.name} played in the Ryder Cup: ${rc.w} won, ${rc.l} lost, ${rc.h} halved.`
+      : tripTo.has(id)
+        ? `${wp.player.name} spent the week practising at ${courseById(world, tripTo.get(id)!).name}.`
+        : describeClientWeek(world, id, plan.choices.get(id) ?? null, fields, rec);
   }
   // No agency exists during the silent warm-up season, so nothing to pay.
   if (world.clientIds.length > 0) {
@@ -394,6 +417,10 @@ function describeClientWeek(world: World, clientId: string, choice: AiChoice, fi
     const via = record.via === "monday" ? " (Monday qualifier)" : "";
     const toPar = record.toPar === 0 ? "E" : record.toPar > 0 ? `+${record.toPar}` : `${record.toPar}`;
     if (!record.madeCut) return `${name} missed the cut at ${theEvent(f.event.name)}${via}, ${toPar}.`;
+    if (f.event.format === "matchplay") {
+      const stage = record.position === 1 ? "won it" : record.position <= 4 ? "reached the semi-finals" : record.position <= 8 ? "reached the quarter-finals" : record.position <= 16 ? "won his group" : "went out in the groups";
+      return `${name} ${stage} at ${theEvent(f.event.name)}: ${ordinal(record.label)}, $${record.earnings.toLocaleString("en-US")} and ${record.seasonPoints} points.`;
+    }
     return `${name} finished ${ordinal(record.label)} at ${theEvent(f.event.name)}${via}, ${toPar}, $${record.earnings.toLocaleString("en-US")} and ${record.seasonPoints} points.`;
   }
   if (f.mondayPool.includes(clientId)) return `${name} didn't get through the Monday qualifier for ${theEvent(f.event.name)}.`;

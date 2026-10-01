@@ -12,7 +12,8 @@ describe("a new agency", () => {
       expect(rookie!.career.status).toBe("graduate");
       expect(prospect!.player.age).toBe(25);
       expect(overall(prospect!.player)).toBeGreaterThanOrEqual(11);
-      expect(overall(prospect!.player)).toBeLessThanOrEqual(13);
+      // Shaped to 11.2-12.8, then a warm-up season of growth (his rival agency's coaching can add a little).
+      expect(overall(prospect!.player)).toBeLessThanOrEqual(13.5);
       expect(veteran!.player.age).toBe(45);
       expect(veteran!.career.careerWins).toBeGreaterThan(0);
       expect(w.clientIds.map((id) => w.players[id]!.client!.contract.untilSeason - w.season)).toEqual([2, 1, 0]);

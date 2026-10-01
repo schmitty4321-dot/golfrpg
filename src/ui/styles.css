@@ -949,3 +949,16 @@ select, input[type="text"], input[type="number"] {
 .dev-key-basic { border-color: var(--muted); border-top-style: dashed; border-top-width: 1.5px; }
 .neg { color: var(--neg); }
 .row-current td { background: var(--accent-soft); }
+
+/* Match play: the knockout bracket scrolls sideways on narrow screens; groups wrap. */
+.mp-bracket { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 6px; align-items: stretch; }
+.mp-col { display: flex; flex-direction: column; gap: 8px; min-width: 180px; }
+.mp-round { display: flex; flex-direction: column; justify-content: space-around; gap: 10px; flex: 1; }
+.mp-match { border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; background: var(--surface); }
+.mp-match > div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mp-win { font-weight: 700; }
+.mp-mine { background: var(--accent-soft); border-radius: 4px; }
+.mp-groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.mp-group { border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; }
+.mp-group table { width: 100%; }
+.mp-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text); }

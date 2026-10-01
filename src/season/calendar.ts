@@ -7,8 +7,14 @@ import type { EventTier, Region, TourEvent } from "./types";
  * order with the tour's off weeks closed up. Team events (the Zurich Classic)
  * are played as individual stroke play, and the Presidents Cup and the
  * unofficial December events are left out.
+ *
+ * One addition the 2026 tour doesn't have: a Match Play Championship in the
+ * old WGC format (2015-2023: top 64 in the world, groups then a knockout),
+ * in Austin in late March, sharing the week with the Houston Open as the 2023
+ * Match Play shared its week with an opposite-field event. It sits at the end
+ * of the list so the real events keep their ids.
  */
-type Slot = [number, EventTier, string, string, number, number, number | null];
+type Slot = [number, EventTier, string, string, number, number, number | null, "matchplay"?];
 
 const SCHEDULE: Slot[] = [
   [1, "standard", "waialae", "Sony Open in Hawaii", 9_100_000, 144, 65],
@@ -56,7 +62,15 @@ const SCHEDULE: Slot[] = [
   [39, "standard", "el-cardonal", "World Wide Technology Championship", 6_000_000, 132, 65],
   [40, "standard", "barton-creek-fazio-canyons", "Austin Championship", 6_000_000, 132, 65],
   [41, "standard", "sea-island-seaside", "The RSM Classic", 7_400_000, 156, 65],
+  [11, "signature", "barton-creek-fazio-canyons", "Match Play Championship", 20_000_000, 64, null, "matchplay"],
 ];
+
+/** The Match Play Championship as a tour event (older careers get it added at a season's end). */
+export function matchPlayEvent(): TourEvent {
+  const i = SCHEDULE.findIndex((s) => s[7] === "matchplay");
+  const [week, tier, courseId, name, purse, fieldSize, cutTop] = SCHEDULE[i]!;
+  return { id: `r${String(i + 1).padStart(2, "0")}`, name, week, tier, courseId, purse, fieldSize, cutTop, region: REGIONS[REAL_COURSE_REGION[courseId] ?? "NA"] ?? "NA", format: "matchplay" };
+}
 
 /**
  * What a real-tour event (id "r01" onwards) was called and where it was played
@@ -111,7 +125,7 @@ const REGIONS: Record<string, Region> = { NA: "NA", EU: "EU", ASIA: "ASIA", AUS:
  */
 export function buildTour(seed: number): { courses: Course[]; schedule: TourEvent[] } {
   const courses: Course[] = [];
-  const schedule: TourEvent[] = SCHEDULE.map(([week, tier, courseId, name, purse, fieldSize, cutTop], i) => {
+  const schedule: TourEvent[] = SCHEDULE.map(([week, tier, courseId, name, purse, fieldSize, cutTop, format], i) => {
     const course = getCourse(courseId);
     if (!courses.some((c) => c.id === course.id)) courses.push(course);
     return {
@@ -125,6 +139,7 @@ export function buildTour(seed: number): { courses: Course[]; schedule: TourEven
       cutTop,
       region: REGIONS[REAL_COURSE_REGION[courseId] ?? "NA"] ?? "NA",
       ...(courseId === "tpc-sawgrass" ? { winnerPoints: 750 } : {}),
+      ...(format ? { format } : {}),
     };
   });
   const dev = buildDevTour(seed);

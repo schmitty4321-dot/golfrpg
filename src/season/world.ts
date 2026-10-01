@@ -16,7 +16,7 @@ import {
   type PlayerTier,
   type Rng,
 } from "../engine";
-import { DEV_GRADUATES, buildTour, seasonWeeks } from "./calendar";
+import { DEV_GRADUATES, buildTour, matchPlayEvent, seasonWeeks } from "./calendar";
 import { MAX_POTENTIAL, archetypeCeiling, newDevelopment, overall } from "./development";
 import { asSetUp, nextCourseSetup } from "./courseSetup";
 import { generateCoaches, offseason, OFFSEASON_WEEKS } from "./staff";
@@ -534,6 +534,7 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   world.season++;
   world.week = 1;
   adoptRealTour(world);
+  addMatchPlay(world);
   drawSeasonForm(world);
   for (const wp of clients(world)) wp.client!.finances = emptyFinances();
   world.agency.ledger = { prizeCommission: 0, endorsementCommission: 0, office: 0, scouts: 0, development: 0 };
@@ -551,6 +552,20 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
  * venues at the start of their next season. Their old venues stay in the
  * save (history and the editor still know them).
  */
+/**
+ * Careers on the real tour from before the Match Play Championship existed
+ * get it from their next season (added at the season's start, or now if its
+ * week hasn't come round yet).
+ */
+export function addMatchPlay(world: World): void {
+  if (!world.schedule.some((e) => e.id.startsWith("r")) || world.schedule.some((e) => e.format === "matchplay")) return;
+  const event = matchPlayEvent();
+  if (world.schedule.some((e) => e.id === event.id)) return; // an edited schedule already uses the id
+  if (world.week > event.week && world.week > 1) return;
+  if (!world.courses.some((c) => c.id === event.courseId)) world.courses.push(getCourse(event.courseId));
+  world.schedule.push(event);
+}
+
 export function adoptRealTour(world: World): void {
   if (world.schedule.some((e) => e.id.startsWith("r"))) return;
   const tour = buildTour(world.seed);

@@ -1,4 +1,5 @@
 import { coursePar } from "./courses";
+import type { MatchPlayBracket } from "./matchPlay";
 import { tiedPayout } from "./purse";
 import { createRng, type Rng } from "./rng";
 import { DAY_SD, WEEK_SD, playHole, roundForm, simulateRound, type HoleState, type RoundContext } from "./round";
@@ -52,6 +53,8 @@ export interface TournamentResult {
   leaderboard: PlayerEventResult[];
   cutLine: number | null;
   playoff: { players: string[]; holesPlayed: number } | null;
+  /** A match-play event's draw and results (no stroke-play leaderboard behind it). */
+  bracket?: MatchPlayBracket;
 }
 
 const emptySg = (): StrokesGained => ({ offTheTee: 0, approach: 0, aroundTheGreen: 0, putting: 0 });

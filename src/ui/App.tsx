@@ -7,6 +7,7 @@ import { Career } from "./screens/Career";
 import { Finances } from "./screens/Finances";
 import { Headquarters } from "./screens/Headquarters";
 import { Recruiting, Rivals, Trophies } from "./screens/Market";
+import { MatchPlayScreen, RyderCupScreen } from "./screens/MatchPlay";
 import { HistoryScreen } from "./screens/History";
 import { Editor } from "./screens/Editor";
 import { EventScreen } from "./screens/EventScreen";
@@ -163,6 +164,10 @@ export function App() {
         </>
       ) : tab === "editor" ? (
         <Editor world={world} game={game} />
+      ) : tab === "ryder" ? (
+        <RyderCupScreen world={world} />
+      ) : tab === "matchplay" ? (
+        <MatchPlayScreen world={world} />
       ) : tab === "history" ? (
         <HistoryScreen world={world} />
       ) : tab === "recruiting" ? (

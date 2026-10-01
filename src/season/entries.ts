@@ -9,6 +9,7 @@ import {
   type Course,
   type Rng,
 } from "../engine";
+import { ryderCupPlayers } from "./ryderCup";
 import { finaleWeek, lastRegularWeek } from "./calendar";
 import { asSetUp } from "./courseSetup";
 import { pointsList, rankMap } from "./points";
@@ -74,6 +75,14 @@ export function invitedField(world: World, ctx: WeekContext, event: TourEvent): 
 
   if (event.tier === "finale" || event.tier === "playoff") {
     return ids.filter((id) => pts(id) <= event.fieldSize).sort((a, b) => pts(a) - pts(b));
+  }
+  // Match play: the world's top 64 professionals, in ranking order, with the next 16 as
+  // alternates for anyone who doesn't play (buildFields takes the first 64 who do).
+  if (event.format === "matchplay") {
+    return ids
+      .filter((id) => world.players[id]!.career.status !== "amateur" && owgr(id) < 9999)
+      .sort((a, b) => owgr(a) - owgr(b))
+      .slice(0, event.fieldSize + 16);
   }
   if (event.tier === "signature") {
     const thisSeasonWins = (wp: WorldPlayer) => wp.career.seasonWins > 0;
@@ -214,6 +223,8 @@ export function planWeek(world: World, clientChoices: Map<string, AiChoice | "au
     const own = mine !== undefined && mine !== "auto" && !wp.injury;
     choices.set(wp.player.id, own ? mine : ai);
   }
+  // The Ryder Cup teams are busy this week.
+  for (const id of ryderCupPlayers(world)) choices.set(id, null);
   return { events, invited, choices };
 }
 
@@ -234,7 +245,11 @@ export function buildFields(world: World, plan: WeekPlan): FieldResult[] {
     const entrants = [...plan.choices.entries()].filter(([, c]) => c?.eventId === event.id);
     if (isInvitational(event.tier)) {
       const inv = plan.invited.get(event.id)!;
-      const field = entrants.map(([id]) => id).filter((id) => inv.has(id));
+      let field = entrants.map(([id]) => id).filter((id) => inv.has(id));
+      if (event.format === "matchplay") {
+        const order = [...inv];
+        field = field.sort((a, b) => order.indexOf(a) - order.indexOf(b)).slice(0, event.fieldSize);
+      }
       return { event, field, alternates: [], mondayQualifiers: [], mondayPool: [] };
     }
     if (event.tier === "dev") {

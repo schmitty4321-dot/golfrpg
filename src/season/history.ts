@@ -39,6 +39,12 @@ export function recordEvent(world: World, event: TourEvent, result: TournamentRe
 
   const r = world.history.records;
   const entry = (value: number, wp: { id: string; name: string }): RecordEntry => ({ value, playerId: wp.id, name: wp.name, event: event.name, season: world.season });
+  // Match play has no 72-hole scores: only the winner's age counts for the book.
+  if (result.bracket) {
+    if (better(r.youngestWinner, w.player.age, true)) r.youngestWinner = entry(w.player.age, w.player);
+    if (better(r.oldestWinner, w.player.age, false)) r.oldestWinner = entry(w.player.age, w.player);
+    return;
+  }
   for (const row of result.leaderboard) {
     for (const strokes of row.rounds) {
       if (better(r.lowestRound, strokes, true)) {

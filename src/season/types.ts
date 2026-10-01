@@ -25,6 +25,8 @@ export interface TourEvent {
   region: Region;
   /** Season points for the winner, when not the tier's usual (THE PLAYERS pays like a major). */
   winnerPoints?: number;
+  /** Played as match play (groups, then a knockout bracket) instead of 72 holes of stroke play. */
+  format?: "matchplay";
 }
 
 /**
@@ -507,6 +509,10 @@ export interface World {
   courseSetup?: number;
   /** This season's scoring on real courses against their real averages, for next winter's setup. */
   setupTally?: { strokes: number; rounds: number };
+  /** Ryder Cup holder and past matches (older saves start with Europe holding it). */
+  ryderCup?: import("./ryderCup").RyderCupState;
+  /** The latest match-play event's draw, for the bracket screen. */
+  lastBracket?: { season: number; week: number; eventId: string; name: string; venue: string; bracket: import("../engine").MatchPlayBracket; names: Record<string, string> };
   /** The rival agencies (older saves get them on load). */
   rivals?: RivalAgency[];
   /** Set once anything has been changed in the editor, like an "edited" save in FM. */

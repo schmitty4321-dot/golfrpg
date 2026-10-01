@@ -146,7 +146,8 @@ export function measureRealism(world: World, seasons: number): RealismMetrics {
         }
       }
       for (const x of report.results) {
-        if (x.event.tier === "dev") continue;
+        // Stroke-play measures: the developmental tour and match play don't count.
+        if (x.event.tier === "dev" || x.result.bracket) continue;
         const board = x.result.leaderboard;
         const rounds = Math.max(...board.map((e) => e.rounds.length));
         for (let r = 0; r < rounds; r++) {
