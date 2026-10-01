@@ -88,6 +88,8 @@ export interface Career {
   careerCuts: number;
   /** Seasons finished top of the main tour's points list. */
   pointsTitles: number;
+  /** Seasons in a row he has ended without a main-tour card (older saves: 0). */
+  noCardSeasons?: number;
   /** This season's main-tour stats (missing in older saves until the next event). */
   stats?: SeasonStats;
   /** Last season's, kept through the next season for comparison. */

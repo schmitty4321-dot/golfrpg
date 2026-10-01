@@ -295,6 +295,16 @@ export function shapeRookie(p: Player, rng: Rng): void {
 }
 
 /**
+ * The chance a player without a card gives it up this winter. Real careers
+ * are short for most (Data Golf: about a third of PGA TOUR rookies last ten
+ * full seasons): each season off the main tour makes quitting likelier, more
+ * so once he's past 30.
+ */
+export function retireChance(seasonsWithoutCard: number, age: number): number {
+  return clamp(0.1 + 0.15 * (seasonsWithoutCard - 1) + 0.03 * Math.max(0, age - 30), 0, 0.85);
+}
+
+/**
  * Closes the season: hands out cards from the points list, brings up
  * developmental-tour graduates, retires some players and adds new ones,
  * ages everyone a year and resets the season's numbers.
@@ -358,13 +368,20 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
     world.players[p.id] = makeAmateur(p, rng);
   }
 
-  // Retirements: players without status drift away, and the old guard hangs it up.
+  // Seasons off the main tour pile up; a card resets the count.
+  for (const wp of Object.values(world.players)) {
+    if (wp.career.status === "amateur") continue;
+    wp.career.noCardSeasons = wp.career.status === "none" ? (wp.career.noCardSeasons ?? 0) + 1 : 0;
+  }
+
+  // Retirements: players without status drift away (faster the longer they've been off tour,
+  // and the older they are), and the old guard hangs it up.
   for (const wp of Object.values(world.players)) {
     if (wp.client || wp.career.status === "amateur") continue;
     const age = wp.player.age;
     const retire =
       age >= 50 ||
-      (wp.career.status === "none" && (age >= 42 || rng.chance(0.2))) ||
+      (wp.career.status === "none" && (age >= 42 || rng.chance(retireChance(wp.career.noCardSeasons ?? 1, age)))) ||
       (age >= 46 && (wp.career.exemptThrough ?? 0) <= season && rng.chance(0.3));
     if (retire) {
       if (wp.career.careerWins > 0) world.news.unshift(`${wp.player.name} retires at ${age}, with ${wp.career.careerWins} career win${wp.career.careerWins === 1 ? "" : "s"}.`);
