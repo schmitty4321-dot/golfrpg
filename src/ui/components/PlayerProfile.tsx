@@ -21,6 +21,7 @@ import { TendenciesPanel } from "./TendenciesPanel";
 import { PortraitCard } from "./Portrait";
 import { StatBoxes, StatLegend } from "./StatBoxes";
 import { SkillRadar } from "./SkillRadar";
+import { CareerEvolution, RollingSgChart, SgPercentiles } from "./StatCharts";
 import { TraitChip, TraitList } from "./Traits";
 import { FamiliarityPanel } from "./Familiarity";
 import { money, plural, signed, TIER_LABELS, toPar } from "../format";
@@ -242,7 +243,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
         )}
               </>
             ) : tab === "stats" ? (
-              <PlayerStats wp={wp} season={world.season} liveEvent={liveEvent} />
+              <PlayerStats world={world} wp={wp} season={world.season} liveEvent={liveEvent} />
             ) : (
               <PlayerResults wp={wp} season={world.season} liveEvent={liveEvent} />
             )}
@@ -299,12 +300,20 @@ function LiveTournamentPanel({ liveEvent, playerId }: { liveEvent: LiveEvent; pl
   );
 }
 
-function PlayerStats({ wp, season, liveEvent }: { wp: WorldPlayer; season: number; liveEvent?: LiveEvent }) {
+function PlayerStats({ world, wp, season, liveEvent }: { world: World; wp: WorldPlayer; season: number; liveEvent?: LiveEvent }) {
   const stats = wp.career.stats?.season === season ? wp.career.stats : undefined;
+  const charts = (
+    <>
+      <SgPercentiles world={world} id={wp.player.id} />
+      <RollingSgChart wp={wp} />
+      <CareerEvolution world={world} wp={wp} />
+    </>
+  );
   if (!stats || stats.rounds === 0) {
     return <>
       {liveEvent && <LiveTournamentPanel liveEvent={liveEvent} playerId={wp.player.id} />}
-      <section className="panel"><div className="panel-head"><h2>Season {season} stats</h2></div><p className="empty">Finalized season stats will appear after the tournament. The live event is shown above.</p></section>
+      <section className="panel"><div className="panel-head"><h2>Season {season} stats</h2></div><p className="empty">{liveEvent ? "Finalized season stats will appear after the tournament. The live event is shown above." : "No main-tour rounds yet this season."}</p></section>
+      {charts}
     </>;
   }
   const rounds = stats.rounds;
@@ -358,6 +367,7 @@ function PlayerStats({ wp, season, liveEvent }: { wp: WorldPlayer; season: numbe
           </div>
         </section>
       </div>
+      {charts}
     </>
   );
 }

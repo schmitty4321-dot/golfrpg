@@ -1,4 +1,5 @@
 import { closeSeasonStats } from "./stats";
+import { logSeason } from "./charts";
 import {
   APPLIED_SKEW,
   ATTRIBUTE_GROUPS,
@@ -403,6 +404,7 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
     c.seasonEvents = 0;
     c.seasonWins = 0;
     c.devPoints = 0;
+    logSeason(wp, world.season, rankOf.get(wp.player.id) ?? null);
     closeSeasonStats(c, world.season);
     c.lastRegion = null;
     wp.player.age++;

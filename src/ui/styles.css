@@ -894,3 +894,31 @@ select, input[type="text"], input[type="number"] {
   .tournament-card { grid-template-columns: minmax(0, 1fr); }
   .tc-stats { grid-auto-flow: column; justify-content: start; gap: 18px; padding-left: 0; border-left: 0; border-top: 1px solid #dfe4da; padding-top: 10px; }
 }
+
+/* Data Golf-style stat charts (profile Stats tab) */
+.pct-rows { display: grid; gap: 8px; }
+.pct-row { display: grid; grid-template-columns: 120px minmax(0, 1fr) 52px 104px; align-items: center; gap: 10px; }
+.pct-total .pct-label, .pct-total .pct-value { font-weight: 650; }
+.pct-track { position: relative; height: 10px; border-radius: 5px; background: var(--surface-2); overflow: hidden; }
+.pct-fill { position: absolute; inset: 0 auto 0 0; border-radius: 5px; }
+.pct-good { background: var(--accent); }
+.pct-bad { background: var(--neg); }
+.pct-median { position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--text-2); opacity: 0.6; }
+.pct-value { text-align: right; font-variant-numeric: tabular-nums; }
+@media (max-width: 620px) {
+  .pct-row { grid-template-columns: 96px minmax(0, 1fr) 48px; }
+  .pct-rank { grid-column: 2 / 4; margin-top: -6px; }
+}
+.sg-chart { width: 100%; height: auto; display: block; }
+.chart-grid { stroke: var(--border); stroke-width: 1; }
+.chart-zero { stroke: var(--text-2); stroke-width: 1; stroke-dasharray: 4 3; }
+.chart-season { stroke: var(--border); stroke-width: 1; stroke-dasharray: 2 3; }
+.chart-axis { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.chart-strong { fill: var(--text-2); font-weight: 650; }
+.chart-dot { fill: var(--text-2); opacity: 0.45; }
+.chart-dot-dev { fill: none; stroke: var(--text-2); stroke-width: 1.2; }
+.chart-line { fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.chart-bar-pos { fill: var(--accent); }
+.chart-bar-neg { fill: var(--neg); }
+.chart-bar-current { opacity: 0.55; }
+.chart-note { margin: 6px 0 0; }

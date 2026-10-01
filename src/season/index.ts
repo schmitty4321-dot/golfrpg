@@ -15,6 +15,7 @@ export * from "./history";
 export * from "./editor";
 export * from "./editorFixtures";
 export * from "./stats";
+export * from "./charts";
 export * from "./traits";
 export * from "./familiarity";
 export * from "./practice";

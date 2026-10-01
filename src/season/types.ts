@@ -92,8 +92,26 @@ export interface Career {
   stats?: SeasonStats;
   /** Last season's, kept through the next season for comparison. */
   lastStats?: SeasonStats;
+  /** One line per finished season as a pro, for the career chart (older saves start empty). */
+  seasonLog?: SeasonLine[];
   /** Course familiarity, 0-100, by course id (see engine/familiarity.ts). */
   familiarity?: Record<string, number>;
+}
+
+/** A finished season in brief: where he stood, how well he played. */
+export interface SeasonLine {
+  season: number;
+  age: number;
+  /** Overall level (golf skills) at the season's end, one decimal. */
+  overall: number;
+  /** Main-tour strokes gained per round, or null with no main-tour rounds. */
+  sgPerRound: number | null;
+  rounds: number;
+  events: number;
+  wins: number;
+  top10s: number;
+  majors: number;
+  pointsRank: number | null;
 }
 
 /** A season of main-tour golf, added up event by event. */
