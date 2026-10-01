@@ -24,8 +24,32 @@ export const OFFICE_COST = 2_500;
 export const STARTING_BANK = 250_000;
 export const STARTING_REPUTATION = 15;
 
-/** How many clients the agency can look after: grows with reputation. */
-export const rosterLimit = (reputation: number): number => Math.min(8, 2 + Math.floor(reputation / 15));
+/** How many clients the agency can look after: grows with reputation, and a bigger headquarters adds room. */
+export const rosterLimit = (reputation: number, hq = 0): number => Math.min(8, 2 + Math.floor(reputation / 15)) + (HQ_TIERS[hq]?.roster ?? 0);
+
+export interface HqTier {
+  name: string;
+  blurb: string;
+  /** What moving up to it costs. */
+  cost: number;
+  /** Office and staff costs per week of the season. */
+  office: number;
+  /** Extra roster places. */
+  roster: number;
+  /** Reputation earned is multiplied by this. */
+  reputationGain: number;
+  /** Reputation the agency needs first. */
+  reputation: number;
+}
+
+export const HQ_TIERS: HqTier[] = [
+  { name: "Boutique office", blurb: "Two rooms and a coffee machine.", cost: 0, office: OFFICE_COST, roster: 0, reputationGain: 1, reputation: 0 },
+  { name: "Regional office", blurb: "A proper front desk; players take your calls.", cost: 600_000, office: 5_000, roster: 1, reputationGain: 1.1, reputation: 25 },
+  { name: "National headquarters", blurb: "A building with your name on it.", cost: 1_800_000, office: 9_000, roster: 2, reputationGain: 1.2, reputation: 45 },
+  { name: "Global headquarters", blurb: "Offices on three continents.", cost: 4_500_000, office: 15_000, roster: 3, reputationGain: 1.3, reputation: 65 },
+];
+
+export const hqTier = (agency: Agency): HqTier => HQ_TIERS[agency.hq ?? 0]!;
 
 export function newAgency(name = "Your Agency"): Agency {
   return {
@@ -128,8 +152,8 @@ export function approachBlock(world: World, id: string): string | null {
   }
   const until = world.agency.cooldowns[id];
   if (until !== undefined && until > absWeek(world.season, world.week)) return "He turned you down recently. Give it a few weeks.";
-  if (world.clientIds.length >= rosterLimit(world.agency.reputation)) {
-    return `Your agency can manage ${rosterLimit(world.agency.reputation)} clients at its reputation. Grow it to take on more.`;
+  if (world.clientIds.length >= rosterLimit(world.agency.reputation, world.agency.hq)) {
+    return `Your agency can manage ${rosterLimit(world.agency.reputation, world.agency.hq)} clients at its reputation. Grow it, or move to a bigger headquarters, to take on more.`;
   }
   return null;
 }
@@ -246,7 +270,8 @@ export function reputationFor(position: number, madeCut: boolean, tier: string):
 
 export function addReputation(agency: Agency, amount: number): void {
   // Harder to gain near the top.
-  agency.reputation = clamp(agency.reputation + amount * (1 - agency.reputation / 120), 0, 100);
+  const gain = amount > 0 ? hqTier(agency).reputationGain : 1;
+  agency.reputation = clamp(agency.reputation + amount * gain * (1 - agency.reputation / 120), 0, 100);
 }
 
 /**

@@ -23,14 +23,14 @@ export function Agency({ world, game }: { world: World; game: Game }) {
   const [extending, setExtending] = useState<string | null>(null);
   const ranks = rankMap(world);
   const pts = pointsList(world);
-  const limit = rosterLimit(world.agency.reputation);
+  const limit = rosterLimit(world.agency.reputation, world.agency.hq);
 
   return (
     <main>
       <section className="panel">
         <div className="panel-head">
           <h2>Clients ({world.clientIds.length} of {limit})</h2>
-          <span className="muted small">Reputation {Math.round(world.agency.reputation)}: {limit < 8 ? `reach ${(limit - 1) * 15} for another roster spot` : "full roster size"}</span>
+          <span className="muted small">Reputation {Math.round(world.agency.reputation)}: {limit < 8 ? `reach ${(limit - (world.agency.hq ?? 0) - 1) * 15} for another roster spot` : "full roster size"}</span>
         </div>
         {world.clientIds.length === 0 ? (
           <p className="empty">No clients. Use the Scouting tab to find players and make offers.</p>

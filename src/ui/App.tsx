@@ -167,7 +167,7 @@ export function App() {
       ) : tab === "hq" ? (
         <Headquarters world={world} game={game} />
       ) : tab === "finances" ? (
-        <Finances world={world} />
+        <Finances world={world} game={game} />
       ) : (
         <Career world={world} game={game} />
       )}

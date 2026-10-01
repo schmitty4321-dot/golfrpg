@@ -1,4 +1,4 @@
-import { CENTER_TIERS, buildCenter, centerBlock, dealClients, type World } from "../../season";
+import { CENTER_TIERS, HQ_TIERS, buildCenter, centerBlock, dealClients, hqBlock, rosterLimit, upgradeHq, type World } from "../../season";
 import { money } from "../format";
 import type { Game } from "../useGame";
 
@@ -6,6 +6,7 @@ import type { Game } from "../useGame";
 export function Headquarters({ world, game }: { world: World; game: Game }) {
   return (
     <main>
+      <HqPanel world={world} game={game} />
       <div className="grid-2">
         <CenterPanel world={world} game={game} />
         <DealsPanel world={world} />
@@ -81,6 +82,42 @@ function DealsPanel({ world }: { world: World }) {
         </div>
       )}
       <p className="muted small" style={{ marginBottom: 0 }}>The balance is commission earned from him since the deal against what you've paid in. A young player's deal usually starts behind and pays off as he improves.</p>
+    </section>
+  );
+}
+
+function HqPanel({ world, game }: { world: World; game: Game }) {
+  const tier = world.agency.hq ?? 0;
+  const next = HQ_TIERS[tier + 1];
+  const block = hqBlock(world);
+  return (
+    <section className="panel">
+      <div className="panel-head">
+        <h2>Headquarters</h2>
+        <span className="muted small">Roster {world.clientIds.length} of {rosterLimit(world.agency.reputation, world.agency.hq)} · reputation {Math.round(world.agency.reputation)}</span>
+      </div>
+      <div className="table-wrap">
+        <table>
+          <thead><tr><th>Office</th><th className="num">Move in</th><th className="num">Running cost / wk</th><th className="num">Roster</th><th className="num">Reputation gains</th></tr></thead>
+          <tbody>
+            {HQ_TIERS.map((t, i) => (
+              <tr key={t.name} className={i === tier ? "row-current" : undefined}>
+                <td><strong>{t.name}</strong>{i === tier && <span className="muted small"> · yours</span>}<div className="secondary small">{t.blurb}</div></td>
+                <td className="num">{t.cost ? money(t.cost) : "–"}{t.reputation ? <div className="muted small">rep {t.reputation}</div> : null}</td>
+                <td className="num">{money(t.office)}</td>
+                <td className="num">{t.roster ? `+${t.roster}` : "–"}</td>
+                <td className="num">{t.reputationGain > 1 ? `+${Math.round((t.reputationGain - 1) * 100)}%` : "–"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {next && (
+        <div className="btn-row">
+          <button className="btn btn-primary" disabled={!!block} onClick={() => game.act((w) => upgradeHq(w))}>Move to the {next.name.toLowerCase()} · {money(next.cost)}</button>
+          {block && <span className="muted small">{block}</span>}
+        </div>
+      )}
     </section>
   );
 }

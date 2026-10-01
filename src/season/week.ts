@@ -1,4 +1,4 @@
-import { payCenter, recordDealCommission } from "./business";
+import { payCenter, payInterest, recordBank, recordDealCommission } from "./business";
 import { COACH_PRIZE_SHARE, chargeDevelopment, coachesHired } from "./finance";
 import { recordEventStats } from "./stats";
 import { clamp, createRng, expectedStrokesGained, simulateTournament, startLive, totalSg, type LiveTournament, type TournamentConfig, type TournamentResult } from "../engine";
@@ -6,7 +6,7 @@ import { seasonWeeks, majorSetup } from "./calendar";
 import { asSetUp, tallyRealScoring } from "./courseSetup";
 import { buildFields, courseById, mixSeed, planWeek, weekContext, type AiChoice, type FieldResult } from "./entries";
 import { owgrPointsFor, owgrWinnerPoints, seasonPointsFor, tieCounts } from "./points";
-import { OFFICE_COST, addReputation, clients, reputationFor, updateHappiness } from "./agency";
+import { addReputation, clients, hqTier, reputationFor, updateHappiness } from "./agency";
 import { scoutingWeek, weeklyScoutCost } from "./scouting";
 import { sponsorBonus, sponsorWeek } from "./sponsors";
 import { recordEvent } from "./history";
@@ -343,11 +343,14 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
   // No agency exists during the silent warm-up season, so nothing to pay.
   if (world.clientIds.length > 0) {
     scoutingWeek(world);
-    const costs = OFFICE_COST + weeklyScoutCost(world);
+    const office = hqTier(world.agency).office;
+    const costs = office + weeklyScoutCost(world);
     world.agency.bank -= costs;
-    world.agency.ledger.office += OFFICE_COST;
-    world.agency.ledger.scouts += costs - OFFICE_COST;
+    world.agency.ledger.office += office;
+    world.agency.ledger.scouts += costs - office;
     payCenter(world);
+    payInterest(world);
+    recordBank(world);
   }
 
   world.news = world.news.slice(0, 40);

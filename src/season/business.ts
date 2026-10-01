@@ -5,9 +5,12 @@
  */
 import { clamp, createRng } from "../engine";
 import { mixSeed } from "./entries";
-import { addReputation, clients } from "./agency";
+import { HQ_TIERS, addReputation, clients, hqTier } from "./agency";
+import { developmentCost, earningsAtLevel } from "./finance";
+import { overall } from "./development";
+import { JET_LEASE_WEEKLY, JET_UPKEEP_WEEKLY } from "./team";
 import { commissionWeight } from "./traits";
-import { absWeek, type World } from "./types";
+import { absWeek, type AgencyLedger, type World } from "./types";
 
 // ------------------------------------------------------------------ Performance Center
 
@@ -147,3 +150,92 @@ export function recordDealCommission(world: World, id: string, commission: numbe
 
 /** All clients on a deal, for the agency view. */
 export const dealClients = (world: World) => clients(world).filter((wp) => wp.client!.devDeal);
+
+// ------------------------------------------------------------------ headquarters
+
+/** Why the next headquarters can't be taken yet, or null. */
+export function hqBlock(world: World): string | null {
+  const next = HQ_TIERS[(world.agency.hq ?? 0) + 1];
+  if (!next) return "You already have the biggest headquarters.";
+  if (world.agency.reputation < next.reputation) return `Needs reputation ${next.reputation}.`;
+  if (world.agency.bank < next.cost) return "Not enough in the bank.";
+  return null;
+}
+
+export function upgradeHq(world: World): void {
+  const block = hqBlock(world);
+  if (block) throw new Error(block);
+  const tier = (world.agency.hq ?? 0) + 1;
+  const next = HQ_TIERS[tier]!;
+  world.agency.bank -= next.cost;
+  world.agency.ledger.office += next.cost;
+  world.agency.hq = tier;
+  world.news.unshift(`${world.agency.name} moves into its ${next.name.toLowerCase()}.`);
+}
+
+// ------------------------------------------------------------------ credit line
+
+/** Yearly interest on the credit line, charged by the week of the season. */
+export const CREDIT_RATE = 0.08;
+
+/** What the bank will lend: more as the agency's name grows. */
+export const creditLimit = (world: World): number => Math.round((250_000 + world.agency.reputation * 20_000) / 50_000) * 50_000;
+
+export function borrow(world: World, amount: number): void {
+  const owed = world.agency.loan ?? 0;
+  const take = Math.max(0, Math.min(amount, creditLimit(world) - owed));
+  world.agency.loan = owed + take;
+  world.agency.bank += take;
+}
+
+export function repay(world: World, amount: number): void {
+  const pay = Math.max(0, Math.min(amount, world.agency.loan ?? 0, Math.max(0, world.agency.bank)));
+  world.agency.loan = (world.agency.loan ?? 0) - pay;
+  world.agency.bank -= pay;
+}
+
+export function payInterest(world: World): void {
+  const owed = world.agency.loan ?? 0;
+  if (owed <= 0) return;
+  const interest = Math.round((owed * CREDIT_RATE) / 41);
+  world.agency.bank -= interest;
+  world.agency.ledger.interest = (world.agency.ledger.interest ?? 0) + interest;
+}
+
+/** Keeps the end-of-week balance for the bank chart (the last five seasons). */
+export function recordBank(world: World): void {
+  const h = (world.agency.bankHistory ??= []);
+  h.push({ season: world.season, week: world.week, bank: world.agency.bank });
+  if (h.length > 41 * 5) h.splice(0, h.length - 41 * 5);
+}
+
+// ------------------------------------------------------------------ the books
+
+export const agencyIncome = (l: AgencyLedger): number => l.prizeCommission + l.endorsementCommission + (l.brands ?? 0) + Math.max(0, l.events ?? 0);
+export const agencyCosts = (l: AgencyLedger): number =>
+  l.office + l.scouts + (l.development ?? 0) + (l.facility ?? 0) + (l.interest ?? 0) + (l.staff ?? 0) + Math.max(0, -(l.events ?? 0));
+export const agencyProfit = (l: AgencyLedger): number => agencyIncome(l) - agencyCosts(l);
+
+/** Weekly running costs: office, scouts, center, staff, interest and the jet. */
+export function weeklyRunningCosts(world: World, scouts: number, staff = 0): number {
+  const jet = world.agency.jet === "lease" ? JET_LEASE_WEEKLY : world.agency.jet === "own" ? JET_UPKEEP_WEEKLY : 0;
+  return hqTier(world.agency).office + scouts + centerTier(world).upkeep + staff + jet + Math.round(((world.agency.loan ?? 0) * CREDIT_RATE) / 41);
+}
+
+/**
+ * A rough weekly forecast: the commission each client's level should bring
+ * in and the endorsement cuts, less running costs and the development the
+ * agency funds.
+ */
+export function weeklyForecast(world: World, scouts: number, staff = 0): { income: number; costs: number; net: number } {
+  let income = 0;
+  let funded = 0;
+  for (const wp of clients(world)) {
+    const m = wp.client!;
+    income += (earningsAtLevel(overall(wp.player)) * m.contract.commission) / 41;
+    income += (m.sponsors.reduce((s, x) => s + x.annualValue, 0) * m.contract.endorsementCommission) / 41;
+    funded += developmentCost(world, wp.player.id).agency / 41;
+  }
+  const costs = weeklyRunningCosts(world, scouts, staff) + funded;
+  return { income: Math.round(income), costs: Math.round(costs), net: Math.round(income - costs) };
+}

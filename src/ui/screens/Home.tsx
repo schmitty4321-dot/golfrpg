@@ -1,5 +1,6 @@
 import { coursePar, courseYards, familiarityLabel } from "../../engine";
 import {
+  agencyProfit,
   FULL_CARD,
   REGION_NAMES,
   seasonWeeks,
@@ -162,7 +163,7 @@ function WeekHero({ world, game, week }: { world: World; game: Game; week: WeekC
 
 function AgencyStrip({ world }: { world: World }) {
   const a = world.agency;
-  const season = a.ledger.prizeCommission + a.ledger.endorsementCommission - a.ledger.office - a.ledger.scouts - (a.ledger.development ?? 0);
+  const season = agencyProfit(a.ledger);
   return (
     <section className="panel agency-strip">
       <div className="stat-row">
@@ -173,7 +174,7 @@ function AgencyStrip({ world }: { world: World }) {
         </div>
         <div className="stat">
           <span className="stat-label">Clients</span>
-          <span className="stat-value">{world.clientIds.length} / {rosterLimit(a.reputation)}</span>
+          <span className="stat-value">{world.clientIds.length} / {rosterLimit(a.reputation, a.hq)}</span>
         </div>
         <div className="stat">
           <span className="stat-label">Bank</span>
