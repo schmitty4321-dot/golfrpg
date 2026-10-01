@@ -16,13 +16,28 @@
       ]
     },
     "route": [
-      { "at": 0, "x": 204, "y": 780 },
-      { "at": 0.5, "x": 820, "y": 470 },
-      { "at": 1, "x": 1450, "y": 100 }
+      {
+        "at": 0,
+        "x": 204,
+        "y": 780
+      },
+      {
+        "at": 0.5,
+        "x": 820,
+        "y": 470
+      },
+      {
+        "at": 1,
+        "x": 1450,
+        "y": 100
+      }
     ],
     "targets": {
       "water": [
-        { "x": 970, "y": 250 }
+        {
+          "x": 970,
+          "y": 250
+        }
       ]
     },
     "meta": {
@@ -51,16 +66,34 @@
       ]
     },
     "route": [
-      { "at": 0, "x": 190, "y": 790 },
-      { "at": 0.5, "x": 850, "y": 455 },
-      { "at": 1, "x": 1530, "y": 112 }
+      {
+        "at": 0,
+        "x": 190,
+        "y": 790
+      },
+      {
+        "at": 0.5,
+        "x": 850,
+        "y": 455
+      },
+      {
+        "at": 1,
+        "x": 1530,
+        "y": 112
+      }
     ],
     "targets": {
       "green": [
-        { "x": 1515, "y": 126 }
+        {
+          "x": 1515,
+          "y": 126
+        }
       ],
       "holed": [
-        { "x": 1530, "y": 112 }
+        {
+          "x": 1530,
+          "y": 112
+        }
       ]
     },
     "meta": {
@@ -89,9 +122,21 @@
       ]
     },
     "route": [
-      { "at": 0, "x": 115, "y": 835 },
-      { "at": 0.5, "x": 790, "y": 480 },
-      { "at": 1, "x": 1450, "y": 115 }
+      {
+        "at": 0,
+        "x": 115,
+        "y": 835
+      },
+      {
+        "at": 0.5,
+        "x": 790,
+        "y": 480
+      },
+      {
+        "at": 1,
+        "x": 1450,
+        "y": 115
+      }
     ],
     "meta": {
       "number": 3,
@@ -99,6 +144,862 @@
       "yards": 422,
       "tourAverage": 3.933,
       "difficulty": 13,
+      "course": "Waialae Country Club"
+    }
+  },
+  "waialae:4": {
+    "image": "art-demo/waialae/hole-04-illustrated.png",
+    "width": 1672,
+    "height": 941,
+    "matrix": {
+      "x": [
+        1,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        1,
+        0
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 470,
+        "y": 760
+      },
+      {
+        "at": 0.45,
+        "x": 850,
+        "y": 430
+      },
+      {
+        "at": 1,
+        "x": 1260,
+        "y": 165
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1260,
+          "y": 165
+        }
+      ],
+      "holed": [
+        {
+          "x": 1260,
+          "y": 165
+        }
+      ]
+    },
+    "meta": {
+      "number": 4,
+      "par": 3,
+      "yards": 204,
+      "tourAverage": 3.204,
+      "difficulty": 1,
+      "course": "Waialae Country Club"
+    }
+  },
+  "waialae:5": {
+    "image": "art-demo/waialae/hole-05-illustrated.png",
+    "width": 1672,
+    "height": 941,
+    "matrix": {
+      "x": [
+        1,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        1,
+        0
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 175,
+        "y": 820
+      },
+      {
+        "at": 0.5,
+        "x": 850,
+        "y": 475
+      },
+      {
+        "at": 1,
+        "x": 1490,
+        "y": 105
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1490,
+          "y": 105
+        }
+      ],
+      "holed": [
+        {
+          "x": 1490,
+          "y": 105
+        }
+      ]
+    },
+    "meta": {
+      "number": 5,
+      "par": 4,
+      "yards": 467,
+      "tourAverage": 3.943,
+      "difficulty": 13,
+      "course": "Waialae Country Club"
+    }
+  },
+  "waialae:6": {
+    "image": "art-demo/waialae/hole-06-illustrated.png",
+    "width": 1672,
+    "height": 941,
+    "matrix": {
+      "x": [
+        1,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        1,
+        0
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 170,
+        "y": 825
+      },
+      {
+        "at": 0.5,
+        "x": 820,
+        "y": 480
+      },
+      {
+        "at": 1,
+        "x": 1480,
+        "y": 115
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1480,
+          "y": 115
+        }
+      ],
+      "holed": [
+        {
+          "x": 1480,
+          "y": 115
+        }
+      ]
+    },
+    "meta": {
+      "number": 6,
+      "par": 4,
+      "yards": 460,
+      "tourAverage": 4.065,
+      "difficulty": 7,
+      "course": "Waialae Country Club"
+    }
+  },
+  "waialae:7": {
+    "image": "art-demo/waialae/hole-07-illustrated.png",
+    "width": 1672,
+    "height": 941,
+    "matrix": {
+      "x": [
+        1,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        1,
+        0
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 275,
+        "y": 790
+      },
+      {
+        "at": 0.5,
+        "x": 760,
+        "y": 475
+      },
+      {
+        "at": 1,
+        "x": 1260,
+        "y": 150
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1260,
+          "y": 150
+        }
+      ],
+      "holed": [
+        {
+          "x": 1260,
+          "y": 150
+        }
+      ]
+    },
+    "meta": {
+      "number": 7,
+      "par": 3,
+      "yards": 176,
+      "tourAverage": 3.07,
+      "difficulty": 5,
+      "course": "Waialae Country Club"
+    }
+  },
+  "waialae:8": {
+    "image": "art-demo/waialae/hole-08-illustrated.png",
+    "width": 1672,
+    "height": 941,
+    "matrix": {
+      "x": [
+        1,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        1,
+        0
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 170,
+        "y": 820
+      },
+      {
+        "at": 0.5,
+        "x": 850,
+        "y": 470
+      },
+      {
+        "at": 1,
+        "x": 1490,
+        "y": 110
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1490,
+          "y": 110
+        }
+      ],
+      "holed": [
+        {
+          "x": 1490,
+          "y": 110
+        }
+      ]
+    },
+    "meta": {
+      "number": 8,
+      "par": 4,
+      "yards": 454,
+      "tourAverage": 3.979,
+      "difficulty": 11,
+      "course": "Waialae Country Club"
+    }
+  },
+  "waialae:9": {
+    "image": "art-demo/waialae/hole-09-illustrated.png",
+    "width": 1672,
+    "height": 941,
+    "matrix": {
+      "x": [
+        1,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        1,
+        0
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 170,
+        "y": 820
+      },
+      {
+        "at": 0.33,
+        "x": 610,
+        "y": 610
+      },
+      {
+        "at": 0.67,
+        "x": 1050,
+        "y": 350
+      },
+      {
+        "at": 1,
+        "x": 1490,
+        "y": 110
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1490,
+          "y": 110
+        }
+      ],
+      "holed": [
+        {
+          "x": 1490,
+          "y": 110
+        }
+      ]
+    },
+    "meta": {
+      "number": 9,
+      "par": 5,
+      "yards": 506,
+      "tourAverage": 4.351,
+      "difficulty": 17,
+      "course": "Waialae Country Club"
+    }
+  },
+  "waialae:10": {
+    "image": "art-demo/waialae/hole-10-illustrated.png",
+    "width": 1672,
+    "height": 941,
+    "matrix": {
+      "x": [
+        1,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        1,
+        0
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 175,
+        "y": 820
+      },
+      {
+        "at": 0.5,
+        "x": 835,
+        "y": 470
+      },
+      {
+        "at": 1,
+        "x": 1485,
+        "y": 110
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1485,
+          "y": 110
+        }
+      ],
+      "holed": [
+        {
+          "x": 1485,
+          "y": 110
+        }
+      ]
+    },
+    "meta": {
+      "number": 10,
+      "par": 4,
+      "yards": 351,
+      "tourAverage": 3.899,
+      "difficulty": 16,
+      "course": "Waialae Country Club"
+    }
+  },
+  "waialae:11": {
+    "image": "art-demo/waialae/hole-11-illustrated.png",
+    "width": 1672,
+    "height": 941,
+    "matrix": {
+      "x": [
+        1,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        1,
+        0
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 310,
+        "y": 760
+      },
+      {
+        "at": 0.5,
+        "x": 770,
+        "y": 500
+      },
+      {
+        "at": 1,
+        "x": 1235,
+        "y": 275
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1235,
+          "y": 275
+        }
+      ],
+      "holed": [
+        {
+          "x": 1235,
+          "y": 275
+        }
+      ]
+    },
+    "meta": {
+      "number": 11,
+      "par": 3,
+      "yards": 194,
+      "tourAverage": 3.047,
+      "difficulty": 6,
+      "course": "Waialae Country Club"
+    }
+  },
+  "waialae:12": {
+    "image": "art-demo/waialae/hole-12-illustrated.png",
+    "width": 1672,
+    "height": 941,
+    "matrix": {
+      "x": [
+        1,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        1,
+        0
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 175,
+        "y": 820
+      },
+      {
+        "at": 0.5,
+        "x": 845,
+        "y": 470
+      },
+      {
+        "at": 1,
+        "x": 1490,
+        "y": 110
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1490,
+          "y": 110
+        }
+      ],
+      "holed": [
+        {
+          "x": 1490,
+          "y": 110
+        }
+      ]
+    },
+    "meta": {
+      "number": 12,
+      "par": 4,
+      "yards": 440,
+      "tourAverage": 3.904,
+      "difficulty": 14,
+      "course": "Waialae Country Club"
+    }
+  },
+  "waialae:13": {
+    "image": "art-demo/waialae/hole-13-illustrated.png",
+    "width": 1672,
+    "height": 941,
+    "matrix": {
+      "x": [
+        1,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        1,
+        0
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 175,
+        "y": 820
+      },
+      {
+        "at": 0.5,
+        "x": 835,
+        "y": 470
+      },
+      {
+        "at": 1,
+        "x": 1490,
+        "y": 110
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1490,
+          "y": 110
+        }
+      ],
+      "holed": [
+        {
+          "x": 1490,
+          "y": 110
+        }
+      ]
+    },
+    "meta": {
+      "number": 13,
+      "par": 4,
+      "yards": 477,
+      "tourAverage": 4.171,
+      "difficulty": 2,
+      "course": "Waialae Country Club"
+    }
+  },
+  "waialae:14": {
+    "image": "art-demo/waialae/hole-14-illustrated.png",
+    "width": 1672,
+    "height": 941,
+    "matrix": {
+      "x": [
+        1,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        1,
+        0
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 175,
+        "y": 820
+      },
+      {
+        "at": 0.5,
+        "x": 840,
+        "y": 470
+      },
+      {
+        "at": 1,
+        "x": 1490,
+        "y": 110
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1490,
+          "y": 110
+        }
+      ],
+      "holed": [
+        {
+          "x": 1490,
+          "y": 110
+        }
+      ]
+    },
+    "meta": {
+      "number": 14,
+      "par": 4,
+      "yards": 430,
+      "tourAverage": 4.021,
+      "difficulty": 10,
+      "course": "Waialae Country Club"
+    }
+  },
+  "waialae:15": {
+    "image": "art-demo/waialae/hole-15-illustrated.png",
+    "width": 1672,
+    "height": 941,
+    "matrix": {
+      "x": [
+        1,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        1,
+        0
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 175,
+        "y": 820
+      },
+      {
+        "at": 0.5,
+        "x": 845,
+        "y": 470
+      },
+      {
+        "at": 1,
+        "x": 1490,
+        "y": 110
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1490,
+          "y": 110
+        }
+      ],
+      "holed": [
+        {
+          "x": 1490,
+          "y": 110
+        }
+      ],
+      "water": [
+        {
+          "x": 1510,
+          "y": 510
+        }
+      ]
+    },
+    "meta": {
+      "number": 15,
+      "par": 4,
+      "yards": 398,
+      "tourAverage": 4.096,
+      "difficulty": 4,
+      "course": "Waialae Country Club"
+    }
+  },
+  "waialae:16": {
+    "image": "art-demo/waialae/hole-16-illustrated.png",
+    "width": 1672,
+    "height": 941,
+    "matrix": {
+      "x": [
+        1,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        1,
+        0
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 175,
+        "y": 820
+      },
+      {
+        "at": 0.5,
+        "x": 840,
+        "y": 465
+      },
+      {
+        "at": 1,
+        "x": 1490,
+        "y": 110
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1490,
+          "y": 110
+        }
+      ],
+      "holed": [
+        {
+          "x": 1490,
+          "y": 110
+        }
+      ]
+    },
+    "meta": {
+      "number": 16,
+      "par": 4,
+      "yards": 417,
+      "tourAverage": 3.93,
+      "difficulty": 12,
+      "course": "Waialae Country Club"
+    }
+  },
+  "waialae:17": {
+    "image": "art-demo/waialae/hole-17-illustrated.png",
+    "width": 1672,
+    "height": 941,
+    "matrix": {
+      "x": [
+        1,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        1,
+        0
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 330,
+        "y": 770
+      },
+      {
+        "at": 0.5,
+        "x": 760,
+        "y": 500
+      },
+      {
+        "at": 1,
+        "x": 1195,
+        "y": 185
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1195,
+          "y": 185
+        }
+      ],
+      "holed": [
+        {
+          "x": 1195,
+          "y": 185
+        }
+      ]
+    },
+    "meta": {
+      "number": 17,
+      "par": 3,
+      "yards": 194,
+      "tourAverage": 3.039,
+      "difficulty": 8,
+      "course": "Waialae Country Club"
+    }
+  },
+  "waialae:18": {
+    "image": "art-demo/waialae/hole-18-illustrated.png",
+    "width": 1672,
+    "height": 941,
+    "matrix": {
+      "x": [
+        1,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        1,
+        0
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 170,
+        "y": 820
+      },
+      {
+        "at": 0.33,
+        "x": 600,
+        "y": 630
+      },
+      {
+        "at": 0.67,
+        "x": 1050,
+        "y": 350
+      },
+      {
+        "at": 1,
+        "x": 1490,
+        "y": 110
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1490,
+          "y": 110
+        }
+      ],
+      "holed": [
+        {
+          "x": 1490,
+          "y": 110
+        }
+      ]
+    },
+    "meta": {
+      "number": 18,
+      "par": 5,
+      "yards": 551,
+      "tourAverage": 4.429,
+      "difficulty": 18,
       "course": "Waialae Country Club"
     }
   }
