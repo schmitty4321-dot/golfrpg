@@ -1,3 +1,4 @@
+import { chargeWinterPrograms } from "./finance";
 import { closeSeasonStats } from "./stats";
 import { logSeason } from "./charts";
 import {
@@ -422,7 +423,9 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   world.week = 1;
   adoptRealTour(world);
   for (const wp of clients(world)) wp.client!.finances = emptyFinances();
-  world.agency.ledger = { prizeCommission: 0, endorsementCommission: 0, office: 0, scouts: 0 };
+  world.agency.ledger = { prizeCommission: 0, endorsementCommission: 0, office: 0, scouts: 0, development: 0 };
+  // The winter program he just did goes on the new season's books.
+  chargeWinterPrograms(world);
   setTargets(world);
   ensureTraits(world);
   ensureFamiliarity(world);

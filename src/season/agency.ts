@@ -1,3 +1,4 @@
+import { financeMood } from "./finance";
 import { clamp, createRng, type Rng } from "../engine";
 import { amateurRanking } from "./amateurs";
 import { mixSeed } from "./entries";
@@ -227,6 +228,7 @@ export function updateHappiness(wp: WorldPlayer, week: { played: boolean; sgVsEx
   const sensitivity = decisionSensitivity(wp);
   target -= (c.contract.commission - STANDARD_COMMISSION) * 100 * 1.5 * sensitivity;
   if (week.heldOut) target -= (15 + heldOutPenalty(wp)) * sensitivity;
+  target += financeMood(wp);
   c.happiness = clamp(c.happiness + (target - c.happiness) * 0.12, 0, 100);
   if (week.sgVsExpected !== null) c.happiness = clamp(c.happiness + clamp(week.sgVsExpected, -2, 2), 0, 100);
 }

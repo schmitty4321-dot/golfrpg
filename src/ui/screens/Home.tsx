@@ -162,7 +162,7 @@ function WeekHero({ world, game, week }: { world: World; game: Game; week: WeekC
 
 function AgencyStrip({ world }: { world: World }) {
   const a = world.agency;
-  const season = a.ledger.prizeCommission + a.ledger.endorsementCommission - a.ledger.office - a.ledger.scouts;
+  const season = a.ledger.prizeCommission + a.ledger.endorsementCommission - a.ledger.office - a.ledger.scouts - (a.ledger.development ?? 0);
   return (
     <section className="panel agency-strip">
       <div className="stat-row">

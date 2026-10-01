@@ -222,6 +222,8 @@ export interface ClientManagement {
   travelClass?: TravelClass;
   /** Equipment models he owns (tour standard is always free). */
   ownedEquipment?: string[];
+  /** Share of his coaching and camps the agency pays (0, 0.5 or 1; older saves: 0). */
+  devFunding?: 0 | 0.5 | 1;
   /** This season's goals, agreed with him (see goals.ts), and the ones on offer. */
   goals?: SeasonGoal[];
   goalOffers?: SeasonGoal[];
@@ -272,6 +274,8 @@ export interface AgencyLedger {
   endorsementCommission: number;
   office: number;
   scouts: number;
+  /** Development costs the agency funded for its clients. */
+  development?: number;
 }
 
 export interface Agency {
@@ -326,6 +330,8 @@ export interface Finances {
   travel: number;
   /** Coaching staff wages, paid by the client. */
   coaching: number;
+  /** Winter programs and other training he paid for. */
+  training?: number;
   /** Clubs bought. */
   equipment?: number;
   /** Your agency's cut of prize money and endorsements. */

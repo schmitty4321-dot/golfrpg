@@ -1,5 +1,4 @@
 import { ALL_ATTRIBUTES, clamp, createRng, type ArchetypeId, type AttributeKey } from "../engine";
-import { coachFee } from "./staff";
 import { mixSeed } from "./entries";
 import { absWeek, type Scout, type World } from "./types";
 
@@ -18,7 +17,7 @@ export function generateScouts(seed: number): Scout[] {
     while (used.has(name));
     used.add(name);
     const quality = clamp(q + rng.int(-1, 1), 1, 20);
-    return { id: `sc${i + 1}`, name, quality, weeklyFee: Math.round(coachFee(quality) * 0.4 / 100) * 100 };
+    return { id: `sc${i + 1}`, name, quality, weeklyFee: Math.round(((500 + quality * quality * 25) * 0.4) / 100) * 100 };
   });
 }
 

@@ -5,7 +5,7 @@ const cash = (n: number) => (n < 0 ? `−${money(-n)}` : money(n));
 
 export function Finances({ world }: { world: World }) {
   const L = world.agency.ledger;
-  const profit = L.prizeCommission + L.endorsementCommission - L.office - L.scouts;
+  const profit = L.prizeCommission + L.endorsementCommission - L.office - L.scouts - (L.development ?? 0);
   return (
     <main>
       <div className="grid-2">
@@ -17,6 +17,7 @@ export function Finances({ world }: { world: World }) {
               <tr><td>Commission on endorsements</td><td className="num">{money(L.endorsementCommission)}</td></tr>
               <tr><td>Office and staff</td><td className="num bad-text">{cash(-L.office)}</td></tr>
               <tr><td>Scouts</td><td className="num bad-text">{cash(-L.scouts)}</td></tr>
+              <tr><td>Client development you fund</td><td className="num bad-text">{cash(-(L.development ?? 0))}</td></tr>
               <tr><td><strong>Profit so far</strong></td><td className={`num ${profit >= 0 ? "good-text" : "bad-text"}`}><strong>{cash(profit)}</strong></td></tr>
             </tbody>
           </table>
@@ -38,11 +39,11 @@ export function Finances({ world }: { world: World }) {
         ) : (
           <div className="table-wrap">
             <table>
-              <thead><tr><th>Client</th><th className="num">Prize money</th><th className="num">Endorsements</th><th className="num">Caddie</th><th className="num">Travel</th><th className="num">Coaching</th><th className="num">Clubs</th><th className="num">Commission</th><th className="num">Take-home</th></tr></thead>
+              <thead><tr><th>Client</th><th className="num">Prize money</th><th className="num">Endorsements</th><th className="num">Caddie</th><th className="num">Travel</th><th className="num">Coaching</th><th className="num">Training</th><th className="num">Clubs</th><th className="num">Commission</th><th className="num">Take-home</th></tr></thead>
               <tbody>
                 {world.clientIds.map((id) => {
                   const f = world.players[id]!.client!.finances;
-                  const net = f.prizeMoney + f.endorsements - f.caddie - f.travel - f.coaching - (f.equipment ?? 0) - f.commission;
+                  const net = f.prizeMoney + f.endorsements - f.caddie - f.travel - f.coaching - (f.training ?? 0) - (f.equipment ?? 0) - f.commission;
                   return (
                     <tr key={id}>
                       <td>{world.players[id]!.player.name}</td>
@@ -51,6 +52,7 @@ export function Finances({ world }: { world: World }) {
                       <td className="num">{cash(-f.caddie)}</td>
                       <td className="num">{cash(-f.travel)}</td>
                       <td className="num">{cash(-f.coaching)}</td>
+                      <td className="num">{cash(-(f.training ?? 0))}</td>
                       <td className="num">{cash(-(f.equipment ?? 0))}</td>
                       <td className="num">{cash(-f.commission)}</td>
                       <td className={`num ${net >= 0 ? "" : "bad-text"}`}><strong>{cash(net)}</strong></td>
@@ -75,7 +77,7 @@ export function Finances({ world }: { world: World }) {
                 {world.pastSeasons.map((s) => {
                   const l = s.agency.ledger;
                   const inc = l.prizeCommission + l.endorsementCommission;
-                  const cost = l.office + l.scouts;
+                  const cost = l.office + l.scouts + (l.development ?? 0);
                   return (
                     <tr key={s.season}>
                       <td>{s.season}</td>

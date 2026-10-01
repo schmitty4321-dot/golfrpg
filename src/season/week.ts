@@ -1,3 +1,4 @@
+import { COACH_PRIZE_SHARE, chargeDevelopment, coachesHired } from "./finance";
 import { recordEventStats } from "./stats";
 import { clamp, createRng, expectedStrokesGained, simulateTournament, startLive, totalSg, type LiveTournament, type TournamentConfig, type TournamentResult } from "../engine";
 import { seasonWeeks, majorSetup } from "./calendar";
@@ -259,6 +260,7 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
         const m = wp.client;
         const caddie = caddiePay(world, wp, r.earnings, caddieShare(r.position, r.madeCut));
         m.finances.prizeMoney += r.earnings;
+        chargeDevelopment(world, wp.player.id, Math.round(r.earnings * COACH_PRIZE_SHARE * coachesHired(world, wp.player.id)), "coaching");
         m.finances.caddie += caddie;
         m.finances.travel += Math.round(TRAVEL_COST[f.event.region] * mode.cost);
         const commission = Math.round(r.earnings * m.contract.commission);

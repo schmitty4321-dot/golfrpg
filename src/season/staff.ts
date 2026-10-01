@@ -1,3 +1,4 @@
+import { chargeDevelopment } from "./finance";
 import { clamp, createRng, type Rng } from "../engine";
 import { COACH_GROUPS, INTENSITY, developWeek, impliedStaff, overall, potentialEstimate } from "./development";
 import { mixSeed } from "./entries";
@@ -17,8 +18,8 @@ export const ROLE_LABELS: Record<CoachRole, string> = {
 const FIRST = ["Hank", "Butch", "Pete", "Claude", "Sean", "Mike", "Dave", "Jim", "Rick", "Phil", "Pia", "Lynn", "Gary", "Denis", "Tom", "Marius", "Josh", "Cameron", "Bernie", "Adam", "Chris", "Stan", "Jorge", "Ian", "Nick"];
 const LAST = ["Harlan", "Whitcombe", "Garrity", "Lindell", "Pryce", "Osgood", "Tanaka", "Moreau", "Kessler", "Brandt", "Ashby", "Fenwick", "Quill", "Rourke", "Stirling", "Varga", "Weller", "Yates", "Castell", "Dobbs"];
 
-/** Weekly fee: a star coach costs many times a journeyman. */
-export const coachFee = (quality: number): number => Math.round((500 + quality * quality * 25) / 100) * 100;
+/** Weekly retainer: about $74k a season for a tour-average coach (12), $330k for the best (20). */
+export const coachFee = (quality: number): number => Math.round((100 + quality ** 3) / 100) * 100;
 
 /** The market of coaches for hire: five per role, from journeymen to gurus. */
 export function generateCoaches(seed: number): Coach[] {
@@ -222,7 +223,7 @@ export function endOfWeek(world: World, competed: Set<string>, rng: Rng, boosts:
   }
   for (const id of world.clientIds) {
     const m = world.players[id]?.client;
-    if (m) m.finances.coaching += weeklyStaffCost(world, id);
+    if (m) chargeDevelopment(world, id, weeklyStaffCost(world, id), "coaching");
   }
 }
 

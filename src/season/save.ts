@@ -2,7 +2,7 @@ import { createRng, type Player } from "../engine";
 import { assignRivalAgents, emptyFinances, newAgency, newManagement } from "./agency";
 import { newDevelopment } from "./development";
 import { generateScouts } from "./scouting";
-import { generateCoaches } from "./staff";
+import { coachFee, generateCoaches } from "./staff";
 import { AMATEUR_CLASS_SIZE, generateAmateur } from "./amateurs";
 import { buildDevTour } from "./calendar";
 import { newHistory } from "./history";
@@ -34,6 +34,8 @@ export function deserializeWorld(json: string): World {
   ensureFamiliarity(world);
   world.caddies ??= generateCaddies(world.seed);
   ensureGoals(world);
+  // Coaches are priced by the current fee curve (it changed in the 2026 finance model).
+  for (const c of world.coaches) c.weeklyFee = coachFee(c.quality);
   return world;
 }
 

@@ -22,6 +22,7 @@ import { PortraitCard } from "./Portrait";
 import { StatBoxes, StatLegend } from "./StatBoxes";
 import { SkillRadar } from "./SkillRadar";
 import { CareerEvolution, RollingSgChart, SgPercentiles } from "./StatCharts";
+import { DevelopmentTab } from "./DevelopmentTab";
 import { TraitChip, TraitList } from "./Traits";
 import { FamiliarityPanel } from "./Familiarity";
 import { money, plural, signed, TIER_LABELS, toPar } from "../format";
@@ -42,7 +43,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
   const [commission, setCommission] = useState(10);
   const [years, setYears] = useState(2);
   const [result, setResult] = useState<string | null>(null);
-  const [tab, setTab] = useState<"profile" | "stats" | "results">("profile");
+  const [tab, setTab] = useState<"profile" | "stats" | "results" | "development">("profile");
   // A full screen of its own: Escape goes back, and the page underneath doesn't scroll.
   const close = useRef(onClose);
   close.current = onClose;
@@ -132,6 +133,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
               <button aria-current={tab === "profile" ? "page" : undefined} onClick={() => setTab("profile")}>Profile</button>
               <button aria-current={tab === "stats" ? "page" : undefined} onClick={() => setTab("stats")}>Stats</button>
               <button aria-current={tab === "results" ? "page" : undefined} onClick={() => setTab("results")}>Results</button>
+              <button aria-current={tab === "development" ? "page" : undefined} onClick={() => setTab("development")}>Development</button>
             </nav>
           </aside>
           {known && (
@@ -242,6 +244,8 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
           </p>
         )}
               </>
+            ) : tab === "development" ? (
+              <DevelopmentTab world={world} game={game} wp={wp} potential={potential} known={known} />
             ) : tab === "stats" ? (
               <PlayerStats world={world} wp={wp} season={world.season} liveEvent={liveEvent} />
             ) : (

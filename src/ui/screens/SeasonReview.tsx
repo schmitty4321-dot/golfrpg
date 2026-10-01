@@ -5,7 +5,7 @@ export function SeasonReview({ world, summary, onClose }: { world: World; summar
   const rec = world.history.seasons.find((s) => s.season === summary.season);
   const mine = (id: string) => world.clientIds.includes(id) || summary.clients.some((c) => c.id === id);
   const l = summary.agency.ledger;
-  const profit = l.prizeCommission + l.endorsementCommission - l.office - l.scouts;
+  const profit = l.prizeCommission + l.endorsementCommission - l.office - l.scouts - (l.development ?? 0);
   const setup = summary.courseSetup ? setupNews(summary.courseSetup) : null;
   return (
     <div className="overlay" role="dialog" aria-modal="true" aria-labelledby="review-title">
