@@ -95,16 +95,25 @@ export interface HoleTrace {
 
 /** Stable hash of strings and numbers, for repeatable replays. */
 export function traceSeed(...parts: (string | number)[]): number {
+  return seedPrefix(parts) >>> 0;
+}
+
+/** The hash state after `parts`, to finish with seedPart: traceSeed(...parts, x) without rehashing the prefix. */
+export function seedPrefix(parts: readonly (string | number)[]): number {
   let h = 2166136261;
-  for (const p of parts) {
-    const s = String(p);
-    for (let i = 0; i < s.length; i++) {
-      h ^= s.charCodeAt(i);
-      h = Math.imul(h, 16777619);
-    }
-    h ^= 0x9e37;
+  for (const p of parts) h = seedPart(h, p, false);
+  return h;
+}
+
+/** Adds one part to a hash state; `last` ends it as traceSeed does. */
+export function seedPart(h: number, part: string | number, last: boolean): number {
+  const s = String(part);
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
   }
-  return h >>> 0;
+  h ^= 0x9e37;
+  return last ? h >>> 0 : h;
 }
 
 // ---------------------------------------------------------------- layout
@@ -131,6 +140,8 @@ export function pointAt(path: Pt[], along: number, side = 0): Pt {
 const dist = (a: Pt, b: Pt) => Math.hypot(a.x - b.x, a.y - b.y);
 
 const layoutCache = new WeakMap<Hole, HoleLayout>();
+// The layout with each round's pin, by course id (pins follow the course id, not the object).
+const pinnedCache = new WeakMap<HoleLayout, Map<string, HoleLayout[]>>();
 
 /** Draws a hole from its numbers. Features are placed from a seed of the course and hole, so they never move. */
 export function holeLayout(course: Course, hole: Hole, round?: number): HoleLayout {
@@ -140,7 +151,13 @@ export function holeLayout(course: Course, hole: Hole, round?: number): HoleLayo
     layout = real ? realLayout(course, hole, real) : buildLayout(course, hole);
     layoutCache.set(hole, layout);
   }
-  return round === undefined ? layout : { ...layout, pin: pinPosition(course, hole, layout.green, round) };
+  if (round === undefined) return layout;
+  let byCourse = pinnedCache.get(layout);
+  if (!byCourse) pinnedCache.set(layout, (byCourse = new Map()));
+  let rounds = byCourse.get(course.id);
+  if (!rounds) byCourse.set(course.id, (rounds = []));
+  const r = Math.max(0, Math.min(3, round));
+  return (rounds[r] ??= { ...layout, pin: pinPosition(course, hole, layout.green, r) });
 }
 
 /** Where the pin is cut on a hole in a given round (0-3): see pins.ts. */

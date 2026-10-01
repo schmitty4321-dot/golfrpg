@@ -21,12 +21,15 @@ const MIN_OFF = 0.25;
 const MAX_OFF = 0.68;
 const tuckOf = (off: number) => (off - MIN_OFF) / (MAX_OFF - MIN_OFF);
 
-const cache = new Map<string, PinSpot[]>();
+// By course id, then hole number (hot: every simulated and traced hole asks).
+const cache = new Map<string, PinSpot[][]>();
+const avgCache = new Map<PinSpot[], number>();
 
 /** The four pins of a hole, by 0-based round. */
 export function pinSpots(course: Course, hole: Hole): PinSpot[] {
-  const key = `${course.id}/${hole.number}`;
-  const hit = cache.get(key);
+  let byHole = cache.get(course.id);
+  if (!byHole) cache.set(course.id, (byHole = []));
+  const hit = byHole[hole.number];
   if (hit) return hit;
   const rng = createRng(traceSeed(course.id, hole.number, "pins"));
   const start = rng.next() * Math.PI * 2;
@@ -45,7 +48,7 @@ export function pinSpots(course: Course, hole: Hole): PinSpot[] {
     }
   }
   const spots = [0, 1, 2, 3].map((r) => ({ ang: start + (order[r]! * Math.PI) / 2 + rng.normal(0, 0.25), off: offs[r]!, tuck: tuckOf(offs[r]!) }));
-  cache.set(key, spots);
+  byHole[hole.number] = spots;
   return spots;
 }
 
@@ -67,8 +70,9 @@ export function tuckWord(tuck: number): string {
  */
 export function pinEffect(course: Course, hole: Hole, round: number): { mean: number; blowup: number } {
   const spots = pinSpots(course, hole);
-  const avg = spots.reduce((s, p) => s + p.tuck, 0) / spots.length;
-  const d = pinSpot(course, hole, round).tuck - avg;
+  let avg = avgCache.get(spots);
+  if (avg === undefined) avgCache.set(spots, (avg = spots.reduce((s, p) => s + p.tuck, 0) / spots.length));
+  const d = spots[Math.max(0, Math.min(3, round))]!.tuck - avg;
   const guard = 0.5 + hole.hazard + hole.bunkers * 0.1;
   return { mean: 0.14 * d * guard, blowup: Math.max(0.5, 1 + 0.5 * d * guard) };
 }

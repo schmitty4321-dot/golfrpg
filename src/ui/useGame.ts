@@ -44,7 +44,7 @@ export interface GameState {
 }
 
 /** Yields to the browser so a "working..." message paints before heavy simulation. */
-const nextFrame = () => new Promise((r) => setTimeout(r, 30));
+const nextFrame = (ms = 30) => new Promise((r) => setTimeout(r, ms));
 
 export function useGame() {
   const [state, setState] = useState<GameState>({ world: null, reports: [], review: null, busy: null, loaded: false, saveError: false, live: null, liveWeek: null });
@@ -102,11 +102,13 @@ export function useGame() {
           return;
         }
       }
-      if (weeks > 1) {
-        publish({ busy: `Simulating ${weeks} weeks…` });
-        await nextFrame();
-      }
+      const total = Math.min(weeks, seasonWeeks(w) - w.week + 1);
       for (let i = 0; i < weeks && w.week <= seasonWeeks(w); i++) {
+        // Let the screen breathe between weeks so a long sim shows its progress instead of freezing.
+        if (weeks > 1) {
+          publish({ busy: `Simulating week ${i + 1} of ${total}…` });
+          await nextFrame(0);
+        }
         reportsRef.current.push(playWeek(w, i === 0 ? choices : {}));
       }
       reportsRef.current = reportsRef.current.slice(-60);

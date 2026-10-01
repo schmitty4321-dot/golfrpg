@@ -3,7 +3,7 @@
  * shot-by-shot reconstructions (the same ones the shot tracer replays), so
  * stats, replays and scores always agree.
  */
-import { sideOf, traceHole, traceSeed, type HoleTrace } from "./tracer";
+import { seedPart, seedPrefix, sideOf, traceHole, traceSeed, type HoleTrace } from "./tracer";
 import type { PlayerEventResult, TournamentResult } from "./tournament";
 
 export interface RoundStats {
@@ -165,11 +165,14 @@ export function roundStats(result: TournamentResult, row: PlayerEventResult, rou
   if (!card) return emptyStats();
   const wind = result.weather[round]?.windMph[row.waves[round] ?? "AM"] ?? 0;
   const acc = emptyStats();
-  card.forEach((score, i) => {
+  // holeSeed(result.name, id, round, i), with the shared start hashed once.
+  const prefix = seedPrefix([result.name, row.player.id, round]);
+  const calls = row.calls?.[round];
+  for (let i = 0; i < card.length; i++) {
     const hole = result.course.holes[i]!;
-    const trace = traceHole({ course: result.course, hole, score, player: row.player, windMph: wind, seed: holeSeed(result.name, row.player.id, round, i), call: row.calls?.[round]?.[i] ?? null, round });
+    const trace = traceHole({ course: result.course, hole, score: card[i]!, player: row.player, windMph: wind, seed: seedPart(prefix, i, true), call: calls?.[i] ?? null, round });
     holeStats(trace, hole.par, acc);
-  });
+  }
   return acc;
 }
 

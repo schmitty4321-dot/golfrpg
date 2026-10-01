@@ -257,6 +257,13 @@ export function developWeek(wp: WorldPlayer, inputs: DevelopmentInputs, rng: Rng
   // A client's week apart from coaching: training load, range days, competing.
   const rangeDays = inputs.boost ? (inputs.boost.training - 1) / 0.15 : 0;
   const managedWeek = MANAGED.intensity[inputs.plan.intensity] + MANAGED.perRangeDay * rangeDays + (inputs.competed && !winter ? MANAGED.competing : 0) + (inputs.facility ?? 0);
+  // Asked once a week rather than once per skill.
+  const sponge = has(wp, "sponge");
+  const gymRat = has(wp, "gym-rat");
+  const slow = yearsPast > 0 ? clamp(1 - (fitnessQ - SELF_TAUGHT) / 30, 0.5, 1) * (inputs.plan.focus === "fitness" ? 0.7 : 1) * (has(wp, "ageless") ? 0.5 : 1) * (winter?.decline ?? 1) : 1;
+  const years = yearsPast > 0 ? declineYears(yearsPast) : 0;
+  const experience = p.age < 46 ? 0.0015 * (inputs.competed ? 1.3 : 1) * (inputs.competed && has(wp, "tournament-learner") ? 2 : 1) : 0;
+  const cap = Math.min(20, Math.ceil(dev.potential + STRENGTH_ROOM));
 
   for (const key of TRAINABLE) {
     if (FIXED.includes(key)) continue;
@@ -266,26 +273,23 @@ export function developWeek(wp: WorldPlayer, inputs: DevelopmentInputs, rng: Rng
     const coaching = clamp((coachQ(key) - 12) * MANAGED.coachPerPoint, MANAGED.coachMin, MANAGED.coachMax);
     const work = MANAGED.base * Math.max(0.2, 1 + coaching + managedWeek + (winter ? (body ? winter.fitness : winter.golf) : 0));
     let delta = CLIENT_GROWTH * prodigy * growAge * gap * learn * work * focusMultiplier(key, inputs.plan.focus) * boost;
-    if (has(wp, "sponge") && inputs.plan.focus !== "balanced" && FOCUS_GROUPS[inputs.plan.focus].includes(key)) delta *= 1.25;
-    if (has(wp, "gym-rat") && body) delta *= 1.3;
+    if (sponge && inputs.plan.focus !== "balanced" && FOCUS_GROUPS[inputs.plan.focus].includes(key)) delta *= 1.25;
+    if (gymRat && body) delta *= 1.3;
     // Range days are already in a client's budget; gym days still speed up the body.
     if (inputs.boost && delta > 0 && (body || !inputs.managed)) delta *= body ? inputs.boost.fitness : inputs.boost.training;
     if (injured) delta *= 0.3;
 
     // Ageing: power goes first, then the short putts; fitness work slows it.
     if (yearsPast > 0) {
-      const slow = clamp(1 - (fitnessQ - SELF_TAUGHT) / 30, 0.5, 1) * (inputs.plan.focus === "fitness" ? 0.7 : 1) * (has(wp, "ageless") ? 0.5 : 1) * (winter?.decline ?? 1);
-      const years = declineYears(yearsPast);
       if (PHYSICAL.includes(key)) delta -= 0.0015 * years * slow;
       else if (key === "shortPutts") delta -= 0.0009 * years;
       else if (!EXPERIENCE.includes(key)) delta -= 0.0006 * years;
     }
     // Experience: the mind keeps improving into the forties, faster when competing,
     // up to his ceiling (without one, the whole tour drifts to 16s in composure).
-    if (EXPERIENCE.includes(key) && p.age < 46 && a[key] < Math.ceil(dev.potential)) delta += 0.0015 * (inputs.competed ? 1.3 : 1) * (inputs.competed && has(wp, "tournament-learner") ? 2 : 1);
+    if (experience && EXPERIENCE.includes(key) && a[key] < Math.ceil(dev.potential)) delta += experience;
 
     delta += rng.normal(0, 0.01);
-    const cap = Math.min(20, Math.ceil(dev.potential + STRENGTH_ROOM));
     let prog = (dev.progress[key] ?? 0) + delta;
     if (prog >= 1) {
       if (a[key] < cap) {

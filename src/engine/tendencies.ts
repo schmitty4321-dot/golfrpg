@@ -48,15 +48,26 @@ export function roundTendencyShift(t: Tendencies, round: number, shotsBehind: nu
 
 // Tendencies are asked for on every hole of every replay: cache them per player
 // while the attributes they depend on are unchanged.
-const cache = new WeakMap<Player, { key: string; t: Tendencies }>();
+const cache = new WeakMap<Player, { id: string; a: Player["attributes"]; v: number[]; t: Tendencies }>();
+const keyOf = (a: Player["attributes"]) => [a.aggression, a.courseManagement, a.trajectoryControl, a.windTolerance, a.speedControl, a.sundayNerves, a.stamina, a.focus];
 
 export function tendencies(p: Player): Tendencies {
   const a = p.attributes;
-  const key = `${p.id}|${a.aggression}|${a.courseManagement}|${a.trajectoryControl}|${a.windTolerance}|${a.speedControl}|${a.sundayNerves}|${a.stamina}|${a.focus}`;
   const hit = cache.get(p);
-  if (hit && hit.key === key) return hit.t;
+  if (hit && hit.id === p.id) {
+    // Same attributes object and nothing it depends on changed (attributes can be edited in place).
+    const v = hit.v;
+    if (
+      hit.a === a && v[0] === a.aggression && v[1] === a.courseManagement && v[2] === a.trajectoryControl && v[3] === a.windTolerance &&
+      v[4] === a.speedControl && v[5] === a.sundayNerves && v[6] === a.stamina && v[7] === a.focus
+    ) return hit.t;
+    if (keyOf(a).every((x, i) => x === v[i])) {
+      hit.a = a;
+      return hit.t;
+    }
+  }
   const t = computeTendencies(p);
-  cache.set(p, { key, t });
+  cache.set(p, { id: p.id, a, v: keyOf(a), t });
   return t;
 }
 
