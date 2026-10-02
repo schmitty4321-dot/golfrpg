@@ -1,4 +1,5 @@
 import { brandSeasonEnd, trophiesSeasonEnd } from "./showcase";
+import { recordAlumnus, referralBonus } from "./legacy";
 import { bidPressure } from "./rivalAgents";
 import { START_TRUST, makePromises, promiseAppeal, trustOf, type PromiseKind } from "./promises";
 import { negotiationBonus, rivalPoaching, shortlistAlerts } from "./market";
@@ -173,8 +174,9 @@ export function acceptChance(world: World, id: string, offer: Offer): number {
   // A rival bidding for a free player: its name and commission count against yours.
   const bid = competingBid(world, id);
   if (bid) score -= competitionPenalty(world, wp, bid);
-  // What you promise him.
+  // What you promise him, and a head start if one of your old players sent him.
   score += promiseAppeal(wp, rankMap(world).get(id) ?? 999, offer.promises);
+  score += referralBonus(world, id);
   return clamp(1 / (1 + Math.exp(-score / 7)), 0.02, 0.97);
 }
 
@@ -263,6 +265,8 @@ export function extendChance(world: World, id: string, offer: Offer): number {
 export function releaseClient(world: World, id: string): void {
   const wp = world.players[id];
   if (!wp?.client) return;
+  // He stays on the agency's books as an alumnus.
+  recordAlumnus(world, wp);
   delete wp.client;
   wp.agent = null;
   wp.player.sgAdjust = undefined;

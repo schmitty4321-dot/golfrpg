@@ -197,7 +197,7 @@ function StaffRow({ role, world, game, clientId }: { role: CoachRole; world: Wor
           <option value="">No one</option>
           {options.map((c) => (
             <option key={c.id} value={c.id}>
-              {c.name} · {c.quality}/20 · {money(c.weeklyFee)}/wk
+              {c.name}{c.formerClient ? " (former client)" : ""} · {c.quality}/20 · {money(c.weeklyFee)}/wk
             </option>
           ))}
         </select>

@@ -1,4 +1,5 @@
 import { chargeWinterPrograms } from "./finance";
+import { alumniReferrals, alumnusRetires } from "./legacy";
 import { checkAchievements } from "./achievements";
 import { rivalRelationshipsSeasonEnd } from "./rivalAgents";
 import { seasonEndPromiseChecks } from "./promises";
@@ -519,6 +520,8 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
       (wp.career.status === "none" && (age >= 42 || rng.chance(retireChance(wp.career.noCardSeasons ?? 1, age)))) ||
       (age >= 46 && (wp.career.exemptThrough ?? 0) <= season && rng.chance(0.3));
     if (retire) {
+      // A former client of yours comes back as a coach.
+      alumnusRetires(world, wp);
       if (wp.career.careerWins > 0) world.news.unshift(`${wp.player.name} retires at ${age}, with ${wp.career.careerWins} career win${wp.career.careerWins === 1 ? "" : "s"}.`);
       considerForHallOfFame(world, wp);
       delete world.players[wp.player.id];
@@ -559,6 +562,8 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
     : null;
   if (summary) world.pastSeasons.push(summary);
   checkAchievements(world);
+  // Retired alumni send the odd prospect from home.
+  if (world.clientIds.length > 0) alumniReferrals(world, createRng(mixSeed(world.seed, season, 2101)));
 
   for (const wp of Object.values(world.players)) {
     const c = wp.career;

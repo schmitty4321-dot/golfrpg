@@ -1,4 +1,5 @@
 import { createRng, type Player } from "../engine";
+import { LOYALTY_DISCOUNT } from "./legacy";
 import { ensureRyderCup } from "./ryderCup";
 import { addMatchPlay } from "./world";
 import { ensureRivals } from "./rivals";
@@ -47,7 +48,8 @@ export function deserializeWorld(json: string): World {
   ensureRyderCup(world);
   ensureGoals(world);
   // Coaches are priced by the current fee curve (it changed in the 2026 finance model).
-  for (const c of world.coaches) c.weeklyFee = coachFee(c.quality);
+  // (A former client coaching for you keeps his friend's rate.)
+  for (const c of world.coaches) c.weeklyFee = Math.round(coachFee(c.quality) * (c.formerClient ? LOYALTY_DISCOUNT : 1));
   return world;
 }
 

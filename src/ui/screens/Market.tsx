@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { LegacyPanel } from "../components/Legacy";
 import { createRng } from "../../engine";
 import {
   STATUS_LABELS,
@@ -181,6 +182,7 @@ export function Trophies({ world }: { world: World }) {
   const y = (v: number) => 12 + ((100 - v) / 100) * (H - 36);
   return (
     <main>
+      <LegacyPanel world={world} />
       <section className="panel">
         <div className="panel-head"><h2>Trophy cabinet</h2><span className="muted small">Won while they were your clients</span></div>
         <div className="player-stat-grid">

@@ -154,6 +154,8 @@ export interface Coach {
   /** 1-20. */
   quality: number;
   weeklyFee: number;
+  /** A former client of yours, coaching at a friend's rate (see legacy.ts). */
+  formerClient?: boolean;
 }
 
 export interface Injury {
@@ -244,6 +246,8 @@ export interface ClientManagement {
   promises?: import("./promises").ClientPromise[];
   /** Sits out every week up to and including this one (absolute week). */
   restUntil?: number;
+  /** His best world ranking while he's been yours. */
+  bestRank?: number;
   /** He made a bold claim this week (absolute): his next start tests it. */
   boldClaim?: number;
 }
@@ -371,6 +375,10 @@ export interface Agency {
   pauseOnDecisions?: boolean;
   /** Running counts the achievements use (promises kept, deals on a counter...). */
   counts?: Record<string, number>;
+  /** Everyone who was ever your client (see legacy.ts). */
+  legacy?: { alumni: import("./legacy").Alumnus[] };
+  /** Prospects an alumnus sent you: player id to the last season the head start lasts. */
+  referrals?: Record<string, number>;
   brandOffers?: BrandDeal[];
   /** Agency events held, by season. */
   eventsHeld?: Record<number, AgencyEventKind[]>;

@@ -1,4 +1,5 @@
 import { payBrands, recordClientWin, updateFollowers } from "./showcase";
+import { trackBestRanks } from "./legacy";
 import { checkAchievements } from "./achievements";
 import { recordHighlight } from "./highlights";
 import { recordRivalries, recordRyderRivalries, rivalryEdge, rivalryWeek } from "./rivalries";
@@ -440,6 +441,7 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
 
   // The shot of the week.
   if (world.clientIds.length > 0) recordHighlight(world, report.results);
+  trackBestRanks(world);
   checkAchievements(world);
   // Sponsor buzz from the press fades week by week.
   for (const wp of clients(world)) if (wp.client!.buzz) wp.client!.buzz = Math.round(wp.client!.buzz * 0.9 * 1000) / 1000 || 0;
