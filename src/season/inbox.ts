@@ -43,6 +43,8 @@ export type Effect =
   | { k: "relationship"; agency: string; v: number }
   /** A tip-off: your scouts learn about a player straight away. */
   | { k: "scoutBoost"; playerId: string; v: number }
+  /** Players onto your recruitment board. */
+  | { k: "shortlist"; ids: string[] }
   /** A gamble: `p` chance of `then`, otherwise `else`, each with a line for the news. */
   | { k: "chance"; p: number; then: Effect[]; else: Effect[]; thenNews: string; elseNews: string };
 
@@ -142,6 +144,11 @@ function applyEffects(world: World, wp: WorldPlayer | null, effects: Effect[], r
       addReputation(world.agency, e.v);
       continue;
     }
+    if (e.k === "shortlist") {
+      const board = (world.agency.shortlist ??= []);
+      for (const id of e.ids) if (!board.includes(id) && world.players[id] && !world.players[id]!.client) board.push(id);
+      continue;
+    }
     if (e.k === "agencyCost") {
       world.agency.bank -= e.v;
       world.agency.ledger.clientCare = (world.agency.ledger.clientCare ?? 0) + e.v;
@@ -234,6 +241,7 @@ export function describeEffects(effects: Effect[]): string {
     else if (e.k === "practiceAt") parts.push("knows the course better");
     else if (e.k === "relationship") parts.push(`${e.agency}: ${e.v > 0 ? "warmer" : "cooler"}`);
     else if (e.k === "scoutBoost") parts.push("a full report on him");
+    else if (e.k === "shortlist") parts.push(`${e.ids.length} on your board`);
     else if (e.k === "chance") parts.push(`${Math.round(e.p * 100)}% chance: ${describeEffects(e.then) || "nothing"}`);
   }
   return parts.join(", ");

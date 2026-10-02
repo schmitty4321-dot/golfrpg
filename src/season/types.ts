@@ -379,6 +379,10 @@ export interface Agency {
   legacy?: { alumni: import("./legacy").Alumnus[] };
   /** Prospects an alumnus sent you: player id to the last season the head start lasts. */
   referrals?: Record<string, number>;
+  /** Scouts away on trips (see scoutTrips.ts). */
+  trips?: import("./scoutTrips").ScoutTrip[];
+  /** Players a rival's scout also found on one of your trips: player id to the rival. */
+  contested?: Record<string, string>;
   brandOffers?: BrandDeal[];
   /** Agency events held, by season. */
   eventsHeld?: Record<number, AgencyEventKind[]>;

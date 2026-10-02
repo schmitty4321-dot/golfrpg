@@ -180,7 +180,8 @@ export function rivalBids(world: World, id: string, roster: Map<string, number> 
     // Nobody chases a player who would laugh at them.
     if (needed - r.reputation > 30) return;
     const rng = createRng(mixSeed(world.seed, world.season, 1401, idNum(id), i + 1));
-    const want = style.appetite(wp, worth) * (0.7 + rng.next() * 0.6);
+    // A rival whose scout found him on your trip wants him more.
+    const want = style.appetite(wp, worth) * (0.7 + rng.next() * 0.6) * (world.agency.contested?.[id] === r.name ? 1.5 : 1);
     if (want < 0.5) return;
     // Keen agencies shade their commission a little.
     const commission = Math.round((style.commission - (want >= 1.5 ? 0.01 : 0)) * 100) / 100;

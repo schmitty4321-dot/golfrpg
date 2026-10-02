@@ -42,3 +42,4 @@ export * from "./highlights";
 export * from "./achievements";
 export * from "./legacy";
 export * from "./challenges";
+export * from "./scoutTrips";

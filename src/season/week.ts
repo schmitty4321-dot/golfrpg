@@ -1,4 +1,5 @@
 import { payBrands, recordClientWin, updateFollowers } from "./showcase";
+import { scoutTripsWeek } from "./scoutTrips";
 import { checkChallenge } from "./challenges";
 import { trackBestRanks } from "./legacy";
 import { checkAchievements } from "./achievements";
@@ -428,6 +429,7 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
   // No agency exists during the silent warm-up season, so nothing to pay.
   if (world.clientIds.length > 0) {
     scoutingWeek(world);
+    scoutTripsWeek(world);
     const office = hqTier(world.agency).office;
     const costs = office + weeklyScoutCost(world);
     world.agency.bank -= costs;

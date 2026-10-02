@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { ScoutTripsPanel } from "../components/ScoutTrips";
 import { REPORTS_PER_WEEK, STATUS_LABELS, approachBlock, knownTraits, pointsList, queueScouting, rankMap, weeklyScoutCost, type TourStatus, type World, knownArchetype } from "../../season";
 import { PlayerProfile } from "../components/PlayerProfile";
 import { Stars } from "../components/Stars";
@@ -39,6 +40,7 @@ export function Scouting({ world, game }: { world: World; game: Game }) {
 
   return (
     <main>
+      <ScoutTripsPanel world={world} game={game} />
       <div className="grid-2">
         <section className="panel">
           <div className="panel-head">

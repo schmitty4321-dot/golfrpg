@@ -48,7 +48,9 @@ export const weeklyScoutCost = (world: World): number =>
 export function scoutingWeek(world: World): string[] {
   const done: string[] = [];
   const now = absWeek(world.season, world.week);
-  const scouts = world.agency.hiredScouts.map((id) => world.agency.scouts.find((s) => s.id === id)!).sort((a, b) => b.quality - a.quality);
+  // Scouts away on a trip don't work the queue at home.
+  const away = new Set((world.agency.trips ?? []).map((t) => t.scoutId));
+  const scouts = world.agency.hiredScouts.filter((id) => !away.has(id)).map((id) => world.agency.scouts.find((s) => s.id === id)!).sort((a, b) => b.quality - a.quality);
   for (const scout of scouts) {
     for (let i = 0; i < REPORTS_PER_WEEK; i++) {
       const id = world.agency.scoutingQueue.shift();
