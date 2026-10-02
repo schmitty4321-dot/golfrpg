@@ -68,8 +68,11 @@ const TRAINABLE: readonly AttributeKey[] = [...VISIBLE_ATTRIBUTES, "windToleranc
  * he gets there before his peak age is up to you.
  */
 const CLIENT_GROWTH = 0.0038;
-/** Only the gifted race ahead: extra growth for an amateur per point of ceiling above PRODIGY_FROM. */
-const PRODIGY_RATE = 0.5;
+/**
+ * Only the gifted race ahead: extra growth for an amateur per point of ceiling above
+ * PRODIGY_FROM (was 0.5; 1.0 brings wins by players in their twenties up towards the real 48%).
+ */
+const PRODIGY_RATE = 1.0;
 const PRODIGY_FROM = 13.5;
 /** A strength can sit this far above the player's overall ceiling. */
 const STRENGTH_ROOM = 4;

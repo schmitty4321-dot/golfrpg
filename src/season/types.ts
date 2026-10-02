@@ -31,7 +31,7 @@ export interface TourEvent {
 
 /**
  * Tour membership, best to worst:
- * - exempt: fully exempt (top 125 last season, or a recent winner)
+ * - exempt: fully exempt (top 100 last season, or a recent winner)
  * - graduate: came up from the developmental tour
  * - conditional: finished 126-150, gets in when fields aren't full
  * - none: no main-tour status; plays the developmental tour and Monday qualifiers

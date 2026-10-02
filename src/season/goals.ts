@@ -21,10 +21,10 @@ export function offerGoals(world: World, wp: WorldPlayer): SeasonGoal[] {
     return [g("cuts", 1, "Make a cut in a professional event", 2), g("top10s", 1, "A top 10 in any event", 2), g("win", 1, "Win an event", 3), g("cuts", 2, "Make two cuts", 3)];
   }
   if (wp.career.status === "none" || lvl < 12.3) {
-    return [g("cuts", 6, "Make 6 cuts", 1), g("top10s", 2, "Two top-10 finishes", 2), g("card", 125, "Earn a main-tour card (top 125)", 2), g("win", 1, "Win an event", 3)];
+    return [g("cuts", 6, "Make 6 cuts", 1), g("top10s", 2, "Two top-10 finishes", 2), g("card", 100, "Earn a main-tour card (top 100)", 2), g("win", 1, "Win an event", 3)];
   }
   if (rank > 60 || lvl < 13.5) {
-    return [g("card", 125, "Keep his card (top 125 on points)", 1), g("top10s", 3, "Three top-10 finishes", 2), g("playoffs", 70, "Make the playoffs (top 70)", 2), g("win", 1, "Win an event", 3)];
+    return [g("card", 100, "Keep his card (top 100 on points)", 1), g("top10s", 3, "Three top-10 finishes", 2), g("playoffs", 70, "Make the playoffs (top 70)", 2), g("win", 1, "Win an event", 3)];
   }
   if (rank > 15) {
     return [g("playoffs", 70, "Make the playoffs (top 70)", 1), g("top10s", 5, "Five top-10 finishes", 2), g("win", 1, "Win an event", 2), g("points-top", 30, "Reach the Tour Championship (top 30)", 3)];

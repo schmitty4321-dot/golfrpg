@@ -55,6 +55,7 @@ export const REALISM_ANCHORS = {
   tierAverage: { label: "Rookies who peak as average tour pros or better", real: 46, tolerance: 15, unit: "%", source: "Data Golf careers: peak 2-season SG 0 or better" },
   leader54: { label: "54-hole leaders (incl. co-leaders) who win", real: 34, tolerance: 8, unit: "%", source: "Golf Channel: 34.6% over 15 seasons; Justin Ray: 33% over 5 seasons" },
   margin: { label: "Average winning margin (playoffs count as 0)", real: 1.98, tolerance: 0.6, unit: "strokes", source: "PGA TOUR, 2022-23 Season by the Numbers: 1.98 strokes" },
+  winnerSg: { label: "Winners' strokes a round better than the field", real: 3.7, tolerance: 0.4, unit: "strokes", source: "Mark Broadie, Every Shot Counts (2014, ShotLink 2004-): winners average 67.4, 3.7 a round better than the field" },
   playoffRate: { label: "Events decided in a playoff", real: 20, tolerance: 8, unit: "%", source: "PGA TOUR, 2022-23 Season by the Numbers: 10 playoffs in 51 stroke-play events" },
   closeFinish: { label: "Events decided by one shot or fewer", real: 47, tolerance: 12, unit: "%", source: "PGA TOUR, 2022-23 Season by the Numbers: 24 of 51" },
   winsTwenties: { label: "Wins by players in their 20s", real: 48, tolerance: 10, unit: "%", source: "PGA TOUR, 2022-23 Season by the Numbers: 225 of the last 472 wins (10 seasons)" },
@@ -241,6 +242,7 @@ export function measureRealism(world: World, seasons: number): RealismMetrics {
   values.fieldVsReal = mean(vsReal);
   values.leader54 = leaderInstances ? (100 * leaderWins) / leaderInstances : NaN;
   values.margin = mean(margins);
+  values.winnerSg = mean(winnerSg);
   values.playoffRate = events ? (100 * playoffs) / events : NaN;
   values.closeFinish = events ? (100 * close) / events : NaN;
   values.winsTwenties = winnerAges.length ? (100 * winnerAges.filter((a) => a >= 20 && a <= 29).length) / winnerAges.length : NaN;
@@ -304,7 +306,6 @@ export function measureRealism(world: World, seasons: number): RealismMetrics {
     info: {
       "Distinct winners per season": mean(winners),
       "Average winning score to par (real: -16.6 in 2017-18, lower since)": mean(winningToPar),
-      "Winner's strokes gained per round": mean(winnerSg),
     },
   };
 }

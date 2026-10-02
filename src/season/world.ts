@@ -50,7 +50,7 @@ export const SCENARIOS: Record<Scenario, { title: string; blurb: string }> = {
   },
   rookie: {
     title: "The Rookie",
-    blurb: "A 23-year-old just up from the developmental tour. Decent status, no margin for error: finish top 125 or lose the card.",
+    blurb: "A 23-year-old just up from the developmental tour. Decent status, no margin for error: finish top 100 or lose the card.",
   },
   journeyman: {
     title: "The Journeyman",
@@ -74,8 +74,8 @@ const POOL: [PlayerTier, number][] = [
   ["college", 70],
 ];
 const TARGET_POOL_SIZE = POOL.reduce((s, [, n]) => s + n, 0);
-/** Card thresholds on the season points list. */
-export const FULL_CARD = 125;
+/** Card thresholds on the season points list. Full cards go to the top 100 on the points list (the PGA TOUR's rule from 2026; it was 125). */
+export const FULL_CARD = 100;
 export const CONDITIONAL_CARD = 150;
 /** Q-School hands out this many cards. */
 export const QSCHOOL_CARDS = 5;
@@ -317,6 +317,8 @@ function createClient(rng: Rng, scenario: StarterKind, usedNames: Set<string>, s
         const target = clamp(overall(p) + 1, 11.2, 12.8);
         const shift = Math.round(target - overall(p));
         for (const k of GOLF_SKILLS) p.attributes[k] = clamp(p.attributes[k] + shift, 1, 20);
+        // Whole-point shifts can round him under the range: one more point if so.
+        if (overall(p) < 11.2) for (const k of GOLF_SKILLS) p.attributes[k] = clamp(p.attributes[k] + 1, 1, 20);
       });
     case "grinder":
       // A standout: near the top of what college players are, but still raw.
