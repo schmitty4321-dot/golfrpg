@@ -531,6 +531,8 @@ export interface World {
   ryderCup?: import("./ryderCup").RyderCupState;
   /** The latest match-play event's draw, for the bracket screen. */
   lastBracket?: { season: number; week: number; eventId: string; name: string; venue: string; bracket: import("../engine").MatchPlayBracket; names: Record<string, string> };
+  /** The shots of the week, newest last (see highlights.ts). */
+  highlights?: import("./highlights").Highlight[];
   /** Your clients' rivalries with other players (see rivalries.ts). */
   rivalries?: import("./rivalries").Rivalry[];
   /** Talks going on (or just finished) at the negotiation table (see negotiation.ts). */

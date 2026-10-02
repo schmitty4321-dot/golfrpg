@@ -1,5 +1,6 @@
 import {
   agencyProfit, STATUS_LABELS, setupNews, type SeasonSummary, type World } from "../../season";
+import { SeasonMoments } from "../components/Highlights";
 import { money, plural, toPar } from "../format";
 
 export function SeasonReview({ world, summary, onClose }: { world: World; summary: SeasonSummary; onClose: () => void }) {
@@ -40,6 +41,7 @@ export function SeasonReview({ world, summary, onClose }: { world: World; summar
             </table>
           </div>
         )}
+        <SeasonMoments world={world} season={summary.season} />
         {summary.agency.departures.length > 0 && (
           <div className="panel" style={{ background: "var(--neg-soft)", boxShadow: "none" }}>
             <strong>Leaving the agency:</strong> {summary.agency.departures.join(", ")}. Their contracts ran out without an extension.

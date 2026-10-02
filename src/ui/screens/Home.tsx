@@ -1,4 +1,5 @@
 import { coursePar, courseYards, familiarityLabel } from "../../engine";
+import { ShotOfTheWeek } from "../components/Highlights";
 import { InboxPanel } from "../components/Inbox";
 import {
   agencyProfit,
@@ -93,6 +94,7 @@ export function Home({ world, game, go, week }: { world: World; game: Game; go: 
           {last && <LastWeek world={world} report={last} go={go} />}
         </div>
         <div className="stack">
+          <ShotOfTheWeek world={world} />
           <CardRace world={world} />
           <section className="panel">
             <div className="panel-head"><h2>News</h2></div>
