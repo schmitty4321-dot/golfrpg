@@ -1,4 +1,5 @@
 import { Fragment, useState } from "react";
+import { NegotiationTable } from "../components/Negotiation";
 import { PromisePicker } from "../components/Promises";
 import type { PromiseKind } from "../../season";
 import { STATUS_LABELS, pointsList, rankMap, rosterLimit, type World } from "../../season";
@@ -166,12 +167,16 @@ function ExtendForm({ world, game, id }: { world: World; game: Game; id: string 
         className="btn btn-primary btn-small"
         onClick={() => {
           let text = "";
-          game.act((w) => (text = game.lib.extendContract(w, id, { commission: commission / 100, years, promises }).message));
-          setMsg(text);
+          game.act((w) => {
+            text = game.lib.startNegotiation(w, id, "extend") ?? "";
+            if (!text) game.lib.makeOffer(w, { commission: commission / 100, years, promises });
+          });
+          setMsg(text || null);
         }}
       >
-        Offer extension
+        Open talks
       </button>
+      <NegotiationTable world={world} game={game} playerId={id} onClose={() => setMsg(null)} />
       {msg && <strong className="small">{msg}</strong>}
       <span className="small muted">(Runs from the end of this season: new end is season {world.season + years}.)</span>
       <PromisePicker wp={world.players[id]!} value={promises} onChange={setPromises} />

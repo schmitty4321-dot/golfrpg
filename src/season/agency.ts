@@ -225,6 +225,28 @@ export function extendContract(world: World, id: string, offer: Offer): OfferRes
   if (!wp?.client) return { accepted: false, chance: 0, message: "He isn't your client." };
   const until = world.agency.cooldowns[id];
   if (until !== undefined && until > absWeek(world.season, world.week)) return { accepted: false, chance: 0, message: "He's not ready to talk again yet." };
+  const chance = extendChance(world, id, offer);
+  const rng = createRng(mixSeed(world.seed, world.season, world.week, 600, Number(id.replace(/\D/g, "")) || 1));
+  if (!rng.chance(chance)) {
+    world.agency.cooldowns[id] = absWeek(world.season, world.week) + 4;
+    return { accepted: false, chance, message: `${wp.player.name} isn't ready to commit to a new deal.` };
+  }
+  applyExtension(world, id, offer);
+  return { accepted: true, chance, message: `${wp.player.name} agrees to stay until the end of season ${world.season + offer.years}.` };
+}
+
+/** The new deal takes effect: terms, promises and the headline. */
+export function applyExtension(world: World, id: string, offer: Offer): void {
+  const wp = world.players[id]!;
+  wp.client!.contract = { ...wp.client!.contract, commission: offer.commission, untilSeason: world.season + offer.years };
+  makePromises(world, wp, offer.promises);
+  world.news.unshift(`${wp.player.name} extends with ${world.agency.name} until the end of season ${world.season + offer.years}.`);
+}
+
+/** The chance a client accepts an extension on these terms: his mood, the commission, your name, trust and promises. */
+export function extendChance(world: World, id: string, offer: Offer): number {
+  const wp = world.players[id];
+  if (!wp?.client) return 0;
   const score =
     wp.client.happiness -
     55 +
@@ -235,16 +257,7 @@ export function extendContract(world: World, id: string, offer: Offer): OfferRes
     // Promises kept build trust; broken ones make him wary of new ones.
     (trustOf(wp) - START_TRUST) * 0.25 +
     promiseAppeal(wp, rankMap(world).get(id) ?? 999, offer.promises) * (trustOf(wp) / START_TRUST);
-  const chance = clamp(1 / (1 + Math.exp(-score / 7)), 0.02, 0.98);
-  const rng = createRng(mixSeed(world.seed, world.season, world.week, 600, Number(id.replace(/\D/g, "")) || 1));
-  if (!rng.chance(chance)) {
-    world.agency.cooldowns[id] = absWeek(world.season, world.week) + 4;
-    return { accepted: false, chance, message: `${wp.player.name} isn't ready to commit to a new deal.` };
-  }
-  wp.client.contract = { ...wp.client.contract, commission: offer.commission, untilSeason: world.season + offer.years };
-  makePromises(world, wp, offer.promises);
-  world.news.unshift(`${wp.player.name} extends with ${world.agency.name} until the end of season ${world.season + offer.years}.`);
-  return { accepted: true, chance, message: `${wp.player.name} agrees to stay until the end of season ${world.season + offer.years}.` };
+  return clamp(1 / (1 + Math.exp(-score / 7)), 0.02, 0.98);
 }
 
 export function releaseClient(world: World, id: string): void {

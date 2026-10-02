@@ -1090,3 +1090,10 @@ select, input[type="text"], input[type="number"] {
 .promise-picker { border: 0; padding: 0; margin: 6px 0 0; display: flex; flex-wrap: wrap; gap: 4px 14px; width: 100%; max-width: 640px; }
 .promise-picker legend { padding: 0; margin-bottom: 4px; }
 .warn-text { color: var(--warning); }
+
+/* The negotiation table. */
+.neg-lines { list-style: none; padding: 0; margin: 0 0 10px; display: flex; flex-direction: column; gap: 8px; }
+.neg-lines li { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); max-width: 85%; }
+.neg-you { align-self: flex-end; background: var(--accent-soft); }
+.neg-him { align-self: flex-start; background: var(--surface); }
+.neg-rival { align-self: center; background: transparent; border-style: dashed; }

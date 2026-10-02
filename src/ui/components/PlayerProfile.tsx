@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { NegotiationTable } from "./Negotiation";
 import { PromisePicker } from "./Promises";
 import { ATTRIBUTE_LABELS, createRng, describeTendencies, feetInches, liveBoard, nationInfo, tendencies, type AttributeKey } from "../../engine";
 import {
@@ -240,11 +241,15 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
                     className="btn btn-primary"
                     onClick={() => {
                       let msg = "";
-                      game.act((w) => (msg = game.lib.offerRepresentation(w, id, offer).message));
-                      setResult(msg);
+                      // Your offer opens the talks at the negotiation table.
+                      game.act((w) => {
+                        msg = game.lib.startNegotiation(w, id, "sign") ?? "";
+                        if (!msg) game.lib.makeOffer(w, { commission: offer.commission, years: offer.years, promises });
+                      });
+                      setResult(msg || null);
                     }}
                   >
-                    Make offer
+                    Open talks
                   </button>
                 </div>
                 <PromisePicker wp={wp} value={promises} onChange={setPromises} />
@@ -258,6 +263,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
             )}
           </section>
         )}
+        <NegotiationTable world={world} game={game} playerId={id} onClose={() => setResult(null)} />
         {result && (
           <p className={wp.client ? "good-text" : ""} style={{ margin: 0 }} role="status">
             <strong>{result}</strong>
