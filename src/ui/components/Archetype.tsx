@@ -44,20 +44,21 @@ export function ArchetypeBadge({ id, size = 22 }: { id: ArchetypeId; size?: numb
   const a = ARCHETYPES[id];
   const g = `ab${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   return (
-    <svg className="archetype-badge" width={size} height={size} viewBox="0 0 64 64" role="img" aria-label={a.name}>
-      <title>{`${a.name}: ${a.blurb}`}</title>
-      <defs>
-        <radialGradient id={g} cx="35%" cy="30%" r="75%">
-          <stop offset="0" stopColor="#fff" stopOpacity="0.35" />
-          <stop offset="0.55" stopColor="#fff" stopOpacity="0" />
-          <stop offset="1" stopColor="#000" stopOpacity="0.22" />
-        </radialGradient>
-      </defs>
-      <circle cx="32" cy="32" r="30" fill={a.color} />
-      <circle cx="32" cy="32" r="30" fill={`url(#${g})`} />
-      <circle cx="32" cy="32" r="26.5" fill="none" stroke="#fff" strokeOpacity="0.28" strokeWidth="1.2" />
-      <g transform="translate(15.8 15.8) scale(1.35)" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: GLYPHS[id] }} />
-    </svg>
+    <span className="symbol-tooltip" role="img" tabIndex={0} aria-label={`${a.name}: ${a.blurb}`} data-tooltip={`${a.name}: ${a.blurb}`}>
+      <svg className="archetype-badge" width={size} height={size} viewBox="0 0 64 64" aria-hidden="true">
+        <defs>
+          <radialGradient id={g} cx="35%" cy="30%" r="75%">
+            <stop offset="0" stopColor="#fff" stopOpacity="0.35" />
+            <stop offset="0.55" stopColor="#fff" stopOpacity="0" />
+            <stop offset="1" stopColor="#000" stopOpacity="0.22" />
+          </radialGradient>
+        </defs>
+        <circle cx="32" cy="32" r="30" fill={a.color} />
+        <circle cx="32" cy="32" r="30" fill={`url(#${g})`} />
+        <circle cx="32" cy="32" r="26.5" fill="none" stroke="#fff" strokeOpacity="0.28" strokeWidth="1.2" />
+        <g transform="translate(15.8 15.8) scale(1.35)" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: GLYPHS[id] }} />
+      </svg>
+    </span>
   );
 }
 
@@ -65,7 +66,7 @@ export function ArchetypeBadge({ id, size = 22 }: { id: ArchetypeId; size?: numb
 export function ArchetypePill({ id, tier }: { id: ArchetypeId; tier?: "bronze" | "silver" | "gold" }) {
   const a = ARCHETYPES[id];
   return (
-    <span className="archetype-pill" title={a.blurb}>
+    <span className="archetype-pill">
       <ArchetypeBadge id={id} size={26} />
       <span>{a.name}</span>
       {tier && <TierMedal tier={tier} />}
