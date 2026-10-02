@@ -655,7 +655,24 @@ select, input[type="text"], input[type="number"] {
 .flag { display: block; flex-shrink: 0; border-radius: 2px; }
 .pp-card .nation { color: rgba(255, 255, 255, 0.88); }
 /* Archetypes: a round badge, alone in lists or with the name on a player card. */
-.archetype-badge { display: inline-block; vertical-align: -4px; flex-shrink: 0; }
+.symbol-tooltip { position: relative; display: inline-flex; flex-shrink: 0; outline: none; }
+.symbol-tooltip::before, .symbol-tooltip::after {
+  position: absolute; left: 50%; z-index: 30; pointer-events: none; opacity: 0;
+  transform: translate(-50%, 4px); transition: opacity 120ms ease, transform 120ms ease;
+}
+.symbol-tooltip::before {
+  content: attr(data-tooltip); bottom: calc(100% + 9px); width: max-content; max-width: 260px;
+  padding: 7px 9px; border-radius: 6px; background: #17251d; color: #fff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.24); font-size: 12px; font-weight: 500; line-height: 1.35;
+  white-space: normal; text-align: left;
+}
+.symbol-tooltip::after {
+  content: ""; bottom: calc(100% + 4px); border: 5px solid transparent; border-top-color: #17251d;
+}
+.symbol-tooltip:hover::before, .symbol-tooltip:hover::after,
+.symbol-tooltip:focus-visible::before, .symbol-tooltip:focus-visible::after { opacity: 1; transform: translate(-50%, 0); }
+.symbol-tooltip:focus-visible { border-radius: 50%; box-shadow: 0 0 0 2px var(--accent-soft), 0 0 0 3px var(--accent); }
+.archetype-badge { display: block; flex-shrink: 0; }
 .archetype-pill { display: inline-flex; align-items: center; gap: 8px; padding: 3px 12px 3px 3px; border-radius: 999px; background: var(--surface-2); color: var(--text); font-size: 13px; font-weight: 650; max-width: 100%; }
 .pp-card .archetype-pill { background: rgba(255, 255, 255, 0.13); color: #fff; }
 .pp-card h1 { font-size: 24px; font-weight: 800; }
