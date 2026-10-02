@@ -77,10 +77,11 @@ export function useGame() {
   }, [publish]);
 
   const newGame = useCallback(
-    async (scenario: Scenario, seed: number, agencyName?: string, database?: DatabasePlayer[], style?: WorldStyle) => {
+    async (scenario: Scenario, seed: number, agencyName?: string, database?: DatabasePlayer[], style?: WorldStyle, challenge?: string) => {
       publish({ busy: "Building the golf world and playing a warm-up season…" });
       await nextFrame();
       worldRef.current = createWorld({ seed, scenario, agencyName, database, ...(style ? { style } : {}) });
+      if (challenge) season.applyChallenge(worldRef.current, challenge);
       reportsRef.current = [];
       liveWeekRef.current = null;
       publish({ busy: null, review: null });

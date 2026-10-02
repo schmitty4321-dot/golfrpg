@@ -1103,3 +1103,8 @@ select, input[type="text"], input[type="number"] {
 .achievement { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; opacity: 0.65; }
 .achievement.unlocked { opacity: 1; border-color: var(--accent); background: var(--accent-soft); }
 .achievement-icon { font-size: 22px; line-height: 1; color: var(--warning); }
+
+/* Challenge banner. */
+.challenge { border-left: 4px solid var(--accent); }
+.challenge-won { border-left-color: var(--good); }
+.challenge-lost { border-left-color: var(--critical); }

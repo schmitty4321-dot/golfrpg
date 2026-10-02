@@ -1,4 +1,5 @@
 import { chargeWinterPrograms } from "./finance";
+import { checkChallenge } from "./challenges";
 import { alumniReferrals, alumnusRetires } from "./legacy";
 import { checkAchievements } from "./achievements";
 import { rivalRelationshipsSeasonEnd } from "./rivalAgents";
@@ -562,6 +563,7 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
     : null;
   if (summary) world.pastSeasons.push(summary);
   checkAchievements(world);
+  checkChallenge(world, "season");
   // Retired alumni send the odd prospect from home.
   if (world.clientIds.length > 0) alumniReferrals(world, createRng(mixSeed(world.seed, season, 2101)));
 

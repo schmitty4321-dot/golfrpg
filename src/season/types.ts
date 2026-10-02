@@ -541,6 +541,8 @@ export interface World {
   ryderCup?: import("./ryderCup").RyderCupState;
   /** The latest match-play event's draw, for the bracket screen. */
   lastBracket?: { season: number; week: number; eventId: string; name: string; venue: string; bracket: import("../engine").MatchPlayBracket; names: Record<string, string> };
+  /** The challenge this career is playing, if any (see challenges.ts). */
+  challenge?: import("./challenges").ChallengeState;
   /** Achievements unlocked, by id (see achievements.ts). */
   achievements?: Record<string, { season: number; week: number }>;
   /** The shots of the week, newest last (see highlights.ts). */

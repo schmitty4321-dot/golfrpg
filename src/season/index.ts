@@ -41,3 +41,4 @@ export * from "./rivalries";
 export * from "./highlights";
 export * from "./achievements";
 export * from "./legacy";
+export * from "./challenges";

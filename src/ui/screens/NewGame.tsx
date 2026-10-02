@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { SCENARIOS, STYLES, parsePlayerDatabase, type DatabasePlayer, type Scenario, type WorldStyle } from "../../season";
+import { CHALLENGES, CHALLENGE_BY_ID, SCENARIOS, STYLES, parsePlayerDatabase, type DatabasePlayer, type Scenario, type WorldStyle } from "../../season";
+import { bestScores } from "../components/Challenge";
 import type { Game } from "../useGame";
 
 export function NewGame({ game }: { game: Game }) {
@@ -8,9 +9,12 @@ export function NewGame({ game }: { game: Game }) {
   const [seed, setSeed] = useState("");
   const [name, setName] = useState("");
   const [db, setDb] = useState<{ players: DatabasePlayer[]; errors: string[]; file: string } | null>(null);
+  const [challenge, setChallenge] = useState<string | null>(null);
+  const best = bestScores();
   const start = () => {
     const n = seed.trim() === "" ? Math.floor(Math.random() * 1e9) : Number(seed) || hash(seed);
-    void game.newGame(scenario, n, name.trim() || undefined, db?.players.length ? db.players : undefined, style);
+    const def = challenge ? CHALLENGE_BY_ID.get(challenge) : undefined;
+    void game.newGame(def?.scenario ?? scenario, n, name.trim() || undefined, db?.players.length ? db.players : undefined, style, def?.id);
   };
   return (
     <main>
@@ -27,9 +31,20 @@ export function NewGame({ game }: { game: Game }) {
         <div className="panel-head"><h2>Your agency</h2></div>
         <div className="scenario-grid">
           {(["agency"] as Scenario[]).map((k) => (
-            <button key={k} className="scenario" aria-pressed={scenario === k} onClick={() => setScenario(k)}>
+            <button key={k} className="scenario" aria-pressed={scenario === k && !challenge} onClick={() => { setScenario(k); setChallenge(null); }}>
               <strong>{SCENARIOS[k].title}</strong>
               <span className="secondary small">{SCENARIOS[k].blurb}</span>
+            </button>
+          ))}
+        </div>
+        <div className="panel-head" style={{ marginTop: 16 }}><h2>Or take on a challenge</h2><span className="muted small">A twist, a goal and a deadline</span></div>
+        <div className="scenario-grid">
+          {CHALLENGES.map((c) => (
+            <button key={c.id} className="scenario" aria-pressed={challenge === c.id} onClick={() => setChallenge(challenge === c.id ? null : c.id)}>
+              <strong>{c.title}</strong>
+              <span className="secondary small">{c.blurb}</span>
+              <span className="small">{c.goal}</span>
+              {best[c.id] !== undefined && <span className="small muted">Your best: {best[c.id]}</span>}
             </button>
           ))}
         </div>

@@ -1,4 +1,5 @@
 import { coursePar, courseYards, familiarityLabel } from "../../engine";
+import { ChallengeBanner } from "../components/Challenge";
 import { ShotOfTheWeek } from "../components/Highlights";
 import { InboxPanel } from "../components/Inbox";
 import {
@@ -74,6 +75,7 @@ export function Home({ world, game, go, week }: { world: World; game: Game; go: 
       <WeekHero world={world} game={game} week={week} />
       <AgencyStrip world={world} />
       <Alerts world={world} go={go} />
+      <ChallengeBanner world={world} />
       <InboxPanel world={world} game={game} />
       <div className="grid-2">
         <div className="stack">
