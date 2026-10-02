@@ -881,12 +881,7 @@ select, input[type="text"], input[type="number"] {
 .market-tabs [aria-selected="true"] { color: #fff; border-color: var(--green); background: var(--green); }
 .gear-market { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .gear-card { position: relative; min-height: 164px; overflow: hidden; text-align: left; padding-top: 58px; }
-.club-art { position: absolute; inset: 0 0 auto 0; height: 50px; background: linear-gradient(135deg, #d9eee2, #f0e5c8); border-bottom: 1px solid var(--line); }
-.club-art::before { content: ""; position: absolute; width: 5px; height: 42px; left: 50%; top: 3px; border-radius: 4px; background: linear-gradient(90deg, #777, #ddd, #777); transform: rotate(48deg); transform-origin: bottom; }
-.club-art i { position: absolute; width: 22px; height: 10px; left: calc(50% - 24px); top: 29px; border-radius: 8px 3px 5px 6px; background: #20372c; transform: rotate(-8deg); }
-.club-art-irons i { width: 15px; height: 14px; border-radius: 3px 7px 3px 3px; }
-.club-art-wedges i { width: 18px; height: 15px; border-radius: 3px 9px 4px 3px; background: #996d3e; }
-.club-art-putter i { width: 25px; height: 7px; border-radius: 2px; background: #345846; }
+.club-art { position: absolute; inset: 0 0 auto 0; width: 100%; height: 56px; object-fit: cover; border-bottom: 1px solid var(--line); }
 .coach-role-cell { display: flex; align-items: center; gap: 9px; min-width: 175px; }
 .coach-role-cell .portrait { flex: 0 0 auto; border-radius: 10px; }
 .coach-role-cell span { display: grid; gap: 2px; }
@@ -1078,7 +1073,6 @@ select, input[type="text"], input[type="number"] {
 .hq-unlock { display: block; margin: 0 13px 13px; padding: 6px 8px; border-radius: 5px; background: #f3e7c7; color: #75571f; font-size: 10px; font-weight: 700; text-align: center; }
 @media (max-width: 1050px) { .hq-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 620px) { .hq-card-grid { grid-template-columns: minmax(0, 1fr); } }
-
 /* Inbox: decision cards with their choices. */
 .inbox-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
 .inbox-card { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; background: var(--surface); }
@@ -1113,3 +1107,13 @@ select, input[type="text"], input[type="number"] {
 .region-board { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
 .region-tile { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text); cursor: pointer; text-align: left; }
 .region-tile.on { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent) inset; }
+
+.option-art { display: block; width: calc(100% + 24px); height: 86px; margin: -12px -12px 10px; object-fit: cover; border-bottom: 1px solid var(--border); }
+.facility-strip { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 9px; margin-bottom: 12px; }
+.facility-strip article { overflow: hidden; display: grid; gap: 4px; padding-bottom: 8px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); }
+.facility-strip article.current { border: 2px solid var(--accent); background: var(--accent-soft); }
+.facility-strip .agency-building { aspect-ratio: 16/9; }
+.facility-strip strong,.facility-strip span { padding: 0 9px; }.facility-strip span { color: var(--muted); font-size: 10px; }
+.event-art-row { display: grid; grid-template-columns: 86px minmax(0,1fr); align-items: center; gap: 10px; }.event-art-row img { width: 86px; height: 58px; object-fit: cover; border-radius: 6px; }.event-art-row > span { display:grid;gap:2px; }
+.brand-campaign-art { grid-column: 1/-1; width: calc(100% + 22px); height: 92px; margin: -11px -11px 2px; object-fit: cover; border-bottom: 1px solid var(--border); }
+@media(max-width:800px){.facility-strip{grid-template-columns:repeat(2,minmax(0,1fr));}}

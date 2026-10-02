@@ -31,6 +31,7 @@ function CenterPanel({ world, game }: { world: World; game: Game }) {
   return (
     <section className="panel">
       <div className="panel-head"><h2>Performance Center</h2><span className="muted small">For every client you represent</span></div>
+      <div className="facility-strip">{CENTER_TIERS.map((t, i) => <article key={t.name} className={i === tier ? "current" : ""}><AgencyBuilding tier={i} kind="center" /><strong>{t.name}</strong><span>{t.blurb}</span></article>)}</div>
       <div className="table-wrap">
         <table>
           <thead><tr><th>Tier</th><th className="num">Build</th><th className="num">Upkeep / wk</th><th className="num">Growth</th><th className="num">Camps</th></tr></thead>
@@ -192,6 +193,7 @@ function BrandsPanel({ world, game }: { world: World; game: Game }) {
 function BrandCard({ deal, active = false, onSign }: { deal: ReturnType<typeof brandOffers>[number]; active?: boolean; onSign?: () => void }) {
   return (
     <article className={`brand-deal-card${active ? " active" : ""}`}>
+      <img className="brand-campaign-art" src={`/art/sponsors/${deal.category}.webp`} alt="" />
       <BrandMark name={deal.brand} category={deal.category} />
       <div className="brand-deal-name"><strong>{deal.brand}</strong><span>{deal.category}</span></div>
       <div className="brand-deal-terms"><span><b>{money(deal.annual)}</b><small>per season</small></span><span><b>+{Math.round(deal.lift * 100)}%</b><small>client offers</small></span><span><b>S{deal.untilSeason}</b><small>{active ? "contract ends" : "term"}</small></span></div>
@@ -214,7 +216,7 @@ function EventsPanel({ world, game }: { world: World; game: Game }) {
             const block = eventBlock(world, k);
             return (
               <tr key={k}>
-                <td><strong>{e.label}</strong><div className="secondary small">{e.blurb}</div></td>
+                <td><div className="event-art-row"><img src={`/art/scenes/${k === "proAm" ? "pro-am" : k}.webp`} alt="" /><span><strong>{e.label}</strong><span className="secondary small">{e.blurb}</span></span></div></td>
                 <td className="num small">costs {money(e.cost)}<br />takes about {money(eventTakings(world, k))}</td>
                 <td>
                   <button className="btn btn-small" disabled={!!block} onClick={() => game.act((w) => { const net = holdEvent(w, k); setMessage(`${e.label}: ${net >= 0 ? "made" : "lost"} ${money(Math.abs(net))}.`); })}>Hold it</button>

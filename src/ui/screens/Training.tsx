@@ -68,6 +68,7 @@ export function Training({ world, game, clientId }: { world: World; game: Game; 
             <div className="choice-grid">
               {FOCUS.map((f) => (
                 <button key={f.id} className="choice" aria-pressed={m.training.focus === f.id} onClick={() => act((w) => (w.players[clientId]!.client!.training.focus = f.id))}>
+                  <img className="option-art" src={`/art/scenes/${f.id}.webp`} alt="" />
                   <strong>{f.label}</strong>
                   <span className="secondary small">{f.blurb}</span>
                 </button>
@@ -77,6 +78,7 @@ export function Training({ world, game, clientId }: { world: World; game: Game; 
             <div className="choice-grid">
               {INTENSITY.map((f) => (
                 <button key={f.id} className="choice" aria-pressed={m.training.intensity === f.id} onClick={() => act((w) => (w.players[clientId]!.client!.training.intensity = f.id))}>
+                  <img className="option-art" src={`/art/scenes/${f.id === "light" ? "putting" : f.id === "heavy" ? "fitness" : "balanced"}.webp`} alt="" />
                   <strong>{f.label}</strong>
                   <span className="secondary small">{f.blurb}</span>
                 </button>
@@ -86,6 +88,7 @@ export function Training({ world, game, clientId }: { world: World; game: Game; 
             <div className="choice-grid">
               {(Object.keys(WINTER) as WinterProgram[]).map((id) => (
                 <button key={id} className="choice" aria-pressed={(m.training.winter ?? "standard") === id} onClick={() => act((w) => (w.players[clientId]!.client!.training.winter = id))}>
+                  <img className="option-art" src={`/art/scenes/${id === "camp" ? "longGame" : id === "fitness" ? "fitness" : id === "rest" ? "winter" : "balanced"}.webp`} alt="" />
                   <strong>{WINTER[id].label}</strong>
                   <span className="secondary small">{WINTER[id].blurb}</span>
                 </button>
