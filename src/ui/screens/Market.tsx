@@ -13,6 +13,8 @@ import {
   RIVAL_STYLES,
   competingBid,
   rivalSummaries,
+  agentOf,
+  relationshipWord,
   potentialEstimate,
   rankMap,
   toggleShortlist,
@@ -131,11 +133,12 @@ function RivalAgencies({ world }: { world: World }) {
       <div className="panel-head"><h2>The rivals</h2><span className="muted small">Your reputation: {Math.round(world.agency.reputation)}</span></div>
       <div className="table-wrap">
         <table>
-          <thead><tr><th>Agency</th><th>Style</th><th className="num">Reputation</th><th className="num">Players</th><th className="num">Dev deals</th><th>Coaching</th><th>Last winter</th></tr></thead>
+          <thead><tr><th>Agency</th><th>Head agent</th><th>Style</th><th className="num">Reputation</th><th className="num">Players</th><th className="num">Dev deals</th><th>Coaching</th><th>Last winter</th></tr></thead>
           <tbody>
             {rows.map(({ rival, style, players, deals }) => (
               <tr key={rival.name}>
                 <td>{rival.name}</td>
+                <td>{agentOf(rival.name).agent} <span className={`small ${(rival.relationship ?? 0) <= -20 ? "bad-text" : (rival.relationship ?? 0) >= 20 ? "good-text" : "muted"}`}>· {relationshipWord(rival.relationship ?? 0)} ({Math.round(rival.relationship ?? 0)})</span></td>
                 <td title={style.blurb}>{style.label}</td>
                 <td className="num">{Math.round(rival.reputation)}</td>
                 <td className="num">{players} / {style.capacity}</td>
@@ -159,7 +162,7 @@ function RivalAgencies({ world }: { world: World }) {
         </ul>
       )}
       <p className="muted small" style={{ marginBottom: 0 }}>
-        {Object.values(RIVAL_STYLES).map((s) => `${s.label}: ${s.blurb}`).join(" ")} Every player who comes free in the winter goes to the best bid, so sign the ones you want first.
+        {Object.values(RIVAL_STYLES).map((s) => `${s.label}: ${s.blurb}`).join(" ")} Every player who comes free in the winter goes to the best bid, so sign the ones you want first. Head agents remember how you answer their messages: hostile ones bid harder against you and come for your unhappy clients; friendly ones ease off and pass on the odd tip.
       </p>
     </section>
   );

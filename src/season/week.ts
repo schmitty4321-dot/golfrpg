@@ -1,4 +1,5 @@
 import { payBrands, recordClientWin, updateFollowers } from "./showcase";
+import { weeklyRivalMessages } from "./rivalAgents";
 import { MAX_DECISIONS_PER_WEEK, autoResolve } from "./inbox";
 import { weeklyDilemmas } from "./dilemmas";
 import { settleBoldClaim, weeklyPress } from "./press";
@@ -432,7 +433,8 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
   if (world.clientIds.length > 0) {
     const records = new Map(world.clientIds.map((id) => [id, report.clients[id]?.record ?? null]));
     const pressed = weeklyPress(world, records, new Set(ryder ? Object.keys(ryder.names) : []));
-    weeklyDilemmas(world, records, createRng(mixSeed(world.seed, world.season, world.week, 1802)), MAX_DECISIONS_PER_WEEK - pressed);
+    const messages = weeklyRivalMessages(world, report, createRng(mixSeed(world.seed, world.season, world.week, 1803)), MAX_DECISIONS_PER_WEEK - pressed);
+    weeklyDilemmas(world, records, createRng(mixSeed(world.seed, world.season, world.week, 1802)), MAX_DECISIONS_PER_WEEK - pressed - messages);
   }
   return report;
 }

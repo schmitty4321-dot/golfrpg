@@ -35,3 +35,4 @@ export * from "./inbox";
 export * from "./dilemmas";
 export * from "./press";
 export * from "./promises";
+export * from "./rivalAgents";

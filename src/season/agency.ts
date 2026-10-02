@@ -1,4 +1,5 @@
 import { brandSeasonEnd, trophiesSeasonEnd } from "./showcase";
+import { bidPressure } from "./rivalAgents";
 import { START_TRUST, makePromises, promiseAppeal, trustOf, type PromiseKind } from "./promises";
 import { negotiationBonus, rivalPoaching, shortlistAlerts } from "./market";
 import { financeMood } from "./finance";
@@ -181,7 +182,8 @@ export function acceptChance(world: World, id: string, offer: Offer): number {
 export function competitionPenalty(world: World, wp: WorldPlayer, bid: { agency: string; commission: number }): number {
   const rival = world.rivals?.find((r) => r.name === bid.agency);
   const rep = rival?.reputation ?? 50;
-  return 3 + Math.max(0, rep - world.agency.reputation) * 0.25 + Math.max(0, STANDARD_COMMISSION - bid.commission) * 100 * 3 * commissionWeight(wp);
+  // A hostile agent bids harder against you, a friendly one eases off.
+  return (3 + Math.max(0, rep - world.agency.reputation) * 0.25 + Math.max(0, STANDARD_COMMISSION - bid.commission) * 100 * 3 * commissionWeight(wp)) * bidPressure(world, bid.agency);
 }
 
 /** Makes the offer. On a yes he becomes a client from now until the end of the contract. */

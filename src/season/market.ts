@@ -2,6 +2,7 @@
  * The agency in its market: the people it hires, the players it is
  * tracking, and the rival agencies it competes with for talent.
  */
+import { bidPressure, poachMessage } from "./rivalAgents";
 import { trustOf } from "./promises";
 import { clamp, createRng, type Rng } from "../engine";
 import { STANDARD_COMMISSION, clients, releaseClient } from "./agency";
@@ -178,8 +179,8 @@ export function rivalPoaching(world: World, rng: Rng): string[] {
     const m = wp.client!;
     // A client who doesn't trust you listens sooner.
     if (m.contract.untilSeason <= world.season || m.happiness >= (trustOf(wp) < 40 ? 50 : 40)) continue;
-    if (!rng.chance(0.35)) continue;
     const rival = likeliestSuitor(world, wp.player.id, rng);
+    if (!rng.chance(0.35 * bidPressure(world, rival))) continue;
     if (m.happiness < 30 && rng.chance(0.5)) {
       const buyout = Math.round((earningsAtLevel(overall(wp.player)) * m.contract.commission) / 2);
       world.agency.bank += buyout;
@@ -187,6 +188,7 @@ export function rivalPoaching(world: World, rng: Rng): string[] {
       releaseClient(world, wp.player.id);
       wp.agent = { agency: rival, untilSeason: world.season + 2, commission: STANDARD_COMMISSION };
       news.push(`${rival} poach ${wp.player.name}; they pay a ${Math.round(buyout / 1000)}k buyout.`);
+      poachMessage(world, rival, wp.player.name);
     } else {
       m.happiness = clamp(m.happiness - 4, 0, 100);
       news.push(`${rival} have been talking to ${wp.player.name}. Keep him happy or lose him.`);

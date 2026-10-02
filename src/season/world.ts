@@ -1,4 +1,5 @@
 import { chargeWinterPrograms } from "./finance";
+import { rivalRelationshipsSeasonEnd } from "./rivalAgents";
 import { seasonEndPromiseChecks } from "./promises";
 import { closeSeasonStats } from "./stats";
 import { logSeason } from "./charts";
@@ -549,6 +550,7 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   // Promises for the season are settled before contracts run out.
   seasonEndPromiseChecks(world);
   const departures = world.clientIds.length ? agencySeasonEnd(world, rng) : [];
+  rivalRelationshipsSeasonEnd(world);
   // The rivals' winter: reputations, the market for every free player, deals and winter plans.
   for (const line of rivalSeasonEnd(world).slice(0, 8).reverse()) world.news.unshift(line);
   const summary: SeasonSummary | null = world.clientIds.length || clientSummaries.length

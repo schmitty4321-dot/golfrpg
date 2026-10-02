@@ -272,6 +272,8 @@ export interface RivalAgency {
   repHistory: number[];
   /** Signings, deals and departures from the last market, newest first. */
   moves: string[];
+  /** -100 (hostile) to 100 (friendly): how its head agent feels about you (older saves: 0). */
+  relationship?: number;
 }
 
 export interface WorldPlayer {

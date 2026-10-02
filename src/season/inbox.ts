@@ -38,6 +38,10 @@ export type Effect =
   /** A bold claim: if his next event goes badly, he eats his words. */
   | { k: "boldClaim" }
   | { k: "practiceAt"; courseId: string }
+  /** How a rival agency's head agent feels about you (see rivals.ts). */
+  | { k: "relationship"; agency: string; v: number }
+  /** A tip-off: your scouts learn about a player straight away. */
+  | { k: "scoutBoost"; playerId: string; v: number }
   /** A gamble: `p` chance of `then`, otherwise `else`, each with a line for the news. */
   | { k: "chance"; p: number; then: Effect[]; else: Effect[]; thenNews: string; elseNews: string };
 
@@ -51,10 +55,13 @@ export interface Choice {
 
 export interface Decision {
   id: string;
-  kind: "dilemma" | "press";
+  kind: "dilemma" | "press" | "message";
   /** The template it came from (dilemmas cool down by key). */
   key: string;
+  /** The client it's about ("" for agency business, such as a rival agent's message). */
   clientId: string;
+  /** A rival agency, for messages from its head agent. */
+  from?: string;
   season: number;
   week: number;
   title: string;
@@ -98,11 +105,12 @@ export function resolveDecision(world: World, decisionId: string, choiceId?: str
   const d = (world.inbox ?? []).find((x) => x.id === decisionId);
   if (!d || d.resolved) return "";
   const choice = d.choices.find((c) => c.id === (choiceId ?? d.defaultChoice)) ?? d.choices.find((c) => c.id === d.defaultChoice)!;
-  const wp = world.players[d.clientId];
+  const wp = d.clientId ? world.players[d.clientId] : undefined;
   const rng = rngFor(world, d);
   const lines: string[] = [];
-  if (wp?.client) applyEffects(world, wp, choice.effects, rng, lines);
-  const outcome = [`${wp?.player.name ?? "Your client"}: ${choice.label}.`, ...lines].join(" ");
+  applyEffects(world, wp?.client ? wp : null, choice.effects, rng, lines);
+  const who = wp?.player.name ?? (d.from ? `To ${d.from}` : world.agency.name);
+  const outcome = [`${who}: ${choice.label}.`, ...lines].join(" ");
   d.resolved = { choice: choice.id, auto, outcome };
   world.news.unshift(outcome);
   return outcome;
@@ -113,10 +121,38 @@ export function autoResolve(world: World): void {
   for (const d of pendingDecisions(world)) resolveDecision(world, d.id, undefined, true);
 }
 
-function applyEffects(world: World, wp: WorldPlayer, effects: Effect[], rng: Rng, lines: string[]): void {
-  const m = wp.client!;
+function applyEffects(world: World, wp: WorldPlayer | null, effects: Effect[], rng: Rng, lines: string[]): void {
   const now = absWeek(world.season, world.week);
   for (const e of effects) {
+    // Agency business first: these need no client.
+    if (e.k === "relationship") {
+      const r = world.rivals?.find((x) => x.name === e.agency);
+      if (r) r.relationship = clamp((r.relationship ?? 0) + e.v, -100, 100);
+      continue;
+    }
+    if (e.k === "scoutBoost") {
+      const k = world.agency.knowledge[e.playerId];
+      world.agency.knowledge[e.playerId] = { accuracy: Math.max(k?.accuracy ?? 0, e.v), reports: (k?.reports ?? 0) + 1, absWeek: now };
+      continue;
+    }
+    if (e.k === "reputation") {
+      addReputation(world.agency, e.v);
+      continue;
+    }
+    if (e.k === "agencyCost") {
+      world.agency.bank -= e.v;
+      world.agency.ledger.clientCare = (world.agency.ledger.clientCare ?? 0) + e.v;
+      continue;
+    }
+    if (e.k === "chance") {
+      const hit = rng.chance(e.p);
+      applyEffects(world, wp, hit ? e.then : e.else, rng, lines);
+      const line = hit ? e.thenNews : e.elseNews;
+      if (line) lines.push(line);
+      continue;
+    }
+    if (!wp?.client) continue;
+    const m = wp.client;
     switch (e.k) {
       case "mood":
         m.happiness = clamp(m.happiness + e.v, 0, 100);
@@ -133,15 +169,8 @@ function applyEffects(world: World, wp: WorldPlayer, effects: Effect[], rng: Rng
       case "buzz":
         m.buzz = clamp((m.buzz ?? 0) + e.v, -0.3, 0.3);
         break;
-      case "reputation":
-        addReputation(world.agency, e.v);
-        break;
       case "trust":
         m.trust = clamp((m.trust ?? 60) + e.v, 0, 100);
-        break;
-      case "agencyCost":
-        world.agency.bank -= e.v;
-        world.agency.ledger.clientCare = (world.agency.ledger.clientCare ?? 0) + e.v;
         break;
       case "clientMoney": {
         const cut = Math.round(e.v * m.contract.endorsementCommission);
@@ -175,13 +204,6 @@ function applyEffects(world: World, wp: WorldPlayer, effects: Effect[], rng: Rng
         fam[e.courseId] = Math.min(100, (fam[e.courseId] ?? 0) + 15);
         break;
       }
-      case "chance": {
-        const hit = rng.chance(e.p);
-        applyEffects(world, wp, hit ? e.then : e.else, rng, lines);
-        const line = hit ? e.thenNews : e.elseNews;
-        if (line) lines.push(line);
-        break;
-      }
     }
   }
 }
@@ -207,6 +229,8 @@ export function describeEffects(effects: Effect[]): string {
     else if (e.k === "targetEvents") parts.push(`${e.v > 0 ? "more" : "fewer"} starts`);
     else if (e.k === "boldClaim") parts.push("risky if he plays badly next");
     else if (e.k === "practiceAt") parts.push("knows the course better");
+    else if (e.k === "relationship") parts.push(`${e.agency}: ${e.v > 0 ? "warmer" : "cooler"}`);
+    else if (e.k === "scoutBoost") parts.push("a full report on him");
     else if (e.k === "chance") parts.push(`${Math.round(e.p * 100)}% chance: ${describeEffects(e.then) || "nothing"}`);
   }
   return parts.join(", ");

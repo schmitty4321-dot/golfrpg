@@ -13,6 +13,7 @@
  * rivals had styles (the realism report checks the career curve): good
  * agencies lift their players, cheap ones hold theirs back.
  */
+import { boardSigningMessages, relationshipOf } from "./rivalAgents";
 import { clamp, createRng, type Rng } from "../engine";
 import { STANDARD_COMMISSION, expectedReputation } from "./agency";
 import { impliedStaff, overall } from "./development";
@@ -219,6 +220,7 @@ export function rivalMarket(world: World, opts: { initial?: boolean } = {}): str
   // Players whose deal is ending don't count against their agency's list while they choose.
   const roster = opts.initial ? new Map<string, number>() : winterRoster(world);
   const news: string[] = [];
+  const signed: { agency: string; name: string; id: string }[] = [];
   if (!opts.initial) for (const r of rivals) r.moves = [];
   const worth = new Map(pool.map((wp) => [wp.player.id, playerWorth(wp)]));
   pool.sort((a, b) => worth.get(b.player.id)! - worth.get(a.player.id)! || a.player.id.localeCompare(b.player.id));
@@ -252,8 +254,11 @@ export function rivalMarket(world: World, opts: { initial?: boolean } = {}): str
       rival.moves.unshift(sentence(`Signs ${wp.player.name}${who}${before ? ` from ${before}` : ""} at ${Math.round(best.commission * 100)}%${beat}`));
       if (before) rivalNamed(world, before)?.moves.unshift(sentence(`Loses ${wp.player.name} to ${best.agency}`));
       if (notable) news.push(sentence(`${best.agency} sign ${wp.player.name}${who}${before ? ` from ${before}` : ""}${beat}`));
+      signed.push({ agency: best.agency, name: wp.player.name, id: wp.player.id });
     }
   }
+  // Anyone off your recruitment board: their agent lets you know.
+  boardSigningMessages(world, signed);
   return news;
 }
 
@@ -335,7 +340,9 @@ export function rivalSeasonEnd(world: World): string[] {
 
 /** The rival most likely to come for a player (poaching): its best bidder, or any rival. */
 export function likeliestSuitor(world: World, id: string, rng: Rng): string {
-  return rivalBids(world, id)[0]?.agency ?? rng.pick(ensureRivals(world)).name;
+  // Hostile agents come for your players first.
+  const bids = rivalBids(world, id).sort((a, b) => b.appeal - relationshipOf(world, b.agency) / 10 - (a.appeal - relationshipOf(world, a.agency) / 10));
+  return bids[0]?.agency ?? rng.pick(ensureRivals(world)).name;
 }
 
 /** Every rival with its style, list size and deals, for the Rivals screen. */

@@ -22,7 +22,7 @@ export function InboxPanel({ world, game }: { world: World; game: Game }) {
         <div className="inbox-cards">
           {pending.map((d) => (
             <article key={d.id} className={`inbox-card${d.big ? " inbox-big" : ""}`}>
-              <div className="small muted">{d.kind === "press" ? "Press conference" : d.big ? "Big decision" : "Decision"}</div>
+              <div className="small muted">{d.kind === "press" ? "Press conference" : d.kind === "message" ? "Message" : d.big ? "Big decision" : "Decision"}</div>
               <h3>{d.title}</h3>
               <p className="small" style={{ marginTop: 4 }}>{d.text}</p>
               <div className="inbox-choices">
