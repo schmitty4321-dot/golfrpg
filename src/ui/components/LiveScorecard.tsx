@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import type { Course } from "../../engine";
 import { toPar } from "../format";
 
@@ -20,15 +21,26 @@ export function LiveScorecard({ course, scores, current, onPick, activeNineOnly 
   const sum = (xs: number[]) => xs.reduce((s, x) => s + x, 0);
   let running = 0;
   const toParAfter = course.holes.map((h, i) => (i < scores.length ? (running += scores[i]! - h.par) : null));
-  // On a phone only the nine being played is shown (the back nine's card carries the total).
-  const nine = (current ?? scores.length - 1) >= 9 ? 1 : 0;
+  const activeNine = (current ?? Math.max(0, scores.length - 1)) >= 9 ? 1 : 0;
+  const [shownNine, setShownNine] = useState(activeNine);
+
+  // Follow the round when it turns from the front nine to the back nine. The
+  // player can still use the buttons to inspect either side of the card.
+  useEffect(() => setShownNine(activeNine), [activeNine]);
+
   return (
     <div className={`live-card${activeNineOnly ? " active-nine" : ""}`} aria-label="Scorecard">
+      {activeNineOnly && (
+        <div className="scorecard-nine-toggle" role="tablist" aria-label="Choose scorecard nine">
+          <button type="button" role="tab" aria-selected={shownNine === 0} onClick={() => setShownNine(0)}>Front 9</button>
+          <button type="button" role="tab" aria-selected={shownNine === 1} onClick={() => setShownNine(1)}>Back 9</button>
+        </div>
+      )}
       {halves.map((holes, half) => {
-        if (activeNineOnly && half !== nine) return null;
+        if (activeNineOnly && half !== shownNine) return null;
         const played = scores.slice(half * 9, half * 9 + 9);
         return (
-          <table className={`scorecard live-scorecard${half === nine ? "" : " sc-other-nine"}`} key={half}>
+          <table className={`scorecard live-scorecard${!activeNineOnly && half !== activeNine ? " sc-other-nine" : ""}`} key={half}>
             <thead>
               <tr>
                 <th scope="row">Hole</th>
