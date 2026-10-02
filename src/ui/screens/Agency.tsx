@@ -1,4 +1,6 @@
 import { Fragment, useState } from "react";
+import { PromisePicker } from "../components/Promises";
+import type { PromiseKind } from "../../season";
 import { STATUS_LABELS, pointsList, rankMap, rosterLimit, type World } from "../../season";
 import { Nation } from "../components/Flag";
 import { PlayerProfile } from "../components/PlayerProfile";
@@ -144,9 +146,10 @@ function ExtendForm({ world, game, id }: { world: World; game: Game; id: string 
   const m = world.players[id]!.client!;
   const [commission, setCommission] = useState(Math.round(m.contract.commission * 100));
   const [years, setYears] = useState(2);
+  const [promises, setPromises] = useState<PromiseKind[]>([]);
   const [msg, setMsg] = useState<string | null>(null);
   return (
-    <div className="btn-row" style={{ alignItems: "center", padding: "6px 0" }}>
+    <div className="btn-row" style={{ alignItems: "center", padding: "6px 0", flexWrap: "wrap" }}>
       <strong>New deal:</strong>
       <label className="small secondary">Commission
         <select value={commission} onChange={(e) => setCommission(Number(e.target.value))} style={{ marginLeft: 6 }}>
@@ -163,7 +166,7 @@ function ExtendForm({ world, game, id }: { world: World; game: Game; id: string 
         className="btn btn-primary btn-small"
         onClick={() => {
           let text = "";
-          game.act((w) => (text = game.lib.extendContract(w, id, { commission: commission / 100, years }).message));
+          game.act((w) => (text = game.lib.extendContract(w, id, { commission: commission / 100, years, promises }).message));
           setMsg(text);
         }}
       >
@@ -171,6 +174,7 @@ function ExtendForm({ world, game, id }: { world: World; game: Game; id: string 
       </button>
       {msg && <strong className="small">{msg}</strong>}
       <span className="small muted">(Runs from the end of this season: new end is season {world.season + years}.)</span>
+      <PromisePicker wp={world.players[id]!} value={promises} onChange={setPromises} />
     </div>
   );
 }

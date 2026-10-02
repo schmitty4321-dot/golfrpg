@@ -2,6 +2,7 @@
  * The agency in its market: the people it hires, the players it is
  * tracking, and the rival agencies it competes with for talent.
  */
+import { trustOf } from "./promises";
 import { clamp, createRng, type Rng } from "../engine";
 import { STANDARD_COMMISSION, clients, releaseClient } from "./agency";
 import { ensureRivals, likeliestSuitor } from "./rivals";
@@ -175,7 +176,8 @@ export function rivalPoaching(world: World, rng: Rng): string[] {
   const news: string[] = [];
   for (const wp of [...clients(world)]) {
     const m = wp.client!;
-    if (m.contract.untilSeason <= world.season || m.happiness >= 40) continue;
+    // A client who doesn't trust you listens sooner.
+    if (m.contract.untilSeason <= world.season || m.happiness >= (trustOf(wp) < 40 ? 50 : 40)) continue;
     if (!rng.chance(0.35)) continue;
     const rival = likeliestSuitor(world, wp.player.id, rng);
     if (m.happiness < 30 && rng.chance(0.5)) {

@@ -236,6 +236,16 @@ export interface ClientManagement {
   goals?: SeasonGoal[];
   goalOffers?: SeasonGoal[];
   goalsSeason?: number;
+  /** -0.3 to +0.3: sponsor interest from the press and his choices, fading week by week. */
+  buzz?: number;
+  /** 0-100: how far he believes what you tell him (see promises.ts; 60 to start). */
+  trust?: number;
+  /** What you promised him to sign or stay. */
+  promises?: import("./promises").ClientPromise[];
+  /** Sits out every week up to and including this one (absolute week). */
+  restUntil?: number;
+  /** He made a bold claim this week (absolute): his next start tests it. */
+  boldClaim?: number;
 }
 
 /** Who represents a player. */
@@ -320,6 +330,8 @@ export interface AgencyLedger {
   events?: number;
   /** Buyout fees from rivals who poached a client. */
   buyouts?: number;
+  /** What inbox decisions cost: retention bonuses, psychologists, travel home. */
+  clientCare?: number;
 }
 
 export interface Agency {
@@ -353,6 +365,8 @@ export interface Agency {
   shortlist?: string[];
   /** Agency-wide brand partnerships, and the ones on offer this season. */
   brands?: BrandDeal[];
+  /** Long sims stop when a big decision lands in the inbox (on unless switched off). */
+  pauseOnDecisions?: boolean;
   brandOffers?: BrandDeal[];
   /** Agency events held, by season. */
   eventsHeld?: Record<number, AgencyEventKind[]>;
@@ -515,6 +529,8 @@ export interface World {
   ryderCup?: import("./ryderCup").RyderCupState;
   /** The latest match-play event's draw, for the bracket screen. */
   lastBracket?: { season: number; week: number; eventId: string; name: string; venue: string; bracket: import("../engine").MatchPlayBracket; names: Record<string, string> };
+  /** Decisions waiting in the inbox, and the last few answered (see inbox.ts). */
+  inbox?: import("./inbox").Decision[];
   /** The rival agencies (older saves get them on load). */
   rivals?: RivalAgency[];
   /** Set once anything has been changed in the editor, like an "edited" save in FM. */

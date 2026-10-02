@@ -110,6 +110,8 @@ export function useGame() {
           await nextFrame(0);
         }
         reportsRef.current.push(playWeek(w, i === 0 ? choices : {}));
+        // A big decision landed: stop and let the player answer it.
+        if (weeks > 1 && season.shouldPause(w)) break;
       }
       reportsRef.current = reportsRef.current.slice(-60);
       const last = reportsRef.current[reportsRef.current.length - 1];

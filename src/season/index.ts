@@ -31,3 +31,7 @@ export * from "./rivals";
 export * from "./ryderCup";
 export * from "./matchPlayEvent";
 export * from "./mastery";
+export * from "./inbox";
+export * from "./dilemmas";
+export * from "./press";
+export * from "./promises";

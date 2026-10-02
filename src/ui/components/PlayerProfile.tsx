@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
+import { PromisePicker } from "./Promises";
 import { ATTRIBUTE_LABELS, createRng, describeTendencies, feetInches, liveBoard, nationInfo, tendencies, type AttributeKey } from "../../engine";
 import {
   STATUS_LABELS,
   abilityView,
   ARCHETYPE_KEY,
+  type PromiseKind,
   TRAIT_SKILLS,
   masteryTier,
   acceptChance,
@@ -46,6 +48,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
   const wp = world.players[id];
   const [commission, setCommission] = useState(10);
   const [years, setYears] = useState(2);
+  const [promises, setPromises] = useState<PromiseKind[]>([]);
   const [result, setResult] = useState<string | null>(null);
   const [tab, setTab] = useState<"profile" | "stats" | "results" | "development">("profile");
   // A full screen of its own: Escape goes back, and the page underneath doesn't scroll.
@@ -71,7 +74,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
   const liveEvent = game.state.liveWeek?.events.find((e) => e.clientIds.includes(id));
   const best = season.filter((r) => r.madeCut).sort((a, b) => a.position - b.position)[0];
   const block = approachBlock(world, id);
-  const offer = { commission: commission / 100, years };
+  const offer = { commission: commission / 100, years, promises };
   const chance = block ? 0 : acceptChance(world, id, offer);
   const bid = block ? null : competingBid(world, id);
   const queued = world.agency.scoutingQueue.includes(id);
@@ -244,6 +247,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
                     Make offer
                   </button>
                 </div>
+                <PromisePicker wp={wp} value={promises} onChange={setPromises} />
                 {bid && (
                   <p className="small" style={{ marginBottom: 0 }}>
                     <strong>{bid.agency}</strong> {wp.career.status === "amateur" ? "will bid when he turns pro" : "are bidding too"}: {Math.round(bid.commission * 100)}% for {bid.years} season{bid.years === 1 ? "" : "s"}. Their name and their commission count against yours.

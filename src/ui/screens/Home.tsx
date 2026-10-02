@@ -1,4 +1,5 @@
 import { coursePar, courseYards, familiarityLabel } from "../../engine";
+import { InboxPanel } from "../components/Inbox";
 import {
   agencyProfit,
   FULL_CARD,
@@ -72,6 +73,7 @@ export function Home({ world, game, go, week }: { world: World; game: Game; go: 
       <WeekHero world={world} game={game} week={week} />
       <AgencyStrip world={world} />
       <Alerts world={world} go={go} />
+      <InboxPanel world={world} game={game} />
       <div className="grid-2">
         <div className="stack">
           {seasonOver ? (

@@ -35,7 +35,8 @@ export function marketability(world: World, wp: WorldPlayer): number {
   const youth = wp.player.age <= 25 ? 1.15 : wp.player.age >= 40 ? 0.85 : 1;
   const market = MARKET[wp.player.nationality] ?? 1;
   const agency = 0.8 + world.agency.reputation / 250;
-  return clamp(rankScore * youth * market * agency + recentWins * 0.08, 0.02, 1.4);
+  // The press and his choices (inbox.ts) add or take away a little.
+  return clamp(rankScore * youth * market * agency + recentWins * 0.08 + (wp.client?.buzz ?? 0), 0.02, 1.4);
 }
 
 /** Tries to generate a new offer for a client; at most one per category at a time. */

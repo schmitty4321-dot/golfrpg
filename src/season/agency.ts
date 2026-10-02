@@ -1,4 +1,5 @@
 import { brandSeasonEnd, trophiesSeasonEnd } from "./showcase";
+import { START_TRUST, makePromises, promiseAppeal, trustOf, type PromiseKind } from "./promises";
 import { negotiationBonus, rivalPoaching, shortlistAlerts } from "./market";
 import { financeMood } from "./finance";
 import { clamp, createRng, type Rng } from "../engine";
@@ -98,6 +99,8 @@ export function assignRivalAgents(world: World, _rng?: Rng): void {
 export interface Offer {
   commission: number;
   years: number;
+  /** What you promise him (see promises.ts): at most two. */
+  promises?: PromiseKind[];
 }
 
 export interface OfferResponse {
@@ -169,6 +172,8 @@ export function acceptChance(world: World, id: string, offer: Offer): number {
   // A rival bidding for a free player: its name and commission count against yours.
   const bid = competingBid(world, id);
   if (bid) score -= competitionPenalty(world, wp, bid);
+  // What you promise him.
+  score += promiseAppeal(wp, rankMap(world).get(id) ?? 999, offer.promises);
   return clamp(1 / (1 + Math.exp(-score / 7)), 0.02, 0.97);
 }
 
@@ -196,6 +201,7 @@ export function offerRepresentation(world: World, id: string, offer: Offer): Off
     return { accepted: false, chance, message: `${wp.player.name} turns you down${went}.` };
   }
   signClient(world, id, offer);
+  makePromises(world, wp, offer.promises);
   return { accepted: true, chance, message: `${wp.player.name} signs with ${world.agency.name}!` };
 }
 
@@ -223,7 +229,10 @@ export function extendContract(world: World, id: string, offer: Offer): OfferRes
     (wp.client.contract.commission - offer.commission) * 100 * 3 * commissionWeight(wp) -
     Math.max(0, expectedReputation(world, id) - world.agency.reputation) * 0.5 +
     extensionBias(world, wp) +
-    negotiationBonus(world, "lawyer");
+    negotiationBonus(world, "lawyer") +
+    // Promises kept build trust; broken ones make him wary of new ones.
+    (trustOf(wp) - START_TRUST) * 0.25 +
+    promiseAppeal(wp, rankMap(world).get(id) ?? 999, offer.promises) * (trustOf(wp) / START_TRUST);
   const chance = clamp(1 / (1 + Math.exp(-score / 7)), 0.02, 0.98);
   const rng = createRng(mixSeed(world.seed, world.season, world.week, 600, Number(id.replace(/\D/g, "")) || 1));
   if (!rng.chance(chance)) {
@@ -231,6 +240,7 @@ export function extendContract(world: World, id: string, offer: Offer): OfferRes
     return { accepted: false, chance, message: `${wp.player.name} isn't ready to commit to a new deal.` };
   }
   wp.client.contract = { ...wp.client.contract, commission: offer.commission, untilSeason: world.season + offer.years };
+  makePromises(world, wp, offer.promises);
   world.news.unshift(`${wp.player.name} extends with ${world.agency.name} until the end of season ${world.season + offer.years}.`);
   return { accepted: true, chance, message: `${wp.player.name} agrees to stay until the end of season ${world.season + offer.years}.` };
 }
@@ -262,6 +272,8 @@ export function updateHappiness(wp: WorldPlayer, week: { played: boolean; sgVsEx
   target -= (c.contract.commission - STANDARD_COMMISSION) * 100 * 1.5 * sensitivity;
   if (week.heldOut) target -= (15 + heldOutPenalty(wp)) * sensitivity;
   target += financeMood(wp);
+  // He's happier with an agent he trusts.
+  target += (trustOf(wp) - START_TRUST) * 0.05;
   c.happiness = clamp(c.happiness + (target - c.happiness) * 0.12, 0, 100);
   if (week.sgVsExpected !== null) c.happiness = clamp(c.happiness + clamp(week.sgVsExpected, -2, 2), 0, 100);
 }

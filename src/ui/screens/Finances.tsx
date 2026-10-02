@@ -95,6 +95,7 @@ function LedgerTable({ l }: { l: AgencyLedger }) {
     ["Performance Center", -(l.facility ?? 0), false],
     ["Client development you fund", -(l.development ?? 0), false],
     ["Interest", -(l.interest ?? 0), false],
+    ["Client care (inbox decisions)", -(l.clientCare ?? 0), false],
   ];
   return (
     <table>

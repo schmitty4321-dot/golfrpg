@@ -214,7 +214,7 @@ export function recordBank(world: World): void {
 
 export const agencyIncome = (l: AgencyLedger): number => l.prizeCommission + l.endorsementCommission + (l.brands ?? 0) + (l.buyouts ?? 0) + Math.max(0, l.events ?? 0);
 export const agencyCosts = (l: AgencyLedger): number =>
-  l.office + l.scouts + (l.development ?? 0) + (l.facility ?? 0) + (l.interest ?? 0) + (l.staff ?? 0) + Math.max(0, -(l.events ?? 0));
+  l.office + l.scouts + (l.development ?? 0) + (l.facility ?? 0) + (l.interest ?? 0) + (l.staff ?? 0) + (l.clientCare ?? 0) + Math.max(0, -(l.events ?? 0));
 export const agencyProfit = (l: AgencyLedger): number => agencyIncome(l) - agencyCosts(l);
 
 /** Weekly running costs: office, scouts, center, staff, interest and the jet. */

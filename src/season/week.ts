@@ -1,4 +1,8 @@
 import { payBrands, recordClientWin, updateFollowers } from "./showcase";
+import { MAX_DECISIONS_PER_WEEK, autoResolve } from "./inbox";
+import { weeklyDilemmas } from "./dilemmas";
+import { settleBoldClaim, weeklyPress } from "./press";
+import { ryderCupPromiseChecks, weeklyPromiseChecks } from "./promises";
 import { payStaff } from "./market";
 import { payCenter, payInterest, recordBank, recordDealCommission } from "./business";
 import { COACH_PRIZE_SHARE, chargeDevelopment, coachesHired } from "./finance";
@@ -96,9 +100,34 @@ export interface LiveEvent {
 
 function weekPlan(world: World, choices: ClientChoices) {
   const own = new Map<string, AiChoice | "auto">();
-  for (const id of world.clientIds) own.set(id, toAiChoice(world, choices[id] ?? { kind: "auto" }));
+  const now = absWeek(world.season, world.week);
+  for (const id of world.clientIds) {
+    // Sitting out a week he was given off (an inbox decision).
+    const rest = (world.players[id]?.client?.restUntil ?? -1) >= now;
+    own.set(id, rest ? null : toAiChoice(world, choices[id] ?? { kind: "auto" }));
+  }
   const plan = planWeek(world, own);
+  honourPromises(world, plan, own);
   return { plan, fields: buildFields(world, plan) };
+}
+
+/**
+ * A client left to pick his own schedule keeps your promises: no
+ * opposite-field events, every major he's invited to, and the event cap.
+ */
+function honourPromises(world: World, plan: ReturnType<typeof planWeek>, own: Map<string, AiChoice | "auto">): void {
+  for (const id of world.clientIds) {
+    if (own.get(id) !== "auto") continue;
+    const wp = world.players[id];
+    const open = (wp?.client?.promises ?? []).filter((p) => p.status === "open" && p.season === world.season);
+    if (!wp || !open.length || wp.injury) continue;
+    const choice = plan.choices.get(id) ?? null;
+    const event = choice ? plan.events.find((e) => e.id === choice.eventId) : undefined;
+    const major = plan.events.find((e) => e.tier === "major");
+    if (open.some((p) => p.kind === "majors") && major && plan.invited.get(major.id)?.has(id)) plan.choices.set(id, { eventId: major.id, route: "entry" });
+    else if (event?.tier === "opposite" && open.some((p) => p.kind === "noOpposite")) plan.choices.set(id, null);
+    else if (event && open.some((p) => p.kind === "maxEvents" && wp.career.seasonEvents >= (p.limit ?? 22)) && event.tier !== "major") plan.choices.set(id, null);
+  }
 }
 
 /** Practice rounds each client has planned at his event this week. */
@@ -178,6 +207,8 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
   if (world.week > seasonWeeks(world)) throw new Error("the season is over; call finishSeason first");
   ensureTraits(world);
   ensureGoals(world);
+  // Anything left in the inbox takes its default choice.
+  autoResolve(world);
   const ctxBefore = weekContext(world);
   const { plan, fields } = weekPlan(world, choices);
   const playedIds = new Set<string>();
@@ -283,6 +314,8 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
         if (r.position === 1 && f.event.tier !== "dev") recordClientWin(world, wp, f.event.name, f.event.tier === "major");
         eventOf.set(wp.player.id, f.event);
         report.clients[wp.player.id] = { summary: "", record, result };
+        const eaten = settleBoldClaim(wp, record);
+        if (eaten) world.news.unshift(eaten);
       }
     }
 
@@ -311,6 +344,14 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
   // The Ryder Cup, in its week: its players count as having played.
   const ryder = ryderCupWeekEnd(world);
   if (ryder) for (const id of Object.keys(ryder.names)) playedIds.add(id);
+  if (ryder) ryderCupPromiseChecks(world, new Set(Object.keys(ryder.names)));
+  // Promises: an opposite-field start, a skipped major, too many events, no elite coach.
+  const majorThisWeek = plan.events.find((e) => e.tier === "major");
+  weeklyPromiseChecks(
+    world,
+    new Map(world.clientIds.map((id) => [id, eventOf.get(id)?.tier ?? null])),
+    new Set(majorThisWeek ? [...(plan.invited.get(majorThisWeek.id) ?? [])].filter((id) => world.clientIds.includes(id)) : []),
+  );
 
   // Everyone who didn't play rests.
   for (const wp of Object.values(world.players)) {
@@ -382,8 +423,17 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
     recordBank(world);
   }
 
+  // Sponsor buzz from the press fades week by week.
+  for (const wp of clients(world)) if (wp.client!.buzz) wp.client!.buzz = Math.round(wp.client!.buzz * 0.9 * 1000) / 1000 || 0;
+
   world.news = world.news.slice(0, 40);
   world.week++;
+  // The inbox for the coming week: press conferences about this one, then a dilemma or two.
+  if (world.clientIds.length > 0) {
+    const records = new Map(world.clientIds.map((id) => [id, report.clients[id]?.record ?? null]));
+    const pressed = weeklyPress(world, records, new Set(ryder ? Object.keys(ryder.names) : []));
+    weeklyDilemmas(world, records, createRng(mixSeed(world.seed, world.season, world.week, 1802)), MAX_DECISIONS_PER_WEEK - pressed);
+  }
   return report;
 }
 

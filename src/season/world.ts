@@ -1,4 +1,5 @@
 import { chargeWinterPrograms } from "./finance";
+import { seasonEndPromiseChecks } from "./promises";
 import { closeSeasonStats } from "./stats";
 import { logSeason } from "./charts";
 import {
@@ -545,6 +546,8 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   // The winter's course setup: next season's courses play to their real averages again.
   const courseSetup = nextCourseSetup(world);
   for (const wp of Object.values(world.players)) expireSponsors(world, wp);
+  // Promises for the season are settled before contracts run out.
+  seasonEndPromiseChecks(world);
   const departures = world.clientIds.length ? agencySeasonEnd(world, rng) : [];
   // The rivals' winter: reputations, the market for every free player, deals and winter plans.
   for (const line of rivalSeasonEnd(world).slice(0, 8).reverse()) world.news.unshift(line);

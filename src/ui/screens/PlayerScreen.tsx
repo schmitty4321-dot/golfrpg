@@ -1,4 +1,5 @@
 import { nationInfo, traitsOf, type AttributeKey } from "../../engine";
+import { PromisesPanel } from "../components/Promises";
 import { ARCHETYPES } from "../../engine";
 import { ARCHETYPE_KEY, GOLD_AT, SILVER_AT, STATUS_LABELS, TRAIT_BY_ID_NAME, abilityView, attributePotential, masteries, masteryPoints, masteryTier, seasonChange, tierProgress, type World } from "../../season";
 import { TierMedal } from "../components/Traits";
@@ -60,6 +61,8 @@ export function PlayerScreen({ world, clientId }: { world: World; clientId: stri
         <div className="panel-head"><h2>Traits</h2><span className="muted small">What sets him apart, on the course and off it</span></div>
         <TraitList ids={[...traitsOf(p)]} />
       </section>
+
+      <PromisesPanel world={world} wp={wp} />
 
       {masteries(wp).length > 0 && (
         <section className="panel">
