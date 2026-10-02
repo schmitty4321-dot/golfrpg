@@ -28,8 +28,14 @@ export const WEEK_SD = 0.4;
 export const HOLE_SD = 0.35;
 /** Strokes a hole added for a final-round leader (or one behind): about 0.8 a round. Data Golf: leaders play 0.44 below expectation. */
 export const LEADER_BURDEN = 0.045;
-/** Extra hole-to-hole spread in the final round for everyone in contention. */
-export const SUNDAY_SPREAD = 1.15;
+/**
+ * Extra hole-to-hole spread in the final round for the chasers (2-6 back): they swing
+ * freely, so someone usually comes at the leader and blowouts stay rare (real winning
+ * margin about 2 shots; the biggest of 2022-23 was 7).
+ */
+export const SUNDAY_SPREAD = 1.3;
+/** The leader's own round-four scatter (the chasers' is SUNDAY_SPREAD). */
+export const LEADER_SPREAD = 1.0;
 
 /**
  * Expected score before blow-ups for a tour-average player on a standard
@@ -218,7 +224,7 @@ export function playHole({ ctx, hole, dayForm, teeShotHoles, state, mod }: HoleI
   if (ctx.round === 4 && !ctx.playoff && ctx.shotsBehind !== null) {
     if (ctx.shotsBehind <= 1) {
       mean += LEADER_BURDEN;
-      sd *= SUNDAY_SPREAD;
+      sd *= LEADER_SPREAD;
     } else if (ctx.shotsBehind <= 6) sd *= SUNDAY_SPREAD;
   }
 

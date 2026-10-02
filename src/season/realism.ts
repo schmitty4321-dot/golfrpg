@@ -290,8 +290,11 @@ export function measureRealism(world: World, seasons: number): RealismMetrics {
       values.neverWin = pct((c) => c.wins === 0);
       values.bustTwoSeasons = pct((c) => c.full <= 2);
       values.tenSeasons = pct((c) => c.full >= 10);
-      values.tierStarPlus = pct((c) => c.peak >= 1.25 || c.wins >= 5 || c.majors >= 2);
-      values.tierAverage = pct((c) => c.peak >= 0);
+      // Data Golf's tiers put every career of two seasons or fewer in "Bust", whatever its
+      // strokes gained (the tiers add up to 100%), so busts don't count towards these two.
+      const lasted = (c: (typeof cohort)[number]) => c.full > 2;
+      values.tierStarPlus = pct((c) => lasted(c) && (c.peak >= 1.25 || c.wins >= 5 || c.majors >= 2));
+      values.tierAverage = pct((c) => lasted(c) && c.peak >= 0);
     }
   }
 
