@@ -1,4 +1,5 @@
 import { useId } from "react";
+import { TierMedal } from "./Traits";
 import { ARCHETYPES, type ArchetypeId } from "../../engine";
 
 /**
@@ -61,12 +62,13 @@ export function ArchetypeBadge({ id, size = 22 }: { id: ArchetypeId; size?: numb
 }
 
 /** Badge and name, for a player card. */
-export function ArchetypePill({ id }: { id: ArchetypeId }) {
+export function ArchetypePill({ id, tier }: { id: ArchetypeId; tier?: "bronze" | "silver" | "gold" }) {
   const a = ARCHETYPES[id];
   return (
     <span className="archetype-pill" title={a.blurb}>
       <ArchetypeBadge id={id} size={26} />
       <span>{a.name}</span>
+      {tier && <TierMedal tier={tier} />}
     </span>
   );
 }

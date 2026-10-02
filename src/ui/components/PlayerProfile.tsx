@@ -3,6 +3,9 @@ import { ATTRIBUTE_LABELS, createRng, describeTendencies, feetInches, liveBoard,
 import {
   STATUS_LABELS,
   abilityView,
+  ARCHETYPE_KEY,
+  TRAIT_SKILLS,
+  masteryTier,
   acceptChance,
   competingBid,
   knownTraits,
@@ -105,7 +108,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
                     <button className="btn btn-small" onClick={() => game.act((w) => toggleShortlist(w, id))}>{onShortlist(world, id) ? "On your board ✓" : "Add to board"}</button>
                   </div>
                 )}
-                {archetype && <div style={{ marginTop: 8 }}><ArchetypePill id={archetype} /></div>}
+                {archetype && <div style={{ marginTop: 8 }}><ArchetypePill id={archetype} tier={masteryTier(wp, ARCHETYPE_KEY)} /></div>}
               </div>
             </div>
             <dl className="pp-kv">
@@ -126,7 +129,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
             {traits.length > 0 && (
               <div>
                 <div className="pp-label">Traits</div>
-                <div className="pp-chips">{traits.map((t) => <TraitChip key={t} id={t} dark />)}</div>
+                <div className="pp-chips">{traits.map((t) => <TraitChip key={t} id={t} dark {...(TRAIT_SKILLS[t] ? { tier: masteryTier(wp, t) } : {})} />)}</div>
               </div>
             )}
             {hidden && (

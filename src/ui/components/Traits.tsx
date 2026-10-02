@@ -1,13 +1,19 @@
 import { TRAIT_BY_ID, TRAIT_CATEGORY_LABELS } from "../../engine";
 
 /** A trait's name as a small chip, coloured by rarity; the effect shows on hover. */
-export function TraitChip({ id, dark }: { id: string; dark?: boolean }) {
+/** A bronze, silver or gold medal for a trait or archetype's mastery. */
+export function TierMedal({ tier }: { tier: "bronze" | "silver" | "gold" }) {
+  return <span className={`tier-medal tier-${tier}`} title={`${tier[0]!.toUpperCase()}${tier.slice(1)}: its skills grow ${tier === "gold" ? "20%" : tier === "silver" ? "10%" : "at the normal rate, for now"} faster`}>{tier === "gold" ? "Gold" : tier === "silver" ? "Silver" : "Bronze"}</span>;
+}
+
+export function TraitChip({ id, dark, tier }: { id: string; dark?: boolean; tier?: "bronze" | "silver" | "gold" }) {
   const t = TRAIT_BY_ID.get(id);
   if (!t) return null;
   return (
     <span className={`trait-chip rarity-${t.rarity}${dark ? " on-dark" : ""}`} title={`${t.name} (${t.rarity}): ${t.effect}`}>
       {t.polarity === "positive" ? "▲ " : t.polarity === "negative" ? "▼ " : "◆ "}
       {t.name}
+      {tier && <> <TierMedal tier={tier} /></>}
     </span>
   );
 }

@@ -12,6 +12,7 @@ import {
   type Rng,
   type VisibleAttribute,
 } from "../engine";
+import { MASTERY_CENTRE, masteryGrowth } from "./mastery";
 import type { CoachRole, Development, Intensity, TrainingFocus, TrainingPlan, WinterProgram, WorldPlayer } from "./types";
 import { effectivePeak, has } from "./traits";
 
@@ -264,6 +265,8 @@ export function developWeek(wp: WorldPlayer, inputs: DevelopmentInputs, rng: Rng
   const years = yearsPast > 0 ? declineYears(yearsPast) : 0;
   const experience = p.age < 46 ? 0.0015 * (inputs.competed ? 1.3 : 1) * (inputs.competed && has(wp, "tournament-learner") ? 2 : 1) : 0;
   const cap = Math.min(20, Math.ceil(dev.potential + STRENGTH_ROOM));
+  // Silver and gold traits and archetypes: their skills grow faster.
+  const mastered = masteryGrowth(wp);
 
   for (const key of TRAINABLE) {
     if (FIXED.includes(key)) continue;
@@ -278,6 +281,7 @@ export function developWeek(wp: WorldPlayer, inputs: DevelopmentInputs, rng: Rng
     // Range days are already in a client's budget; gym days still speed up the body.
     if (inputs.boost && delta > 0 && (body || !inputs.managed)) delta *= body ? inputs.boost.fitness : inputs.boost.training;
     if (injured) delta *= 0.3;
+    if (delta > 0) delta *= (mastered.get(key) ?? 1) * MASTERY_CENTRE;
 
     // Ageing: power goes first, then the short putts; fitness work slows it.
     if (yearsPast > 0) {

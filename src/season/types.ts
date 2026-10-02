@@ -280,6 +280,8 @@ export interface WorldPlayer {
   client?: ClientManagement;
   /** Comeback Kids: weeks of faster development left after a long injury. */
   comebackWeeks?: number;
+  /** Bronze-silver-gold progress for his traits and archetype, by trait id or "archetype" (see mastery.ts). */
+  mastery?: Record<string, number>;
 }
 
 export interface Scout {

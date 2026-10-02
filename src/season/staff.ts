@@ -1,5 +1,6 @@
 import { stafferQuality } from "./market";
 const analystQuality = (world: World) => stafferQuality(world, "analyst");
+import { masteryWeek } from "./mastery";
 import { rivalCoaching } from "./rivals";
 import { centerTier } from "./business";
 import { chargeDevelopment } from "./finance";
@@ -218,6 +219,7 @@ export function endOfWeek(world: World, competed: Set<string>, rng: Rng, boosts:
     const mentored = mentor && isClient && wp.player.age < 25 && !has(wp, "mentor");
     const boost = boosts.get(wp.player.id);
     const changes = developWeek(wp, { plan, coachQuality: quality, competed: played, mentored, managed: isClient, ...(isClient ? { facility: centerTier(world).growth } : {}), ...(boost ? { boost } : {}) }, rng);
+    masteryWeek(wp, played, plan.focus);
     if (isClient) {
       wp.player.condition = clamp(wp.player.condition + INTENSITY[plan.intensity].condition, 0, 100);
       for (const c of changes) {
@@ -256,6 +258,7 @@ export function offseason(world: World, weeks: number, rng: Rng): void {
         },
         rng,
       );
+      masteryWeek(wp, false, wp.client?.training.focus);
       if (wp.client) progressRebuild(world, wp, rng);
     }
   }

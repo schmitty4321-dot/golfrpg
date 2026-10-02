@@ -30,3 +30,4 @@ export * from "./courseSetup";
 export * from "./rivals";
 export * from "./ryderCup";
 export * from "./matchPlayEvent";
+export * from "./mastery";

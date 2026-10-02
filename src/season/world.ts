@@ -7,6 +7,8 @@ import {
   COURSES,
   clamp,
   createRng,
+  NATION_LIST,
+  traceSeed,
   expectedStrokesGained,
   generatePlayer,
   getCourse,
@@ -21,6 +23,7 @@ import { MAX_POTENTIAL, archetypeCeiling, newDevelopment, overall } from "./deve
 import { asSetUp, nextCourseSetup } from "./courseSetup";
 import { generateCoaches, offseason, OFFSEASON_WEEKS } from "./staff";
 import { rivalSeasonEnd } from "./rivals";
+import { EUROPE } from "./ryderCup";
 import { STANDARD_COMMISSION, addReputation, agencySeasonEnd, clients, assignRivalAgents, emptyFinances, newAgency, newManagement } from "./agency";
 import { generateScouts } from "./scouting";
 import { AMATEUR_CLASS_SIZE, PRO_AGE, amateurPotential, amateurRanking, generateAmateur } from "./amateurs";
@@ -100,9 +103,45 @@ const newCareer = (status: TourStatus): Career => ({
   pointsTitles: 0,
 });
 
+/**
+ * Europeans on this tour are the pick of a deeper home tour (the DP World Tour
+ * isn't in the game), so they come stronger than the average player: enough
+ * that Europe's Ryder Cup team matches the United States' (see ryderCup.ts).
+ * Golf skills for generated pros and walk-ons, the ceiling for amateurs.
+ *
+ * The tour's talent as a whole stays where the realism report has it: everyone
+ * else gives up the same amount on average (about a fifth of a point a skill),
+ * so the field doesn't get deeper at the top.
+ */
+export const EUROPE_EDGE = 1;
+const isEuropean = (p: Player) => EUROPE.has(p.nationality);
+let offset: number | null = null;
+/** What everyone else gives up, per skill, to pay for Europe's edge (worked out on first use: module order). */
+export function nonEuropeOffset(): number {
+  if (offset === null) {
+    const total = NATION_LIST.reduce((t, n) => t + n.weight, 0);
+    const share = NATION_LIST.filter((n) => EUROPE.has(n.key)).reduce((t, n) => t + n.weight, 0) / total;
+    offset = (EUROPE_EDGE * share) / (1 - share);
+  }
+  return offset;
+}
+
+function europeanEdge(p: Player): void {
+  if (isEuropean(p)) {
+    for (const k of GOLF_SKILLS) p.attributes[k] = clamp(Math.round(p.attributes[k] + EUROPE_EDGE), 1, 20);
+    return;
+  }
+  // Drawn from the player's own stream, so the world's shared one is untouched.
+  const rng = createRng(traceSeed("europe-offset", p.name, p.age, p.nationality));
+  for (const k of GOLF_SKILLS) if (rng.chance(nonEuropeOffset())) p.attributes[k] = clamp(p.attributes[k] - 1, 1, 20);
+}
+
+/** An amateur's ceiling, adjusted the same way. */
+const ceilingEdge = (p: Player) => (isEuropean(p) ? EUROPE_EDGE : -nonEuropeOffset());
+
 export function makeAmateur(p: Player, rng: Rng): WorldPlayer {
   const wp = makeWorldPlayer(p, "amateur", rng);
-  wp.development.potential = Math.min(Math.max(MAX_POTENTIAL, overall(p)), amateurPotential(overall(p), rng) + archetypeCeiling(p));
+  wp.development.potential = Math.min(Math.max(MAX_POTENTIAL, overall(p)), amateurPotential(overall(p), rng) + archetypeCeiling(p) + ceilingEdge(p));
   return wp;
 }
 
@@ -151,6 +190,7 @@ export function createWorld(opts: CreateWorldOptions): World {
   // Top up with generated players, keeping the usual mix, until fields can fill.
   const generated: Player[] = [];
   for (const [tier, n] of POOL) for (let i = 0; i < n; i++) generated.push(generatePlayer(rng, { tier, usedNames }));
+  for (const p of generated) europeanEdge(p);
   const needed = Math.max(0, TARGET_POOL_SIZE - players.length);
   // An even spread across the tiers, so a small database still gets stars, journeymen and hopefuls around it.
   const step = Math.max(1, Math.floor(generated.length / Math.max(1, needed)));
@@ -489,6 +529,7 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
     // Walk-ons are the best of a deep pool of mini-tour players, not an average one: the
     // developmental tour needs graduates who can keep a card about half the time, as real ones do.
     for (const k of GOLF_SKILLS) p.attributes[k] = clamp(Math.round(p.attributes[k] + WALK_ON_EDGE), 1, 20);
+    europeanEdge(p);
     world.players[p.id] = makeWorldPlayer(p, "none", rng);
   }
 

@@ -962,3 +962,11 @@ select, input[type="text"], input[type="number"] {
 .mp-group { border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; }
 .mp-group table { width: 100%; }
 .mp-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text); }
+
+/* Mastery medals and progress. */
+.tier-medal { display: inline-block; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 999px; margin-left: 4px; vertical-align: middle; color: #1d1d1b; }
+.tier-bronze { background: #d9a273; }
+.tier-silver { background: #c9cdd2; }
+.tier-gold { background: #e8c547; }
+.tier-bar { display: inline-block; width: 80px; height: 6px; border-radius: 3px; background: var(--border); vertical-align: middle; overflow: hidden; }
+.tier-bar > span { display: block; height: 100%; background: var(--accent); }

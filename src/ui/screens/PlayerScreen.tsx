@@ -1,5 +1,7 @@
 import { nationInfo, traitsOf, type AttributeKey } from "../../engine";
-import { STATUS_LABELS, abilityView, attributePotential, seasonChange, type World } from "../../season";
+import { ARCHETYPES } from "../../engine";
+import { ARCHETYPE_KEY, GOLD_AT, SILVER_AT, STATUS_LABELS, TRAIT_BY_ID_NAME, abilityView, attributePotential, masteries, masteryPoints, masteryTier, seasonChange, tierProgress, type World } from "../../season";
+import { TierMedal } from "../components/Traits";
 import { AbilityBars } from "../components/AbilityBars";
 import { PortraitCard } from "../components/Portrait";
 import { StatBoxes, StatLegend } from "../components/StatBoxes";
@@ -24,7 +26,7 @@ export function PlayerScreen({ world, clientId }: { world: World; clientId: stri
           <div style={{ flex: 1 }}>
             <h1 style={{ fontSize: 22 }}>{p.name}</h1>
             <div className="secondary small">{p.age} · {nationInfo(p.nationality).name} · {STATUS_LABELS[c.status]}</div>
-            {p.archetype && <div style={{ marginTop: 6 }}><ArchetypePill id={p.archetype} /></div>}
+            {p.archetype && <div style={{ marginTop: 6 }}><ArchetypePill id={p.archetype} tier={masteryTier(wp, ARCHETYPE_KEY)} /></div>}
           </div>
         </div>
         <div className="stat-row">
@@ -58,6 +60,35 @@ export function PlayerScreen({ world, clientId }: { world: World; clientId: stri
         <div className="panel-head"><h2>Traits</h2><span className="muted small">What sets him apart, on the course and off it</span></div>
         <TraitList ids={[...traitsOf(p)]} />
       </section>
+
+      {masteries(wp).length > 0 && (
+        <section className="panel">
+          <div className="panel-head"><h2>Mastery</h2><span className="muted small">Silver: its skills grow 10% faster; gold: 20%</span></div>
+          <div className="table-wrap">
+            <table>
+              <thead><tr><th>Trait or archetype</th><th>Tier</th><th>Progress</th><th>Skills</th></tr></thead>
+              <tbody>
+                {masteries(wp).map(({ key, skills }) => {
+                  const pts = masteryPoints(wp, key);
+                  const tier = masteryTier(wp, key);
+                  return (
+                    <tr key={key}>
+                      <td>{key === ARCHETYPE_KEY && p.archetype ? ARCHETYPES[p.archetype].name : TRAIT_BY_ID_NAME(key)}</td>
+                      <td><TierMedal tier={tier} /></td>
+                      <td className="small">
+                        <span className="tier-bar"><span style={{ width: `${Math.round(tierProgress(pts) * 100)}%` }} /></span>{" "}
+                        {tier === "gold" ? "Mastered" : `${Math.round(pts)} / ${tier === "silver" ? GOLD_AT : SILVER_AT}`}
+                      </td>
+                      <td className="small muted">{skills.map((k) => k.replace(/([A-Z])/g, " $1").toLowerCase()).join(", ")}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <p className="muted small" style={{ marginBottom: 0 }}>Mastery builds every week: a point for an event played, half a point for a week off, double when his training focus works on those skills.</p>
+        </section>
+      )}
 
       <FamiliarityPanel world={world} wp={wp} />
 
