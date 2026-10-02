@@ -4,6 +4,7 @@ import { money } from "../format";
 import type { Game } from "../useGame";
 import { StaffPortrait, StaffRoleIcon } from "../components/StaffPortrait";
 import { BrandMark } from "../components/BrandMark";
+import { AgencyBuilding } from "../components/AgencyBuilding";
 
 /** The agency as a business: its Performance Center and the development deals it is funding. */
 export function Headquarters({ world, game }: { world: World; game: Game }) {
@@ -104,21 +105,15 @@ function HqPanel({ world, game }: { world: World; game: Game }) {
         <h2>Headquarters</h2>
         <span className="muted small">Roster {world.clientIds.length} of {rosterLimit(world.agency.reputation, world.agency.hq)} · reputation {Math.round(world.agency.reputation)}</span>
       </div>
-      <div className="table-wrap">
-        <table>
-          <thead><tr><th>Office</th><th className="num">Move in</th><th className="num">Running cost / wk</th><th className="num">Roster</th><th className="num">Reputation gains</th></tr></thead>
-          <tbody>
-            {HQ_TIERS.map((t, i) => (
-              <tr key={t.name} className={i === tier ? "row-current" : undefined}>
-                <td><strong>{t.name}</strong>{i === tier && <span className="muted small"> · yours</span>}<div className="secondary small">{t.blurb}</div></td>
-                <td className="num">{t.cost ? money(t.cost) : "–"}{t.reputation ? <div className="muted small">rep {t.reputation}</div> : null}</td>
-                <td className="num">{money(t.office)}</td>
-                <td className="num">{t.roster ? `+${t.roster}` : "–"}</td>
-                <td className="num">{t.reputationGain > 1 ? `+${Math.round((t.reputationGain - 1) * 100)}%` : "–"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="hq-card-grid">
+        {HQ_TIERS.map((t, i) => (
+          <article key={t.name} className={`hq-tier-card${i === tier ? " current" : ""}${i < tier ? " passed" : ""}`}>
+            <AgencyBuilding tier={i} />
+            <div className="hq-tier-copy"><span className="hq-level">Level {i + 1}{i === tier ? " · Current office" : ""}</span><h3>{t.name}</h3><p>{t.blurb}</p></div>
+            <dl><div><dt>Move in</dt><dd>{t.cost ? money(t.cost) : "Included"}</dd></div><div><dt>Weekly</dt><dd>{money(t.office)}</dd></div><div><dt>Roster</dt><dd>{t.roster ? `+${t.roster}` : "Base"}</dd></div><div><dt>Rep gains</dt><dd>{t.reputationGain > 1 ? `+${Math.round((t.reputationGain - 1) * 100)}%` : "Base"}</dd></div></dl>
+            {i === tier + 1 && <span className="hq-unlock">Unlocks at reputation {t.reputation}</span>}
+          </article>
+        ))}
       </div>
       {next && (
         <div className="btn-row">
