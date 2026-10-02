@@ -559,6 +559,13 @@ select, input[type="text"], input[type="number"] {
 /* ---------- live scorecard ---------- */
 .live-card { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 16px; margin: 0 0 12px; overflow-x: auto; }
 .live-card.active-nine { grid-template-columns: minmax(0, 1fr); }
+.scorecard-nine-toggle { display: flex; gap: 4px; margin: 0 0 10px; }
+.scorecard-nine-toggle button {
+  border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px;
+  background: var(--surface); color: var(--text-2); font: inherit; font-size: 12px; font-weight: 700; cursor: pointer;
+}
+.scorecard-nine-toggle button:hover { border-color: var(--accent); color: var(--accent); }
+.scorecard-nine-toggle button[aria-selected="true"] { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
 .live-scorecard { width: 100%; }
 .live-scorecard th, .live-scorecard td { min-width: 0; }
 .live-scorecard .sc-score td { padding: 5px 0; }
