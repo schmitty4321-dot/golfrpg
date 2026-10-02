@@ -16,6 +16,20 @@ import {
 } from "../src/season";
 
 describe("agency staff", () => {
+  it("offers 100 persistent candidates across every role and rating tier", () => {
+    const world = createWorld({ seed: 22, scenario: "rookie" });
+    const market = staffMarket(world);
+    expect(market).toHaveLength(100);
+    for (const role of ["agent", "analyst", "marketing", "lawyer"]) {
+      const candidates = market.filter((staffer) => staffer.role === role);
+      expect(candidates).toHaveLength(25);
+      expect(Math.min(...candidates.map((staffer) => staffer.quality))).toBeLessThanOrEqual(6);
+      expect(Math.max(...candidates.map((staffer) => staffer.quality))).toBeGreaterThanOrEqual(18);
+    }
+    expect(new Set(market.map((staffer) => staffer.name)).size).toBe(100);
+    expect(staffMarket(world)).toEqual(market);
+  });
+
   it("an agent wins signings, marketing lifts sponsor offers, an analyst sharpens ceilings, and they are paid weekly", () => {
     const world = createWorld({ seed: 2, scenario: "rookie" });
     const target = Object.values(world.players).find((wp) => !wp.client && wp.career.status === "conditional")!;

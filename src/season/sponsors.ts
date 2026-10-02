@@ -6,12 +6,12 @@ import { absWeek, type SponsorCategory, type SponsorOffer, type World, type Worl
 import { bonusMultiplier, offerChanceMultiplier, sponsorValueMultiplier } from "./traits";
 
 export const BRANDS: Record<SponsorCategory, string[]> = {
-  equipment: ["Talon Golf", "Kinetic Clubs", "Forged Theory", "Arcline", "Vantage Irons"],
-  apparel: ["Northcourse", "Linksmith", "Grayson & Pike", "Fescue Athletic", "Hollow Oak"],
-  watch: ["Meridian Watches", "Calloway & Sons", "Stellan", "Horologe Nine"],
-  financial: ["Harbor Trust", "Crestline Bank", "Ironbridge Wealth", "Summit Capital"],
-  automotive: ["Veloce Motors", "Granite Trucks", "Aurora EV", "Bayshore Autos"],
-  beverage: ["Clearwater Springs", "Ridgeback Coffee", "Tidal Sports Drink", "Orchard Tea"],
+  equipment: ["Talon Golf", "Kinetic Clubs", "Forged Theory", "Arcline", "Vantage Irons", "Northstar Golfworks", "TrueLine Putters", "Apex Forge", "Caddis Golf Lab"],
+  apparel: ["Northcourse", "Linksmith", "Grayson & Pike", "Fescue Athletic", "Hollow Oak", "Sunday Standard", "Turnberry Thread", "Range & Row", "Evergreen Sport"],
+  watch: ["Meridian Watches", "Calloway & Sons", "Stellan", "Horologe Nine", "Crown & Caddie", "Tempo House", "Alder Chronograph", "Westhaven Time"],
+  financial: ["Harbor Trust", "Crestline Bank", "Ironbridge Wealth", "Summit Capital", "Fairway Mutual", "Oakmont Private Bank", "Pinnacle Partners", "Blue Heron Credit"],
+  automotive: ["Veloce Motors", "Granite Trucks", "Aurora EV", "Bayshore Autos", "Halcyon Motors", "Ridgeline Automotive", "Cobalt Electric", "Sterling Road"],
+  beverage: ["Clearwater Springs", "Ridgeback Coffee", "Tidal Sports Drink", "Orchard Tea", "Citrus Nine", "Blue Flag Hydration", "Turnhouse Coffee", "Green Jacket Tonic"],
 };
 /** Annual value range at the very top of the game, by category. */
 const TOP_VALUE: Record<SponsorCategory, number> = {

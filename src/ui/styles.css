@@ -994,3 +994,44 @@ select, input[type="text"], input[type="number"] {
 .tier-gold { background: #e8c547; }
 .tier-bar { display: inline-block; width: 80px; height: 6px; border-radius: 3px; background: var(--border); vertical-align: middle; overflow: hidden; }
 .tier-bar > span { display: block; height: 100%; background: var(--accent); }
+/* ---------- illustrated agency staff and partnership market ---------- */
+.staff-market-panel { overflow: visible; }
+.staff-role-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-bottom: 12px; }
+.staff-role-tabs button { display: flex; align-items: center; justify-content: center; gap: 8px; min-width: 0; padding: 9px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); cursor: pointer; font: inherit; font-weight: 700; }
+.staff-role-tabs button:hover { border-color: var(--accent); }
+.staff-role-tabs button[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.staff-role-tabs small { margin-left: auto; font-size: 9px; text-transform: uppercase; opacity: .75; }
+.staff-role-icon { display: inline-grid; place-items: center; width: 29px; height: 29px; flex: none; border-radius: 50%; color: #fff; background: #9a7426; font-size: 16px; font-weight: 800; }
+.role-agent { background: #267154; }.role-analyst { background: #376e91; }.role-marketing { background: #9a5367; }.role-lawyer { background: #66558b; }
+.staff-role-summary { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 10px 12px; margin-bottom: 12px; border-radius: 9px; background: var(--surface-2); }
+.staff-role-summary > div:first-child, .staff-current { display: flex; align-items: center; gap: 10px; }
+.staff-role-summary > div:first-child > div { display: grid; gap: 2px; }
+.staff-role-summary span { color: var(--text-2); font-size: 12px; }
+.staff-candidate-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.staff-candidate { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 10px; align-items: center; padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); box-shadow: 0 2px 7px rgba(21, 38, 29, .05); }
+.staff-portrait { display: block; border: 1px solid var(--border); border-radius: 10px; }
+.staff-candidate-body { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 8px; align-items: baseline; min-width: 0; }
+.staff-candidate-body > strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.staff-rating { color: var(--accent); font-size: 20px; font-weight: 800; }
+.staff-rating small { font-size: 11px; font-weight: 600; color: var(--muted); }
+.staff-quality { grid-column: 1 / -1; width: fit-content; padding: 2px 7px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: 10px; font-weight: 700; text-transform: uppercase; }
+.staff-candidate-body .secondary { grid-column: 1 / -1; }
+.staff-candidate > .btn { grid-column: 1 / -1; width: 100%; }
+.staff-pagination { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 12px; }
+.staff-pagination .btn-row { align-items: center; }
+.brand-deal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 9px; margin-top: 8px; }
+.brand-deal-card { position: relative; display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 9px; padding: 11px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); overflow: hidden; }
+.brand-deal-card.active { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); background: var(--accent-soft); }
+.brand-mark { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 10px; color: #fff; background: var(--brand-color); box-shadow: inset 0 0 0 1px rgba(255,255,255,.25); }
+.brand-mark span { font-family: Georgia, serif; font-size: 19px; font-weight: 800; letter-spacing: -.04em; }
+.brand-deal-name { display: grid; align-content: center; min-width: 0; }
+.brand-deal-name strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.brand-deal-name span { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .05em; }
+.brand-deal-terms { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--border); padding-top: 8px; }
+.brand-deal-terms span { display: grid; gap: 1px; padding: 0 6px; border-right: 1px solid var(--border); }
+.brand-deal-terms span:last-child { border-right: 0; }
+.brand-deal-terms b { font-size: 13px; }.brand-deal-terms small { color: var(--muted); font-size: 9px; }
+.brand-deal-card > .btn { grid-column: 1 / -1; width: 100%; }
+.brand-active-label { position: absolute; right: 7px; top: 7px; padding: 2px 6px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-size: 9px; font-weight: 700; text-transform: uppercase; }
+@media (max-width: 900px) { .staff-candidate-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 620px) { .staff-role-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); } .staff-candidate-grid { grid-template-columns: minmax(0, 1fr); } .staff-role-summary, .staff-pagination { align-items: stretch; flex-direction: column; } .staff-current { align-items: flex-start; flex-direction: column; } }

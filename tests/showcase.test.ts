@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createRng } from "../src/engine";
 import {
+  BRANDS,
   brandLift,
   brandOffers,
   createWorld,
@@ -16,6 +17,12 @@ import {
 } from "../src/season";
 
 describe("brand partnerships", () => {
+  it("has a 50-brand catalog spanning every partnership category", () => {
+    expect(Object.values(BRANDS).flat()).toHaveLength(50);
+    expect(Object.values(BRANDS).every((brands) => brands.length >= 8)).toBe(true);
+    expect(new Set(Object.values(BRANDS).flat()).size).toBe(50);
+  });
+
   it("come with reputation, pay weekly and lift their category", () => {
     const world = createWorld({ seed: 3, scenario: "rookie" });
     world.agency.reputation = 10;
