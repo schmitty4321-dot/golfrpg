@@ -1,4 +1,5 @@
 import { chargeWinterPrograms } from "./finance";
+import { checkAchievements } from "./achievements";
 import { rivalRelationshipsSeasonEnd } from "./rivalAgents";
 import { seasonEndPromiseChecks } from "./promises";
 import { closeSeasonStats } from "./stats";
@@ -557,6 +558,7 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
     ? { ...seasonHeadlines(world), clients: clientSummaries, agency: { reputationBefore: repBefore, reputationAfter: world.agency.reputation, ledger, departures }, courseSetup }
     : null;
   if (summary) world.pastSeasons.push(summary);
+  checkAchievements(world);
 
   for (const wp of Object.values(world.players)) {
     const c = wp.career;

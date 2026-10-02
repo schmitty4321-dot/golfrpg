@@ -5,6 +5,7 @@
  * clients hear about it. Trust (0-100, 60 to start) feeds his extension
  * talks, his mood and how easily a rival can turn his head.
  */
+import { bump } from "./achievements";
 import { clamp } from "../engine";
 import { staffQuality } from "./staff";
 import { absWeek, type CoachRole, type World, type WorldPlayer } from "./types";
@@ -87,6 +88,7 @@ function settle(world: World, wp: WorldPlayer, p: ClientPromise, kept: boolean, 
     m.trust = clamp(trustOf(wp) + 8, 0, 100);
     m.happiness = clamp(m.happiness + 4, 0, 100);
     world.news.unshift(`Promise kept: ${label}, for ${wp.player.name}. His trust in you grows.`);
+    bump(world, "promisesKept");
     return;
   }
   m.trust = clamp(trustOf(wp) - 20, 0, 100);

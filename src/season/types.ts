@@ -369,6 +369,8 @@ export interface Agency {
   brands?: BrandDeal[];
   /** Long sims stop when a big decision lands in the inbox (on unless switched off). */
   pauseOnDecisions?: boolean;
+  /** Running counts the achievements use (promises kept, deals on a counter...). */
+  counts?: Record<string, number>;
   brandOffers?: BrandDeal[];
   /** Agency events held, by season. */
   eventsHeld?: Record<number, AgencyEventKind[]>;
@@ -531,6 +533,8 @@ export interface World {
   ryderCup?: import("./ryderCup").RyderCupState;
   /** The latest match-play event's draw, for the bracket screen. */
   lastBracket?: { season: number; week: number; eventId: string; name: string; venue: string; bracket: import("../engine").MatchPlayBracket; names: Record<string, string> };
+  /** Achievements unlocked, by id (see achievements.ts). */
+  achievements?: Record<string, { season: number; week: number }>;
   /** The shots of the week, newest last (see highlights.ts). */
   highlights?: import("./highlights").Highlight[];
   /** Your clients' rivalries with other players (see rivalries.ts). */

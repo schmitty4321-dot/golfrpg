@@ -8,6 +8,7 @@
  * is played takes its default (the do-nothing or safe choice). Long sims stop
  * for "big" decisions unless you switch that off.
  */
+import { bump } from "./achievements";
 import { clamp, createRng, traceSeed, type Rng } from "../engine";
 import { addReputation } from "./agency";
 import { mixSeed } from "./entries";
@@ -112,6 +113,8 @@ export function resolveDecision(world: World, decisionId: string, choiceId?: str
   const who = wp?.player.name ?? (d.from ? `To ${d.from}` : world.agency.name);
   const outcome = [`${who}: ${choice.label}.`, ...lines].join(" ");
   d.resolved = { choice: choice.id, auto, outcome };
+  if (!auto) bump(world, "decisions");
+  if (d.kind === "press") bump(world, "press");
   world.news.unshift(outcome);
   return outcome;
 }

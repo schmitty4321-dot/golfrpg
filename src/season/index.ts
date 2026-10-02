@@ -39,3 +39,4 @@ export * from "./rivalAgents";
 export * from "./negotiation";
 export * from "./rivalries";
 export * from "./highlights";
+export * from "./achievements";

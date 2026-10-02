@@ -1097,3 +1097,9 @@ select, input[type="text"], input[type="number"] {
 .neg-you { align-self: flex-end; background: var(--accent-soft); }
 .neg-him { align-self: flex-start; background: var(--surface); }
 .neg-rival { align-self: center; background: transparent; border-style: dashed; }
+
+/* Achievements. */
+.achievement-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.achievement { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; opacity: 0.65; }
+.achievement.unlocked { opacity: 1; border-color: var(--accent); background: var(--accent-soft); }
+.achievement-icon { font-size: 22px; line-height: 1; color: var(--warning); }

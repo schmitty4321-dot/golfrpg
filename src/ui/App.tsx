@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { AchievementsScreen } from "./screens/Achievements";
 import { Agency } from "./screens/Agency";
 import { Calendar } from "./screens/Calendar";
 import { ClientPicker } from "./components/ClientPicker";
@@ -164,6 +165,8 @@ export function App() {
         </>
       ) : tab === "editor" ? (
         <Editor world={world} game={game} />
+      ) : tab === "achievements" ? (
+        <AchievementsScreen world={world} />
       ) : tab === "ryder" ? (
         <RyderCupScreen world={world} />
       ) : tab === "matchplay" ? (

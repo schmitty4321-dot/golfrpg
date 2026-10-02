@@ -8,6 +8,7 @@
  * patience runs out he walks, and won't talk again for four weeks. A rival
  * bidding for him may raise its offer while you talk.
  */
+import { bump } from "./achievements";
 import { createRng } from "../engine";
 import { acceptChance, applyExtension, approachBlock, extendChance, signClient, type Offer } from "./agency";
 import { mixSeed } from "./entries";
@@ -200,7 +201,10 @@ export function acceptCounter(world: World): Negotiation | null {
   if (!n || !n.counter) return null;
   const t = n.counter;
   n.lines.push({ by: "you", text: `You accept: ${describeTerms(t)}.`, terms: t });
-  if (termsChance(world, n, t) >= n.bar) close(world, n, t);
+  if (termsChance(world, n, t) >= n.bar) {
+    close(world, n, t);
+    bump(world, "counterDeals");
+  }
   else walk(world, n);
   return n;
 }
