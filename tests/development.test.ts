@@ -139,10 +139,11 @@ const base = createWorld({ seed: 21, scenario: "rookie" });
 const fresh = (): World => deserializeWorld(serializeWorld(base));
 
 describe("coaches", () => {
-  it("offers five coaches per role, dearer as they get better", () => {
-    expect(base.coaches).toHaveLength(25);
+  it("offers 25 coaches per role, dearer as they get better", () => {
+    expect(base.coaches).toHaveLength(125);
     const swing = base.coaches.filter((c) => c.role === "swing").sort((a, b) => a.quality - b.quality);
-    expect(swing[4]!.weeklyFee).toBeGreaterThan(swing[0]!.weeklyFee * 3);
+    expect(swing).toHaveLength(25);
+    expect(swing.at(-1)!.weeklyFee).toBeGreaterThan(swing[0]!.weeklyFee * 3);
   });
 
   it("charges the client's staff wages every week, and stops when released", () => {
@@ -299,7 +300,7 @@ describe("seasons and saves", () => {
     const m = w.players.client!.client!;
     expect(m.training.focus).toBe(version === 2 ? "putting" : "balanced");
     expect(w.agency.bank).toBe(12_345);
-    expect(w.coaches).toHaveLength(25);
+    expect(w.coaches).toHaveLength(125);
     expect(w.players.client!.development.potential).toBeGreaterThan(0);
     expect(Object.values(w.players).some((wp) => wp.agent !== null)).toBe(true);
     playWeek(w);

@@ -1,4 +1,5 @@
-import { EQUIPMENT, EQUIPMENT_SLOTS, SLOT_LABELS, STANDARD, type EquipmentModel } from "../../engine";
+import { useState } from "react";
+import { EQUIPMENT, EQUIPMENT_SLOTS, SLOT_LABELS, STANDARD, type EquipmentModel, type EquipmentSlot } from "../../engine";
 import {
   JET_LEASE_WEEKLY,
   JET_PRICE,
@@ -12,6 +13,7 @@ import {
   type World,
 } from "../../season";
 import { money } from "../format";
+import { Portrait } from "../components/Portrait";
 import type { Game } from "../useGame";
 
 /** What a model does, in a few words. */
@@ -42,6 +44,14 @@ export function Team({ world, game, clientId }: { world: World; game: Game; clie
   const owned = new Set(m.ownedEquipment ?? []);
   const mode = travelMode(world, wp);
   const act = game.act;
+  const [caddiePage, setCaddiePage] = useState(0);
+  const [gearSlot, setGearSlot] = useState<EquipmentSlot>("driver");
+  const [gearPage, setGearPage] = useState(0);
+  const caddiePages = Math.ceil(caddies.length / 8);
+  const shownCaddies = caddies.slice(caddiePage * 8, caddiePage * 8 + 8);
+  const slotModels = EQUIPMENT.filter((e) => e.slot === gearSlot);
+  const gearPages = Math.ceil(slotModels.length / 12);
+  const shownModels = slotModels.slice(gearPage * 12, gearPage * 12 + 12);
 
   return (
     <main>
@@ -58,21 +68,15 @@ export function Team({ world, game, clientId }: { world: World; game: Game; clie
         ) : (
           <p className="muted" style={{ marginTop: 0 }}>No caddie hired: a tour caddie on a standard deal ($2,000 a week plus a share of winnings).</p>
         )}
-        <div className="table-wrap">
-          <table>
-            <thead><tr><th>Caddie</th><th>Greens</th><th>Clubbing</th><th>Calm</th><th className="num">Per week</th><th className="num">Winnings</th><th /></tr></thead>
-            <tbody>
-              {caddies.map((k) => {
+        <div className="person-market">
+              {shownCaddies.map((k) => {
                 const busy = caddieEmployer(world, k.id);
                 return (
-                  <tr key={k.id} className={k.id === m.caddieId ? "me" : undefined}>
-                    <td>{k.name}</td>
-                    <td>{bar(k.greenReading)} {k.greenReading}</td>
-                    <td>{bar(k.clubbing)} {k.clubbing}</td>
-                    <td>{bar(k.calm)} {k.calm}</td>
-                    <td className="num">{money(k.weeklyFee)}</td>
-                    <td className="num">{Math.round(k.share * 100)}%</td>
-                    <td>
+                  <article key={k.id} className={`person-option ${k.id === m.caddieId ? "selected" : ""}`}>
+                    <Portrait player={{ id: `caddie-${k.id}`, nationality: "USA", age: 24 + (Number(k.id.slice(1)) % 30) }} size={68} title={k.name} />
+                    <div className="person-option-copy"><strong>{k.name}</strong><span className="muted small">{money(k.weeklyFee)}/wk · {Math.round(k.share * 100)}% winnings</span>
+                    <span className="small">Greens {bar(k.greenReading)} {k.greenReading}</span><span className="small">Clubs {bar(k.clubbing)} {k.clubbing}</span><span className="small">Calm {bar(k.calm)} {k.calm}</span></div>
+                    <div>
                       {k.id === m.caddieId ? (
                         <span className="muted small">On the bag</span>
                       ) : busy ? (
@@ -80,13 +84,12 @@ export function Team({ world, game, clientId }: { world: World; game: Game; clie
                       ) : (
                         <button className="btn btn-small" onClick={() => act((w) => game.lib.hireCaddie(w, clientId, k.id))}>Hire</button>
                       )}
-                    </td>
-                  </tr>
+                    </div>
+                  </article>
                 );
               })}
-            </tbody>
-          </table>
         </div>
+        <Pager page={caddiePage} pages={caddiePages} setPage={setCaddiePage} label={`${caddies.length} available caddies`} />
       </section>
 
       <section className="panel">
@@ -94,18 +97,17 @@ export function Team({ world, game, clientId }: { world: World; game: Game; clie
           <h2>The bag</h2>
           <span className="muted small">He pays for his clubs. Owned models swap back in for free.</span>
         </div>
-        <div className="gear-slots">
-          {EQUIPMENT_SLOTS.map((slot) => {
-            const current = wp.player.equipment?.[slot] ?? STANDARD[slot];
-            return (
-              <div key={slot} className="stat-box">
-                <div className="stat-box-head"><h3>{SLOT_LABELS[slot]}</h3></div>
-                <div className="gear-models">
-                  {EQUIPMENT.filter((e) => e.slot === slot).map((e) => {
+        <div className="market-tabs" role="tablist">
+          {EQUIPMENT_SLOTS.map((slot) => <button key={slot} className="btn btn-small" aria-selected={gearSlot === slot} onClick={() => { setGearSlot(slot); setGearPage(0); }}>{SLOT_LABELS[slot]}</button>)}
+        </div>
+        <div className="gear-market">
+                  {shownModels.map((e) => {
+                    const current = wp.player.equipment?.[gearSlot] ?? STANDARD[gearSlot];
                     const inBag = e.id === current;
                     const have = e.price === 0 || owned.has(e.id);
                     return (
-                      <button key={e.id} className="choice" role="radio" aria-checked={inBag} onClick={() => !inBag && act((w) => game.lib.equip(w, clientId, e.id))}>
+                      <button key={e.id} className="choice gear-card" role="radio" aria-checked={inBag} onClick={() => !inBag && act((w) => game.lib.equip(w, clientId, e.id))}>
+                        <span className={`club-art club-art-${gearSlot}`} aria-hidden><i /></span>
                         <strong>{e.name}</strong>
                         <span className="secondary small">{e.blurb}</span>
                         <span className="small">{effects(e)}</span>
@@ -113,11 +115,8 @@ export function Team({ world, game, clientId }: { world: World; game: Game; clie
                       </button>
                     );
                   })}
-                </div>
-              </div>
-            );
-          })}
         </div>
+        <Pager page={gearPage} pages={gearPages} setPage={setGearPage} label={`100 ${SLOT_LABELS[gearSlot].toLowerCase()} models`} />
       </section>
 
       <section className="panel">
@@ -160,4 +159,8 @@ export function Team({ world, game, clientId }: { world: World; game: Game; clie
       </section>
     </main>
   );
+}
+
+function Pager({ page, pages, setPage, label }: { page: number; pages: number; setPage: (page: number) => void; label: string }) {
+  return <div className="market-pager"><span className="muted small">{label} · page {page + 1} of {pages}</span><div className="btn-row"><button className="btn btn-small" disabled={page === 0} onClick={() => setPage(page - 1)}>Previous</button><button className="btn btn-small" disabled={page >= pages - 1} onClick={() => setPage(page + 1)}>Next</button></div></div>;
 }

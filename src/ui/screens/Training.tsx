@@ -20,6 +20,7 @@ import {
 } from "../../season";
 import { money } from "../format";
 import { Stars } from "../components/Stars";
+import { Portrait } from "../components/Portrait";
 import type { Game } from "../useGame";
 
 const FOCUS: { id: TrainingFocus; label: string; blurb: string }[] = [
@@ -183,7 +184,7 @@ function StaffRow({ role, world, game, clientId }: { role: CoachRole; world: Wor
   const options = world.coaches.filter((c) => c.role === role).sort((a, b) => a.quality - b.quality);
   return (
     <tr>
-      <td>{ROLE_LABELS[role]}</td>
+      <td><div className="coach-role-cell">{current ? <Portrait player={{ id: `coach-${current.id}`, nationality: "USA", age: 30 + (Number(current.id.slice(1)) % 28) }} size={48} title={current.name} /> : <span className="coach-vacancy" aria-hidden>+</span>}<span><strong>{ROLE_LABELS[role]}</strong>{current && <small>{current.name}</small>}</span></div></td>
       <td>
         <select
           aria-label={`${ROLE_LABELS[role]}`}

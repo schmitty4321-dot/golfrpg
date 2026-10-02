@@ -35,7 +35,13 @@ export function deserializeWorld(json: string): World {
   // Saves from before traits existed: every player gets his roll now.
   ensureTraits(world);
   ensureFamiliarity(world);
-  world.caddies ??= generateCaddies(world.seed);
+  const generatedCaddies = generateCaddies(world.seed);
+  world.caddies ??= [];
+  const caddieIds = new Set(world.caddies.map((c) => c.id));
+  world.caddies.push(...generatedCaddies.filter((c) => !caddieIds.has(c.id)));
+  const generatedCoaches = generateCoaches(world.seed);
+  const coachIds = new Set(world.coaches.map((c) => c.id));
+  world.coaches.push(...generatedCoaches.filter((c) => !coachIds.has(c.id)));
   ensureRivals(world);
   addMatchPlay(world);
   ensureRyderCup(world);

@@ -10,17 +10,17 @@ import type { Caddie, Region, TravelClass, World, WorldPlayer } from "./types";
 const FIRST = ["Bones", "Mikey", "Jim", "Tommy", "Fluff", "Ricky", "Duke", "Kenny", "Stevie", "Paulie", "Joe", "Ted", "Sammy", "Bo"];
 const LAST = ["Mackay", "Cowan", "Bennett", "Tinney", "Doyle", "Reyes", "Harmon", "Kline", "Walsh", "Ortiz", "Pruitt", "Lang", "Moss", "Crane"];
 
-/** Twelve caddies for hire: better green readers and calmer heads cost more. */
+/** One hundred caddies for hire: better green readers and calmer heads cost more. */
 export function generateCaddies(seed: number): Caddie[] {
   const rng = createRng(seed ^ 0xcadd1e);
   const used = new Set<string>();
   const out: Caddie[] = [];
-  for (let i = 0; i < 12; i++) {
+  for (let i = 0; i < 100; i++) {
     let name = "";
     do name = `${rng.pick(FIRST)} ${rng.pick(LAST)}`;
     while (used.has(name));
     used.add(name);
-    const level = 7 + Math.round((i / 11) * 10); // 7 (a friend on the bag) to 17 (a major-winning looper)
+    const level = 4 + Math.round((i / 99) * 14); // 4 (a friend on the bag) to 18 (a major-winning looper)
     const skill = () => clamp(level + rng.int(-3, 3), 3, 20);
     const c = { greenReading: skill(), clubbing: skill(), calm: skill() };
     const avg = (c.greenReading + c.clubbing + c.calm) / 3;
@@ -29,7 +29,13 @@ export function generateCaddies(seed: number): Caddie[] {
   return out;
 }
 
-export const caddiesOf = (world: World): Caddie[] => (world.caddies ??= generateCaddies(world.seed));
+export const caddiesOf = (world: World): Caddie[] => {
+  const generated = generateCaddies(world.seed);
+  if (!world.caddies) return (world.caddies = generated);
+  const existing = new Set(world.caddies.map((c) => c.id));
+  world.caddies.push(...generated.filter((c) => !existing.has(c.id)));
+  return world.caddies;
+};
 
 /** The client whose bag a caddie is on, if any. */
 export const caddieEmployer = (world: World, caddieId: string): string | undefined => world.clientIds.find((id) => world.players[id]?.client?.caddieId === caddieId);

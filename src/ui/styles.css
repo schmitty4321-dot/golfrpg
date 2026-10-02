@@ -871,6 +871,29 @@ select, input[type="text"], input[type="number"] {
 .gear-models { display: grid; gap: 8px; padding: 10px; }
 .gear-models .choice { text-align: left; }
 
+.person-market { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.person-option { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+.person-option.selected { border-color: var(--green); background: var(--green-soft); box-shadow: inset 0 0 0 1px var(--green); }
+.person-option .portrait { border-radius: 13px; box-shadow: 0 2px 8px rgba(24, 55, 40, .14); }
+.person-option-copy { display: grid; gap: 3px; min-width: 0; }
+.market-pager { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; }
+.market-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.market-tabs [aria-selected="true"] { color: #fff; border-color: var(--green); background: var(--green); }
+.gear-market { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.gear-card { position: relative; min-height: 164px; overflow: hidden; text-align: left; padding-top: 58px; }
+.club-art { position: absolute; inset: 0 0 auto 0; height: 50px; background: linear-gradient(135deg, #d9eee2, #f0e5c8); border-bottom: 1px solid var(--line); }
+.club-art::before { content: ""; position: absolute; width: 5px; height: 42px; left: 50%; top: 3px; border-radius: 4px; background: linear-gradient(90deg, #777, #ddd, #777); transform: rotate(48deg); transform-origin: bottom; }
+.club-art i { position: absolute; width: 22px; height: 10px; left: calc(50% - 24px); top: 29px; border-radius: 8px 3px 5px 6px; background: #20372c; transform: rotate(-8deg); }
+.club-art-irons i { width: 15px; height: 14px; border-radius: 3px 7px 3px 3px; }
+.club-art-wedges i { width: 18px; height: 15px; border-radius: 3px 9px 4px 3px; background: #996d3e; }
+.club-art-putter i { width: 25px; height: 7px; border-radius: 2px; background: #345846; }
+.coach-role-cell { display: flex; align-items: center; gap: 9px; min-width: 175px; }
+.coach-role-cell .portrait { flex: 0 0 auto; border-radius: 10px; }
+.coach-role-cell span { display: grid; gap: 2px; }
+.coach-role-cell small { color: var(--muted); }
+.coach-vacancy { place-items: center; width: 48px; height: 48px; border: 1px dashed var(--line-strong); border-radius: 10px; color: var(--muted); font-size: 24px; }
+@media (max-width: 900px) { .person-market, .gear-market { grid-template-columns: minmax(0, 1fr); } }
+
 /* ---------- weekly planner ---------- */
 .planner { margin-top: 10px; padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); display: grid; gap: 8px; }
 .planner-days { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 6px; }

@@ -46,6 +46,9 @@ type HairStyle = "short" | "side" | "buzz" | "curly" | "receding";
 type FacialHair = "none" | "stubble" | "beard" | "mustache";
 type Mouth = "smile" | "grin" | "neutral";
 
+/** The reusable portrait bank promised by the UI; IDs 1-200 all resolve to stable cartoon faces. */
+export const PLAYER_PORTRAIT_CATALOG = Array.from({ length: 200 }, (_, i) => `player-portrait-${i + 1}`);
+
 export interface PortraitSpec {
   skin: string;
   hair: string;

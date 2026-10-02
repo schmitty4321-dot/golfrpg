@@ -26,18 +26,18 @@ const LAST = ["Harlan", "Whitcombe", "Garrity", "Lindell", "Pryce", "Osgood", "T
 /** Weekly retainer: about $74k a season for a tour-average coach (12), $330k for the best (20). */
 export const coachFee = (quality: number): number => Math.round((100 + quality ** 3) / 100) * 100;
 
-/** The market of coaches for hire: five per role, from journeymen to gurus. */
+/** The market of coaches for hire: 25 per role, from local teachers to tour gurus. */
 export function generateCoaches(seed: number): Coach[] {
   const rng = createRng(seed ^ 0xc0ac4);
   const used = new Set<string>();
   const coaches: Coach[] = [];
   for (const role of COACH_ROLES) {
-    for (const q of [6, 9, 12, 15, 18]) {
+    for (let tier = 0; tier < 25; tier++) {
       let name = "";
       do name = `${rng.pick(FIRST)} ${rng.pick(LAST)}`;
       while (used.has(name));
       used.add(name);
-      const quality = clamp(q + rng.int(-1, 1), 1, 20);
+      const quality = clamp(3 + Math.round((tier / 24) * 16) + rng.int(-1, 1), 1, 20);
       coaches.push({ id: `c${coaches.length + 1}`, name, role, quality, weeklyFee: coachFee(quality) });
     }
   }

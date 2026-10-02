@@ -32,7 +32,7 @@ export interface EquipmentModel {
 
 export const STANDARD: Record<EquipmentSlot, string> = { driver: "driver-standard", irons: "irons-standard", wedges: "wedges-standard", putter: "putter-standard" };
 
-export const EQUIPMENT: readonly EquipmentModel[] = [
+const CORE_EQUIPMENT: readonly EquipmentModel[] = [
   { id: "driver-standard", slot: "driver", name: "Tour Standard 10.5°", price: 0, blurb: "What most of the tour plays." },
   { id: "driver-bomber", slot: "driver", name: "Talon Bomber XL", price: 9_000, blurb: "Low spin, huge ball speed. Finds the rough more often.", sg: { offTheTee: 0.06 }, spread: { offTheTee: 1.12 }, reach: 12, tightBlowup: 1.08 },
   { id: "driver-fairway", slot: "driver", name: "Kinetic Fairway Finder", price: 7_500, blurb: "High forgiveness, a tighter pattern, a few yards shorter.", spread: { offTheTee: 0.88 }, reach: -6, tightBlowup: 0.92 },
@@ -52,6 +52,44 @@ export const EQUIPMENT: readonly EquipmentModel[] = [
   { id: "putter-milled", slot: "putter", name: "Meridian Milled Blade", price: 6_000, blurb: "Buttery feel, for a player who trusts his stroke.", sg: { putting: 0.05 }, spread: { putting: 1.1 } },
   { id: "putter-mallet", slot: "putter", name: "Grayson High-MOI Mallet", price: 5_500, blurb: "Stable through the stroke; fewer bad putting days.", spread: { putting: 0.85 } },
   { id: "putter-broom", slot: "putter", name: "Northcourse Broomstick", price: 5_000, blurb: "Anchored to the chest: calm hands under pressure.", sg: { putting: 0.02 }, spread: { putting: 0.9 } },
+];
+
+const MAKERS = ["Talon", "Kinetic", "Arcline", "Meridian", "Grayson", "Northcourse", "Linksmith", "Hollow Oak", "Vantage", "Aeroform"];
+const LINES = ["Apex", "Vector", "Tour", "Forge", "Pulse", "Carbon", "Precision", "Velocity", "Control", "Heritage"];
+const EDITIONS = ["One", "Pro", "Max", "LS", "X", "Elite", "Core", "GT", "Prime", "Studio"];
+
+function generatedEquipment(slot: EquipmentSlot): EquipmentModel[] {
+  const out: EquipmentModel[] = [];
+  for (let i = 0; i < 96; i++) {
+    const maker = MAKERS[i % MAKERS.length]!;
+    const line = LINES[Math.floor(i / 10) % LINES.length]!;
+    const edition = EDITIONS[(i * 7 + Math.floor(i / 10)) % EDITIONS.length]!;
+    const band = i % 8;
+    const premium = Math.floor(i / 24);
+    const priceBase = slot === "driver" ? 6_000 : slot === "irons" ? 9_000 : slot === "wedges" ? 3_000 : 3_500;
+    const price = Math.round((priceBase + premium * 2_500 + band * 450) / 100) * 100;
+    const id = `${slot}-catalog-${String(i + 1).padStart(2, "0")}`;
+    if (slot === "driver") {
+      const power = band % 2 === 0;
+      out.push({ id, slot, name: `${maker} ${line} ${edition}`, price, blurb: power ? "Fast face and a penetrating flight." : "A forgiving head built to keep more drives in play.", sg: power ? { offTheTee: 0.015 + premium * 0.012 } : undefined, spread: { offTheTee: power ? 1.02 + premium * 0.02 : 0.97 - premium * 0.015 }, reach: power ? 3 + premium * 3 : -1 - premium, tightBlowup: power ? 1.01 + premium * 0.015 : 0.98 - premium * 0.012 });
+    } else if (slot === "irons") {
+      const control = band % 3 !== 0;
+      out.push({ id, slot, name: `${maker} ${line} ${edition}`, price, blurb: control ? "Consistent launch and precise distance control." : "Compact shaping with extra workability.", sg: { approach: (control ? 0.012 : 0.02) + premium * 0.012 }, spread: { approach: control ? 0.98 - premium * 0.015 : 1.02 + premium * 0.018 } });
+    } else if (slot === "wedges") {
+      const sand = band % 3 === 0;
+      out.push({ id, slot, name: `${maker} ${line} ${edition}`, price, blurb: sand ? "A versatile sole that slides cleanly through sand." : "Fresh grooves provide predictable flight and check.", sg: { aroundTheGreen: 0.008 + premium * 0.012 }, ...(sand ? { bunker: 0.94 - premium * 0.035 } : { firm: 0.02 + premium * 0.015 }) });
+    } else {
+      const stable = band % 2 === 0;
+      out.push({ id, slot, name: `${maker} ${line} ${edition}`, price, blurb: stable ? "High stability helps the face return square." : "A responsive face rewards a confident stroke.", sg: stable ? undefined : { putting: 0.01 + premium * 0.012 }, spread: { putting: stable ? 0.97 - premium * 0.018 : 1.01 + premium * 0.012 } });
+    }
+  }
+  return out;
+}
+
+/** A 400-model market: 100 choices in each of the four bag slots. */
+export const EQUIPMENT: readonly EquipmentModel[] = [
+  ...CORE_EQUIPMENT,
+  ...EQUIPMENT_SLOTS.flatMap(generatedEquipment),
 ];
 
 export const EQUIPMENT_BY_ID: ReadonlyMap<string, EquipmentModel> = new Map(EQUIPMENT.map((e) => [e.id, e]));
