@@ -37,3 +37,4 @@ export * from "./press";
 export * from "./promises";
 export * from "./rivalAgents";
 export * from "./negotiation";
+export * from "./rivalries";

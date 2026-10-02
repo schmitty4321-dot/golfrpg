@@ -257,6 +257,8 @@ export interface PlayerEventContext {
   lateSeason: boolean;
   /** A breakout (+) or slump (-) season: strokes gained a round, all season. */
   seasonForm?: number;
+  /** A hot rival in the field this week: strokes a round, + helps (see season/rivalries.ts). */
+  rivalry?: number;
   /** The world's Realism setting: day-to-day scatter multiplier (Lively worlds are wilder). */
   scatter?: number;
 }

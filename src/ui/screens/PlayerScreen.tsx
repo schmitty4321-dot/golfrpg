@@ -1,7 +1,7 @@
 import { nationInfo, traitsOf, type AttributeKey } from "../../engine";
 import { PromisesPanel } from "../components/Promises";
 import { ARCHETYPES } from "../../engine";
-import { ARCHETYPE_KEY, GOLD_AT, SILVER_AT, STATUS_LABELS, TRAIT_BY_ID_NAME, abilityView, attributePotential, masteries, masteryPoints, masteryTier, seasonChange, tierProgress, type World } from "../../season";
+import { HOT, rivalriesOf, ARCHETYPE_KEY, GOLD_AT, SILVER_AT, STATUS_LABELS, TRAIT_BY_ID_NAME, abilityView, attributePotential, masteries, masteryPoints, masteryTier, seasonChange, tierProgress, type World } from "../../season";
 import { TierMedal } from "../components/Traits";
 import { AbilityBars } from "../components/AbilityBars";
 import { PortraitCard } from "../components/Portrait";
@@ -63,6 +63,29 @@ export function PlayerScreen({ world, clientId }: { world: World; clientId: stri
       </section>
 
       <PromisesPanel world={world} wp={wp} />
+
+      <section className="panel">
+        <div className="panel-head"><h2>Rivalries</h2><span className="muted small">Heat {HOT}+ and it shows on the course when they meet</span></div>
+        {rivalriesOf(world, clientId).length === 0 ? (
+          <p className="empty">No rivalries yet. They start at a playoff, a Sunday duel, a match-play knockout or a Ryder Cup singles.</p>
+        ) : (
+          <div className="table-wrap">
+            <table>
+              <thead><tr><th>Rival</th><th>Heat</th><th className="num">Head to head</th><th>Last flashpoint</th></tr></thead>
+              <tbody>
+                {rivalriesOf(world, clientId).map((r) => (
+                  <tr key={r.b}>
+                    <td>{world.players[r.b]?.player.name ?? r.names.b}</td>
+                    <td><span className="tier-bar"><span style={{ width: `${r.heat}%`, background: r.heat >= HOT ? "var(--critical)" : undefined }} /></span> <span className="small">{Math.round(r.heat)}</span></td>
+                    <td className="num">{r.aWins}-{r.bWins}</td>
+                    <td className="small muted">{r.last ? `${r.last.text} (season ${r.last.season}, week ${r.last.week})` : "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
 
       {masteries(wp).length > 0 && (
         <section className="panel">

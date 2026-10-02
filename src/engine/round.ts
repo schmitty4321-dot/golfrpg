@@ -296,7 +296,7 @@ export function roundForm(ctx: RoundContext): StrokesGained {
   }
   traits.sg.approach += caddie.approach;
   traits.sg.putting += caddie.putting;
-  return drawDayForm(ctx.player, ctx.course, ctx.rng, (ctx.weekForm ?? 0) + (ctx.event?.seasonForm ?? 0) - shift - traits.strokes - local.strokes, habits.streak, traits);
+  return drawDayForm(ctx.player, ctx.course, ctx.rng, (ctx.weekForm ?? 0) + (ctx.event?.seasonForm ?? 0) + (ctx.event?.rivalry ?? 0) - shift - traits.strokes - local.strokes, habits.streak, traits);
 }
 
 /** His familiarity with the course this week, when the season supplied it. */

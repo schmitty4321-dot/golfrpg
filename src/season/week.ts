@@ -1,4 +1,5 @@
 import { payBrands, recordClientWin, updateFollowers } from "./showcase";
+import { recordRivalries, recordRyderRivalries, rivalryEdge, rivalryWeek } from "./rivalries";
 import { weeklyRivalMessages } from "./rivalAgents";
 import { MAX_DECISIONS_PER_WEEK, autoResolve } from "./inbox";
 import { weeklyDilemmas } from "./dilemmas";
@@ -168,6 +169,14 @@ function tournamentConfig(world: World, f: FieldResult, i: number, practice: Map
   const all = Object.values(context);
   const fieldFamiliarity = all.reduce((s, c) => s + (c.familiarity ?? 0), 0) / Math.max(1, all.length);
   for (const c of all) c.fieldFamiliarity = fieldFamiliarity;
+  // A hot rival in the field gets to your clients.
+  const fieldSet = new Set(f.field);
+  for (const id of f.field) {
+    const wp = world.players[id]!;
+    if (!wp.client) continue;
+    const edge = rivalryEdge(world, wp, fieldSet);
+    if (edge) context[id] = { ...context[id]!, rivalry: edge };
+  }
   return {
     name: f.event.name,
     course: asSetUp(world, f.event.tier === "major" ? majorSetup(venue) : venue),
@@ -321,6 +330,7 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
     }
 
     recordEvent(world, f.event, result);
+    recordRivalries(world, f.event, result);
     if (result.bracket) {
       world.lastBracket = {
         season: world.season,
@@ -346,6 +356,8 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
   const ryder = ryderCupWeekEnd(world);
   if (ryder) for (const id of Object.keys(ryder.names)) playedIds.add(id);
   if (ryder) ryderCupPromiseChecks(world, new Set(Object.keys(ryder.names)));
+  if (ryder) recordRyderRivalries(world, ryder);
+  rivalryWeek(world);
   // Promises: an opposite-field start, a skipped major, too many events, no elite coach.
   const majorThisWeek = plan.events.find((e) => e.tier === "major");
   weeklyPromiseChecks(
