@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { CENTER_TIERS, HQ_TIERS, AGENCY_EVENTS, STAFF_LABELS, STAFF_ROLES, brandOffers, buildCenter, eventBlock, eventTakings, followers, holdEvent, signBrand, centerBlock, dealClients, hireStaffer, hiredStaffer, hqBlock, releaseStaffer, rosterLimit, staffMarket, staffWages, upgradeHq, type AgencyEventKind, type World } from "../../season";
+import { CENTER_TIERS, HQ_TIERS, AGENCY_EVENTS, STAFF_LABELS, STAFF_ROLES, brandOffers, buildCenter, eventBlock, eventTakings, followers, holdEvent, signBrand, centerBlock, dealClients, hireStaffer, hiredStaffer, hqBlock, releaseStaffer, rosterLimit, staffMarket, staffWages, upgradeHq, type AgencyEventKind, type StaffRole, type World } from "../../season";
 import { money } from "../format";
 import type { Game } from "../useGame";
+import { StaffPortrait, StaffRoleIcon } from "../components/StaffPortrait";
+import { BrandMark } from "../components/BrandMark";
 
 /** The agency as a business: its Performance Center and the development deals it is funding. */
 export function Headquarters({ world, game }: { world: World; game: Game }) {
@@ -130,42 +132,46 @@ function HqPanel({ world, game }: { world: World; game: Game }) {
 
 function StaffPanel({ world, game }: { world: World; game: Game }) {
   const market = staffMarket(world);
+  const [role, setRole] = useState<StaffRole>("agent");
+  const [page, setPage] = useState(0);
+  const hired = hiredStaffer(world, role);
+  const candidates = market.filter((s) => s.role === role && s.id !== hired?.id).sort((a, b) => b.quality - a.quality || a.weeklyFee - b.weeklyFee);
+  const pageSize = 6;
+  const pages = Math.ceil(candidates.length / pageSize);
+  const visible = candidates.slice(page * pageSize, page * pageSize + pageSize);
+  const specialty = (quality: number) => quality >= 18 ? "Elite operator" : quality >= 15 ? "Proven closer" : quality >= 11 ? "Reliable" : quality >= 8 ? "Developing" : "Entry level";
   return (
-    <section className="panel">
-      <div className="panel-head"><h2>Agency staff</h2><span className="muted small">{money(staffWages(world))} a week in wages · one per role</span></div>
-      <div className="table-wrap">
-        <table>
-          <thead><tr><th>Role</th><th>Hired</th><th>Candidates</th></tr></thead>
-          <tbody>
-            {STAFF_ROLES.map((role) => {
-              const hired = hiredStaffer(world, role);
-              return (
-                <tr key={role}>
-                  <td><strong>{STAFF_LABELS[role].label}</strong><div className="secondary small">{STAFF_LABELS[role].blurb}</div></td>
-                  <td>
-                    {hired ? (
-                      <>
-                        {hired.name} · {hired.quality}/20 · {money(hired.weeklyFee)}/wk{" "}
-                        <button className="btn btn-small" onClick={() => game.act((w) => releaseStaffer(w, role))}>Let go</button>
-                      </>
-                    ) : (
-                      <span className="muted">Nobody</span>
-                    )}
-                  </td>
-                  <td>
-                    <div className="btn-row">
-                      {market.filter((s) => s.role === role && s.id !== hired?.id).map((s) => (
-                        <button key={s.id} className="btn btn-small" onClick={() => game.act((w) => hireStaffer(w, s.id))}>
-                          {s.name} · {s.quality}/20 · {money(s.weeklyFee)}/wk
-                        </button>
-                      ))}
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+    <section className="panel staff-market-panel">
+      <div className="panel-head"><h2>Agency staff</h2><span className="muted small">100 illustrated candidates · {money(staffWages(world))} a week in wages</span></div>
+      <div className="staff-role-tabs" role="tablist" aria-label="Staff roles">
+        {STAFF_ROLES.map((item) => (
+          <button key={item} type="button" role="tab" aria-selected={role === item} onClick={() => { setRole(item); setPage(0); }}>
+            <StaffRoleIcon role={item} /><span>{STAFF_LABELS[item].label}</span>
+            {hiredStaffer(world, item) && <small>Filled</small>}
+          </button>
+        ))}
+      </div>
+      <div className="staff-role-summary">
+        <div><StaffRoleIcon role={role} /><div><strong>{STAFF_LABELS[role].label}</strong><span>{STAFF_LABELS[role].blurb}</span></div></div>
+        {hired ? <div className="staff-current"><span>Currently hired: <strong>{hired.name}</strong> · {hired.quality}/20 · {money(hired.weeklyFee)}/wk</span><button className="btn btn-small" onClick={() => game.act((w) => releaseStaffer(w, role))}>Let go</button></div> : <span className="muted">Nobody hired</span>}
+      </div>
+      <div className="staff-candidate-grid">
+        {visible.map((candidate) => (
+          <article className="staff-candidate" key={candidate.id}>
+            <StaffPortrait id={candidate.id} name={candidate.name} role={candidate.role} />
+            <div className="staff-candidate-body">
+              <strong>{candidate.name}</strong>
+              <span className="staff-rating">{candidate.quality}<small>/20</small></span>
+              <span className="staff-quality">{specialty(candidate.quality)}</span>
+              <span className="secondary small">{money(candidate.weeklyFee)}/week</span>
+            </div>
+            <button className="btn btn-primary" onClick={() => game.act((w) => hireStaffer(w, candidate.id))}>Hire</button>
+          </article>
+        ))}
+      </div>
+      <div className="staff-pagination">
+        <span className="muted small">Showing {page * pageSize + 1}–{Math.min((page + 1) * pageSize, candidates.length)} of {candidates.length} {STAFF_LABELS[role].label.toLowerCase()} candidates</span>
+        <div className="btn-row"><button className="btn btn-small" disabled={page === 0} onClick={() => setPage((n) => n - 1)}>Previous</button><span className="small">Page {page + 1} of {pages}</span><button className="btn btn-small" disabled={page >= pages - 1} onClick={() => setPage((n) => n + 1)}>Next</button></div>
       </div>
     </section>
   );
@@ -177,34 +183,26 @@ function BrandsPanel({ world, game }: { world: World; game: Game }) {
   return (
     <section className="panel">
       <div className="panel-head"><h2>Brand partnerships</h2><span className="muted small">Agency-wide deals: a yearly fee, and better offers for your clients</span></div>
-      {deals.length > 0 && (
-        <table>
-          <tbody>
-            {deals.map((b) => (
-              <tr key={b.id}><td><strong>{b.brand}</strong> <span className="muted small">{b.category}</span></td><td className="num">{money(b.annual)}/season</td><td className="num">+{Math.round(b.lift * 100)}% offers</td><td className="num muted small">to S{b.untilSeason}</td></tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      {deals.length > 0 && <div className="brand-deal-grid">{deals.map((b) => <BrandCard key={b.id} deal={b} active />)}</div>}
       <div className="pp-label" style={{ marginTop: 10 }}>On offer this season</div>
       {offers.length === 0 ? (
         <p className="empty">{world.agency.reputation < 15 ? "Brands start calling at reputation 15." : "No more offers this season."}</p>
       ) : (
-        <table>
-          <tbody>
-            {offers.map((b) => (
-              <tr key={b.id}>
-                <td><strong>{b.brand}</strong> <span className="muted small">{b.category}</span></td>
-                <td className="num">{money(b.annual)}/season</td>
-                <td className="num">+{Math.round(b.lift * 100)}% offers</td>
-                <td className="num muted small">to S{b.untilSeason}</td>
-                <td><button className="btn btn-small" onClick={() => game.act((w) => signBrand(w, b.id))}>Sign</button></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="brand-deal-grid">{offers.map((b) => <BrandCard key={b.id} deal={b} onSign={() => game.act((w) => signBrand(w, b.id))} />)}</div>
       )}
     </section>
+  );
+}
+
+function BrandCard({ deal, active = false, onSign }: { deal: ReturnType<typeof brandOffers>[number]; active?: boolean; onSign?: () => void }) {
+  return (
+    <article className={`brand-deal-card${active ? " active" : ""}`}>
+      <BrandMark name={deal.brand} category={deal.category} />
+      <div className="brand-deal-name"><strong>{deal.brand}</strong><span>{deal.category}</span></div>
+      <div className="brand-deal-terms"><span><b>{money(deal.annual)}</b><small>per season</small></span><span><b>+{Math.round(deal.lift * 100)}%</b><small>client offers</small></span><span><b>S{deal.untilSeason}</b><small>{active ? "contract ends" : "term"}</small></span></div>
+      {onSign && <button className="btn btn-primary" onClick={onSign}>Sign partnership</button>}
+      {active && <span className="brand-active-label">Active partner</span>}
+    </article>
   );
 }
 

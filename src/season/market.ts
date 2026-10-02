@@ -20,26 +20,45 @@ export const STAFF_LABELS: Record<StaffRole, { label: string; blurb: string }> =
   lawyer: { label: "Lawyer", blurb: "Contract renewals go through more often." },
 };
 
-const FIRST = ["Dana", "Marcus", "Elena", "Theo", "Priya", "Grant", "Sofia", "Owen", "Hannah", "Victor", "Nadia", "Cole"];
-const LAST = ["Whitfield", "Okafor", "Lindqvist", "Moreno", "Castellano", "Brandt", "Ashworth", "Kaur", "Delaney", "Fujita", "Rourke", "Haldane"];
+const FIRST = ["Dana", "Marcus", "Elena", "Theo", "Priya", "Grant", "Sofia", "Owen", "Hannah", "Victor", "Nadia", "Cole", "Amara", "Julian", "Maya", "Caleb", "Leila", "Mateo", "Naomi", "Andre", "Mina", "Jonah", "Aisha", "Elliot", "Camila", "Devon", "Inez", "Miles", "Talia", "Rafael"];
+const LAST = ["Whitfield", "Okafor", "Lindqvist", "Moreno", "Castellano", "Brandt", "Ashworth", "Kaur", "Delaney", "Fujita", "Rourke", "Haldane", "Navarro", "Kim", "Bennett", "Mensah", "Sato", "Laurent", "Brooks", "Petrov", "Silva", "Walsh", "Ibrahim", "Chen", "Morgan", "Vega", "Nakamura", "Bishop", "Reyes", "Singh"];
 
 export const stafferFee = (quality: number): number => Math.round((200 + quality ** 3 * 0.8) / 100) * 100;
 
-/** Three candidates per role, from the world seed. */
+/** A persistent 100-person market: 25 candidates at every agency role. */
 export function generateStaff(seed: number): AgencyStaffer[] {
   const rng = createRng(seed ^ 0x5717);
   const out: AgencyStaffer[] = [];
+  const used = new Set<string>();
+  const name = () => {
+    let candidate = "";
+    do candidate = `${rng.pick(FIRST)} ${rng.pick(LAST)}`; while (used.has(candidate));
+    used.add(candidate);
+    return candidate;
+  };
+  // Keep the first twelve IDs and RNG sequence compatible with existing saves.
   for (const role of STAFF_ROLES) {
     for (const q of [8, 12, 16]) {
       const quality = clamp(q + rng.int(-2, 2), 4, 19);
-      out.push({ id: `st${out.length + 1}`, name: `${rng.pick(FIRST)} ${rng.pick(LAST)}`, role, quality, weeklyFee: stafferFee(quality) });
+      out.push({ id: `st${out.length + 1}`, name: name(), role, quality, weeklyFee: stafferFee(quality) });
+    }
+  }
+  for (const role of STAFF_ROLES) {
+    for (let i = 0; i < 22; i++) {
+      const quality = clamp(4 + Math.round((i / 21) * 15) + rng.int(-1, 1), 3, 20);
+      out.push({ id: `st${out.length + 1}`, name: name(), role, quality, weeklyFee: stafferFee(quality) });
     }
   }
   return out;
 }
 
 export function staffMarket(world: World): AgencyStaffer[] {
-  return (world.agency.staffMarket ??= generateStaff(world.seed));
+  const generated = generateStaff(world.seed);
+  const saved = world.agency.staffMarket;
+  if (!saved) return (world.agency.staffMarket = generated);
+  if (saved.length >= generated.length) return saved;
+  const existing = new Set(saved.map((s) => s.id));
+  return (world.agency.staffMarket = [...saved, ...generated.filter((s) => !existing.has(s.id))]);
 }
 
 export function hiredStaffer(world: World, role: StaffRole): AgencyStaffer | undefined {
