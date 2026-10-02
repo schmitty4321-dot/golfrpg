@@ -1065,7 +1065,7 @@ select, input[type="text"], input[type="number"] {
 .hq-tier-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent) 35%, var(--border)); box-shadow: 0 10px 24px rgba(38, 78, 57, .12); }
 .hq-tier-card.current { border: 2px solid var(--accent); background: var(--accent-soft); box-shadow: 0 9px 25px rgba(38, 78, 57, .14); }
 .hq-tier-card.passed { opacity: .72; }
-.agency-building { display: block; width: 100%; height: auto; border-bottom: 1px solid var(--border); }
+.agency-building { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-bottom: 1px solid var(--border); }
 .hq-tier-copy { min-height: 112px; padding: 12px 13px 8px; }
 .hq-tier-copy h3 { margin: 3px 0 5px; font-family: Georgia, serif; font-size: 19px; letter-spacing: -.02em; }
 .hq-tier-copy p { margin: 0; color: var(--text-2); font-size: 12px; line-height: 1.45; }
