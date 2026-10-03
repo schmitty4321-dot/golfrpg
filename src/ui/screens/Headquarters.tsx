@@ -28,10 +28,22 @@ function CenterPanel({ world, game }: { world: World; game: Game }) {
   const tier = world.agency.center ?? 0;
   const next = CENTER_TIERS[tier + 1];
   const block = centerBlock(world);
+  const buildNext = () => game.act((w) => buildCenter(w));
   return (
     <section className="panel">
       <div className="panel-head"><h2>Performance Center</h2><span className="muted small">For every client you represent</span></div>
-      <div className="facility-strip">{CENTER_TIERS.map((t, i) => <article key={t.name} className={i === tier ? "current" : ""}><AgencyBuilding tier={i} kind="center" /><strong>{t.name}</strong><span>{t.blurb}</span></article>)}</div>
+      <div className="facility-strip">{CENTER_TIERS.map((t, i) => {
+        const isCurrent = i === tier;
+        const isNext = i === tier + 1;
+        return (
+          <button type="button" key={t.name} className={`facility-card${isCurrent ? " current" : isNext ? " next" : " locked"}`} disabled={!isNext || !!block} onClick={buildNext}>
+            <AgencyBuilding tier={i} kind="center" />
+            <strong>{t.name}</strong>
+            <span>{t.blurb}</span>
+            <em>{isCurrent ? "Current center" : isNext ? block ?? `Build for ${money(t.build)}` : i < tier ? "Previously owned" : "Build the previous tier first"}</em>
+          </button>
+        );
+      })}</div>
       <div className="table-wrap">
         <table>
           <thead><tr><th>Tier</th><th className="num">Build</th><th className="num">Upkeep / wk</th><th className="num">Growth</th><th className="num">Camps</th></tr></thead>
@@ -54,7 +66,7 @@ function CenterPanel({ world, game }: { world: World; game: Game }) {
       <p className="muted small">Growth is added to each client's development pace (a typical well-run client is at about +150%). Camps are the skills camp and fitness block.</p>
       {next && (
         <div className="btn-row">
-          <button className="btn btn-primary" disabled={!!block} onClick={() => game.act((w) => buildCenter(w))}>Build the {next.name.toLowerCase()} · {money(next.build)}</button>
+          <button className="btn btn-primary" disabled={!!block} onClick={buildNext}>Build the {next.name.toLowerCase()} · {money(next.build)}</button>
           {block && <span className="muted small">{block}</span>}
         </div>
       )}
@@ -214,7 +226,7 @@ function EventsPanel({ world, game }: { world: World; game: Game }) {
           const e = AGENCY_EVENTS[k];
           const block = eventBlock(world, k);
           return (
-            <article className="event-card" key={k}>
+            <button type="button" className="event-card" key={k} disabled={!!block} onClick={() => game.act((w) => { const net = holdEvent(w, k); setMessage(`${e.label}: ${net >= 0 ? "made" : "lost"} ${money(Math.abs(net))}.`); })}>
               <img src={`/art/scenes/${k === "proAm" ? "pro-am" : k}.webp`} alt="" />
               <div className="event-card-copy">
                 <strong>{e.label}</strong>
@@ -222,10 +234,10 @@ function EventsPanel({ world, game }: { world: World; game: Game }) {
                 <span className="event-card-money"><b>Costs {money(e.cost)}</b><span>Expected return {money(eventTakings(world, k))}</span></span>
               </div>
               <div className="event-card-action">
-                <button className="btn btn-small" disabled={!!block} onClick={() => game.act((w) => { const net = holdEvent(w, k); setMessage(`${e.label}: ${net >= 0 ? "made" : "lost"} ${money(Math.abs(net))}.`); })}>Hold it</button>
+                <span className="btn btn-small" aria-hidden>Hold it</span>
                 {block && <span className="muted small">{block}</span>}
               </div>
-            </article>
+            </button>
           );
         })}
       </div>

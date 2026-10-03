@@ -1116,12 +1116,19 @@ select, input[type="text"], input[type="number"] {
 
 .option-art { display: block; width: calc(100% + 24px); height: 86px; margin: -12px -12px 10px; object-fit: cover; border-bottom: 1px solid var(--border); }
 .facility-strip { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 9px; margin-bottom: 12px; }
-.facility-strip article { overflow: hidden; display: grid; gap: 4px; padding-bottom: 8px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); }
-.facility-strip article.current { border: 2px solid var(--accent); background: var(--accent-soft); }
+.facility-card { overflow: hidden; display: grid; gap: 4px; padding: 0 0 8px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); color: var(--text); font: inherit; text-align: left; }
+.facility-card.current { border: 2px solid var(--accent); background: var(--accent-soft); }
+.facility-card.next:not(:disabled) { cursor: pointer; box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent); }
+.facility-card.next:not(:disabled):hover { border-color: var(--accent); transform: translateY(-1px); }
+.facility-card.locked { opacity: .72; }
+.facility-card em { margin: 4px 9px 0; padding: 5px 7px; border-radius: 5px; background: var(--surface-2); color: var(--muted); font-size: 9px; font-style: normal; font-weight: 700; text-align: center; }
+.facility-card.next em { background: var(--accent-soft); color: var(--accent); }
 .facility-strip .agency-building { aspect-ratio: 16/9; }
 .facility-strip strong,.facility-strip span { padding: 0 9px; }.facility-strip span { color: var(--muted); font-size: 10px; }
 .event-card-list { display: grid; gap: 8px; padding: 12px; }
-.event-card { display: grid; grid-template-columns: 106px minmax(0, 1fr) 86px; align-items: center; gap: 12px; padding: 9px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); }
+.event-card { width: 100%; display: grid; grid-template-columns: 106px minmax(0, 1fr) 86px; align-items: center; gap: 12px; padding: 9px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+.event-card:not(:disabled):hover { border-color: var(--accent); background: var(--accent-soft); transform: translateY(-1px); }
+.event-card:disabled { cursor: not-allowed; opacity: .68; }
 .event-card > img { width: 106px; height: 72px; object-fit: cover; border-radius: 7px; }
 .event-card-copy { min-width: 0; display: grid; gap: 3px; }
 .event-card-copy > strong { font-size: 14px; }
