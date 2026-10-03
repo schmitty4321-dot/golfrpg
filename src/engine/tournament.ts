@@ -629,10 +629,11 @@ export interface TickerItem {
   par: number;
 }
 
-/** Whether a hole's situation is worth stopping for: the cut line on Friday, contention on the back nine at the weekend. */
+/** Whether a hole's situation is worth stopping for: the back nine, on the cut line on Friday or in contention at the weekend. */
 export function atStake(s: HoleSituation): boolean {
+  if (s.index < 9) return false;
   if (s.round === 2) return s.cutMargin !== null && Math.abs(s.cutMargin) <= 1;
-  if (s.round >= 3) return s.index >= 9 && s.behind <= 3;
+  if (s.round >= 3) return s.behind <= 3;
   return false;
 }
 

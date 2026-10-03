@@ -1,6 +1,6 @@
 import { CourseCard, CourseFacts } from "../components/CourseHeader";
 import { Fragment, useMemo, useState, type ReactNode } from "react";
-import { autoFinishRound, clientActive, fieldRoundStats, finishLive, liveSnapshot, standingsAfterRound, startLiveRound, type Course, type PlayerEventResult, type RoundStanding, type TournamentResult } from "../../engine";
+import { autoFinishRound, clientActive, fieldRoundStats, finishLive, inRound, liveBoard, liveSnapshot, standingsAfterRound, startLiveRound, type Course, type PlayerEventResult, type RoundPlan, type RoundStanding, type TournamentResult } from "../../engine";
 import { courseFit, familiarityTags, familiarityWith, rankMap, theEvent, type LiveEvent, type TourEvent, type WeekReport, type World, knownArchetypes } from "../../season";
 import { HoleByHole } from "../components/HoleByHole";
 import type { Game, LiveWeek } from "../useGame";
@@ -10,6 +10,8 @@ import { RoundLeaders, RoundStatsPanel } from "../components/RoundStatsPanel";
 import { Leaderboard } from "../components/Leaderboard";
 import { TIER_LABELS, formWord, millions, signed, toPar } from "../format";
 import { TournamentEmblem } from "../components/TournamentLogo";
+import { PLAN_LABELS, setRoundPlan, tickerLine } from "../components/WeekTempo";
+import { MomentsView } from "../components/MomentsView";
 
 interface EventView {
   event: TourEvent;
@@ -77,20 +79,52 @@ function EventHeader({ event, course, week, players, hasCut, status, compact, ch
 }
 
 function LiveWeekView({ world, game, lw }: { world: World; game: Game; lw: LiveWeek }) {
+  if (lw.mode === "moments") return <MomentsView world={world} game={game} lw={lw} />;
+  return <FollowView world={world} game={game} lw={lw} />;
+}
+
+/** The client nearest the lead (the one worth following), among those still playing. */
+function closestToLead(t: LiveEvent["tournament"], ids: string[]): string {
+  const active = ids.filter((id) => clientActive(t, id));
+  if (!active.length || t.round === 0) return active[0] ?? ids[0]!;
+  const board = liveBoard(t, active[0]);
+  return [...active].sort((x, y) => board.findIndex((r) => r.player.id === x) - board.findIndex((r) => r.player.id === y))[0]!;
+}
+
+function FollowView({ world, game, lw }: { world: World; game: Game; lw: LiveWeek }) {
   const [which, setWhich] = useState(0);
   const [holeByHole, setHoleByHole] = useState<Record<string, boolean>>({});
+  const [who, setWho] = useState<Record<string, string>>({});
+  const [ticker, setTicker] = useState<string[]>([]);
   const ev = lw.events[which]!;
   const t = ev.tournament;
   const snap = useMemo(() => liveSnapshot(t), [t, lw.version]); // eslint-disable-line react-hooks/exhaustive-deps
   const view: EventView = { event: ev.event, result: snap, clientIds: ev.clientIds };
   const rows = (id: string) => snap.leaderboard.find((r) => r.player.id === id)!;
-  const done = (e: LiveEvent) => e.tournament.round >= 4 && !e.tournament.current;
+  const done = (e: LiveEvent) => e.tournament.round >= 4 && !inRound(e.tournament);
   const allDone = lw.events.every(done);
-  const stillIn = t.round < 2 || ev.clientIds.some((id) => t.entries.find((e) => e.player.id === id)?.active);
-  const walker = world.players[t.controlledId]!.player.name;
+  const stillIn = t.round < 2 || ev.clientIds.some((id) => clientActive(t, id));
+  const followed = who[ev.event.id] ?? closestToLead(t, ev.clientIds);
+  const walker = world.players[followed]!.player.name;
   const inHbh = !!holeByHole[ev.event.id];
   const next = t.round + 1;
-  const status = t.round === 0 ? "Before round 1" : t.current ? `Round ${t.round}, hole ${t.current.holes.length + 1}` : done(ev) ? "Final round done" : `After round ${t.round}`;
+  const status = t.round === 0 ? "Before round 1" : t.live[followed] ? `Round ${t.round}, hole ${t.live[followed]!.holes.length + 1}` : done(ev) ? "Final round done" : `After round ${t.round}`;
+  const canFollow = (id: string) => t.round < 2 || clientActive(t, id);
+  const startHbh = () => {
+    game.liveAct(() => startLiveRound(t));
+    setTicker([]);
+    setHoleByHole((h) => ({ ...h, [ev.event.id]: true }));
+  };
+  const picker = ev.clientIds.length > 1 && !inHbh && (
+    <div className="tabs follow-pick" role="radiogroup" aria-label="Who to follow">
+      <span className="secondary small">Follow</span>
+      {ev.clientIds.filter(canFollow).map((id) => (
+        <button key={id} role="radio" aria-checked={followed === id} aria-selected={followed === id} onClick={() => setWho((w) => ({ ...w, [ev.event.id]: id }))}>
+          {world.players[id]!.player.name}
+        </button>
+      ))}
+    </div>
+  );
 
   return (
     <main>
@@ -99,8 +133,8 @@ function LiveWeekView({ world, game, lw }: { world: World; game: Game; lw: LiveW
         {!inHbh && t.round > 0 && !done(ev) && stillIn && (
           <>
             <button className="btn btn-primary" onClick={() => game.liveAct(() => { startLiveRound(t); autoFinishRound(t); })}>Play round {next}</button>
-            {(t.round < 2 || clientActive(t)) && (
-              <button className="btn btn-primary" onClick={() => { game.liveAct(() => startLiveRound(t)); setHoleByHole((h) => ({ ...h, [ev.event.id]: true })); }}>
+            {canFollow(followed) && (
+              <button className="btn btn-primary" onClick={startHbh}>
                 Play round {next} hole by hole
               </button>
             )}
@@ -111,24 +145,31 @@ function LiveWeekView({ world, game, lw }: { world: World; game: Game; lw: LiveW
         {!inHbh && done(ev) && !allDone && <button className="btn btn-primary" onClick={() => setWhich(lw.events.findIndex((e) => !done(e)))}>Next event</button>}
         {!allDone && <button className="btn" onClick={() => void game.completeLiveWeek()}>Skip to the final results</button>}
       </EventHeader>
+      {picker}
+      {inHbh && ticker.length > 0 && (
+        <p className="ticker secondary small" aria-live="polite">{ticker.slice(-4).join(" · ")}</p>
+      )}
 
       {inHbh ? (
         <HoleByHole
-          key={`${ev.event.id}-${t.round}`}
+          key={`${ev.event.id}-${t.round}-${followed}`}
           t={t}
+          who={followed}
           name={walker}
           onChange={() => game.liveAct(() => {})}
           onRoundDone={() => setHoleByHole((h) => ({ ...h, [ev.event.id]: false }))}
+          onTicker={(items) => setTicker((x) => [...x, ...items.map((i) => tickerLine(world, i)).filter((l): l is string => !!l)].slice(-12))}
         />
       ) : t.round === 0 ? (
         <PreRoundHub
           world={world}
           event={ev.event}
           tournament={t}
-          clientId={t.controlledId}
-          mondayQualifier={ev.field.mondayQualifiers.includes(t.controlledId)}
-          onPlay={() => { game.liveAct(() => startLiveRound(t)); setHoleByHole((h) => ({ ...h, [ev.event.id]: true })); }}
+          clientId={followed}
+          mondayQualifier={ev.field.mondayQualifiers.includes(followed)}
+          onPlay={startHbh}
           onSim={() => game.liveAct(() => { startLiveRound(t); autoFinishRound(t); })}
+          onPlan={(plan) => setRoundPlan(game, t, followed, plan)}
         />
       ) : (
         <RoundView live={view} round={t.round} rows={rows} />
@@ -138,9 +179,8 @@ function LiveWeekView({ world, game, lw }: { world: World; game: Game; lw: LiveW
 }
 
 type PreRoundTab = "command" | "scouting" | "matchup" | "tournament" | "preparation";
-type PreRoundStrategy = "aggression" | "position";
 
-function PreRoundHub({ world, event, tournament: t, clientId, mondayQualifier, onPlay, onSim }: {
+function PreRoundHub({ world, event, tournament: t, clientId, mondayQualifier, onPlay, onSim, onPlan }: {
   world: World;
   event: TourEvent;
   tournament: LiveEvent["tournament"];
@@ -148,9 +188,11 @@ function PreRoundHub({ world, event, tournament: t, clientId, mondayQualifier, o
   mondayQualifier: boolean;
   onPlay: () => void;
   onSim: () => void;
+  onPlan: (plan: RoundPlan) => void;
 }) {
   const [tab, setTab] = useState<PreRoundTab>("command");
-  const [strategy, setStrategy] = useState<PreRoundStrategy>("aggression");
+  const strategy = t.plans[clientId] ?? "steady";
+  const planCards = (Object.keys(PLAN_LABELS) as RoundPlan[]).map((k) => <InfoCard key={k} title={PLAN_LABELS[k].label} selected={strategy === k} onClick={() => onPlan(k)} text={PLAN_LABELS[k].blurb} />);
   const wp = world.players[clientId]!;
   const p = wp.player;
   const course = t.config.course;
@@ -179,7 +221,7 @@ function PreRoundHub({ world, event, tournament: t, clientId, mondayQualifier, o
         <section className="panel preround-main"><div className="panel-head"><h2>Pre-round command center</h2><span className="secondary small">Decision summary</span></div>
           <div className="preround-player"><div><strong>{p.name}</strong><span>{archetype} · form {formWord(p.form).toLowerCase()} · familiarity {familiarity}</span></div><b>{Math.round(p.condition)}% condition</b></div>
           <div className="preround-metrics"><Metric label="World rank" value={`#${worldRank}`} /><Metric label="Course fit" value={signed(fit, 2)} /><Metric label="Wind" value={`${wind} mph`} /><Metric label="Field" value={`${t.config.field.length}`} /></div>
-          <div className="preround-choices"><InfoCard title="Controlled aggression" selected={strategy === "aggression"} onClick={() => setStrategy("aggression")} text="Favor fairways, attack accessible pins, and respect water on the danger holes." /><InfoCard title="Play for position" selected={strategy === "position"} onClick={() => setStrategy("position")} text="Reduce double-bogey risk and accept longer approaches when the landing area tightens." /></div>{startButtons}
+          <div className="preround-choices">{planCards}</div>{startButtons}
         </section>
         <aside className="panel"><div className="panel-head"><h2>What matters today</h2></div><Fact label="Driving accuracy" value={`${p.attributes.drivingAccuracy}/20`} /><Fact label={`${course.grass} greens`} value={p.grassPreference === course.grass ? "Familiar" : "Adjustment"} /><Fact label="Key stretch" value={`Holes ${hardestStretch.start}–${hardestStretch.start + 2}`} />{mondayQualifier && <p className="preround-note">In the field through Monday qualifying.</p>}</aside>
       </div>}
@@ -190,7 +232,7 @@ function PreRoundHub({ world, event, tournament: t, clientId, mondayQualifier, o
 
       {tab === "tournament" && <div className="preround-grid"><section className="panel preround-main"><div className="panel-head"><h2>Tournament dashboard</h2><span className="secondary small">Round 1</span></div><div className="preround-metrics"><Metric label="Field size" value={`${t.config.field.length}`} /><Metric label="Cut after" value={t.config.cutTop ? `${t.config.cutTop} & ties` : "No cut"} /><Metric label="Purse" value={millions(event.purse)} /><Metric label="Your player" value={`#${worldRank}`} /></div><h3 className="preround-section-title">Players to watch</h3><div className="preround-watch">{t.config.field.slice(0, 3).map((player) => <div key={player.id}><strong>{player.name}</strong><span>{player.id === clientId ? "Your client" : `World-class field`}</span></div>)}</div>{startButtons}</section><aside className="panel"><div className="panel-head"><h2>Conditions</h2></div><Fact label="Wind" value={`${wind} mph`} /><Fact label="Greens" value={course.firmness > .55 ? "Firm" : "Receptive"} /><Fact label="Weather" value={weather?.rain ? "Rain" : "Dry"} /><Fact label="Course fit" value={signed(fit, 2)} /></aside></div>}
 
-      {tab === "preparation" && <div className="preround-grid"><section className="panel preround-main"><div className="panel-head"><h2>Round preparation checklist</h2><span className="secondary small">Ready to play</span></div><Check title="Course strategy" text={`${strategy === "aggression" ? "Controlled aggression" : "Play for position"} selected.`} /><Check title="Danger holes reviewed" text={`Pay attention on holes ${hard.map((h) => h.number).join(", ")}.`} /><Check title="Player status checked" text={`${Math.round(p.condition)}% condition · form ${formWord(p.form).toLowerCase()}.`} /><Check title="Round control" text="Choose every key call hole by hole, or simulate the full round." />{startButtons}</section><aside className="panel"><div className="panel-head"><h2>Selected strategy</h2></div><InfoCard title="Controlled aggression" selected={strategy === "aggression"} onClick={() => setStrategy("aggression")} text="Favor scoring chances while respecting the largest hazards." /><InfoCard title="Play for position" selected={strategy === "position"} onClick={() => setStrategy("position")} text="Favor safe targets and reduce the chance of a damaging number." /></aside></div>}
+      {tab === "preparation" && <div className="preround-grid"><section className="panel preround-main"><div className="panel-head"><h2>Round preparation checklist</h2><span className="secondary small">Ready to play</span></div><Check title="Round plan" text={`${PLAN_LABELS[strategy].label}: the calls you don't make are played this way.`} /><Check title="Danger holes reviewed" text={`Pay attention on holes ${hard.map((h) => h.number).join(", ")}.`} /><Check title="Player status checked" text={`${Math.round(p.condition)}% condition · form ${formWord(p.form).toLowerCase()}.`} /><Check title="Round control" text="Choose every key call hole by hole, or simulate the full round." />{startButtons}</section><aside className="panel"><div className="panel-head"><h2>Round plan</h2></div>{planCards}</aside></div>}
 
       <CourseCard course={course} />
     </div>

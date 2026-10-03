@@ -100,8 +100,9 @@ describe("round plans", () => {
 describe("key moments", () => {
   it("stop only when something is at stake", () => {
     expect(atStake({ round: 1, index: 16, behind: 0, cutMargin: null })).toBe(false);
-    expect(atStake({ round: 2, index: 5, behind: 9, cutMargin: -1 })).toBe(true);
-    expect(atStake({ round: 2, index: 5, behind: 9, cutMargin: 3 })).toBe(false);
+    expect(atStake({ round: 2, index: 12, behind: 9, cutMargin: -1 })).toBe(true);
+    expect(atStake({ round: 2, index: 12, behind: 9, cutMargin: 3 })).toBe(false);
+    expect(atStake({ round: 2, index: 5, behind: 9, cutMargin: 0 })).toBe(false);
     expect(atStake({ round: 4, index: 8, behind: 0, cutMargin: null })).toBe(false);
     expect(atStake({ round: 4, index: 12, behind: 3, cutMargin: null })).toBe(true);
     expect(atStake({ round: 3, index: 12, behind: 4, cutMargin: null })).toBe(false);

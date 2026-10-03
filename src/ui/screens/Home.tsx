@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { coursePar, courseYards, familiarityLabel } from "../../engine";
 import { ChallengeBanner } from "../components/Challenge";
 import { ShotOfTheWeek } from "../components/Highlights";
@@ -39,7 +40,8 @@ import {
 import { TIER_LABELS, fitWord, formWord, millions, money, signed } from "../format";
 import type { Go } from "../nav";
 import { GoalsPanel } from "../components/Goals";
-import type { Game } from "../useGame";
+import { loadTempo, saveTempo, type Game, type WeekTempo } from "../useGame";
+import { RoundPlanPicker, TEMPO_LABELS } from "../components/WeekTempo";
 import { TournamentEmblem } from "../components/TournamentLogo";
 
 const ACCESS_TONE: Record<EntryOption["access"], string> = {
@@ -226,8 +228,13 @@ function ThisWeek({ world, game, week }: { world: World; game: Game; week: WeekC
   const set = (id: string, c: ClientChoice) => setChoices((x) => ({ ...x, [id]: c }));
   const play = (weeks: number) => {
     const concrete = Object.fromEntries(world.clientIds.map((id) => [id, choices[id] ?? defaultWeekChoice(world, id)]));
-    void game.play(concrete, weeks);
+    void game.play(concrete, weeks, weeks === 1 ? tempo : "quick");
     setChoices(() => ({}));
+  };
+  const [tempo, setTempo] = useState<WeekTempo>(loadTempo);
+  const pickTempo = (t: WeekTempo) => {
+    setTempo(t);
+    saveTempo(t);
   };
   return (
     <section className="panel">
@@ -240,6 +247,13 @@ function ThisWeek({ world, game, week }: { world: World; game: Game; week: WeekC
       ))}
       <div className="btn-row" style={{ marginTop: 14 }}>
         <button className="btn btn-primary" onClick={() => play(1)}>Play week {world.week}</button>
+        <div className="tabs tempo-tabs" role="radiogroup" aria-label="How to play the week">
+          {(Object.keys(TEMPO_LABELS) as WeekTempo[]).map((k) => (
+            <button key={k} role="radio" aria-checked={tempo === k} aria-selected={tempo === k} title={TEMPO_LABELS[k].blurb} onClick={() => pickTempo(k)}>
+              {TEMPO_LABELS[k].label}
+            </button>
+          ))}
+        </div>
         <span style={{ flex: 1 }} />
         <button className="btn" onClick={() => play(Math.min(4, remaining))} title="Your clients pick their own schedules after this week">Auto 4 weeks</button>
         <button className="btn" onClick={() => play(remaining)} title="Your clients pick their own schedules after this week">Auto to season end</button>
@@ -266,6 +280,9 @@ function ClientWeek({ world, game, id, choice, onChoose }: { world: World; game:
           </div>
         </div>
       </div>
+      {choice.kind === "enter" && wp.client && (
+        <RoundPlanPicker plan={wp.client.roundPlan ?? "steady"} onPick={(p) => game.act((w) => (w.players[id]!.client!.roundPlan = p))} />
+      )}
       {wp.career.status === "amateur" && (
         <div className="access">
           <span className="dot" style={{ background: "var(--pos)" }} aria-hidden />
