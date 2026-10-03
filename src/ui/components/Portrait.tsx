@@ -1,12 +1,7 @@
 import { NATIONS, type Look } from "../../engine";
 import { Nation } from "./Flag";
 
-/**
- * Player pictures: illustrated head-and-shoulders golfer portraits, drawn as
- * SVG. Each is built from the player's id, so it's the same on every screen
- * and in every save, with colours that fit where he's from and how old he is.
- * Only colours and styles vary; every face has the same proportions.
- */
+/** Player pictures remain stable across screens and saved games. */
 
 // Skin tones, lightest to deepest, and how likely each is by where a player is from.
 const SKIN = ["#f8dcc8", "#f0c8a8", "#e2b08a", "#cf9870", "#b57a52", "#94603e", "#72472d", "#553322"];
@@ -47,6 +42,18 @@ type Mouth = "smile" | "grin" | "neutral";
 
 /** The reusable portrait bank promised by the UI; IDs 1-200 all resolve to stable cartoon faces. */
 export const PLAYER_PORTRAIT_CATALOG = Array.from({ length: 200 }, (_, i) => `player-portrait-${i + 1}`);
+
+/** Audited male-only portraits used anywhere a golfer, coach or caddie appears. */
+export const MALE_GOLFER_PORTRAIT_IDS = [
+  1, 2, 3, 4, 5, 6, 8, 9, 11, 12, 13, 15, 16, 18, 19, 20, 21, 23, 25,
+  26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43,
+  44, 45, 46, 47, 48, 49, 50, 51, 53, 55, 57, 59, 60, 61, 63, 65, 67, 69,
+  71, 73, 75, 78, 79, 81, 82, 84, 88, 90, 91, 92, 94, 95, 97, 99, 100,
+  101, 103, 105, 106, 108, 110, 112, 114, 116, 118, 120, 121, 123, 125, 126,
+  128, 130, 132, 133, 135, 136, 138, 140, 141, 143, 145, 147, 149, 151, 153,
+  155, 156, 157, 159, 161, 163, 164, 167, 169, 170, 171, 173, 175, 176, 178,
+  179, 181, 182, 184, 185, 187, 188, 190, 191, 193, 194, 196, 197, 199,
+] as const;
 
 export interface PortraitSpec {
   skin: string;
@@ -123,11 +130,13 @@ export function portraitSpec(player: { id: string; nationality: string; age: num
 
 type PortraitPlayer = { id: string; nationality: string; age: number };
 
+export function golferPortraitIndex(playerId: string): number {
+  return MALE_GOLFER_PORTRAIT_IDS[portraitSeed(playerId) % MALE_GOLFER_PORTRAIT_IDS.length]!;
+}
+
 /** One portrait, drawn at any size. */
 export function Portrait({ player, size = 72, className, title }: { player: PortraitPlayer; size?: number; className?: string; title?: string }) {
-  const seed = portraitSeed(player.id);
-  const band: [number, number] = player.id.startsWith("coach-") ? [51, 75] : player.id.startsWith("caddie-") ? [76, 100] : [1, 200];
-  const index = band[0] + (seed % (band[1] - band[0] + 1));
+  const index = golferPortraitIndex(player.id);
   return <img className={`portrait ${className ?? ""}`} src={`/people/person-${String(index).padStart(3, "0")}.webp`} width={size} height={size} alt={title ?? "Illustrated player portrait"} loading="lazy" />;
 }
 

@@ -1,13 +1,20 @@
 import { describe, expect, it } from "vitest";
 import { NATIONS, NATION_LIST, createRng, generatePlayer, nationFromRoll, nationInfo } from "../src/engine";
 import { FLAG_CODES } from "../src/ui/components/Flag";
-import { portraitSpec } from "../src/ui/components/Portrait";
+import { golferPortraitIndex, MALE_GOLFER_PORTRAIT_IDS, portraitSpec } from "../src/ui/components/Portrait";
 import { attributePotential, createWorld } from "../src/season";
 
 const world = createWorld({ seed: 42, scenario: "rookie" });
 const pros = Object.values(world.players).filter((wp) => wp.career.status !== "amateur");
 
 describe("player pictures", () => {
+  it("selects golfer artwork only from the audited male portrait pool", () => {
+    expect(MALE_GOLFER_PORTRAIT_IDS.length).toBeGreaterThan(100);
+    for (let i = 0; i < 500; i++) {
+      expect(MALE_GOLFER_PORTRAIT_IDS).toContain(golferPortraitIndex(`golfer-${i}`));
+    }
+  });
+
   it("gives a player the same picture every time, and nearly everyone a different one", () => {
     const p = pros[0]!.player;
     expect(portraitSpec(p)).toEqual(portraitSpec(p));
