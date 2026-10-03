@@ -257,6 +257,10 @@ th.num, td.num { text-align: right; }
 .ticker { margin: 8px 0 0; }
 tr.mine td { font-weight: 600; }
 .client-strip { display: grid; gap: 8px; }
+.round-call-list { display: grid; gap: 12px; }
+.round-call { padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+.round-call-choices { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
+.round-call-choices .choice { align-content: start; }
 .client-strip-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
 .client-strip-row .round-plan { margin: 0; }
 .moment-body { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 16px; align-items: start; }

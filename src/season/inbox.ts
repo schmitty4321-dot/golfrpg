@@ -126,7 +126,7 @@ export function autoResolve(world: World): void {
   for (const d of pendingDecisions(world)) resolveDecision(world, d.id, undefined, true);
 }
 
-function applyEffects(world: World, wp: WorldPlayer | null, effects: Effect[], rng: Rng, lines: string[]): void {
+export function applyEffects(world: World, wp: WorldPlayer | null, effects: Effect[], rng: Rng, lines: string[]): void {
   const now = absWeek(world.season, world.week);
   for (const e of effects) {
     // Agency business first: these need no client.
