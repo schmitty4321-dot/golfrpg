@@ -89,22 +89,23 @@ export function Rivals({ world }: { world: World }) {
   const rows = agencyTable(world);
   const watched = world.clientIds.map((id) => world.players[id]!).filter((wp) => poachRisk(wp) !== "none");
   return (
-    <main>
-      <section className="panel">
+    <main className="rivals-page">
+      <section className="panel agency-league-panel">
         <div className="panel-head"><h2>Agency league</h2><span className="muted small">Season {world.season} · by players' earnings</span></div>
         <div className="table-wrap">
-          <table>
-            <thead><tr><th className="num">#</th><th>Agency</th><th className="num">Players</th><th className="num">Wins</th><th className="num">Majors</th><th className="num">Players' earnings</th><th>Best player</th></tr></thead>
+          <table className="agency-league-table">
+            <thead><tr><th className="num">#</th><th>Agency</th><th>Head agent</th><th className="num">Players</th><th className="num">Wins</th><th className="num">Majors</th><th className="num">Earnings</th><th>Best player</th></tr></thead>
             <tbody>
               {rows.map((r, i) => (
                 <tr key={r.name} className={r.yours ? "row-current" : undefined}>
-                  <td className="num">{i + 1}</td>
+                  <td className="num"><span className={`league-rank rank-${i + 1}`}>{i + 1}</span></td>
                   <td><span className="agency-crest mini">{r.yours ? "FM" : crest(r.name)}</span>{r.yours ? <strong>{r.name}</strong> : r.name}</td>
+                  <td><div className="league-person"><Portrait player={{ id: `league-agent-${r.name}`, nationality: "USA", age: r.yours ? 34 : 38 + r.name.length % 20 }} size={36} title={r.yours ? "You" : agentOf(r.name).agent} /><span>{r.yours ? "You" : agentOf(r.name).agent}</span></div></td>
                   <td className="num">{r.clients}</td>
                   <td className="num">{r.wins}</td>
                   <td className="num">{r.majors}</td>
                   <td className="num">{money(r.earnings)}</td>
-                  <td>{r.best ? `${r.best.name} (#${r.best.rank})` : "—"}</td>
+                  <td>{r.best ? <div className="league-person"><Portrait player={{ id: `league-best-${r.best.name}`, nationality: "USA", age: 29 }} size={34} title={r.best.name} /><span>{r.best.name} (#{r.best.rank})</span></div> : "—"}</td>
                 </tr>
               ))}
             </tbody>
@@ -112,19 +113,28 @@ export function Rivals({ world }: { world: World }) {
         </div>
       </section>
       <RivalAgencies world={world} />
-      <section className="panel">
+      <section className="panel rivals-circling-panel">
         <div className="panel-head"><h2>Rivals circling</h2><span className="muted small">Unhappy clients get calls at season's end</span></div>
         {watched.length === 0 ? (
           <p className="empty">Your clients are happy enough that rivals aren't calling.</p>
         ) : (
-          <ul>
-            {watched.map((wp) => (
-              <li key={wp.player.id}>
-                <strong>{wp.player.name}</strong> (mood {Math.round(wp.client!.happiness)}):{" "}
-                {poachRisk(wp) === "threat" ? "a real chance he leaves for a rival this winter." : "rivals are listening; below 30 he may go."}
-              </li>
-            ))}
-          </ul>
+          <div className="circling-table">
+            <div className="circling-head"><span>Client</span><span>Your relationship</span><span>Threatened by</span><span>Rival style</span><span>Intensity</span><span /></div>
+            {watched.map((wp, index) => {
+              const bid = competingBid(world, wp.player.id);
+              const rival = bid?.agency ?? rivalSummaries(world)[index % Math.max(1, rivalSummaries(world).length)]?.rival.name ?? "Rival agency";
+              const rivalStyle = rivalSummaries(world).find((r) => r.rival.name === rival)?.style;
+              const intensity = poachRisk(wp) === "threat" ? 5 : 3;
+              return <div className="circling-row" key={wp.player.id}>
+                <div className="league-person"><Portrait player={wp.player} size={36} title={wp.player.name} /><strong>{wp.player.name}</strong></div>
+                <span className={`relationship ${wp.client!.happiness >= 65 ? "friendly" : wp.client!.happiness < 35 ? "hostile" : "neutral"}`}>{wp.client!.happiness >= 65 ? "☺ Happy" : wp.client!.happiness < 35 ? "☹ Unhappy" : "● Neutral"} ({Math.round(wp.client!.happiness)})</span>
+                <div className="circling-agency"><span className="agency-crest mini">{crest(rival)}</span>{rival}</div>
+                <div className="circling-style"><span>{styleIcon(rivalSummaries(world).find((r) => r.rival.name === rival)?.rival.style ?? "stars")}</span>{rivalStyle?.label ?? "Star hunter"}</div>
+                <div className={`threat-meter threat-${intensity}`}>{Array.from({ length: 7 }, (_, i) => <i className={i < intensity ? "on" : ""} key={i} />)}</div>
+                <span className="circling-phone" title="A rival is making calls">☎</span>
+              </div>;
+            })}
+          </div>
         )}
         <p className="muted small" style={{ marginBottom: 0 }}>If a rival takes a client mid-contract they pay you a buyout of about half a season's commission.</p>
       </section>
@@ -140,10 +150,12 @@ function RivalAgencies({ world }: { world: World }) {
     <section className="panel">
       <div className="panel-head"><h2>The rivals</h2><span className="muted small">Your reputation: {Math.round(world.agency.reputation)}</span></div>
       <div className="rival-card-grid">
-            {rows.map(({ rival, style, players, deals }) => (
+            {rows.map(({ rival, style, players, deals }) => {
+              const best = agencyTable(world).find((a) => a.name === rival.name)?.best;
+              return (
               <article className="rival-card" key={rival.name}>
                 <div className="rival-card-head"><span className="agency-crest">{crest(rival.name)}</span><strong>{rival.name}</strong></div>
-                <div className="rival-agent"><Portrait player={{ id: `staff-${rival.name}`, nationality: "USA", age: 38 + rival.name.length % 20 }} size={76} title={agentOf(rival.name).agent} /><div><strong>{agentOf(rival.name).agent}</strong><span className={`relationship ${(rival.relationship ?? 0) <= -20 ? "hostile" : (rival.relationship ?? 0) >= 20 ? "friendly" : "neutral"}`}>{relationshipWord(rival.relationship ?? 0)} ({Math.round(rival.relationship ?? 0)})</span></div></div>
+                <div className="rival-agent"><Portrait player={{ id: `staff-${rival.name}`, nationality: "USA", age: 38 + rival.name.length % 20 }} size={118} title={agentOf(rival.name).agent} /><div><strong>{agentOf(rival.name).agent}</strong><span className={`relationship ${(rival.relationship ?? 0) <= -20 ? "hostile" : (rival.relationship ?? 0) >= 20 ? "friendly" : "neutral"}`}>{relationshipWord(rival.relationship ?? 0)} ({Math.round(rival.relationship ?? 0)})</span></div></div>
                 <dl><div><dt>Reputation</dt><dd>{Math.round(rival.reputation)}</dd></div><div><dt>Players</dt><dd>{players}/{style.capacity}</dd></div><div><dt>Dev deals</dt><dd>{deals}</dd></div></dl>
                 <div className="rival-style" title={style.blurb}><span>{styleIcon(rival.style)}</span><div><strong>{style.label}</strong><small>{style.blurb}</small></div></div>
                 <div className="small rival-moves">
@@ -154,8 +166,9 @@ function RivalAgencies({ world }: { world: World }) {
                   )}
                   <span>{style.coach > 0 ? `Coaching +${style.coach}` : style.coach < 0 ? `Budget coaching ${style.coach}` : "Average coaching"}</span>
                 </div>
+                {best && <div className="rival-best"><Portrait player={{ id: `rival-best-${best.name}`, nationality: "USA", age: 29 }} size={34} title={best.name} /><span>Best player: <strong>{best.name}</strong> (#{best.rank})</span></div>}
               </article>
-            ))}
+            )})}
       </div>
       {open && (
         <ul className="small" style={{ marginTop: 10 }}>
