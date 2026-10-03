@@ -1050,6 +1050,21 @@ select, input[type="text"], input[type="number"] {
 .staff-role-tabs button:hover { border-color: var(--accent); }
 .staff-role-tabs button[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .staff-role-tabs small { margin-left: auto; font-size: 9px; text-transform: uppercase; opacity: .75; }
+.staff-role-tabs button { justify-content: flex-start; text-align: left; }
+.staff-role-tabs button > span { display: grid; min-width: 0; }
+.staff-role-tabs .staff-tab-name { margin: 0; font-size: 11px; font-weight: 600; text-transform: none; opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.staff-role-tabs .staff-portrait { border-radius: 50%; flex: none; }
+.staff-terms { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.staff-terms .tabs { margin: 0; }
+.staff-hired { display: grid; grid-template-columns: 132px minmax(0, 1fr); gap: 18px; align-items: start; padding: 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+.staff-hired-body { display: grid; gap: 8px; }
+.staff-hired-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; font-size: 18px; }
+.staff-hired-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 4px 0; }
+.staff-hired-facts > div { display: grid; gap: 2px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; }
+.staff-hired-facts b { color: var(--text); }
+.btn-danger { background: var(--surface); color: var(--critical-text); border: 1px solid currentColor; }
+.btn-danger:hover { background: color-mix(in srgb, var(--critical-text) 10%, var(--surface)); }
+@media (max-width: 620px) { .staff-hired { grid-template-columns: 1fr; } .staff-hired-facts { grid-template-columns: 1fr; } }
 .staff-role-icon { display: inline-grid; place-items: center; width: 29px; height: 29px; flex: none; border-radius: 50%; color: #fff; background: #9a7426; font-size: 16px; font-weight: 800; }
 .role-agent { background: #267154; }.role-analyst { background: #376e91; }.role-marketing { background: #9a5367; }.role-lawyer { background: #66558b; }
 .staff-role-summary { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 10px 12px; margin-bottom: 12px; border-radius: 9px; background: var(--surface-2); }
