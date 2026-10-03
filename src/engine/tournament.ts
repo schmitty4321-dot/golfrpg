@@ -3,7 +3,7 @@ import type { MatchPlayBracket } from "./matchPlay";
 import { tiedPayout } from "./purse";
 import { createRng, type Rng } from "./rng";
 import { DAY_SD, WEEK_SD, playHole, roundForm, simulateRound, type HoleState, type RoundContext } from "./round";
-import { callEffect, type HoleCall } from "./calls";
+import { callEffect, decisionsFor, type CallKind, type Decision, type HoleCall, type HoleSituation } from "./calls";
 import { pinTuck } from "./pins";
 import type { PlayerEventContext } from "./traits";
 import { SG_CATEGORIES, type Course, type Player, type RoundWeather, type StrokesGained, type Wave } from "./types";
@@ -180,7 +180,7 @@ function assignWaves(active: Entry[], round: number): Map<Entry, Wave> {
 }
 
 /** Sudden death on the 18th until one player has the lowest score on a hole. */
-function runPlayoff(entries: Entry[], course: Course, weather: RoundWeather, rng: Rng, config: TournamentConfig) {
+function runPlayoff(entries: Entry[], course: Course, weather: RoundWeather, rng: Rng, config: TournamentConfig, calls: Record<string, HoleCall | null> = {}) {
   const finishers = entries.filter((e) => e.active);
   const best = Math.min(...finishers.map(total));
   let contenders = finishers.filter((e) => total(e) === best);
@@ -195,7 +195,9 @@ function runPlayoff(entries: Entry[], course: Course, weather: RoundWeather, rng
       const state: HoleState = { lastOverPar: 0 };
       const dayForm = e.dayForms[e.dayForms.length - 1]!;
       const ctx: RoundContext = { player: e.player, course, weather, wave: "PM", round: 4, shotsBehind: 0, rng, playoff: true, ...eventFields(config, e.player.id) };
-      return playHole({ ctx, hole: { ...hole, number: 18 }, dayForm, teeShotHoles, state });
+      const call = calls[e.player.id];
+      const mod = call ? callEffect(call, hole, e.player, pinTuck(course, hole, 3)) : undefined;
+      return playHole({ ctx, hole: { ...hole, number: 18 }, dayForm, teeShotHoles, state, ...(mod ? { mod } : {}) });
     });
     const low = Math.min(...scores);
     contenders = contenders.filter((_, i) => scores[i] === low);
@@ -347,21 +349,39 @@ export function standingsAfterRound(result: TournamentResult, round: number): Ro
 // ---------------------------------------------------------------- live play
 
 /**
- * A tournament played round by round, with one player (your client) played
- * hole by hole. The rest of the field plays each round with the tournament's
- * own random stream; the client plays from a stream of his own, so his calls
- * never change anyone else's scores. Rounds can also be simulated whole.
+ * How a client plays the calls you don't make yourself: "steady" leaves every
+ * call to him (the baseline the simulation is calibrated on), "attack" takes
+ * on every risk, "protect" plays every hole safe.
+ */
+export type RoundPlan = "attack" | "steady" | "protect";
+
+/**
+ * A tournament played round by round, with your clients played hole by hole.
+ * The rest of the field plays each round with the tournament's own random
+ * stream; each client plays from a stream of his own, so calls never change
+ * anyone else's scores. Rounds can also be simulated whole.
  */
 export interface LiveTournament {
   config: TournamentConfig;
+  /** The first of your clients in the field (the one shown by default). */
   controlledId: string;
+  /** All your clients in the field, `controlledId` first. */
+  controlledIds: string[];
+  /** How each client plays the calls you don't make. */
+  plans: Record<string, RoundPlan>;
   par: number;
   /** Rounds started (1-4). */
   round: number;
   weather: RoundWeather[];
   cutLine: number | null;
-  /** The client's round in progress, if any. */
+  /** The first client's round in progress, if any (same object as `live[controlledId]`). */
   current: LiveRound | null;
+  /** Each client's round in progress, by id. Empty between rounds. */
+  live: Record<string, LiveRound>;
+  /** Key moments already taken, by `${id}:${round}`. */
+  stops: Record<string, number>;
+  /** Calls for the playoff hole, by client id (set from a playoff moment). */
+  playoffCalls: Record<string, HoleCall | null>;
   done: boolean;
   result: TournamentResult | null;
   /** @internal */
@@ -369,7 +389,7 @@ export interface LiveTournament {
   /** @internal */
   rng: Rng;
   /** @internal */
-  crng: Rng;
+  crngs: Record<string, Rng>;
   /** @internal */
   cutDone: boolean;
 }
@@ -388,9 +408,22 @@ export interface LiveRound {
   state: HoleState;
 }
 
-export function startLive(config: TournamentConfig, controlledId: string): LiveTournament {
-  if (!config.field.some((p) => p.id === controlledId)) throw new Error("the controlled player isn't in the field");
+/** A small, stable number from an id, so each client's stream differs. */
+function idHash(id: string): number {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < id.length; i++) h = Math.imul(h ^ id.charCodeAt(i), 0x01000193);
+  return h >>> 0;
+}
+
+/** The first client keeps the original stream, so a one-client event plays exactly as it always has. */
+const clientStream = (seed: number, id: string, first: boolean) => createRng(first ? seed ^ 0x5ca11 : (seed ^ 0x5ca11 ^ idHash(id)) >>> 0);
+
+export function startLive(config: TournamentConfig, controlled: string | string[], plans: Record<string, RoundPlan> = {}): LiveTournament {
+  const ids = [...new Set(typeof controlled === "string" ? [controlled] : controlled)];
+  if (!ids.length) throw new Error("no controlled player");
+  for (const id of ids) if (!config.field.some((p) => p.id === id)) throw new Error("the controlled player isn't in the field");
   const rng = createRng(config.seed);
+  const mine = new Set(ids);
   const entries: Entry[] = config.field.map((player) => ({
     player,
     rounds: [],
@@ -400,33 +433,41 @@ export function startLive(config: TournamentConfig, controlledId: string): LiveT
     active: true,
     playoffStrokes: 0,
     weekForm: rng.normal(0, WEEK_SD),
-    ...(player.id === controlledId ? { calls: [] } : {}),
+    ...(mine.has(player.id) ? { calls: [] } : {}),
   }));
   return {
     config,
-    controlledId,
+    controlledId: ids[0]!,
+    controlledIds: ids,
+    plans: Object.fromEntries(ids.map((id) => [id, plans[id] ?? "steady"])),
     par: coursePar(config.course),
     round: 0,
     weather: [],
     cutLine: null,
     current: null,
+    live: {},
+    stops: {},
+    playoffCalls: {},
     done: false,
     result: null,
     entries,
     rng,
-    crng: createRng(config.seed ^ 0x5ca11),
+    crngs: Object.fromEntries(ids.map((id, i) => [id, clientStream(config.seed, id, i === 0)])),
     cutDone: false,
   };
 }
 
-const controlled = (t: LiveTournament) => t.entries.find((e) => e.player.id === t.controlledId)!;
+const entryOf = (t: LiveTournament, id: string) => t.entries.find((e) => e.player.id === id)!;
 
-/** Whether the client is still playing (he may have missed the cut). */
-export const clientActive = (t: LiveTournament): boolean => controlled(t).active;
+/** Whether a client is still playing (he may have missed the cut). Defaults to the first client. */
+export const clientActive = (t: LiveTournament, id = t.controlledId): boolean => entryOf(t, id).active;
 
-/** Starts the next round: the field plays it, and the client's round is set up to be played hole by hole. */
+/** Whether any client's round is in progress. */
+export const inRound = (t: LiveTournament): boolean => Object.keys(t.live).length > 0;
+
+/** Starts the next round: the field plays it, and each client's round is set up to be played hole by hole. */
 export function startLiveRound(t: LiveTournament): void {
-  if (t.current) throw new Error("finish the current round first");
+  if (inRound(t)) throw new Error("finish the current round first");
   if (t.round >= 4) throw new Error("the tournament is over");
   applyCut(t);
   t.round++;
@@ -438,31 +479,33 @@ export function startLiveRound(t: LiveTournament): void {
   const waves = assignWaves(active, round);
   const leader = round >= 3 ? Math.min(...active.map(total)) : null;
   const where = situation(active, round, t.config.cutTop);
-  const me = controlled(t);
   for (const e of active) {
     const wave = waves.get(e) ?? "AM";
     const shotsBehind = leader === null ? null : total(e) - leader;
-    if (e === me) {
-      const ctx: RoundContext = { player: e.player, course, weather: w, wave, round, shotsBehind, weekForm: e.weekForm, rng: t.crng, ...where(e), ...eventFields(t.config, e.player.id) };
+    const id = e.player.id;
+    const crng = t.crngs[id];
+    if (crng) {
+      const ctx: RoundContext = { player: e.player, course, weather: w, wave, round, shotsBehind, weekForm: e.weekForm, rng: crng, ...where(e), ...eventFields(t.config, id) };
       const dayForm = roundForm(ctx);
-      t.current = { holes: [], wave, shotsBehind, ctx, dayForm, state: { lastOverPar: 0 } };
+      t.live[id] = { holes: [], wave, shotsBehind, ctx, dayForm, state: { lastOverPar: 0 } };
       continue;
     }
-    const r = simulateRound({ player: e.player, course, weather: w, wave, round, shotsBehind, weekForm: e.weekForm, rng: t.rng, ...where(e), ...eventFields(t.config, e.player.id) });
+    const r = simulateRound({ player: e.player, course, weather: w, wave, round, shotsBehind, weekForm: e.weekForm, rng: t.rng, ...where(e), ...eventFields(t.config, id) });
     e.rounds.push(r.strokes);
     e.holes.push(r.holes);
     e.waves.push(wave);
     e.dayForms.push(r.dayForm);
   }
+  t.current = t.live[t.controlledId] ?? null;
 }
 
-/** Plays the client's next hole with the given calls (null: his own call). Returns the score. */
-export function playLiveHole(t: LiveTournament, call: HoleCall | null = null): number {
-  const cur = t.current;
+/** Plays a client's next hole with the given calls (null: his own call). Returns the score. */
+export function playLiveHole(t: LiveTournament, call: HoleCall | null = null, id = t.controlledId): number {
+  const cur = t.live[id];
   if (!cur) throw new Error("no round in progress");
   const course = t.config.course;
   const hole = course.holes[cur.holes.length]!;
-  const me = controlled(t);
+  const me = entryOf(t, id);
   const teeShotHoles = course.holes.filter((h) => h.par > 3).length;
   const score = playHole({ ctx: cur.ctx, hole, dayForm: cur.dayForm, teeShotHoles, state: cur.state, mod: callEffect(call, hole, me.player, pinTuck(course, hole, t.round - 1)) });
   cur.holes.push(score);
@@ -473,25 +516,27 @@ export function playLiveHole(t: LiveTournament, call: HoleCall | null = null): n
     me.holes.push(cur.holes);
     me.waves.push(cur.wave);
     me.dayForms.push(cur.dayForm);
-    t.current = null;
+    delete t.live[id];
+    if (id === t.controlledId) t.current = null;
     if (t.round === 2) applyCut(t);
   }
   return score;
 }
 
 /**
- * What a call would do on the client's next hole: expected score and the
+ * What a call would do on a client's next hole: expected score and the
  * chances of birdie or better and bogey or worse, from simulating the hole
  * many times (on a separate stream, so looking doesn't change anything).
  */
-export function callOdds(t: LiveTournament, call: HoleCall | null): { expected: number; birdie: number; bogey: number } {
-  const cur = t.current;
+export function callOdds(t: LiveTournament, call: HoleCall | null, id = t.controlledId): { expected: number; birdie: number; bogey: number } {
+  const cur = t.live[id];
   if (!cur) throw new Error("no round in progress");
   const course = t.config.course;
   const hole = course.holes[cur.holes.length]!;
-  const me = controlled(t);
+  const me = entryOf(t, id);
   const teeShotHoles = course.holes.filter((h) => h.par > 3).length;
-  const rng = createRng(t.config.seed ^ (t.round * 131 + cur.holes.length * 7));
+  const salt = id === t.controlledId ? 0 : idHash(id);
+  const rng = createRng((t.config.seed ^ (t.round * 131 + cur.holes.length * 7) ^ salt) >>> 0);
   const ctx = { ...cur.ctx, rng };
   const mod = callEffect(call, hole, me.player, pinTuck(course, hole, t.round - 1));
   const N = 1500;
@@ -507,12 +552,147 @@ export function callOdds(t: LiveTournament, call: HoleCall | null): { expected: 
   return { expected: sum / N, birdie: birdies / N, bogey: bogeys / N };
 }
 
-/** Plays out the client's current round with his own calls. */
-export function autoFinishRound(t: LiveTournament): void {
-  while (t.current) playLiveHole(t, null);
+/** Where a client stands before his next hole, for deciding which calls matter. */
+export function holeSituation(t: LiveTournament, id = t.controlledId): HoleSituation {
+  const board = liveBoard(t, id);
+  const me = board.find((r) => r.player.id === id);
+  const toPar = me?.toPar ?? 0;
+  const cutTop = t.config.cutTop;
+  const cutMargin = t.round === 2 && cutTop !== undefined && board.length > cutTop ? board[cutTop - 1]!.toPar - toPar : null;
+  return { round: t.round, index: t.live[id]?.holes.length ?? 0, behind: toPar - (board[0]?.toPar ?? toPar), cutMargin };
 }
 
-/** Plays whatever is left (rounds and holes) and closes the tournament. */
+/** The call a round plan makes on a hole's decisions (null: his own call). */
+export function planCall(plan: RoundPlan, decisions: Decision[]): HoleCall | null {
+  if (plan === "steady" || !decisions.length) return null;
+  const pick: Record<CallKind, [string, string]> = { tee: ["driver", "3-wood"], second: ["go", "layup"], approach: ["attack", "middle"], putt: ["charge", "lag"] };
+  const call: Record<string, string> = {};
+  for (const d of decisions) call[d.kind] = pick[d.kind][plan === "attack" ? 0 : 1];
+  return call as HoleCall;
+}
+
+/** The decisions on a client's next hole. */
+export function nextDecisions(t: LiveTournament, id = t.controlledId): Decision[] {
+  const cur = t.live[id];
+  if (!cur) return [];
+  const course = t.config.course;
+  return decisionsFor(course.holes[cur.holes.length]!, course, entryOf(t, id).player, holeSituation(t, id));
+}
+
+/** Plays a client's next hole as his round plan says. Returns the score. */
+export function playPlannedHole(t: LiveTournament, id = t.controlledId): number {
+  return playLiveHole(t, planCall(t.plans[id] ?? "steady", nextDecisions(t, id)), id);
+}
+
+/** Plays out the rest of the round as each client's plan says: one client, or all of them. */
+export function autoFinishRound(t: LiveTournament, id?: string): void {
+  for (const c of id === undefined ? t.controlledIds : [id]) while (t.live[c]) playPlannedHole(t, c);
+}
+
+/** Plays every other client's holes up to (not including) hole `index` of the round, as their plans say. */
+export function catchUpTo(t: LiveTournament, index: number, except?: string): TickerItem[] {
+  const out: TickerItem[] = [];
+  const course = t.config.course;
+  for (const c of t.controlledIds) {
+    if (c === except) continue;
+    while (t.live[c] && t.live[c]!.holes.length < index) {
+      const i = t.live[c]!.holes.length;
+      out.push({ id: c, round: t.round, index: i, score: playPlannedHole(t, c), par: course.holes[i]!.par });
+    }
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------- key moments
+
+/** Most key moments for one client in one round. */
+export const MAX_STOPS = 3;
+
+/** A hole where a call is worth stopping the week for. */
+export interface Moment {
+  id: string;
+  round: number;
+  /** 0-based hole index (the last hole for a playoff). */
+  index: number;
+  situation: HoleSituation;
+  decisions: Decision[];
+  /** A sudden-death playoff: the calls are for the 18th, played until it's settled. */
+  playoff?: boolean;
+}
+
+/** A hole a client played on the way to the next moment. */
+export interface TickerItem {
+  id: string;
+  round: number;
+  index: number;
+  score: number;
+  par: number;
+}
+
+/** Whether a hole's situation is worth stopping for: the back nine, on the cut line on Friday or in contention at the weekend. */
+export function atStake(s: HoleSituation): boolean {
+  if (s.index < 9) return false;
+  if (s.round === 2) return s.cutMargin !== null && Math.abs(s.cutMargin) <= 1;
+  if (s.round >= 3) return s.behind <= 3;
+  return false;
+}
+
+/** Your clients tied for the lead after the final round whose playoff call hasn't been made. */
+export function pendingPlayoff(t: LiveTournament): string[] {
+  if (t.result || t.round < 4 || inRound(t)) return [];
+  const finishers = t.entries.filter((e) => e.active && e.rounds.length === 4);
+  if (finishers.length < 2) return [];
+  const best = Math.min(...finishers.map(total));
+  const tied = finishers.filter((e) => total(e) === best);
+  if (tied.length < 2) return [];
+  return t.controlledIds.filter((id) => tied.some((e) => e.player.id === id) && !(id in t.playoffCalls));
+}
+
+/**
+ * Plays your clients' holes, interleaved so the one furthest behind goes next,
+ * until one reaches a key moment: a hole with a call to make while something
+ * is at stake (at most MAX_STOPS a round each), or a playoff. Returns the
+ * holes played on the way and the moment (null: the round is over). Asking
+ * again without answering returns the same moment.
+ */
+export function nextMoment(t: LiveTournament): { ticker: TickerItem[]; moment: Moment | null } {
+  const ticker: TickerItem[] = [];
+  const course = t.config.course;
+  for (;;) {
+    const ids = t.controlledIds.filter((c) => t.live[c]);
+    if (!ids.length) break;
+    const id = ids.reduce((a, b) => (t.live[b]!.holes.length < t.live[a]!.holes.length ? b : a));
+    const s = holeSituation(t, id);
+    const decisions = decisionsFor(course.holes[s.index]!, course, entryOf(t, id).player, s);
+    if (decisions.length && atStake(s) && (t.stops[`${id}:${t.round}`] ?? 0) < MAX_STOPS) {
+      return { ticker, moment: { id, round: t.round, index: s.index, situation: s, decisions } };
+    }
+    const score = playLiveHole(t, planCall(t.plans[id] ?? "steady", decisions), id);
+    ticker.push({ id, round: t.round, index: s.index, score, par: course.holes[s.index]!.par });
+  }
+  const playoff = pendingPlayoff(t);
+  if (playoff.length) {
+    const id = playoff[0]!;
+    const index = course.holes.length - 1;
+    const s: HoleSituation = { round: 4, index, behind: 0, cutMargin: null };
+    return { ticker, moment: { id, round: 4, index, situation: s, decisions: decisionsFor(course.holes[index]!, course, entryOf(t, id).player, s), playoff: true } };
+  }
+  return { ticker, moment: null };
+}
+
+/** Answers a key moment with your call (null: his own) and plays the hole. Returns the score (null for a playoff, which is played at the finish). */
+export function answerMoment(t: LiveTournament, m: Moment, call: HoleCall | null): number | null {
+  const c = call && Object.keys(call).length ? call : null;
+  if (m.playoff) {
+    t.playoffCalls[m.id] = c;
+    return null;
+  }
+  const key = `${m.id}:${m.round}`;
+  t.stops[key] = (t.stops[key] ?? 0) + 1;
+  return playLiveHole(t, c, m.id);
+}
+
+/** Plays whatever is left (rounds and holes) as the plans say, and closes the tournament. */
 export function finishLive(t: LiveTournament): TournamentResult {
   if (t.result) return t.result;
   autoFinishRound(t);
@@ -520,7 +700,7 @@ export function finishLive(t: LiveTournament): TournamentResult {
     startLiveRound(t);
     autoFinishRound(t);
   }
-  const playoff = runPlayoff(t.entries, t.config.course, t.weather[3]!, t.rng, t.config);
+  const playoff = runPlayoff(t.entries, t.config.course, t.weather[3]!, t.rng, t.config, t.playoffCalls);
   t.done = true;
   t.result = {
     name: t.config.name,
@@ -538,7 +718,7 @@ export function finishLive(t: LiveTournament): TournamentResult {
 export function liveSnapshot(t: LiveTournament): TournamentResult {
   if (t.result) return t.result;
   // Only completed rounds count: a player's round in progress isn't on the board yet.
-  const done = t.current ? t.round - 1 : t.round;
+  const done = inRound(t) ? t.round - 1 : t.round;
   const entries = t.entries
     .map((e) => ({ ...e, rounds: e.rounds.slice(0, done), holes: e.holes.slice(0, done), waves: e.waves.slice(0, done), dayForms: e.dayForms.slice(0, done) }))
     .filter((e) => e.rounds.length > 0 || done === 0);
@@ -555,19 +735,22 @@ export function liveSnapshot(t: LiveTournament): TournamentResult {
 
 /**
  * Everyone's score to par through the same hole of the round in progress as
- * the client (the field's rounds are already played; this reveals them in step).
+ * a client (the field's rounds are already played; this reveals them in
+ * step). Your other clients show the holes they've actually played, up to
+ * the same point.
  */
-export function liveBoard(t: LiveTournament): { player: Player; toPar: number; thru: number; active: boolean }[] {
-  const cur = t.current;
-  // Once the controlled player finishes, `current` is cleared. Keep showing
-  // the completed round rather than resetting every row to "thru 0".
+export function liveBoard(t: LiveTournament, id = t.controlledId): { player: Player; toPar: number; thru: number; active: boolean }[] {
+  const cur = t.live[id];
+  // Once the client finishes, his round is cleared. Keep showing the
+  // completed round rather than resetting every row to "thru 0".
   const thru = cur ? cur.holes.length : t.round > 0 ? t.config.course.holes.length : 0;
   const r = t.round - 1;
   return t.entries
     .filter((e) => e.active)
     .map((e) => {
       const before = e.rounds.slice(0, r).reduce((a, b) => a + b, 0) - t.par * Math.min(r, e.rounds.length);
-      const today = e.player.id === t.controlledId && cur ? cur.holes : (e.holes[r] ?? []).slice(0, thru);
+      const own = t.live[e.player.id];
+      const today = (own ? own.holes : (e.holes[r] ?? [])).slice(0, thru);
       const todayPar = t.config.course.holes.slice(0, today.length).reduce((a, h) => a + h.par, 0);
       return { player: e.player, toPar: before + today.reduce((a, b) => a + b, 0) - todayPar, thru: today.length, active: e.active };
     })
@@ -575,7 +758,7 @@ export function liveBoard(t: LiveTournament): { player: Player; toPar: number; t
 }
 
 function applyCut(t: LiveTournament): void {
-  if (t.cutDone || t.round < 2 || t.current) return;
+  if (t.cutDone || t.round < 2 || inRound(t)) return;
   t.cutDone = true;
   const cutTop = t.config.cutTop;
   const active = t.entries.filter((e) => e.active);

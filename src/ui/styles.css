@@ -249,6 +249,18 @@ th.num, td.num { text-align: right; }
 .tabs { display: flex; gap: 4px; margin-bottom: 12px; }
 .tabs button { border: 1px solid var(--border); background: var(--surface); color: var(--text-2); padding: 5px 12px; border-radius: 6px; cursor: pointer; }
 .tabs button[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.tempo-tabs { margin: 0; flex-wrap: wrap; }
+.round-plan { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 8px 0 4px; }
+.round-plan .tabs { margin: 0; }
+.round-plan .tabs button { padding: 3px 10px; font-size: 13px; }
+.follow-pick { align-items: center; flex-wrap: wrap; }
+.ticker { margin: 8px 0 0; }
+tr.mine td { font-weight: 600; }
+.client-strip { display: grid; gap: 8px; }
+.client-strip-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+.client-strip-row .round-plan { margin: 0; }
+.moment-body { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 800px) { .moment-body { grid-template-columns: 1fr; } }
 select, input[type="text"], input[type="number"] {
   font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 7px; padding: 6px 10px;
 }
@@ -1125,6 +1137,8 @@ select, input[type="text"], input[type="number"] {
 
 .option-art { display: block; width: calc(100% + 24px); height: 86px; margin: -12px -12px 10px; object-fit: cover; object-position: center top; border-bottom: 1px solid var(--border); }
 .choice-list .option-art { height: 140px; }
+.choice-grid .choice { align-content: start; }
+.choice-grid .option-art { width: calc(100% + 20px); height: auto; aspect-ratio: 4 / 3; margin: -10px -10px 6px; border-radius: 7px 7px 0 0; object-position: 50% 18%; }
 .facility-strip { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 9px; margin-bottom: 12px; }
 .facility-card { overflow: hidden; display: grid; gap: 4px; padding: 0 0 8px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); color: var(--text); font: inherit; text-align: left; }
 .facility-card.current { border: 2px solid var(--accent); background: var(--accent-soft); }

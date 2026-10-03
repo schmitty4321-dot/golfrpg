@@ -1,4 +1,4 @@
-import type { AttributeKey, Attributes, Course, Player, RoundStats, StrokesGained } from "../engine";
+import type { AttributeKey, Attributes, Course, Player, RoundPlan, RoundStats, StrokesGained } from "../engine";
 
 /** "dev" events are the developmental tour, a level below the main tour. */
 export type EventTier = "major" | "signature" | "standard" | "opposite" | "playoff" | "finale" | "dev";
@@ -224,6 +224,8 @@ export interface ClientManagement {
   /** His caddie (id in World.caddies) and how many weeks they've worked together. */
   caddieId?: string;
   caddieWeeks?: number;
+  /** How he plays the calls you don't make at events (older saves: "steady"). */
+  roundPlan?: RoundPlan;
   /** How he flies between events (the agency jet, when you have one, beats all of these). */
   travelClass?: TravelClass;
   /** Equipment models he owns (tour standard is always free). */

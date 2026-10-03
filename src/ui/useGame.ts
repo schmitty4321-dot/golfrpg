@@ -20,10 +20,38 @@ import {
 import { finishLive } from "../engine";
 import { deleteSave, loadSave, writeSave } from "./storage";
 
+/**
+ * How a week with your clients in the field is played: "quick" sims it
+ * straight to the results, "moments" stops only for the calls that matter,
+ * "follow" walks one client hole by hole with the others alongside.
+ */
+export type WeekTempo = "quick" | "moments" | "follow";
+
+const TEMPO_KEY = "fm-week-tempo";
+
+/** The speed you last picked (Key moments until you pick one). */
+export function loadTempo(): WeekTempo {
+  try {
+    const v = localStorage.getItem(TEMPO_KEY);
+    return v === "quick" || v === "follow" || v === "moments" ? v : "moments";
+  } catch {
+    return "moments";
+  }
+}
+
+export function saveTempo(tempo: WeekTempo): void {
+  try {
+    localStorage.setItem(TEMPO_KEY, tempo);
+  } catch {
+    // Storage blocked: the choice just isn't remembered.
+  }
+}
+
 /** A week being played live: your clients' events, round by round or hole by hole. Not saved until it's done. */
 export interface LiveWeek {
   choices: ClientChoices;
   events: LiveEvent[];
+  mode: Exclude<WeekTempo, "quick">;
   /** Bumped on every change, so screens re-render (the tournaments change in place). */
   version: number;
 }
@@ -91,15 +119,26 @@ export function useGame() {
   );
 
   const play = useCallback(
-    async (choices: ClientChoices, weeks = 1) => {
+    async (choices: ClientChoices, weeks = 1, tempo: WeekTempo = loadTempo()) => {
       const w = worldRef.current;
       if (!w) return;
       // A single week with your clients in the field is played live, on the event screen.
       if (weeks === 1) {
         const events = liveEvents(w, choices);
-        if (events.length) {
-          liveWeekRef.current = { choices, events, version: 0 };
+        if (events.length && tempo !== "quick") {
+          liveWeekRef.current = { choices, events, mode: tempo, version: 0 };
           publish({ liveWeek: liveWeekRef.current, live: null });
+          return;
+        }
+        // Quick: the same live events, every call left to the round plans.
+        if (events.length) {
+          publish({ busy: "Playing the week…" });
+          await nextFrame();
+          const played = Object.fromEntries(events.map((e) => [e.event.id, finishLive(e.tournament)]));
+          const report = playWeek(w, choices, played);
+          reportsRef.current = [...reportsRef.current, report].slice(-60);
+          publish({ busy: null, live: report });
+          await persist();
           return;
         }
       }

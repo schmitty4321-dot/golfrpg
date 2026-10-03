@@ -3,17 +3,20 @@ import {
   pinLabel,
   pinTuck,
   tuckWord,
+  autoFinishRound,
+  catchUpTo,
   decisionsFor,
   holeLayout,
+  holeSituation,
   liveBoard,
   playLiveHole,
   traceHole,
   traceSeed,
   type CallKind,
   type HoleCall,
-  type HoleSituation,
   type HoleTrace,
   type LiveTournament,
+  type TickerItem,
 } from "../../engine";
 import { useHoleMap } from "../holeMaps";
 import { HoleDrawing, LIE_WORDS } from "./ShotTracer";
@@ -24,15 +27,6 @@ import { LiveScorecard } from "./LiveScorecard";
 interface Played {
   index: number;
   trace: HoleTrace;
-}
-
-/** Where the client stands before a hole, for deciding which calls matter. */
-function situation(t: LiveTournament): HoleSituation {
-  const board = liveBoard(t);
-  const me = board.find((r) => r.player.id === t.controlledId)!;
-  const cutTop = t.config.cutTop;
-  const cutMargin = t.round === 2 && cutTop !== undefined && board.length > cutTop ? board[cutTop - 1]!.toPar - me.toPar : null;
-  return { round: t.round, index: t.current!.holes.length, behind: me.toPar - board[0]!.toPar, cutMargin };
 }
 
 /** True on phone-width screens. */
@@ -53,12 +47,13 @@ function useNarrow(): boolean {
  * Your client's round, a hole at a time. On key holes you make the calls
  * (off the tee, going for a par 5, attacking a pin, the putts on the closing
  * holes); elsewhere he plays his own game. Each hole
- * then plays out in the shot tracer.
+ * then plays out in the shot tracer. Your other clients in the event play
+ * the same holes alongside him, on their round plans.
  */
-export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTournament; name: string; onChange: () => void; onRoundDone: () => void }) {
+export function HoleByHole({ t, who = t.controlledId, name, onChange, onRoundDone, onTicker }: { t: LiveTournament; who?: string; name: string; onChange: () => void; onRoundDone: () => void; onTicker?: (items: TickerItem[]) => void }) {
   const course = t.config.course;
-  const player = t.config.field.find((p) => p.id === t.controlledId)!;
-  const cur = t.current;
+  const player = t.config.field.find((p) => p.id === who)!;
+  const cur = t.live[who] ?? null;
   const [calls, setCalls] = useState<HoleCall>({});
   const [played, setPlayed] = useState<Played | null>(null);
   const [step, setStep] = useState(0);
@@ -67,7 +62,7 @@ export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTourname
 
   const index = cur ? cur.holes.length : course.holes.length;
   const upcoming = cur ? course.holes[index]! : null;
-  const decisions = useMemo(() => (cur && upcoming ? decisionsFor(upcoming, course, player, situation(t)) : []), [cur, upcoming, course, player, t, index]); // eslint-disable-line react-hooks/exhaustive-deps
+  const decisions = useMemo(() => (cur && upcoming ? decisionsFor(upcoming, course, player, holeSituation(t, who)) : []), [cur, upcoming, course, player, t, who, index]); // eslint-disable-line react-hooks/exhaustive-deps
   // What the drawing shows: the hole just played (animated), or the next one.
   const preview: HoleTrace | null = upcoming ? { layout: holeLayout(course, upcoming, t.round - 1), shots: [], score: 0, result: "" } : null;
   const shown = played ?? (preview ? { index, trace: preview } : null);
@@ -79,14 +74,17 @@ export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTourname
     return () => clearTimeout(id);
   }, [played, step]);
 
-  const entry = t.entries.find((e) => e.player.id === t.controlledId)!;
+  const entry = t.entries.find((e) => e.player.id === who)!;
   const wind = () => t.weather[t.round - 1]!.windMph[cur?.wave ?? entry.waves[t.round - 1] ?? "AM"];
 
   function playOne(call: HoleCall | null): Played {
-    const i = t.current!.holes.length;
+    const i = t.live[who]!.holes.length;
     const hole = course.holes[i]!;
     const windMph = wind();
-    const score = playLiveHole(t, call);
+    const score = playLiveHole(t, call, who);
+    // Your other clients keep pace, a hole at a time.
+    const others = catchUpTo(t, i + 1, who);
+    if (others.length) onTicker?.(others);
     const trace = traceHole({ course, hole, score, player, windMph, seed: traceSeed(t.config.name, player.id, t.round - 1, i), call, round: t.round - 1 });
     return { index: i, trace };
   }
@@ -114,7 +112,7 @@ export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTourname
     let last: Played | null = null;
     do {
       last = playOne(null);
-    } while (t.current && !decisionsFor(course.holes[t.current.holes.length]!, course, player, situation(t)).length);
+    } while (t.live[who] && !decisionsFor(course.holes[t.live[who]!.holes.length]!, course, player, holeSituation(t, who)).length);
     setPlayed(last);
     setStep(0);
     setCalls({});
@@ -123,14 +121,15 @@ export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTourname
 
   function finishRound() {
     let last: Played | null = null;
-    while (t.current) last = playOne(null);
+    while (t.live[who]) last = playOne(null);
+    autoFinishRound(t);
     setPlayed(last);
     setStep(last ? last.trace.shots.length : 0);
     onChange();
   }
 
-  const board = liveBoard(t);
-  const me = board.find((r) => r.player.id === t.controlledId);
+  const board = liveBoard(t, who);
+  const me = board.find((r) => r.player.id === who);
   const myPos = me ? board.findIndex((r) => r.toPar === me.toPar) + 1 : null;
   const tied = me ? board.filter((r) => r.toPar === me.toPar).length > 1 : false;
   const today = cur ? cur.holes : (entry.holes[t.round - 1] ?? []);
@@ -259,7 +258,7 @@ export function HoleByHole({ t, name, onChange, onRoundDone }: { t: LiveTourname
           <table className="hbh-board">
             <tbody>
               {board.slice(0, 8).concat(me && board.indexOf(me) >= 8 ? [me] : []).map((r) => (
-                <tr key={r.player.id} className={r.player.id === t.controlledId ? "me" : ""}>
+                <tr key={r.player.id} className={r.player.id === who ? "me" : t.controlledIds.includes(r.player.id) ? "mine" : ""}>
                   <td className="num">{board.findIndex((x) => x.toPar === r.toPar) + 1}</td>
                   <td>{r.player.name}</td>
                   <td className="num">{toPar(r.toPar)}</td>
