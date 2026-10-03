@@ -1,5 +1,5 @@
 import { Fragment, useState } from "react";
-import { CONDITIONAL_CARD, DEV_GRADUATES, FULL_CARD, PRO_AGE, amateurRanking, devPointsList, pointsList, worldRanking, STATUS_LABELS, type World } from "../../season";
+import { CONDITIONAL_CARD, DEV_EXEMPT_THROUGH, DEV_FINALS_POINTS, DEV_GRADUATES, DEV_PROMOTION_WINS, FULL_CARD, PRO_AGE, amateurRanking, devPointsList, pointsList, worldRanking, STATUS_LABELS, type World } from "../../season";
 import { money } from "../format";
 import { Nation } from "../components/Flag";
 
@@ -123,21 +123,33 @@ function MoneyTable({ world }: { world: World }) {
 function DevTable({ world }: { world: World }) {
   const list = devPointsList(world);
   if (list.length === 0) return <p className="empty">No developmental tour points yet this season.</p>;
+  const finals = world.schedule.filter((e) => e.devFinals).sort((a, b) => a.week - b.week);
+  const promoted = Object.values(world.players).filter((wp) => wp.career.promotedSeason === world.season);
   return (
     <div className="table-wrap">
-      <p className="secondary" style={{ marginTop: 0 }}>The top {DEV_GRADUATES} earn main-tour cards for next season. Everyone else can try Q-School.</p>
+      <p className="secondary" style={{ marginTop: 0 }}>
+        The top {DEV_GRADUATES} after the Finals earn main-tour cards; {DEV_GRADUATES + 1}–{DEV_EXEMPT_THROUGH} keep full status here next season. {DEV_PROMOTION_WINS} wins in a season earn a card on the spot.
+        {finals.length > 0 && <> The Finals (weeks {finals[0]!.week}–{finals[finals.length - 1]!.week}) pay {DEV_FINALS_POINTS} points to the winner; the last two are for the top {finals[2]?.fieldSize ?? 100} and top {finals[3]?.fieldSize ?? 60}.</>}
+        {" "}Everyone else can try Q-School.
+      </p>
+      {promoted.length > 0 && <p className="good-text small">Promoted this season: {promoted.map((wp) => wp.player.name).join(", ")}.</p>}
       <table>
-        <thead><tr><th>#</th><th>Player</th><th className="num">Age</th><th className="num">Points</th><th className="num">Earnings</th></tr></thead>
+        <thead><tr><th>#</th><th>Player</th><th className="num">Age</th><th className="num">Wins</th><th className="num">Points</th><th className="num">Earnings</th></tr></thead>
         <tbody>
           {list.map((id, i) => {
             const wp = world.players[id]!;
             return (
               <Fragment key={id}>
-                {i === DEV_GRADUATES && <tr className="divider"><td colSpan={5}>Card line</td></tr>}
+                {i === DEV_GRADUATES && <tr className="divider"><td colSpan={6}>Card line: the top {DEV_GRADUATES} move up</td></tr>}
+                {i === DEV_EXEMPT_THROUGH && <tr className="divider"><td colSpan={6}>Full status line: {DEV_GRADUATES + 1}–{DEV_EXEMPT_THROUGH} keep their place here</td></tr>}
                 <tr className={world.clientIds.includes(id) ? "me" : ""}>
                   <td>{i + 1}</td>
-                  <td>{wp.player.name} <Nation nationality={wp.player.nationality} /></td>
-                  <td className="num">{wp.player.age}</td>
+                  <td>
+                    {wp.player.name} <Nation nationality={wp.player.nationality} />
+                    {wp.career.promotedSeason === world.season && <span className="badge" style={{ marginLeft: 6 }}>Promoted</span>}
+                    {(wp.career.devExemptThrough ?? 0) >= world.season && <span className="muted small"> · exempt</span>}
+                  </td>
+                  <td className="num">{wp.career.seasonDevWins || ""}</td>
                   <td className="num">{Math.round(wp.career.devPoints)}</td>
                   <td className="num">{money(wp.career.seasonEarnings)}</td>
                 </tr>

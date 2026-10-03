@@ -113,7 +113,7 @@ export function majorSetup(course: Course): Course {
   };
 }
 const DEV_SUFFIX = ["Open", "Classic", "Championship", "Challenge"];
-const DEV_PURSE: [number, number] = [900_000, 1_200_000];
+const DEV_PURSE: [number, number] = [1_000_000, 1_300_000];
 const DEV_FIELD: [number, number] = [144, 65];
 
 const REGIONS: Record<string, Region> = { NA: "NA", EU: "EU", ASIA: "ASIA", AUS: "AUS" };
@@ -146,23 +146,41 @@ export function buildTour(seed: number): { courses: Course[]; schedule: TourEven
   return { courses: [...courses, ...dev.courses], schedule: [...schedule, ...dev.schedule] };
 }
 
-/** Weeks the developmental tour plays: most weeks, but not the majors, the playoffs or the finale. */
+/** Weeks the developmental tour first played (their events keep their ids, venues and purses). */
 export const DEV_WEEKS = [3, 4, 5, 6, 8, 9, 10, 11, 12, 14, 15, 16, 17, 19, 20, 21, 22, 24, 25, 26, 28, 29, 30, 34, 35, 36];
+/** Weeks added later, so the developmental tour plays nearly every week the main tour does (the last is the Finals' championship). */
+export const DEV_WEEKS_ADDED = [1, 2, 7, 13, 18, 23, 27, 31, 32, 33, 37];
+/** The Finals: four events to close the developmental season, by week, with their field sizes. */
+export const DEV_FINALS: Record<number, { stage: 1 | 2 | 3 | 4; fieldSize: number; cutTop: number | null; name: string }> = {
+  34: { stage: 1, fieldSize: 156, cutTop: 65, name: "Finals Opener" },
+  35: { stage: 2, fieldSize: 144, cutTop: 65, name: "Finals Classic" },
+  36: { stage: 3, fieldSize: 100, cutTop: null, name: "Finals Invitational" },
+  37: { stage: 4, fieldSize: 60, cutTop: null, name: "Developmental Tour Championship" },
+};
+const DEV_FINALS_PURSE = 1_500_000;
+/** Season points to the winner of a Finals event (500 in the regular season). */
+export const DEV_FINALS_POINTS = 600;
+/** Three developmental tour wins in a season earn a main-tour card on the spot. */
+export const DEV_PROMOTION_WINS = 3;
+/** The next block on the developmental points list keep full status there for the next season. */
+export const DEV_EXEMPT_THROUGH = 60;
 /** The top of the developmental tour's points list earns main-tour cards. */
 export const DEV_GRADUATES = 20;
 
 const DEV_TOWNS = ["Boise", "Wichita", "Knoxville", "Omaha", "Savannah", "Tulsa", "Spokane", "Fresno", "Lincoln", "Chattanooga", "Des Moines", "Albuquerque", "Greenville", "Lafayette", "Macon", "Reno", "Billings", "Tallahassee", "Charleston", "Pueblo", "Evansville", "Duluth", "Bakersfield", "Wilmington", "Sioux Falls", "Little Rock"];
+const DEV_TOWNS_ADDED = ["Nassau", "Panama City", "Bogota", "Asheville", "Kansas City", "Grand Rapids", "Hershey", "Colorado Springs", "Columbus", "Boise Falls", "French Lick"];
 
 /**
  * The developmental tour: smaller purses, weaker fields, and a points list
- * whose top 25 move up. Built from its own random stream so adding it
- * never changes a world's main tour.
+ * whose top 20 move up after the four-event Finals. The original 26 events
+ * come from one random stream and the added ones from another, so a world's
+ * main tour and its older developmental events never change.
  */
 export function buildDevTour(seed: number): { courses: Course[]; schedule: TourEvent[] } {
   const rng = createRng(seed ^ 0xde7);
   const courses: Course[] = [];
   const styles: CourseStyle[] = ["parkland", "parkland", "resort", "desert", "links"];
-  const schedule = DEV_WEEKS.map((week, i): TourEvent => {
+  const original = DEV_WEEKS.map((week, i): TourEvent => {
     const town = DEV_TOWNS[i % DEV_TOWNS.length]!;
     const course = generateCourse(rng, `dev-${i + 1}`, `${town} Country Club`, rng.pick(styles));
     courses.push(course);
@@ -179,5 +197,47 @@ export function buildDevTour(seed: number): { courses: Course[]; schedule: TourE
       region: "NA",
     };
   });
+  const more = createRng(seed ^ 0xde8);
+  const added = DEV_WEEKS_ADDED.map((week, i): TourEvent => {
+    const town = DEV_TOWNS_ADDED[i % DEV_TOWNS_ADDED.length]!;
+    const course = generateCourse(more, `dev-${DEV_WEEKS.length + i + 1}`, `${town} Golf Club`, more.pick(styles));
+    courses.push(course);
+    const [lo, hi] = DEV_PURSE;
+    return {
+      id: `d${String(DEV_WEEKS.length + i + 1).padStart(2, "0")}`,
+      name: `${town} ${more.pick(DEV_SUFFIX)}`,
+      week,
+      tier: "dev",
+      courseId: course.id,
+      purse: Math.round((lo + more.next() * (hi - lo)) / 50_000) * 50_000,
+      fieldSize: DEV_FIELD[0],
+      cutTop: DEV_FIELD[1],
+      region: "NA",
+    };
+  });
+  const schedule = [...original, ...added].map((e) => {
+    const f = DEV_FINALS[e.week];
+    return f ? { ...e, name: f.stage === 4 ? f.name : `${e.name.split(" ").slice(0, -1).join(" ")} ${f.name}`, purse: DEV_FINALS_PURSE, fieldSize: f.fieldSize, cutTop: f.cutTop, winnerPoints: DEV_FINALS_POINTS, devFinals: f.stage } : e;
+  });
   return { courses, schedule };
+}
+
+/**
+ * Careers that began with the shorter developmental tour get the full one
+ * (the added weeks and the Finals) from their next season. Calendars edited
+ * by hand are left alone. Safe to call more than once.
+ */
+export function addFullDevTour(world: { seed: number; schedule: TourEvent[]; courses: Course[] }): boolean {
+  const dev = world.schedule.filter((e) => e.tier === "dev");
+  if (!dev.some((e) => e.id === "d01") || dev.some((e) => e.devFinals)) return false;
+  const full = buildDevTour(world.seed);
+  const byId = new Map(full.schedule.map((e) => [e.id, e]));
+  world.schedule = world.schedule.map((e) => (e.tier === "dev" && byId.has(e.id) ? byId.get(e.id)! : e));
+  const have = new Set(world.schedule.map((e) => e.id));
+  const added = full.schedule.filter((e) => !have.has(e.id));
+  world.schedule.push(...added);
+  const courseIds = new Set(world.courses.map((c) => c.id));
+  for (const c of full.courses) if (!courseIds.has(c.id) && added.some((e) => e.courseId === c.id)) world.courses.push(c);
+  world.schedule.sort((a, b) => a.week - b.week);
+  return true;
 }

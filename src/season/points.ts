@@ -44,6 +44,8 @@ export function seasonPointsFor(tier: EventTier, position: number, tiedCount: nu
 export function owgrWinnerPoints(tier: EventTier, fieldRanks: number[]): number {
   if (tier === "major") return 100;
   const strength = fieldRanks.reduce((s, r) => s + Math.max(0, (200 - r) / 200) ** 2, 0);
+  // The developmental tour's winners get a fraction of a main-tour win (as on the real Korn Ferry Tour, about 15).
+  if (tier === "dev") return Math.round(Math.min(16, Math.max(4, (6 + strength * 1.5) * 0.4)));
   return Math.round(Math.min(80, Math.max(6, 6 + strength * 1.5)));
 }
 

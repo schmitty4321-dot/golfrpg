@@ -23,12 +23,12 @@ import {
   type PlayerTier,
   type Rng,
 } from "../engine";
-import { DEV_GRADUATES, buildTour, matchPlayEvent, seasonWeeks } from "./calendar";
+import { DEV_EXEMPT_THROUGH, DEV_GRADUATES, addFullDevTour, buildTour, matchPlayEvent, seasonWeeks } from "./calendar";
 import { MAX_POTENTIAL, archetypeCeiling, newDevelopment, overall } from "./development";
 import { asSetUp, nextCourseSetup } from "./courseSetup";
 import { generateCoaches, offseason, OFFSEASON_WEEKS } from "./staff";
 import { rivalSeasonEnd } from "./rivals";
-import { EUROPE } from "./ryderCup";
+import { EUROPE, ensureRyderCup } from "./ryderCup";
 import { STAFF_LABELS, contractFee, hiredStaffer, staffContract, staffSeasonEnd, stafferFee } from "./market";
 import { addDecision } from "./inbox";
 import { STANDARD_COMMISSION, addReputation, agencySeasonEnd, clients, assignRivalAgents, emptyFinances, newAgency, newManagement } from "./agency";
@@ -37,7 +37,7 @@ import { AMATEUR_CLASS_SIZE, PRO_AGE, amateurPotential, amateurRanking, generate
 import { closeSeasonRecord, considerForHallOfFame, newHistory } from "./history";
 import { databasePlayer, type DatabasePlayer } from "./editor";
 import { expireSponsors } from "./sponsors";
-import { canPlayDev, devPriority, courseFit, courseById, eventsInWeek, isInvitational, mixSeed, planWeek, priorityCompare, MONDAY_SPOTS } from "./entries";
+import { canPlayDev, devExempt, devPriority, finalsEligible, sponsorChance, courseFit, courseById, eventsInWeek, isInvitational, mixSeed, planWeek, priorityCompare, MONDAY_SPOTS } from "./entries";
 import { pointsList, rankMap, worldRanking, type RankingRow } from "./points";
 import type { Course } from "../engine";
 import type { StaffRole } from "./types";
@@ -81,14 +81,19 @@ const POOL: [PlayerTier, number][] = [
   ["fringe", 50],
   ["college", 70],
 ];
-const TARGET_POOL_SIZE = POOL.reduce((s, [, n]) => s + n, 0);
+/**
+ * Mini-tour pros: a deeper bench below the fringe (a point weaker), so the
+ * developmental tour and the main tour's short fields fill most weeks.
+ */
+const MINI_TOUR = 100;
+const TARGET_POOL_SIZE = POOL.reduce((s, [, n]) => s + n, 0) + MINI_TOUR;
 /** Card thresholds on the season points list. Full cards go to the top 100 on the points list (the PGA TOUR's rule from 2026; it was 125). */
 export const FULL_CARD = 100;
 export const CONDITIONAL_CARD = 150;
 /** Q-School hands out this many cards. */
 export const QSCHOOL_CARDS = 5;
 /** How much better than an average fringe pro a walk-on joining the developmental tour is. */
-export const WALK_ON_EDGE = 1;
+export const WALK_ON_EDGE = 0;
 
 const newCareer = (status: TourStatus): Career => ({
   status,
@@ -198,6 +203,11 @@ export function createWorld(opts: CreateWorldOptions): World {
   // Top up with generated players, keeping the usual mix, until fields can fill.
   const generated: Player[] = [];
   for (const [tier, n] of POOL) for (let i = 0; i < n; i++) generated.push(generatePlayer(rng, { tier, usedNames }));
+  for (let i = 0; i < MINI_TOUR; i++) {
+    const p = generatePlayer(rng, { tier: "fringe", usedNames });
+    for (const k of GOLF_SKILLS) p.attributes[k] = clamp(p.attributes[k] - 1, 1, 20);
+    generated.push(p);
+  }
   for (const p of generated) europeanEdge(p);
   const needed = Math.max(0, TARGET_POOL_SIZE - players.length);
   // An even spread across the tiers, so a small database still gets stars, journeymen and hopefuls around it.
@@ -279,6 +289,8 @@ export function createWorld(opts: CreateWorldOptions): World {
   ensureTraits(world);
   ensureFamiliarity(world);
   ensureGoals(world);
+  // Every world has a Ryder Cup record, as a loaded save does.
+  ensureRyderCup(world);
   return world;
 }
 
@@ -495,17 +507,23 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
     const exemptByWin = (c.exemptThrough ?? -1) >= season + 1;
     if ((r !== null && r <= FULL_CARD) || exemptByWin) c.status = "exempt";
     else if (r !== null && r <= CONDITIONAL_CARD) c.status = "conditional";
+    // Promoted mid-season from the developmental tour: the card runs through next season.
+    else if (c.promotedSeason === season) c.status = "graduate";
     else c.status = "none";
     c.priorPointsRank = r;
   }
 
-  // The developmental tour's top 25 move up.
+  // The developmental tour's top 20 move up; the next 40 keep full status there.
   const promote = (wp: WorldPlayer, via: "dev" | "qschool") => {
     if (wp.career.status === "exempt" || wp.career.status === "graduate") return;
     wp.career.status = "graduate";
     seasonRec.graduates.push({ playerId: wp.player.id, name: wp.player.name, via });
   };
   for (const id of devOrder.slice(0, DEV_GRADUATES)) promote(world.players[id]!, "dev");
+  for (const id of devOrder.slice(DEV_GRADUATES, DEV_EXEMPT_THROUGH)) {
+    const c = world.players[id]!.career;
+    if (c.status === "none" || c.status === "conditional") c.devExemptThrough = season + 1;
+  }
 
   // Q-School: one last chance for everyone else.
   const q = runQSchool(world, rng, rankOf, devOrder);
@@ -601,6 +619,7 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
     c.seasonEvents = 0;
     c.seasonWins = 0;
     c.devPoints = 0;
+    c.seasonDevWins = 0;
     logSeason(wp, world.season, rankOf.get(wp.player.id) ?? null);
     closeSeasonStats(c, world.season);
     c.lastRegion = null;
@@ -620,6 +639,7 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   world.season++;
   world.week = 1;
   adoptRealTour(world);
+  addFullDevTour(world);
   addMatchPlay(world);
   drawSeasonForm(world);
   for (const wp of clients(world)) wp.client!.finances = emptyFinances();
@@ -754,14 +774,16 @@ export function clientOptions(world: World, clientId: string): EntryOption[] {
     }
     if (event.tier === "dev") {
       if (!canPlayDev(client)) return { ...base, access: "not-invited" as const, detail: "The developmental tour is for pros without a main-tour card." };
+      const finals = finalsEligible(world, event);
+      if (finals && !finals.has(clientId)) return { ...base, access: "not-invited" as const, detail: `Finals: only the top ${event.fieldSize} on the developmental points list play (and the next few as alternates).` };
       const entrants = [...plan.choices.entries()]
         .filter(([, c]) => c?.eventId === event.id)
         .map(([id]) => world.players[id]!)
         .filter(canPlayDev)
-        .sort(devPriority);
+        .sort(devPriority(world));
       const pos = entrants.findIndex((wp) => wp.player.id === clientId) + 1;
       return pos <= event.fieldSize
-        ? { ...base, access: "in" as const, detail: `Developmental tour: in (priority ${pos} of ${event.fieldSize}). Top ${DEV_GRADUATES} on its points list earn cards.` }
+        ? { ...base, access: "in" as const, detail: `${event.devFinals ? `Finals event ${event.devFinals} of 4` : "Developmental tour"}: in (priority ${pos} of ${event.fieldSize}${devExempt(world, client) ? ", fully exempt" : ""}). Top ${DEV_GRADUATES} on its points list earn cards${event.devFinals ? "" : "; 3 wins earn one on the spot"}.` }
         : { ...base, access: "alternate" as const, detail: `Developmental tour: alternate (priority ${pos} of ${event.fieldSize}).` };
     }
     if (isInvitational(event.tier)) {
@@ -773,7 +795,7 @@ export function clientOptions(world: World, clientId: string): EntryOption[] {
       };
     }
     if (client.career.status === "none") {
-      return { ...base, access: "monday", detail: `No status: needs a Monday qualifier (${MONDAY_SPOTS} spots).` };
+      return { ...base, access: "monday", detail: `No status: a sponsor's invitation (about ${Math.round(sponsorChance(world) * 100)}% for your client) or a Monday qualifier (${MONDAY_SPOTS} spots).` };
     }
     const direct = [...plan.choices.entries()]
       .filter(([id, c]) => c?.eventId === event.id && c.route === "entry" && world.players[id]!.career.status !== "none")

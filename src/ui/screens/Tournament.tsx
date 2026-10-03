@@ -27,7 +27,7 @@ export function Tournament({ world, game, eventId, setEventId }: { world: World;
         <div className="panel-head">
           <div>
             <div className="event-title">
-              <span className={`badge${event.tier === "major" ? " badge-major" : ""}`}>{TIER_LABELS[event.tier]}</span>
+              <span className={`badge${event.tier === "major" ? " badge-major" : ""}`}>{event.devFinals ? `Dev Finals ${event.devFinals}/4` : TIER_LABELS[event.tier]}</span>
               <h2 style={{ fontSize: 20 }}>{event.name}</h2>
             </div>
             <div className="facts" style={{ marginTop: 6 }}>
