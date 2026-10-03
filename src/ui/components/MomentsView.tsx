@@ -29,6 +29,7 @@ import { useHoleMap } from "../holeMaps";
 import { HoleDrawing } from "./ShotTracer";
 import { hasIllustratedTracerArt, IllustratedTracer } from "./IllustratedTracer";
 import { PLAN_LABELS, RoundPlanPicker, setRoundPlan, tickerLine } from "./WeekTempo";
+import { RoundCalls } from "./RoundCalls";
 
 /** A moment you've answered: the hole, played out in the tracer. */
 interface Replay {
@@ -149,6 +150,7 @@ export function MomentsView({ world, game, lw }: { world: World; game: Game; lw:
 
   return (
     <main className="moments">
+      {!moment && !replay && !playing && !allDone && round >= 1 && <RoundCalls world={world} game={game} events={events} />}
       {moment && current && (
         <MomentCard
           world={world}

@@ -47,6 +47,7 @@ import {
 } from "./traits";
 import { homeRegion } from "../engine";
 import { absWeek, type EventRecord, type TourEvent, type World } from "./types";
+import type { RoundCallAnswer } from "./roundCalls";
 
 /** What a client does this week. "auto" lets him pick his own schedule. */
 export type ClientChoice =
@@ -101,8 +102,10 @@ export interface LiveEvent {
   event: TourEvent;
   field: FieldResult;
   clientIds: string[];
-  /** The client walked hole by hole (the first of yours in the field). */
+  /** Your clients in it, played live. */
   tournament: LiveTournament;
+  /** Your calls between rounds, by call id (see roundCalls.ts). */
+  answers?: Record<string, RoundCallAnswer>;
 }
 
 function weekPlan(world: World, choices: ClientChoices) {

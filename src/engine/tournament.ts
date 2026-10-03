@@ -382,6 +382,8 @@ export interface LiveTournament {
   stops: Record<string, number>;
   /** Calls for the playoff hole, by client id (set from a playoff moment). */
   playoffCalls: Record<string, HoleCall | null>;
+  /** A lift or drag on a client's form for one round (strokes per round), by `${id}:${round}`: your calls between rounds. */
+  boosts: Record<string, number>;
   done: boolean;
   result: TournamentResult | null;
   /** @internal */
@@ -448,6 +450,7 @@ export function startLive(config: TournamentConfig, controlled: string | string[
     live: {},
     stops: {},
     playoffCalls: {},
+    boosts: {},
     done: false,
     result: null,
     entries,
@@ -485,7 +488,8 @@ export function startLiveRound(t: LiveTournament): void {
     const id = e.player.id;
     const crng = t.crngs[id];
     if (crng) {
-      const ctx: RoundContext = { player: e.player, course, weather: w, wave, round, shotsBehind, weekForm: e.weekForm, rng: crng, ...where(e), ...eventFields(t.config, id) };
+      const boost = t.boosts[`${id}:${round}`];
+      const ctx: RoundContext = { player: e.player, course, weather: w, wave, round, shotsBehind, weekForm: e.weekForm, rng: crng, ...where(e), ...eventFields(t.config, id), ...(boost ? { boost } : {}) };
       const dayForm = roundForm(ctx);
       t.live[id] = { holes: [], wave, shotsBehind, ctx, dayForm, state: { lastOverPar: 0 } };
       continue;

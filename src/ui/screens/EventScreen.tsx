@@ -12,6 +12,7 @@ import { TIER_LABELS, formWord, millions, signed, toPar } from "../format";
 import { TournamentEmblem } from "../components/TournamentLogo";
 import { PLAN_LABELS, setRoundPlan, tickerLine } from "../components/WeekTempo";
 import { MomentsView } from "../components/MomentsView";
+import { RoundCalls } from "../components/RoundCalls";
 
 interface EventView {
   event: TourEvent;
@@ -146,6 +147,7 @@ function FollowView({ world, game, lw }: { world: World; game: Game; lw: LiveWee
         {!allDone && <button className="btn" onClick={() => void game.completeLiveWeek()}>Skip to the final results</button>}
       </EventHeader>
       {picker}
+      {!inHbh && t.round >= 1 && t.round <= 3 && !inRound(t) && <RoundCalls world={world} game={game} events={[ev]} />}
       {inHbh && ticker.length > 0 && (
         <p className="ticker secondary small" aria-live="polite">{ticker.slice(-4).join(" · ")}</p>
       )}
