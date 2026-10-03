@@ -9,6 +9,7 @@ import {
   generateTourField,
   getCourse,
   liveSnapshot,
+  nextDecisions,
   nextMoment,
   planCall,
   playLiveHole,
@@ -132,6 +133,42 @@ describe("key moments", () => {
     expect(stops).toBeGreaterThan(0);
   });
 
+  it("never ask the same question twice in a round", () => {
+    let asked = 0;
+    for (const seed of [71, 72, 73, 74, 75, 76]) {
+      const t = startLive(config(seed), [a, b, c]);
+      const seen = new Map<string, Set<string>>();
+      while (t.round < 4 || Object.keys(t.live).length) {
+        if (!Object.keys(t.live).length) startLiveRound(t);
+        for (let m = nextMoment(t).moment; m && !m.playoff; m = nextMoment(t).moment) {
+          const key = `${m.id}:${m.round}`;
+          const kinds = seen.get(key) ?? new Set<string>();
+          for (const d of m.decisions) {
+            expect(kinds.has(d.kind)).toBe(false);
+            kinds.add(d.kind);
+            asked++;
+          }
+          seen.set(key, kinds);
+          answerMoment(t, m, { [m.decisions[0]!.kind]: m.decisions[0]!.options[0]!.value });
+        }
+        if (pendingPlayoffDone(t)) break;
+      }
+    }
+    expect(asked).toBeGreaterThan(0);
+  });
+
+  it("a closing-putts call holds to the last hole and isn't asked again", () => {
+    const t = startLive(config(81), a);
+    startLiveRound(t);
+    for (let i = 0; i < 15; i++) playLiveHole(t, null, a);
+    playLiveHole(t, { putt: "lag" }, a);
+    expect(nextDecisions(t, a).some((d) => d.kind === "putt")).toBe(false);
+    playLiveHole(t, null, a);
+    playLiveHole(t, null, a);
+    const calls = finishLive(t).leaderboard.find((r) => r.player.id === a)!.calls![0]!;
+    expect(calls.slice(15).map((x) => x?.putt)).toEqual(["lag", "lag", "lag"]);
+  });
+
   it("asking again without answering gives the same moment", () => {
     for (const seed of [41, 42, 43, 44, 45]) {
       const t = startLive(config(seed), [a, b, c]);
@@ -162,6 +199,11 @@ describe("key moments", () => {
     }
   });
 });
+
+/** True once the final round is done (a playoff moment, if any, is left to the finish). */
+function pendingPlayoffDone(t: ReturnType<typeof startLive>): boolean {
+  return t.round >= 4 && !Object.keys(t.live).length;
+}
 
 describe("live weeks", () => {
   it("walk every client in an event, not just the first", () => {

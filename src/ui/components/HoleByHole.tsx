@@ -5,10 +5,10 @@ import {
   tuckWord,
   autoFinishRound,
   catchUpTo,
-  decisionsFor,
   holeLayout,
-  holeSituation,
   liveBoard,
+  markAsked,
+  nextDecisions,
   playLiveHole,
   traceHole,
   traceSeed,
@@ -62,7 +62,7 @@ export function HoleByHole({ t, who = t.controlledId, name, onChange, onRoundDon
 
   const index = cur ? cur.holes.length : course.holes.length;
   const upcoming = cur ? course.holes[index]! : null;
-  const decisions = useMemo(() => (cur && upcoming ? decisionsFor(upcoming, course, player, holeSituation(t, who)) : []), [cur, upcoming, course, player, t, who, index]); // eslint-disable-line react-hooks/exhaustive-deps
+  const decisions = useMemo(() => (cur && upcoming ? nextDecisions(t, who) : []), [cur, upcoming, t, who, index]); // eslint-disable-line react-hooks/exhaustive-deps
   // What the drawing shows: the hole just played (animated), or the next one.
   const preview: HoleTrace | null = upcoming ? { layout: holeLayout(course, upcoming, t.round - 1), shots: [], score: 0, result: "" } : null;
   const shown = played ?? (preview ? { index, trace: preview } : null);
@@ -100,6 +100,7 @@ export function HoleByHole({ t, who = t.controlledId, name, onChange, onRoundDon
 
   function play() {
     const call = Object.keys(calls).length ? calls : null;
+    markAsked(t, who, decisions.map((d) => d.kind));
     const p = playOne(call);
     setPlayed(p);
     setStep(0);
@@ -112,7 +113,7 @@ export function HoleByHole({ t, who = t.controlledId, name, onChange, onRoundDon
     let last: Played | null = null;
     do {
       last = playOne(null);
-    } while (t.live[who] && !decisionsFor(course.holes[t.live[who]!.holes.length]!, course, player, holeSituation(t, who)).length);
+    } while (t.live[who] && !nextDecisions(t, who).length);
     setPlayed(last);
     setStep(0);
     setCalls({});

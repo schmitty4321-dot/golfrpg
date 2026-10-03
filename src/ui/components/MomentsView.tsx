@@ -12,6 +12,7 @@ import {
   nextMoment,
   pendingPlayoff,
   planCall,
+  standingsAfterRound,
   startLiveRound,
   traceHole,
   traceSeed,
@@ -150,6 +151,7 @@ export function MomentsView({ world, game, lw }: { world: World; game: Game; lw:
 
   return (
     <main className="moments">
+      {!moment && !replay && !playing && round >= 1 && <TournamentUpdate events={events} />}
       {!moment && !replay && !playing && !allDone && round >= 1 && <RoundCalls world={world} game={game} events={events} />}
       {moment && current && (
         <MomentCard
@@ -214,6 +216,77 @@ export function MomentsView({ world, game, lw }: { world: World; game: Game; lw:
   );
 }
 
+/**
+ * Between rounds: each event's leaderboard at the top, the cut line, and
+ * where each of your clients sits (score, today, places moved, shots back).
+ */
+function TournamentUpdate({ events }: { events: LiveEvent[] }) {
+  return (
+    <>
+      {events.map((e) => {
+        const t = e.tournament;
+        if (t.round < 1 || inRound(t)) return null;
+        const snap = liveSnapshot(t);
+        if (!snap.leaderboard.length) return null;
+        const round = t.round;
+        const rows = standingsAfterRound(snap, round);
+        const mine = new Set(e.clientIds);
+        const leader = rows[0]!;
+        const top = rows.slice(0, 5);
+        const extra = rows.filter((r, i) => i >= 5 && mine.has(r.player.id));
+        const cut = round >= 2 && snap.cutLine !== null ? snap.cutLine : null;
+        const move = (m: number | null) => (m ? <span className={m > 0 ? "good-text" : "bad-text"}>{m > 0 ? `▲${m}` : `▼${-m}`}</span> : <span className="muted">–</span>);
+        const row = (r: (typeof rows)[number]) => (
+          <tr key={r.player.id} className={mine.has(r.player.id) ? "me" : ""}>
+            <td className="num">{r.positionLabel}</td>
+            <td>{r.player.name}</td>
+            <td className="num">{toPar(r.toPar)}</td>
+            <td className="num">{r.today ?? "–"}</td>
+            <td className="num">{r.positionLabel === "MC" ? <span className="muted">–</span> : move(r.movement)}</td>
+          </tr>
+        );
+        return (
+          <section key={e.event.id} className="panel tourney-update">
+            <div className="panel-head">
+              <h2>{e.event.name}: after round {round}</h2>
+              <span className="secondary small">
+                {leader.player.name} leads at {toPar(leader.toPar)}
+                {cut !== null ? ` · cut ${toPar(cut)}` : ""}
+              </span>
+            </div>
+            <ul className="tourney-clients">
+              {e.clientIds.map((id) => {
+                const r = rows.find((x) => x.player.id === id);
+                if (!r) return null;
+                const back = r.toPar - leader.toPar;
+                const out = !clientActive(t, id);
+                const status = out
+                  ? `missed the cut at ${toPar(r.toPar)}`
+                  : `${r.positionLabel} at ${toPar(r.toPar)}, ${back === 0 ? (r.position === 1 ? "leading" : "tied for the lead") : `${back} back`}${r.today !== null ? `, shot ${r.today} today` : ""}`;
+                return (
+                  <li key={id}>
+                    <strong>{r.player.name}</strong> <span className="secondary">{status}</span> {!out && move(r.movement)}
+                  </li>
+                );
+              })}
+            </ul>
+            <table className="hbh-board tourney-board">
+              <thead>
+                <tr><th className="num">Pos</th><th>Player</th><th className="num">To par</th><th className="num">Today</th><th className="num">Move</th></tr>
+              </thead>
+              <tbody>
+                {top.map(row)}
+                {extra.length > 0 && <tr className="gap"><td colSpan={5} className="muted small">…</td></tr>}
+                {extra.map(row)}
+              </tbody>
+            </table>
+          </section>
+        );
+      })}
+    </>
+  );
+}
+
 function TraceDrawing({ trace, step, courseName }: { trace: HoleTrace; step: number; courseName: string }) {
   const map = useHoleMap(trace.layout.real);
   return (
@@ -267,7 +340,26 @@ function ClientStrip({ world, game, events, editable }: { world: World; game: Ga
   );
 }
 
-const pct = (x: number) => `${Math.round(x * 100)}%`;
+type Odds = { expected: number; birdie: number; bogey: number };
+
+/** A small, stable wobble from a string, so the caddie's read is a read, not a readout. */
+function wobble(key: string): number {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < key.length; i++) h = Math.imul(h ^ key.charCodeAt(i), 0x01000193);
+  return ((h >>> 0) / 0xffffffff - 0.5) * 0.12;
+}
+
+/**
+ * Your caddie's take on a call against letting him play it his way: a rough
+ * read, sometimes wrong on close calls, never the numbers.
+ */
+function caddieRead(his: Odds, mine: Odds, key: string): string {
+  const gain = his.expected - mine.expected + wobble(key);
+  const verdict = gain > 0.05 ? "Your caddie likes it." : gain < -0.05 ? "Your caddie isn't sold on it." : "Your caddie shrugs: could go either way.";
+  const wilder = mine.birdie - his.birdie > 0.03 && mine.bogey - his.bogey > 0.03;
+  const tamer = his.birdie - mine.birdie > 0.03 && his.bogey - mine.bogey > 0.03;
+  return `${verdict}${wilder ? " More birdie looks, more trouble." : tamer ? " Safer, fewer birdie looks." : ""}`;
+}
 
 function MomentCard({ world, t, eventName, m, calls, setCalls, odds, onPlay, onPlan }: {
   world: World;
@@ -292,7 +384,6 @@ function MomentCard({ world, t, eventName, m, calls, setCalls, odds, onPlay, onP
       else (next as Record<string, string>)[kind] = value;
       return next;
     });
-  const shown = odds?.mine ?? odds?.his;
   return (
     <section className="panel moment-card">
       <div className="panel-head">
@@ -326,12 +417,7 @@ function MomentCard({ world, t, eventName, m, calls, setCalls, odds, onPlay, onP
               </fieldset>
             );
           })}
-          {shown && odds && (
-            <p className="secondary small">
-              Expected {shown.expected.toFixed(2)} · birdie or better {pct(shown.birdie)} · bogey or worse {pct(shown.bogey)}
-              {odds.mine && ` (his call: ${odds.his.expected.toFixed(2)})`}
-            </p>
-          )}
+          {odds?.mine && <p className="secondary small caddie-read">{caddieRead(odds.his, odds.mine, `${m.id}:${m.round}:${m.index}:${JSON.stringify(calls)}`)}</p>}
           <div className="btn-row">
             <button className="btn btn-primary" onClick={onPlay}>{m.playoff ? "Go to the playoff" : `Play hole ${m.index + 1}`}</button>
             {plan !== "steady" && <button className="btn" onClick={onPlan}>Play it his plan's way ({PLAN_LABELS[plan].label.toLowerCase()})</button>}
