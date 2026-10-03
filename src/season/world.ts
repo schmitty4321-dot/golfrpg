@@ -36,7 +36,7 @@ import { closeSeasonRecord, considerForHallOfFame, newHistory } from "./history"
 import { databasePlayer, type DatabasePlayer } from "./editor";
 import { expireSponsors } from "./sponsors";
 import { canPlayDev, devPriority, courseFit, courseById, eventsInWeek, isInvitational, mixSeed, planWeek, priorityCompare, MONDAY_SPOTS } from "./entries";
-import { pointsList, rankMap } from "./points";
+import { pointsList, rankMap, worldRanking, type RankingRow } from "./points";
 import type { Course } from "../engine";
 import { SAVE_VERSION, absWeek, type Career, type ClientSeasonSummary, type SeasonRecord, type SeasonSummary, type TourEvent, type TourStatus, type World, type WorldPlayer, type WorldStyle } from "./types";
 import { playWeek } from "./week";
@@ -261,9 +261,11 @@ export function createWorld(opts: CreateWorldOptions): World {
           { scenario: "veteran", id: "client3", years: 1 },
         ]
       : [{ scenario: opts.scenario, id: "client", years: 3 }];
+  const rankingBenchmarks = worldRanking(world);
   world.clientIds = [];
   for (const s of starters) {
     const client = createClient(rng, s.scenario, usedNames, shapeRng, s.id);
+    seedStarterRanking(client, s.scenario, rankingBenchmarks, world);
     usedNames.add(client.player.name);
     client.client = newManagement(world.season, STANDARD_COMMISSION, s.years);
     world.players[client.player.id] = client;
@@ -275,6 +277,28 @@ export function createWorld(opts: CreateWorldOptions): World {
   ensureFamiliarity(world);
   ensureGoals(world);
   return world;
+}
+
+/**
+ * New clients arrive with careers that predate the agency. Give that prior
+ * work an OWGR baseline instead of leaving every starter tied on zero points.
+ */
+function seedStarterRanking(wp: WorldPlayer, scenario: StarterKind, benchmarks: RankingRow[], world: World): void {
+  const targetRank: Record<StarterKind, number> = {
+    rookie: 300,
+    prospect: 125,
+    veteran: 215,
+    journeyman: 240,
+    grinder: 360,
+  };
+  const benchmark = benchmarks[Math.min(targetRank[scenario] - 1, benchmarks.length - 1)];
+  const average = Math.max(0.03, benchmark?.average ?? 0);
+  const totalPoints = average * 40;
+  const now = absWeek(world.season, world.week);
+  wp.career.owgr = Array.from({ length: 6 }, (_, i) => ({
+    absWeek: now - 2 * i,
+    points: totalPoints / 6,
+  }));
 }
 
 function prefixIds(players: Player[], prefix: string): void {

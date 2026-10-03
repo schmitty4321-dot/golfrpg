@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createWorld, overall, rosterLimit } from "../src/season";
+import { createWorld, overall, rankMap, rosterLimit } from "../src/season";
 
 describe("a new agency", () => {
   it("opens with a rookie, a 25-year-old and a veteran on staggered contracts", () => {
@@ -16,6 +16,14 @@ describe("a new agency", () => {
       expect(overall(prospect!.player)).toBeLessThanOrEqual(13.5);
       expect(veteran!.player.age).toBe(45);
       expect(veteran!.career.careerWins).toBeGreaterThan(0);
+      const ranks = rankMap(w);
+      const rookieRank = ranks.get(rookie!.player.id)!;
+      const prospectRank = ranks.get(prospect!.player.id)!;
+      const veteranRank = ranks.get(veteran!.player.id)!;
+      expect(prospectRank).toBeLessThan(veteranRank);
+      expect(veteranRank).toBeLessThan(rookieRank);
+      expect(veteranRank - prospectRank).toBeGreaterThan(40);
+      expect(rookieRank - veteranRank).toBeGreaterThan(40);
       expect(w.clientIds.map((id) => w.players[id]!.client!.contract.untilSeason - w.season)).toEqual([2, 1, 0]);
       expect(new Set(w.clientIds.map((id) => w.players[id]!.player.name)).size).toBe(3);
     }

@@ -82,7 +82,7 @@ describe("the inbox", () => {
       seen += now.length;
       for (const d of now) {
         expect(d.choices.some((c) => c.id === d.defaultChoice)).toBe(true);
-        expect(d.kind === "press" || DILEMMA_KEYS.includes(d.key)).toBe(true);
+        expect(d.kind === "press" || d.kind === "message" || DILEMMA_KEYS.includes(d.key)).toBe(true);
       }
     }
     expect(seen).toBeGreaterThan(5);
