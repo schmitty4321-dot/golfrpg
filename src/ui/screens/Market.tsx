@@ -9,6 +9,7 @@ import {
   ceilingStars,
   knowsHidden,
   mixSeed,
+  legacyScore,
   overall,
   poachRisk,
   RIVAL_STYLES,
@@ -180,17 +181,23 @@ export function Trophies({ world }: { world: World }) {
   const x = (i: number) => 40 + (rep.length > 1 ? (i / (rep.length - 1)) * (W - 56) : 0);
   const y = (v: number) => 12 + ((100 - v) / 100) * (H - 36);
   return (
-    <main>
+    <main className="trophies-page">
+      <section className="trophy-room-hero">
+        <img src="/art/trophies/legacy-room.png" alt="Illustrated agency trophy room and hall of fame" />
+        <div className="trophy-room-shade" />
+        <div className="trophy-room-copy"><span>AGENCY LEGACY</span><h1>A history still being written</h1><p>Every victory, champion and era earns a permanent place in the room.</p></div>
+        <div className="legacy-score-seal"><small>LEGACY SCORE</small><strong>{legacyScore(world)}</strong><span>{list.length ? `${list.length} honours collected` : "The first chapter awaits"}</span></div>
+      </section>
       <LegacyPanel world={world} />
-      <section className="panel">
+      <section className="panel trophy-cabinet-panel">
         <div className="panel-head"><h2>Trophy cabinet</h2><span className="muted small">Won while they were your clients</span></div>
-        <div className="player-stat-grid">
-          {(["major", "win", "pointsTitle", "award"] as Trophy["kind"][]).map((k) => (
-            <div key={k} className="player-stat"><span>{TROPHY_LABELS[k]}</span><strong>{count(k)}</strong></div>
+        <div className="trophy-count-grid">
+          {(["major", "win", "pointsTitle", "award"] as Trophy["kind"][]).map((k, i) => (
+            <div key={k} className={`trophy-count trophy-count-${k}`}><span className="trophy-count-icon">{["♛", "♜", "№1", "★"][i]}</span><div><small>{TROPHY_LABELS[k]}</small><strong>{count(k)}</strong><em>{count(k) ? "In the cabinet" : "Plinth waiting"}</em></div></div>
           ))}
         </div>
       </section>
-      <section className="panel">
+      <section className="panel reputation-gallery-panel">
         <div className="panel-head"><h2>Reputation</h2><span className="muted small">At each season's end · now {Math.round(world.agency.reputation)}</span></div>
         {rep.length === 0 ? (
           <p className="empty">The line starts when your first season closes.</p>
@@ -212,25 +219,12 @@ export function Trophies({ world }: { world: World }) {
           </svg>
         )}
       </section>
-      <section className="panel">
+      <section className="panel honours-gallery-panel">
         <div className="panel-head"><h2>Honours</h2></div>
         {list.length === 0 ? (
-          <p className="empty">Nothing in the cabinet yet. A client win puts the first trophy in it.</p>
+          <div className="empty-honours"><div className="empty-plinths"><span>♛</span><span>♜</span><span>★</span></div><strong>The cabinet is ready</strong><p>A client win places the first trophy here. Majors, season titles and awards receive their own display.</p></div>
         ) : (
-          <div className="table-wrap">
-            <table>
-              <thead><tr><th>Season</th><th>Honour</th><th>Player</th></tr></thead>
-              <tbody>
-                {list.map((t, i) => (
-                  <tr key={i}>
-                    <td>{t.season}</td>
-                    <td>{t.kind === "major" ? <strong>{t.title} (major)</strong> : t.title}</td>
-                    <td>{t.player ?? world.agency.name}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <div className="honours-card-grid">{list.map((t, i) => <article className={`honour-card honour-${t.kind}`} key={i}><span>{t.kind === "major" ? "♛" : t.kind === "pointsTitle" ? "№1" : t.kind === "award" ? "★" : "♜"}</span><small>Season {t.season}</small><strong>{t.title}</strong><em>{t.player ?? world.agency.name}</em></article>)}</div>
         )}
       </section>
     </main>
