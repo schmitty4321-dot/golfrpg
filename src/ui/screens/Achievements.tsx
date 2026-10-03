@@ -2,6 +2,15 @@ import { ACHIEVEMENTS, type AchievementGroup, type World } from "../../season";
 
 const GROUPS: AchievementGroup[] = ["Career", "Agency", "Management", "Story"];
 
+const ICONS: Record<string, string> = {
+  "first-win": "♛", "five-wins": "Ⅴ", "twenty-wins": "20", "first-major": "♜", "three-majors": "Ⅲ", dynasty: "♚",
+  "grand-slam": "◆", "points-title": "№1", "players-champ": "Ⅴ", "match-play": "▦", "top-ten": "10", "world-no1": "1",
+  "ryder-three": "♟", "ryder-hero": "⚑", ace: "●", "hall-of-famer": "HOF", "rep-50": "⌖", "rep-75": "✦",
+  "rep-90": "A", "roster-5": "5", "roster-10": "10", millionaire: "$1M", "ten-million": "$10M", "profit-season": "↗",
+  center: "⚒", "hq-top": "▥", "top-agency": "Ⅰ", survivor: "5Y", gold: "★", "promises-5": "✓", "counter-deal": "⇄",
+  "decisions-25": "25", "press-10": "☏", "sponsors-3": "3", "followers-1m": "1M", friend: "☺", enemy: "!", grudge: "⚔", domination: "+5",
+};
+
 /** Every achievement: the ones you've unlocked (and when), and the ones still to come. */
 export function AchievementsScreen({ world }: { world: World }) {
   const got = world.achievements ?? {};
@@ -23,12 +32,13 @@ export function AchievementsScreen({ world }: { world: World }) {
             {ACHIEVEMENTS.filter((a) => a.group === g).map((a) => {
               const when = got[a.id];
               return (
-                <div key={a.id} className={`achievement${when ? " unlocked" : ""}`}>
-                  <div className="achievement-icon" aria-hidden>{when ? "★" : "☆"}</div>
-                  <div>
+                <div key={a.id} className={`achievement achievement-${g.toLowerCase()}${when ? " unlocked" : ""}`}>
+                  <div className="achievement-medal" aria-hidden><span>{ICONS[a.id] ?? "★"}</span></div>
+                  <div className="achievement-copy">
                     <strong>{a.title}</strong>
                     <div className="small">{a.detail}</div>
-                    <div className="small muted">{when ? `Season ${when.season}, week ${when.week} · +${a.reward} reputation` : `Worth +${a.reward} reputation`}</div>
+                    <div className="achievement-meta"><span>{when ? "✓ Unlocked" : "▣ Locked"}</span><b>+{a.reward} REP</b></div>
+                    {when && <div className="small muted">Season {when.season}, week {when.week}</div>}
                   </div>
                 </div>
               );

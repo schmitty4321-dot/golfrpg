@@ -4,6 +4,13 @@ import type { Game } from "../useGame";
 import { money } from "../format";
 
 const REGIONS = Object.keys(SCOUT_REGIONS) as ScoutRegion[];
+const REGION_ART: Record<ScoutRegion, string> = {
+  NA: "/art/facilities/hq-1.webp",
+  EU: "/art/new-game/challenge-board.webp",
+  ASIA: "/art/facilities/hq-3.webp",
+  AUS: "/art/facilities/center-1.webp",
+  ROW: "/art/new-game/career-hero.webp",
+};
 
 /** Send scouts abroad: pick a region on the board, a scout and how long; follow the trips under way. */
 export function ScoutTripsPanel({ world, game }: { world: World; game: Game }) {
@@ -25,6 +32,8 @@ export function ScoutTripsPanel({ world, game }: { world: World; game: Game }) {
       <div className="region-board" role="radiogroup" aria-label="Region">
         {REGIONS.map((r) => (
           <button key={r} role="radio" aria-checked={region === r} className={`region-tile${region === r ? " on" : ""}`} onClick={() => setRegion(r)}>
+            <img className="region-art" src={REGION_ART[r]} alt="" />
+            <span className="region-check" aria-hidden>{region === r ? "✓" : ""}</span>
             <strong>{SCOUT_REGIONS[r].label}</strong>
             <span className="small">{regionPool(world, r, "amateurs").length} amateurs · {regionPool(world, r, "pros").length} without a card</span>
             <span className="small muted">{money(SCOUT_REGIONS[r].travel)}/week travel</span>

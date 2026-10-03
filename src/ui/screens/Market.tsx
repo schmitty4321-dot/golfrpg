@@ -26,6 +26,12 @@ import { PlayerProfile } from "../components/PlayerProfile";
 import { Stars } from "../components/Stars";
 import { money } from "../format";
 import type { Game } from "../useGame";
+import { Portrait } from "../components/Portrait";
+
+const crest = (name: string) => ({
+  "Apex Sports Management": "★", "Fairway Global": "◎", "Links & Co.": "♜", "Pinnacle Talent": "♠", "Clubhouse Partners": "♛", "Eagle Rock Agency": "◆",
+}[name] ?? "FM");
+const styleIcon = (id: string) => id === "stars" ? "★" : id === "developer" ? "♠" : id === "boutique" ? "◆" : "♟";
 
 /** The recruitment board: players you're tracking, where they stand, and whether you can sign them. */
 export function Recruiting({ world, game }: { world: World; game: Game }) {
@@ -92,7 +98,7 @@ export function Rivals({ world }: { world: World }) {
               {rows.map((r, i) => (
                 <tr key={r.name} className={r.yours ? "row-current" : undefined}>
                   <td className="num">{i + 1}</td>
-                  <td>{r.yours ? <strong>{r.name}</strong> : r.name}</td>
+                  <td><span className="agency-crest mini">{r.yours ? "FM" : crest(r.name)}</span>{r.yours ? <strong>{r.name}</strong> : r.name}</td>
                   <td className="num">{r.clients}</td>
                   <td className="num">{r.wins}</td>
                   <td className="num">{r.majors}</td>
@@ -132,30 +138,23 @@ function RivalAgencies({ world }: { world: World }) {
   return (
     <section className="panel">
       <div className="panel-head"><h2>The rivals</h2><span className="muted small">Your reputation: {Math.round(world.agency.reputation)}</span></div>
-      <div className="table-wrap">
-        <table>
-          <thead><tr><th>Agency</th><th>Head agent</th><th>Style</th><th className="num">Reputation</th><th className="num">Players</th><th className="num">Dev deals</th><th>Coaching</th><th>Last winter</th></tr></thead>
-          <tbody>
+      <div className="rival-card-grid">
             {rows.map(({ rival, style, players, deals }) => (
-              <tr key={rival.name}>
-                <td>{rival.name}</td>
-                <td>{agentOf(rival.name).agent} <span className={`small ${(rival.relationship ?? 0) <= -20 ? "bad-text" : (rival.relationship ?? 0) >= 20 ? "good-text" : "muted"}`}>· {relationshipWord(rival.relationship ?? 0)} ({Math.round(rival.relationship ?? 0)})</span></td>
-                <td title={style.blurb}>{style.label}</td>
-                <td className="num">{Math.round(rival.reputation)}</td>
-                <td className="num">{players} / {style.capacity}</td>
-                <td className="num">{deals}</td>
-                <td className="small">{style.coach > 0 ? `Better than average (+${style.coach})` : style.coach < 0 ? `Cheap (${style.coach})` : "Average"}</td>
-                <td className="small">
+              <article className="rival-card" key={rival.name}>
+                <div className="rival-card-head"><span className="agency-crest">{crest(rival.name)}</span><strong>{rival.name}</strong></div>
+                <div className="rival-agent"><Portrait player={{ id: `staff-${rival.name}`, nationality: "USA", age: 38 + rival.name.length % 20 }} size={76} title={agentOf(rival.name).agent} /><div><strong>{agentOf(rival.name).agent}</strong><span className={`relationship ${(rival.relationship ?? 0) <= -20 ? "hostile" : (rival.relationship ?? 0) >= 20 ? "friendly" : "neutral"}`}>{relationshipWord(rival.relationship ?? 0)} ({Math.round(rival.relationship ?? 0)})</span></div></div>
+                <dl><div><dt>Reputation</dt><dd>{Math.round(rival.reputation)}</dd></div><div><dt>Players</dt><dd>{players}/{style.capacity}</dd></div><div><dt>Dev deals</dt><dd>{deals}</dd></div></dl>
+                <div className="rival-style" title={style.blurb}><span>{styleIcon(rival.style)}</span><div><strong>{style.label}</strong><small>{style.blurb}</small></div></div>
+                <div className="small rival-moves">
                   {rival.moves.length === 0 ? (
-                    <span className="muted">—</span>
+                    <span className="muted">No moves last winter</span>
                   ) : (
                     <button className="linkish" onClick={() => setOpen(open === rival.name ? null : rival.name)}>{rival.moves.length} move{rival.moves.length === 1 ? "" : "s"}</button>
                   )}
-                </td>
-              </tr>
+                  <span>{style.coach > 0 ? `Coaching +${style.coach}` : style.coach < 0 ? `Budget coaching ${style.coach}` : "Average coaching"}</span>
+                </div>
+              </article>
             ))}
-          </tbody>
-        </table>
       </div>
       {open && (
         <ul className="small" style={{ marginTop: 10 }}>

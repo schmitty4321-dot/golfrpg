@@ -9,6 +9,7 @@ import { money } from "../format";
 import type { Game } from "../useGame";
 import { Nation } from "../components/Flag";
 import { ArchetypeBadge } from "../components/Archetype";
+import { Portrait } from "../components/Portrait";
 
 type Filter = "all" | "approachable" | "free";
 
@@ -47,27 +48,19 @@ export function Scouting({ world, game }: { world: World; game: Game }) {
             <h2>Scouts</h2>
             <span className="secondary small">{money(weeklyScoutCost(world))}/week · each files {REPORTS_PER_WEEK} reports a week</span>
           </div>
-          <div className="table-wrap">
-          <table>
-            <thead><tr><th>Scout</th><th>Quality</th><th className="num">Per week</th><th /></tr></thead>
-            <tbody>
+          <div className="scout-card-grid">
               {a.scouts.map((s) => {
                 const hired = a.hiredScouts.includes(s.id);
                 return (
-                  <tr key={s.id}>
-                    <td>{s.name}</td>
-                    <td><Stars value={Math.max(0.5, Math.round((s.quality / 20) * 10) / 2)} /></td>
-                    <td className="num">{money(s.weeklyFee)}</td>
-                    <td>
+                  <article className={`scout-card${hired ? " hired" : ""}`} key={s.id}>
+                    <Portrait player={{ id: `staff-${s.id}`, nationality: "USA", age: 28 + (Number(s.id.replace(/\D/g, "")) % 28) }} size={72} title={s.name} />
+                    <div className="scout-card-copy"><strong>{s.name}</strong><Stars value={Math.max(0.5, Math.round((s.quality / 20) * 10) / 2)} /><span className="small secondary">{money(s.weeklyFee)}/week</span></div>
                       <button className={`btn btn-small${hired ? "" : " btn-primary"}`} onClick={() => game.act((w) => (hired ? game.lib.releaseScout(w, s.id) : game.lib.hireScout(w, s.id)))}>
                         {hired ? "Release" : "Hire"}
                       </button>
-                    </td>
-                  </tr>
+                  </article>
                 );
               })}
-            </tbody>
-          </table>
           </div>
           <p className="muted small">Better scouts write more accurate reports. A second report on the same player sharpens it.</p>
         </section>
