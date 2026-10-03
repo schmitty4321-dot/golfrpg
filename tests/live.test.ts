@@ -17,7 +17,7 @@ import {
   traceHole,
   type TournamentConfig,
 } from "../src/engine";
-import { createWorld, deserializeWorld, liveEvents, playWeek, serializeWorld } from "../src/season";
+import { createWorld, deserializeWorld, liveEvents, playWeek, serializeWorld, weekSummary } from "../src/season";
 import { flatPlayer } from "./helpers";
 
 const field = generateTourField(createRng(5), 120);
@@ -145,5 +145,27 @@ describe("a live week", () => {
     expect(rec.position).toBe(mine.position);
     expect(rec.earnings).toBe(mine.earnings);
     expect(w.players[t.controlledId]!.career.stats!.rounds).toBe(mine.rounds.length);
+  });
+});
+
+describe("the week in review", () => {
+  it("covers each client who played, the agency's week and the event", () => {
+    const w = createWorld({ seed: 77, scenario: "agency" });
+    for (let i = 0; i < 8; i++) {
+      const report = playWeek(w);
+      const s = weekSummary(w, report);
+      const played = Object.values(report.clients).filter((c) => c.record && c.result).length;
+      expect(s.clients).toHaveLength(played);
+      if (!played) continue;
+      expect(s.agency).not.toBeNull();
+      expect(s.agency!.bankAfter).toBe(w.agency.bank);
+      expect(s.events.length).toBeGreaterThan(0);
+      for (const c of s.clients) {
+        expect(c.race.after === null || c.race.after > 0).toBe(true);
+        expect(c.best!.toPar).toBeLessThanOrEqual(c.worst!.toPar);
+      }
+      return;
+    }
+    throw new Error("no client played in eight weeks");
   });
 });

@@ -257,6 +257,19 @@ th.num, td.num { text-align: right; }
 .ticker { margin: 8px 0 0; }
 tr.mine td { font-weight: 600; }
 .client-strip { display: grid; gap: 8px; }
+.week-summary .ws-clients { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; }
+.ws-client, .ws-box { padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+.ws-client-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+.ws-client-head > div { display: grid; }
+.ws-finish { font-size: 22px; font-weight: 800; color: var(--accent); white-space: nowrap; }
+.ws-finish.mc { color: var(--muted); }
+.ws-finish small { font-size: 13px; font-weight: 600; color: var(--text-2); }
+.ws-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 8px; }
+.ws-facts > div { display: grid; gap: 2px; padding: 6px 8px; border-radius: 8px; background: var(--surface-2); }
+.ws-lines { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 13px; }
+.ws-bottom { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-top: 12px; }
+.ws-box h3 { margin: 0 0 6px; font-size: 15px; }
+@media (max-width: 620px) { .ws-facts { grid-template-columns: 1fr; } }
 .tourney-clients { margin: 0 0 10px; padding-left: 18px; display: grid; gap: 4px; }
 .tourney-board { width: 100%; }
 .tourney-board th { text-align: left; font-weight: 500; color: var(--text-2); font-size: 12px; }

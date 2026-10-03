@@ -13,6 +13,7 @@ import { TournamentEmblem } from "../components/TournamentLogo";
 import { PLAN_LABELS, setRoundPlan, tickerLine } from "../components/WeekTempo";
 import { MomentsView } from "../components/MomentsView";
 import { RoundCalls } from "../components/RoundCalls";
+import { WeekSummary } from "../components/WeekSummary";
 
 interface EventView {
   event: TourEvent;
@@ -254,6 +255,7 @@ function FinalView({ world, report, onDone }: { world: World; report: WeekReport
   const live = events[which]!;
   return (
     <main>
+      <WeekSummary world={world} report={report} />
       <EventTabs names={events.map((e) => e.event.name)} which={which} setWhich={setWhich} />
       <EventHeader event={live.event} course={live.result.course} week={report.week} players={live.result.leaderboard.length} hasCut={live.result.cutLine !== null} status="Final">
         <button className="btn btn-primary" onClick={onDone}>Continue</button>

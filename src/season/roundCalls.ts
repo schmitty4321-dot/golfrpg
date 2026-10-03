@@ -202,7 +202,8 @@ export function answerRoundCall(world: World, ev: LiveEvent, call: RoundCall, ch
 }
 
 /** Lands the week's calls (mood, trust, money, followers) and puts them in the news. Call once the week has been played. */
-export function settleRoundCalls(world: World, events: LiveEvent[]): void {
+export function settleRoundCalls(world: World, events: LiveEvent[]): string[] {
+  const out: string[] = [];
   for (const ev of events) {
     for (const [id, a] of Object.entries(ev.answers ?? {})) {
       const [, clientId, round] = id.split(":") as [string, string, string];
@@ -212,7 +213,12 @@ export function settleRoundCalls(world: World, events: LiveEvent[]): void {
       const rng = createRng(mixSeed(world.seed, world.season, world.week, 2302, traceSeed(id)));
       if (a.effects.length) applyEffects(world, wp, a.effects, rng, lines);
       // Only the calls you actually made make the news.
-      if (a.edge || a.effects.length || a.line) world.news.unshift([`${wp.player.name}, after round ${round} of the ${ev.event.name}: ${a.label}.`, a.outcome, ...lines].filter(Boolean).join(" "));
+      if (a.edge || a.effects.length || a.line) {
+        const line = [`${wp.player.name}, after round ${round} of the ${ev.event.name}: ${a.label}.`, a.outcome, ...lines].filter(Boolean).join(" ");
+        world.news.unshift(line);
+        out.push(line);
+      }
     }
   }
+  return out;
 }

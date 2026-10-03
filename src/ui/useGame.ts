@@ -191,7 +191,8 @@ export function useGame() {
     if (!w || !lw) return;
     const played = Object.fromEntries(lw.events.map((e) => [e.event.id, finishLive(e.tournament)]));
     const report = playWeek(w, lw.choices, played);
-    season.settleRoundCalls(w, lw.events);
+    const calls = season.settleRoundCalls(w, lw.events);
+    if (calls.length) report.calls = calls;
     reportsRef.current = [...reportsRef.current, report].slice(-60);
     liveWeekRef.current = null;
     publish({ liveWeek: null, live: report });
