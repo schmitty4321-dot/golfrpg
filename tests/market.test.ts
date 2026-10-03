@@ -5,8 +5,17 @@ import {
   abilityView,
   acceptChance,
   agencyTable,
+  buyoutCost,
   createWorld,
+  finishSeason,
+  fireStaffer,
   hireStaffer,
+  hiredStaffer,
+  pendingDecisions,
+  resolveDecision,
+  seasonWeeks,
+  staffContract,
+  staffWages,
   playWeek,
   rivalPoaching,
   shortlistAlerts,
@@ -44,6 +53,64 @@ describe("agency staff", () => {
     expect(abilityView(world, world.clientIds[0]!).coachQuality).toBe(best("analyst").quality);
     playWeek(world);
     expect(world.agency.ledger.staff).toBe(best("agent").weeklyFee + best("marketing").weeklyFee + best("analyst").weeklyFee);
+  });
+});
+
+describe("staff contracts", () => {
+  const fresh = () => {
+    const world = createWorld({ seed: 5, scenario: "rookie" });
+    for (const role of ["agent", "analyst", "marketing", "lawyer"] as const) if (hiredStaffer(world, role)) fireStaffer(world, role);
+    return world;
+  };
+  const pick = (world: ReturnType<typeof fresh>) => staffMarket(world).filter((s) => s.role === "agent").sort((a, b) => b.quality - a.quality)[3]!;
+
+  it("a longer deal costs less a week, and you can't hire over someone", () => {
+    const one = fresh();
+    hireStaffer(one, pick(one).id, 1);
+    const three = fresh();
+    hireStaffer(three, pick(three).id, 3);
+    expect(staffWages(three)).toBeLessThan(staffWages(one));
+    expect(staffContract(three, "agent")!.untilSeason).toBe(three.season + 2);
+    expect(() => hireStaffer(three, staffMarket(three).find((s) => s.role === "agent" && s.id !== pick(three).id)!.id)).toThrow(/fire/);
+  });
+
+  it("firing pays off half of what's left, and opens the role", () => {
+    const world = fresh();
+    hireStaffer(world, pick(world).id, 2);
+    const c = staffContract(world, "agent")!;
+    const cost = buyoutCost(world, "agent");
+    expect(cost).toBeCloseTo((seasonWeeks(world) * 2 * c.weeklyFee) / 2, -3);
+    const bank = world.agency.bank;
+    fireStaffer(world, "agent");
+    expect(world.agency.bank).toBe(bank - cost);
+    expect(hiredStaffer(world, "agent")).toBeUndefined();
+  });
+
+  it("every season earns loyalty and a rating point, and a deal that's up comes back as a decision", () => {
+    const world = fresh();
+    const s = pick(world);
+    const q = s.quality;
+    hireStaffer(world, s.id, 1);
+    while (world.week <= seasonWeeks(world)) playWeek(world);
+    finishSeason(world);
+    expect(hiredStaffer(world, "agent")!.quality).toBe(Math.min(20, q + 1));
+    expect(staffContract(world, "agent")!.seasonsServed).toBe(1);
+    const d = pendingDecisions(world).find((x) => x.key === "staff-agent")!;
+    expect(d).toBeDefined();
+    resolveDecision(world, d.id, "renew3");
+    expect(staffContract(world, "agent")!.untilSeason).toBe(world.season + 2);
+  });
+
+  it("letting a deal run out is free", () => {
+    const world = fresh();
+    hireStaffer(world, pick(world).id, 1);
+    while (world.week <= seasonWeeks(world)) playWeek(world);
+    finishSeason(world);
+    const d = pendingDecisions(world).find((x) => x.key === "staff-agent")!;
+    const bank = world.agency.bank;
+    resolveDecision(world, d.id, "release");
+    expect(world.agency.bank).toBe(bank);
+    expect(hiredStaffer(world, "agent")).toBeUndefined();
   });
 });
 

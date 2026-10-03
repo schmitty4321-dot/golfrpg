@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CENTER_TIERS, HQ_TIERS, AGENCY_EVENTS, STAFF_LABELS, STAFF_ROLES, brandOffers, buildCenter, eventBlock, eventTakings, followers, holdEvent, signBrand, centerBlock, dealClients, hireStaffer, hiredStaffer, hqBlock, releaseStaffer, rosterLimit, staffMarket, staffWages, upgradeHq, type AgencyEventKind, type StaffRole, type World } from "../../season";
+import { CENTER_TIERS, HQ_TIERS, AGENCY_EVENTS, STAFF_LABELS, STAFF_ROLES, brandOffers, buildCenter, eventBlock, eventTakings, followers, holdEvent, signBrand, centerBlock, dealClients, hireStaffer, hiredStaffer, hqBlock, fireStaffer, buyoutCost, contractFee, staffContract, termDiscount, STAFF_TERMS, rosterLimit, staffMarket, staffWages, upgradeHq, type AgencyEventKind, type StaffRole, type World } from "../../season";
 import { money } from "../format";
 import type { Game } from "../useGame";
 import { StaffPortrait, StaffRoleIcon } from "../components/StaffPortrait";
@@ -138,50 +138,107 @@ function HqPanel({ world, game }: { world: World; game: Game }) {
   );
 }
 
+const staffSpecialty = (quality: number) => quality >= 18 ? "Elite operator" : quality >= 15 ? "Proven closer" : quality >= 11 ? "Reliable" : quality >= 8 ? "Developing" : "Entry level";
+
 function StaffPanel({ world, game }: { world: World; game: Game }) {
   const market = staffMarket(world);
   const [role, setRole] = useState<StaffRole>("agent");
   const [page, setPage] = useState(0);
+  const [years, setYears] = useState<number>(2);
   const hired = hiredStaffer(world, role);
   const candidates = market.filter((s) => s.role === role && s.id !== hired?.id).sort((a, b) => b.quality - a.quality || a.weeklyFee - b.weeklyFee);
   const pageSize = 6;
   const pages = Math.ceil(candidates.length / pageSize);
   const visible = candidates.slice(page * pageSize, page * pageSize + pageSize);
-  const specialty = (quality: number) => quality >= 18 ? "Elite operator" : quality >= 15 ? "Proven closer" : quality >= 11 ? "Reliable" : quality >= 8 ? "Developing" : "Entry level";
   return (
     <section className="panel staff-market-panel">
-      <div className="panel-head"><h2>Agency staff</h2><span className="muted small">100 illustrated candidates · {money(staffWages(world))} a week in wages</span></div>
+      <div className="panel-head"><h2>Agency staff</h2><span className="muted small">{money(staffWages(world))} a week in wages</span></div>
       <div className="staff-role-tabs" role="tablist" aria-label="Staff roles">
-        {STAFF_ROLES.map((item) => (
-          <button key={item} type="button" role="tab" aria-selected={role === item} onClick={() => { setRole(item); setPage(0); }}>
-            <StaffRoleIcon role={item} /><span>{STAFF_LABELS[item].label}</span>
-            {hiredStaffer(world, item) && <small>Filled</small>}
-          </button>
-        ))}
+        {STAFF_ROLES.map((item) => {
+          const h = hiredStaffer(world, item);
+          return (
+            <button key={item} type="button" role="tab" aria-selected={role === item} onClick={() => { setRole(item); setPage(0); }}>
+              {h ? <StaffPortrait id={h.id} name={h.name} role={item} size={34} /> : <StaffRoleIcon role={item} />}
+              <span>{STAFF_LABELS[item].label}{h && <small className="staff-tab-name">{h.name} · {h.quality}/20</small>}</span>
+              {!h && <small>Open</small>}
+            </button>
+          );
+        })}
       </div>
       <div className="staff-role-summary">
         <div><StaffRoleIcon role={role} /><div><strong>{STAFF_LABELS[role].label}</strong><span>{STAFF_LABELS[role].blurb}</span></div></div>
-        {hired ? <div className="staff-current"><span>Currently hired: <strong>{hired.name}</strong> · {hired.quality}/20 · {money(hired.weeklyFee)}/wk</span><button className="btn btn-small" onClick={() => game.act((w) => releaseStaffer(w, role))}>Let go</button></div> : <span className="muted">Nobody hired</span>}
+        {!hired && <span className="muted">Nobody hired</span>}
       </div>
-      <div className="staff-candidate-grid">
-        {visible.map((candidate) => (
-          <article className="staff-candidate" key={candidate.id}>
-            <StaffPortrait id={candidate.id} name={candidate.name} role={candidate.role} />
-            <div className="staff-candidate-body">
-              <strong>{candidate.name}</strong>
-              <span className="staff-rating">{candidate.quality}<small>/20</small></span>
-              <span className="staff-quality">{specialty(candidate.quality)}</span>
-              <span className="secondary small">{money(candidate.weeklyFee)}/week</span>
+      {hired ? (
+        <HiredStaffer world={world} game={game} role={role} />
+      ) : (
+        <>
+          <div className="staff-terms">
+            <span className="secondary small">Contract length</span>
+            <div className="tabs" role="radiogroup" aria-label="Contract length">
+              {STAFF_TERMS.map((y) => (
+                <button key={y} role="radio" aria-checked={years === y} aria-selected={years === y} onClick={() => setYears(y)}>
+                  {y} year{y === 1 ? "" : "s"}{termDiscount(y) ? ` · −${Math.round(termDiscount(y) * 100)}%` : ""}
+                </button>
+              ))}
             </div>
-            <button className="btn btn-primary" onClick={() => game.act((w) => hireStaffer(w, candidate.id))}>Hire</button>
-          </article>
-        ))}
-      </div>
-      <div className="staff-pagination">
-        <span className="muted small">Showing {page * pageSize + 1}–{Math.min((page + 1) * pageSize, candidates.length)} of {candidates.length} {STAFF_LABELS[role].label.toLowerCase()} candidates</span>
-        <div className="btn-row"><button className="btn btn-small" disabled={page === 0} onClick={() => setPage((n) => n - 1)}>Previous</button><span className="small">Page {page + 1} of {pages}</span><button className="btn btn-small" disabled={page >= pages - 1} onClick={() => setPage((n) => n + 1)}>Next</button></div>
-      </div>
+            <span className="muted small">Longer deals cost less a week; firing someone pays off half of what's left.</span>
+          </div>
+          <div className="staff-candidate-grid">
+            {visible.map((candidate) => (
+              <article className="staff-candidate" key={candidate.id}>
+                <StaffPortrait id={candidate.id} name={candidate.name} role={candidate.role} />
+                <div className="staff-candidate-body">
+                  <strong>{candidate.name}</strong>
+                  <span className="staff-rating">{candidate.quality}<small>/20</small></span>
+                  <span className="staff-quality">{staffSpecialty(candidate.quality)}</span>
+                  <span className="secondary small">{money(contractFee(candidate, years))}/week for {years} year{years === 1 ? "" : "s"}</span>
+                </div>
+                <button className="btn btn-primary" onClick={() => game.act((w) => hireStaffer(w, candidate.id, years))}>Hire</button>
+              </article>
+            ))}
+          </div>
+          <div className="staff-pagination">
+            <span className="muted small">Showing {page * pageSize + 1}–{Math.min((page + 1) * pageSize, candidates.length)} of {candidates.length} {STAFF_LABELS[role].label.toLowerCase()} candidates</span>
+            <div className="btn-row"><button className="btn btn-small" disabled={page === 0} onClick={() => setPage((n) => n - 1)}>Previous</button><span className="small">Page {page + 1} of {pages}</span><button className="btn btn-small" disabled={page >= pages - 1} onClick={() => setPage((n) => n + 1)}>Next</button></div>
+          </div>
+        </>
+      )}
     </section>
+  );
+}
+
+/** The person in a role: portrait, rating, loyalty and contract, and what it costs to fire them. */
+function HiredStaffer({ world, game, role }: { world: World; game: Game; role: StaffRole }) {
+  const s = hiredStaffer(world, role)!;
+  const c = staffContract(world, role)!;
+  const buyout = buyoutCost(world, role);
+  const left = c.untilSeason - world.season;
+  const loyalty = Math.min(5, c.seasonsServed);
+  const fire = () => {
+    if (!confirm(`Fire ${s.name}? You'll pay ${money(buyout)} to end the deal, then you can hire someone new.`)) return;
+    game.act((w) => fireStaffer(w, role));
+  };
+  return (
+    <article className="staff-hired">
+      <StaffPortrait id={s.id} name={s.name} role={role} size={132} />
+      <div className="staff-hired-body">
+        <div className="staff-hired-head">
+          <strong>{s.name}</strong>
+          <span className="staff-rating">{s.quality}<small>/20</small></span>
+        </div>
+        <span className="staff-quality">{staffSpecialty(s.quality)}</span>
+        <div className="staff-hired-facts">
+          <div><span className="muted small">Loyalty</span><b title="A year for every full season with you: +1 rating each year, and a discount when they re-sign">{"★".repeat(loyalty)}{"☆".repeat(5 - loyalty)}</b><span className="secondary small">{c.seasonsServed} season{c.seasonsServed === 1 ? "" : "s"} with you</span></div>
+          <div><span className="muted small">Contract</span><b>Through season {c.untilSeason}</b><span className="secondary small">{left <= 0 ? "Final season" : `${left} more season${left === 1 ? "" : "s"} after this`}</span></div>
+          <div><span className="muted small">Wage</span><b>{money(c.weeklyFee)}/week</b><span className="secondary small">Signed season {c.signedSeason}</span></div>
+        </div>
+        <div className="btn-row">
+          <button className="btn btn-danger" onClick={fire}>Fire · pays {money(buyout)}</button>
+          <span className="muted small">Every season they stay: +1 rating and a year of loyalty.</span>
+        </div>
+      </div>
+    </article>
   );
 }
 
