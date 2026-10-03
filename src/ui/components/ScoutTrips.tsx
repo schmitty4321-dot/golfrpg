@@ -5,11 +5,11 @@ import { money } from "../format";
 
 const REGIONS = Object.keys(SCOUT_REGIONS) as ScoutRegion[];
 const REGION_ART: Record<ScoutRegion, string> = {
-  NA: "/art/facilities/hq-1.webp",
-  EU: "/art/new-game/challenge-board.webp",
-  ASIA: "/art/facilities/hq-3.webp",
-  AUS: "/art/facilities/center-1.webp",
-  ROW: "/art/new-game/career-hero.webp",
+  NA: "/art/scouting/north-america.png",
+  EU: "/art/scouting/europe.png",
+  ASIA: "/art/scouting/asia.png",
+  AUS: "/art/scouting/australia.png",
+  ROW: "/art/scouting/world.png",
 };
 
 /** Send scouts abroad: pick a region on the board, a scout and how long; follow the trips under way. */
@@ -26,8 +26,8 @@ export function ScoutTripsPanel({ world, game }: { world: World; game: Game }) {
   return (
     <section className="panel">
       <div className="panel-head">
-        <h2>Scouting trips</h2>
-        <span className="muted small">Two to four weeks away; the reports sharpen as he watches</span>
+        <h2>Choose a region to send scouts</h2>
+        <span className="muted small">Send scouts around the world · reports return after two to four weeks</span>
       </div>
       <div className="region-board" role="radiogroup" aria-label="Region">
         {REGIONS.map((r) => (

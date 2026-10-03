@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { ScoutTripsPanel } from "../components/ScoutTrips";
-import { REPORTS_PER_WEEK, STATUS_LABELS, approachBlock, knownTraits, pointsList, queueScouting, rankMap, weeklyScoutCost, type TourStatus, type World, knownArchetype } from "../../season";
+import { EYE_LABELS, REPORTS_PER_WEEK, STATUS_LABELS, approachBlock, knownTraits, pointsList, queueScouting, rankMap, scoutEye, weeklyScoutCost, type TourStatus, type World, knownArchetype } from "../../season";
 import { PlayerProfile } from "../components/PlayerProfile";
 import { Stars } from "../components/Stars";
 import { TraitChips } from "../components/Traits";
@@ -40,12 +40,12 @@ export function Scouting({ world, game }: { world: World; game: Game }) {
   );
 
   return (
-    <main>
+    <main className="scouting-page">
       <ScoutTripsPanel world={world} game={game} />
-      <div className="grid-2">
-        <section className="panel">
+      <div className="scouting-workbench">
+        <section className="panel scout-market-panel">
           <div className="panel-head">
-            <h2>Scouts</h2>
+            <h2>Available scouts</h2>
             <span className="secondary small">{money(weeklyScoutCost(world))}/week · each files {REPORTS_PER_WEEK} reports a week</span>
           </div>
           <div className="scout-card-grid">
@@ -54,7 +54,7 @@ export function Scouting({ world, game }: { world: World; game: Game }) {
                 return (
                   <article className={`scout-card${hired ? " hired" : ""}`} key={s.id}>
                     <Portrait player={{ id: `staff-${s.id}`, nationality: "USA", age: 28 + (Number(s.id.replace(/\D/g, "")) % 28) }} size={72} title={s.name} />
-                    <div className="scout-card-copy"><strong>{s.name}</strong><Stars value={Math.max(0.5, Math.round((s.quality / 20) * 10) / 2)} /><span className="small secondary">{money(s.weeklyFee)}/week</span></div>
+                    <div className="scout-card-copy"><strong>{s.name}</strong><Stars value={Math.max(0.5, Math.round((s.quality / 20) * 10) / 2)} /><span className="scout-specialty">{EYE_LABELS[scoutEye(s)]}</span><span className="small secondary">{money(s.weeklyFee)}/week</span></div>
                       <button className={`btn btn-small${hired ? "" : " btn-primary"}`} onClick={() => game.act((w) => (hired ? game.lib.releaseScout(w, s.id) : game.lib.hireScout(w, s.id)))}>
                         {hired ? "Release" : "Hire"}
                       </button>
@@ -65,26 +65,16 @@ export function Scouting({ world, game }: { world: World; game: Game }) {
           <p className="muted small">Better scouts write more accurate reports. A second report on the same player sharpens it.</p>
         </section>
 
-        <section className="panel">
-          <div className="panel-head"><h2>Scouting queue</h2><span className="muted small">{a.scoutingQueue.length} waiting</span></div>
-          {a.hiredScouts.length === 0 && <p className="bad-text small">No scouts hired: nobody is working through this queue.</p>}
-          {a.scoutingQueue.length === 0 ? (
-            <p className="empty">Nothing queued. Pick players below and press Scout.</p>
-          ) : (
-            <ol style={{ margin: 0, paddingLeft: 20 }}>
-              {a.scoutingQueue.map((id) => (
-                <li key={id} style={{ padding: "3px 0" }}>
-                  {world.players[id]?.player.name ?? "Retired player"}{" "}
-                  <button className="linkish small" onClick={() => game.act((w) => (w.agency.scoutingQueue = w.agency.scoutingQueue.filter((x) => x !== id)))}>remove</button>
-                </li>
-              ))}
-            </ol>
-          )}
+        <section className="panel scouting-expedition-panel">
+          <div className="panel-head"><h2>Scouting expedition</h2><span className="muted small">{(a.trips ?? []).length ? `${(a.trips ?? []).length} active` : "No scout travelling"}</span></div>
+          <div className="expedition-map"><img src="/art/scouting/expedition-map.png" alt="Illustrated world scouting map with travel gear" /><span className="expedition-route">✈</span></div>
+          {(a.trips ?? []).length > 0 ? <div className="expedition-list">{(a.trips ?? []).map((t) => <div key={t.id}><strong>{a.scouts.find((s) => s.id === t.scoutId)?.name}</strong><span>{t.weeksLeft} week{t.weeksLeft === 1 ? "" : "s"} remaining</span><i><b style={{ width: `${Math.max(8, ((t.weeks - t.weeksLeft) / t.weeks) * 100)}%` }} /></i></div>)}</div> : <p className="empty">Hire a scout and choose a region to begin an expedition.</p>}
         </section>
       </div>
 
-      <section className="panel">
-        <div className="panel-head"><h2>Find players</h2><span className="muted small">{rows.length} players</span></div>
+      <div className="scouting-reports-grid">
+      <section className="panel player-reports-panel">
+        <div className="panel-head"><h2>Player reports</h2><span className="muted small">{rows.length} players</span></div>
         <div className="btn-row" style={{ alignItems: "center", marginBottom: 12 }}>
           <div className="tabs" role="tablist" style={{ margin: 0 }}>
             {(["approachable", "free", "all"] as Filter[]).map((f) => (
@@ -136,6 +126,12 @@ export function Scouting({ world, game }: { world: World; game: Game }) {
         </div>
         {rows.length > show && <button className="linkish" style={{ marginTop: 8 }} onClick={() => setShow(show + 50)}>Show 50 more</button>}
       </section>
+      <section className="panel scouting-queue-panel">
+        <div className="panel-head"><h2>Scouting queue</h2><span className="muted small">{a.scoutingQueue.length} waiting</span></div>
+        {a.hiredScouts.length === 0 && <p className="bad-text small">No scouts hired: nobody is working through this queue.</p>}
+        {a.scoutingQueue.length === 0 ? <div className="queue-empty"><span>＋</span><strong>Nothing queued</strong><p>Pick a player from the reports and press Scout.</p></div> : <div className="queue-paper-list">{a.scoutingQueue.map((id) => <article key={id}><span className="queue-pin">●</span><Portrait player={world.players[id]!.player} size={42} title={world.players[id]!.player.name} /><div><strong>{world.players[id]?.player.name ?? "Retired player"}</strong><small>Waiting for a report</small></div><button className="linkish small" onClick={() => game.act((w) => (w.agency.scoutingQueue = w.agency.scoutingQueue.filter((x) => x !== id)))}>×</button></article>)}</div>}
+      </section>
+      </div>
       {profile && <PlayerProfile world={world} game={game} id={profile} onClose={() => setProfile(null)} />}
     </main>
   );
