@@ -56,14 +56,14 @@ describe("several clients played live", () => {
     for (const id of [a, b, c]) expect(result.leaderboard.find((r) => r.player.id === id)!.calls).toBeDefined();
     const bCalls = result.leaderboard.find((r) => r.player.id === b)!.calls!.flat().filter(Boolean);
     expect(bCalls.length).toBeGreaterThan(0);
-    expect(bCalls.every((call) => Object.values(call!).every((v) => ["driver", "go", "attack", "charge"].includes(v)))).toBe(true);
+    expect(bCalls.every((call) => Object.values(call!).every((v) => ["driver", "go", "attack", "charge", "full", "carry", "hero", "fly", "normal", "fire", "look", "close", "flop", "player"].includes(v)))).toBe(true);
   });
 });
 
 describe("round plans", () => {
   const decisions: Decision[] = [
-    { kind: "tee", question: "", options: [] },
-    { kind: "approach", question: "", options: [] },
+    { kind: "tee", question: "", options: ["driver", "3-wood", "iron"].map((value) => ({ value, label: value, blurb: "" })) },
+    { kind: "approach", question: "", options: ["attack", "middle"].map((value) => ({ value, label: value, blurb: "" })) },
   ];
   it("steady leaves the call to him; attack and protect take every risk or none", () => {
     expect(planCall("steady", decisions)).toBeNull();
