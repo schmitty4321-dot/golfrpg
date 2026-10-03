@@ -16,7 +16,7 @@ import { COACH_PRIZE_SHARE, chargeDevelopment, coachesHired } from "./finance";
 import { recordEventStats } from "./stats";
 import { finalLine, simulateMatchPlay } from "./matchPlayEvent";
 import { playerRecord, ryderCupWeekEnd } from "./ryderCup";
-import { clamp, createRng, expectedStrokesGained, simulateTournament, startLive, totalSg, type LiveTournament, type TournamentConfig, type TournamentResult } from "../engine";
+import { clamp, createRng, expectedStrokesGained, finishLive, simulateTournament, startLive, totalSg, type LiveTournament, type RoundPlan, type TournamentConfig, type TournamentResult } from "../engine";
 import { seasonWeeks, majorSetup } from "./calendar";
 import { asSetUp, tallyRealScoring } from "./courseSetup";
 import { buildFields, courseById, mixSeed, planWeek, weekContext, type AiChoice, type FieldResult } from "./entries";
@@ -209,9 +209,14 @@ export function liveEvents(world: World, choices: ClientChoices = {}): LiveEvent
     const clientIds = f.field.filter((id) => world.clientIds.includes(id));
     // Match play is simulated: its draw and bracket are shown afterwards.
     if (!clientIds.length || f.field.length < 2 || f.event.format === "matchplay") return;
-    out.push({ event: f.event, field: f, clientIds, tournament: startLive(tournamentConfig(world, f, i, practising(choices)), clientIds[0]!) });
+    out.push({ event: f.event, field: f, clientIds, tournament: startLive(tournamentConfig(world, f, i, practising(choices)), clientIds, roundPlans(world, clientIds)) });
   });
   return out;
+}
+
+/** Each client's round plan: how he plays the calls you don't make. */
+export function roundPlans(world: World, ids: string[]): Record<string, RoundPlan> {
+  return Object.fromEntries(ids.map((id) => [id, world.players[id]?.client?.roundPlan ?? "steady"]));
 }
 
 /**
@@ -245,7 +250,13 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
     const expected = new Map(players.map((p) => [p.id, totalSg(expectedStrokesGained(p, course))]));
     const fieldExpected = [...expected.values()].reduce((s, x) => s + x, 0) / players.length;
 
-    const result = played[f.event.id] ?? (f.event.format === "matchplay" ? simulateMatchPlay(config, ctxBefore.owgrRank) : simulateTournament(config));
+    // A client with a round plan other than "steady" plays it out, so his plan counts on simulated weeks too.
+    const mine = f.field.filter((id) => world.clientIds.includes(id));
+    const calls = roundPlans(world, mine);
+    const planned = f.event.format !== "matchplay" && mine.some((id) => calls[id] !== "steady");
+    const result =
+      played[f.event.id] ??
+      (f.event.format === "matchplay" ? simulateMatchPlay(config, ctxBefore.owgrRank) : planned ? finishLive(startLive(config, mine, calls)) : simulateTournament(config));
     // Main-tour scoring on real courses sets next winter's course setup (stroke play only).
     if (f.event.tier !== "dev" && !result.bracket) tallyRealScoring(world, course, result);
     const ties = tieCounts(result);
