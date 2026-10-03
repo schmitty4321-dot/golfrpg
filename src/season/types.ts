@@ -369,6 +369,8 @@ export interface Agency {
   /** People the agency could hire, and who it has (one per role). */
   staffMarket?: AgencyStaffer[];
   staffHired?: Partial<Record<StaffRole, string>>;
+  /** Each hire's contract, by role (older saves: written when first needed). */
+  staffContracts?: Partial<Record<StaffRole, StaffContract>>;
   /** Players on the recruitment board, by id. */
   shortlist?: string[];
   /** Agency-wide brand partnerships, and the ones on offer this season. */
@@ -580,6 +582,18 @@ export interface DevDeal {
 
 /** Agency staff: an agent closes deals, an analyst reads ceilings, marketing finds sponsors, a lawyer keeps contracts. */
 export type StaffRole = "agent" | "analyst" | "marketing" | "lawyer";
+
+/** A staffer's deal with the agency. */
+export interface StaffContract {
+  stafferId: string;
+  signedSeason: number;
+  /** Last season (inclusive) of the deal. */
+  untilSeason: number;
+  /** Fixed for the length of the deal. */
+  weeklyFee: number;
+  /** Full seasons with the agency: each one is a year of loyalty, and a point on their rating. */
+  seasonsServed: number;
+}
 
 export interface AgencyStaffer {
   id: string;

@@ -48,6 +48,7 @@ import {
 import { homeRegion } from "../engine";
 import { absWeek, type EventRecord, type TourEvent, type World } from "./types";
 import type { RoundCallAnswer } from "./roundCalls";
+import { takeSnapshot, type WeekSnapshot } from "./weekSummary";
 
 /** What a client does this week. "auto" lets him pick his own schedule. */
 export type ClientChoice =
@@ -73,6 +74,10 @@ export interface WeekReport {
   results: { event: TourEvent; result: TournamentResult; field: FieldResult }[];
   /** One report per client, by id. */
   clients: Record<string, ClientWeekReport>;
+  /** Where the agency and its clients stood as the week began (for the week in review). */
+  before?: WeekSnapshot;
+  /** Your calls between rounds this week, as news lines. */
+  calls?: string[];
 }
 
 /** Conditioning lost per event played, plus extra for a trip to another region. */
@@ -230,12 +235,14 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
   if (world.week > seasonWeeks(world)) throw new Error("the season is over; call finishSeason first");
   ensureTraits(world);
   ensureGoals(world);
+  // Where everyone stood, for the week in review (only when you have clients to review).
+  const before = world.clientIds.length ? takeSnapshot(world) : undefined;
   // Anything left in the inbox takes its default choice.
   autoResolve(world);
   const ctxBefore = weekContext(world);
   const { plan, fields } = weekPlan(world, choices);
   const playedIds = new Set<string>();
-  const report: WeekReport = { season: world.season, week: world.week, results: [], clients: {} };
+  const report: WeekReport = { season: world.season, week: world.week, results: [], clients: {}, ...(before ? { before } : {}) };
   for (const id of world.clientIds) report.clients[id] = { summary: "", record: null, result: null };
   const sgVsExpected = new Map<string, number>();
   const rng = createRng(mixSeed(world.seed, world.season, world.week, 3));

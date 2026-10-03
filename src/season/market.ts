@@ -10,7 +10,8 @@ import { ensureRivals, likeliestSuitor } from "./rivals";
 import { earningsAtLevel } from "./finance";
 import { overall } from "./development";
 import { rankMap } from "./points";
-import type { AgencyStaffer, StaffRole, World, WorldPlayer } from "./types";
+import type { AgencyStaffer, StaffContract, StaffRole, World, WorldPlayer } from "./types";
+import { seasonWeeks } from "./calendar";
 
 // ------------------------------------------------------------------ staff
 
@@ -72,18 +73,99 @@ export function hiredStaffer(world: World, role: StaffRole): AgencyStaffer | und
 /** Quality of the person in a role, or 0 with nobody hired. */
 export const stafferQuality = (world: World, role: StaffRole): number => hiredStaffer(world, role)?.quality ?? 0;
 
-export function hireStaffer(world: World, id: string): void {
+/** Contract lengths on offer, and the weekly discount a longer deal earns. */
+export const STAFF_TERMS = [1, 2, 3] as const;
+export const termDiscount = (years: number): number => (years >= 3 ? 0.1 : years === 2 ? 0.05 : 0);
+/** Loyal staff re-sign for less: 3% a season served, up to 15%. */
+export const loyaltyDiscount = (seasonsServed: number): number => Math.min(0.15, seasonsServed * 0.03);
+/** Firing someone pays off half of what's left on their deal. */
+export const BUYOUT_SHARE = 0.5;
+
+/** The weekly wage for a staffer on a deal of `years`, with any loyalty discount. */
+export const contractFee = (s: AgencyStaffer, years: number, seasonsServed = 0): number =>
+  Math.round((s.weeklyFee * (1 - termDiscount(years)) * (1 - loyaltyDiscount(seasonsServed))) / 100) * 100;
+
+/** The contract for a role (a hire from an older save gets a deal through next season). */
+export function staffContract(world: World, role: StaffRole): StaffContract | undefined {
+  const s = hiredStaffer(world, role);
+  if (!s) return undefined;
+  const contracts = (world.agency.staffContracts ??= {});
+  const c = contracts[role];
+  if (c && c.stafferId === s.id) return c;
+  return (contracts[role] = { stafferId: s.id, signedSeason: world.season, untilSeason: world.season + 1, weeklyFee: s.weeklyFee, seasonsServed: 0 });
+}
+
+export function hireStaffer(world: World, id: string, years = 1): void {
   const s = staffMarket(world).find((x) => x.id === id);
   if (!s) throw new Error(`unknown staffer ${id}`);
+  if (hiredStaffer(world, s.role)) throw new Error(`fire your ${STAFF_LABELS[s.role].label.toLowerCase()} first`);
   (world.agency.staffHired ??= {})[s.role] = s.id;
-  world.news.unshift(`${world.agency.name} hires ${s.name} as its ${STAFF_LABELS[s.role].label.toLowerCase()}.`);
+  (world.agency.staffContracts ??= {})[s.role] = { stafferId: s.id, signedSeason: world.season, untilSeason: world.season + years - 1, weeklyFee: contractFee(s, years), seasonsServed: 0 };
+  world.news.unshift(`${world.agency.name} hires ${s.name} as its ${STAFF_LABELS[s.role].label.toLowerCase()} on a ${years}-year deal.`);
 }
 
+/** Weeks left on a deal: the rest of this season, plus every season after it. */
+export function contractWeeksLeft(world: World, c: StaffContract): number {
+  const perSeason = seasonWeeks(world);
+  const thisSeason = Math.max(0, perSeason - world.week + 1);
+  return thisSeason + Math.max(0, c.untilSeason - world.season) * perSeason;
+}
+
+/** What it costs to fire whoever holds a role. */
+export function buyoutCost(world: World, role: StaffRole): number {
+  const c = staffContract(world, role);
+  return c ? Math.round((contractWeeksLeft(world, c) * c.weeklyFee * BUYOUT_SHARE) / 100) * 100 : 0;
+}
+
+/** Fires a staffer: their buyout is paid now, and the role opens up. */
+export function fireStaffer(world: World, role: StaffRole): number {
+  const s = hiredStaffer(world, role);
+  if (!s) return 0;
+  const cost = buyoutCost(world, role);
+  world.agency.bank -= cost;
+  world.agency.ledger.staff = (world.agency.ledger.staff ?? 0) + cost;
+  releaseStaffer(world, role);
+  world.news.unshift(`${world.agency.name} fires ${s.name}${cost ? `, paying ${money(cost)} to end the deal` : ""}.`);
+  return cost;
+}
+
+/** Ends a role with no payment (a deal that has run out). */
 export function releaseStaffer(world: World, role: StaffRole): void {
   if (world.agency.staffHired) delete world.agency.staffHired[role];
+  if (world.agency.staffContracts) delete world.agency.staffContracts[role];
 }
 
-export const staffWages = (world: World): number => STAFF_ROLES.reduce((s, r) => s + (hiredStaffer(world, r)?.weeklyFee ?? 0), 0);
+/** Re-signs a staffer for `years` more seasons at their current rating, less their loyalty discount. */
+export function renewStaffer(world: World, role: StaffRole, years: number): void {
+  const s = hiredStaffer(world, role);
+  const c = staffContract(world, role);
+  if (!s || !c) return;
+  s.weeklyFee = stafferFee(s.quality);
+  c.weeklyFee = contractFee(s, years, c.seasonsServed);
+  c.untilSeason = Math.max(c.untilSeason, world.season - 1) + years;
+  world.news.unshift(`${s.name} re-signs with ${world.agency.name} for ${years} more year${years === 1 ? "" : "s"} at ${money(c.weeklyFee)} a week.`);
+}
+
+/**
+ * The season's end for your staff: every hire earns a year of loyalty and a
+ * point on their rating; deals that are up come back as a decision.
+ */
+export function staffSeasonEnd(world: World): { role: StaffRole; staffer: AgencyStaffer; contract: StaffContract }[] {
+  const expiring: { role: StaffRole; staffer: AgencyStaffer; contract: StaffContract }[] = [];
+  for (const role of STAFF_ROLES) {
+    const s = hiredStaffer(world, role);
+    const c = staffContract(world, role);
+    if (!s || !c) continue;
+    c.seasonsServed++;
+    s.quality = Math.min(20, s.quality + 1);
+    if (c.untilSeason <= world.season) expiring.push({ role, staffer: s, contract: c });
+  }
+  return expiring;
+}
+
+export const staffWages = (world: World): number => STAFF_ROLES.reduce((s, r) => s + (staffContract(world, r)?.weeklyFee ?? 0), 0);
+
+const money = (x: number) => (x >= 1_000_000 ? `$${(x / 1_000_000).toFixed(1)}M` : `$${Math.round(x / 1000)}k`);
 
 export function payStaff(world: World): void {
   const wages = staffWages(world);

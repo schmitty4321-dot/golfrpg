@@ -14,7 +14,8 @@ import { addReputation } from "./agency";
 import { mixSeed } from "./entries";
 import { followers } from "./showcase";
 import { releaseCoach } from "./staff";
-import { absWeek, type CoachRole, type World, type WorldPlayer } from "./types";
+import { absWeek, type CoachRole, type StaffRole, type World, type WorldPlayer } from "./types";
+import { hiredStaffer, releaseStaffer, renewStaffer } from "./market";
 
 /** One thing a choice does. Numbers are changes (followers: a share, e.g. 0.03 = +3%). */
 export type Effect =
@@ -45,6 +46,10 @@ export type Effect =
   | { k: "scoutBoost"; playerId: string; v: number }
   /** Players onto your recruitment board. */
   | { k: "shortlist"; ids: string[] }
+  /** Re-signs the agency's staffer in a role for more years. */
+  | { k: "staffRenew"; role: StaffRole; years: number }
+  /** Lets the agency's staffer in a role go when their deal is up (nothing to pay). */
+  | { k: "staffRelease"; role: StaffRole }
   /** A gamble: `p` chance of `then`, otherwise `else`, each with a line for the news. */
   | { k: "chance"; p: number; then: Effect[]; else: Effect[]; thenNews: string; elseNews: string };
 
@@ -142,6 +147,16 @@ export function applyEffects(world: World, wp: WorldPlayer | null, effects: Effe
     }
     if (e.k === "reputation") {
       addReputation(world.agency, e.v);
+      continue;
+    }
+    if (e.k === "staffRenew") {
+      renewStaffer(world, e.role, e.years);
+      continue;
+    }
+    if (e.k === "staffRelease") {
+      const s = hiredStaffer(world, e.role);
+      releaseStaffer(world, e.role);
+      if (s) lines.push(`${s.name} leaves when the deal runs out.`);
       continue;
     }
     if (e.k === "shortlist") {
@@ -242,6 +257,8 @@ export function describeEffects(effects: Effect[]): string {
     else if (e.k === "relationship") parts.push(`${e.agency}: ${e.v > 0 ? "warmer" : "cooler"}`);
     else if (e.k === "scoutBoost") parts.push("a full report on him");
     else if (e.k === "shortlist") parts.push(`${e.ids.length} on your board`);
+    else if (e.k === "staffRenew") parts.push(`a ${e.years}-year deal`);
+    else if (e.k === "staffRelease") parts.push("the role opens up");
     else if (e.k === "chance") parts.push(`${Math.round(e.p * 100)}% chance: ${describeEffects(e.then) || "nothing"}`);
   }
   return parts.join(", ");

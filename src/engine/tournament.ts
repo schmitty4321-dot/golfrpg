@@ -3,7 +3,7 @@ import type { MatchPlayBracket } from "./matchPlay";
 import { tiedPayout } from "./purse";
 import { createRng, type Rng } from "./rng";
 import { DAY_SD, WEEK_SD, playHole, roundForm, simulateRound, type HoleState, type RoundContext } from "./round";
-import { callEffect, decisionsFor, type CallKind, type Decision, type HoleCall, type HoleSituation } from "./calls";
+import { STANDING_KINDS, callEffect, decisionsFor, topDecisions, type CallKind, type Decision, type HoleCall, type HoleSituation } from "./calls";
 import { pinTuck } from "./pins";
 import type { PlayerEventContext } from "./traits";
 import { SG_CATEGORIES, type Course, type Player, type RoundWeather, type StrokesGained, type Wave } from "./types";
@@ -384,6 +384,10 @@ export interface LiveTournament {
   playoffCalls: Record<string, HoleCall | null>;
   /** A lift or drag on a client's form for one round (strokes per round), by `${id}:${round}`: your calls between rounds. */
   boosts: Record<string, number>;
+  /** Question kinds already asked at key moments, by `${id}:${round}` (each is asked once a round). */
+  asked: Record<string, CallKind[]>;
+  /** Calls that hold for the rest of a round once made (closing putts, rain, the leaderboard), by `${id}:${round}`. */
+  standing: Record<string, HoleCall>;
   done: boolean;
   result: TournamentResult | null;
   /** @internal */
@@ -451,6 +455,8 @@ export function startLive(config: TournamentConfig, controlled: string | string[
     stops: {},
     playoffCalls: {},
     boosts: {},
+    asked: {},
+    standing: {},
     done: false,
     result: null,
     entries,
@@ -509,9 +515,20 @@ export function playLiveHole(t: LiveTournament, call: HoleCall | null = null, id
   if (!cur) throw new Error("no round in progress");
   const course = t.config.course;
   const hole = course.holes[cur.holes.length]!;
+  // Some calls hold for the rest of the round once made: the rain, the
+  // leaderboard, and the putts on the closing holes.
+  const key = `${id}:${t.round}`;
+  const held = (t.standing[key] ??= {}) as Record<string, string>;
+  const merged: Record<string, string> = { ...(call ?? {}) } as Record<string, string>;
+  const closing = cur.holes.length >= course.holes.length - 3;
+  for (const k of STANDING_KINDS) {
+    if (merged[k]) held[k] = merged[k]!;
+    else if (held[k] && (k !== "putt" || closing)) merged[k] = held[k]!;
+  }
+  call = Object.keys(merged).length ? (merged as HoleCall) : null;
   const me = entryOf(t, id);
   const teeShotHoles = course.holes.filter((h) => h.par > 3).length;
-  const score = playHole({ ctx: cur.ctx, hole, dayForm: cur.dayForm, teeShotHoles, state: cur.state, mod: callEffect(call, hole, me.player, pinTuck(course, hole, t.round - 1)) });
+  const score = playHole({ ctx: cur.ctx, hole, dayForm: cur.dayForm, teeShotHoles, state: cur.state, mod: callEffect(call, hole, me.player, pinTuck(course, hole, t.round - 1), conditions(t, id)) });
   cur.holes.push(score);
   const calls = me.calls!;
   (calls[t.round - 1] ??= []).push(call && Object.keys(call).length ? call : null);
@@ -542,7 +559,7 @@ export function callOdds(t: LiveTournament, call: HoleCall | null, id = t.contro
   const salt = id === t.controlledId ? 0 : idHash(id);
   const rng = createRng((t.config.seed ^ (t.round * 131 + cur.holes.length * 7) ^ salt) >>> 0);
   const ctx = { ...cur.ctx, rng };
-  const mod = callEffect(call, hole, me.player, pinTuck(course, hole, t.round - 1));
+  const mod = callEffect(call, hole, me.player, pinTuck(course, hole, t.round - 1), conditions(t, id));
   const N = 1500;
   let sum = 0;
   let birdies = 0;
@@ -556,6 +573,13 @@ export function callOdds(t: LiveTournament, call: HoleCall | null, id = t.contro
   return { expected: sum / N, birdie: birdies / N, bogey: bogeys / N };
 }
 
+/** Today's wind for a client's wave, and how firm the course plays. */
+function conditions(t: LiveTournament, id: string): { wind: number; firmness: number } {
+  const w = t.weather[t.round - 1];
+  const wave = t.live[id]?.wave ?? "AM";
+  return { wind: w ? w.windMph[wave] : 0, firmness: w?.rain ? t.config.course.firmness * 0.6 : t.config.course.firmness };
+}
+
 /** Where a client stands before his next hole, for deciding which calls matter. */
 export function holeSituation(t: LiveTournament, id = t.controlledId): HoleSituation {
   const board = liveBoard(t, id);
@@ -563,24 +587,48 @@ export function holeSituation(t: LiveTournament, id = t.controlledId): HoleSitua
   const toPar = me?.toPar ?? 0;
   const cutTop = t.config.cutTop;
   const cutMargin = t.round === 2 && cutTop !== undefined && board.length > cutTop ? board[cutTop - 1]!.toPar - toPar : null;
-  return { round: t.round, index: t.live[id]?.holes.length ?? 0, behind: toPar - (board[0]?.toPar ?? toPar), cutMargin };
+  const cur = t.live[id];
+  return {
+    round: t.round,
+    index: cur?.holes.length ?? 0,
+    behind: toPar - (board[0]?.toPar ?? toPar),
+    cutMargin,
+    wind: conditions(t, id).wind,
+    rain: !!t.weather[t.round - 1]?.rain,
+    lastOverPar: cur?.holes.length ? Math.max(0, cur.state.lastOverPar) : 0,
+  };
 }
 
 /** The call a round plan makes on a hole's decisions (null: his own call). */
 export function planCall(plan: RoundPlan, decisions: Decision[]): HoleCall | null {
   if (plan === "steady" || !decisions.length) return null;
-  const pick: Record<CallKind, [string, string]> = { tee: ["driver", "3-wood"], second: ["go", "layup"], approach: ["attack", "middle"], putt: ["charge", "lag"] };
+  // Options run boldest first; tee shots are the exception (protect takes the 3-wood, not the iron).
   const call: Record<string, string> = {};
-  for (const d of decisions) call[d.kind] = pick[d.kind][plan === "attack" ? 0 : 1];
+  for (const d of decisions) {
+    const opts = d.options.map((o) => o.value);
+    call[d.kind] = plan === "attack" ? opts[0]! : d.kind === "tee" ? "3-wood" : opts[opts.length - 1]!;
+  }
   return call as HoleCall;
 }
 
-/** The decisions on a client's next hole. */
+/**
+ * The decisions on a client's next hole: at most three, less the calls that
+ * hold for the round once you've made them (closing putts, rain, leaderboard).
+ */
 export function nextDecisions(t: LiveTournament, id = t.controlledId): Decision[] {
   const cur = t.live[id];
   if (!cur) return [];
   const course = t.config.course;
-  return decisionsFor(course.holes[cur.holes.length]!, course, entryOf(t, id).player, holeSituation(t, id));
+  const key = `${id}:${t.round}`;
+  const held = (k: CallKind) => !!t.standing[key]?.[k] || (t.asked[key] ?? []).includes(k);
+  const all = decisionsFor(course.holes[cur.holes.length]!, course, entryOf(t, id).player, holeSituation(t, id));
+  return topDecisions(all.filter((d) => !(STANDING_KINDS.includes(d.kind) && held(d.kind))));
+}
+
+/** Records the questions you answered on a client's hole (the closing-putts one isn't asked again this round). */
+export function markAsked(t: LiveTournament, id: string, kinds: CallKind[]): void {
+  const key = `${id}:${t.round}`;
+  t.asked[key] = [...new Set([...(t.asked[key] ?? []), ...kinds])];
 }
 
 /** Plays a client's next hole as his round plan says. Returns the score. */
@@ -667,9 +715,12 @@ export function nextMoment(t: LiveTournament): { ticker: TickerItem[]; moment: M
     if (!ids.length) break;
     const id = ids.reduce((a, b) => (t.live[b]!.holes.length < t.live[a]!.holes.length ? b : a));
     const s = holeSituation(t, id);
-    const decisions = decisionsFor(course.holes[s.index]!, course, entryOf(t, id).player, s);
-    if (decisions.length && atStake(s) && (t.stops[`${id}:${t.round}`] ?? 0) < MAX_STOPS) {
-      return { ticker, moment: { id, round: t.round, index: s.index, situation: s, decisions } };
+    const key = `${id}:${t.round}`;
+    const decisions = nextDecisions(t, id);
+    // Each question is asked once a round; later holes go by his plan (and any closing-putts call).
+    const fresh = decisions.filter((d) => !(t.asked[key] ?? []).includes(d.kind));
+    if (fresh.length && atStake(s) && (t.stops[key] ?? 0) < MAX_STOPS) {
+      return { ticker, moment: { id, round: t.round, index: s.index, situation: s, decisions: fresh } };
     }
     const score = playLiveHole(t, planCall(t.plans[id] ?? "steady", decisions), id);
     ticker.push({ id, round: t.round, index: s.index, score, par: course.holes[s.index]!.par });
@@ -693,7 +744,11 @@ export function answerMoment(t: LiveTournament, m: Moment, call: HoleCall | null
   }
   const key = `${m.id}:${m.round}`;
   t.stops[key] = (t.stops[key] ?? 0) + 1;
-  return playLiveHole(t, c, m.id);
+  markAsked(t, m.id, m.decisions.map((d) => d.kind));
+  // Questions you weren't asked on this hole go by his plan.
+  const planned = planCall(t.plans[m.id] ?? "steady", nextDecisions(t, m.id).filter((d) => !m.decisions.some((x) => x.kind === d.kind)));
+  const merged = planned || c ? { ...planned, ...c } : null;
+  return playLiveHole(t, merged && Object.keys(merged).length ? merged : null, m.id);
 }
 
 /** Plays whatever is left (rounds and holes) as the plans say, and closes the tournament. */

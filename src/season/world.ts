@@ -29,6 +29,8 @@ import { asSetUp, nextCourseSetup } from "./courseSetup";
 import { generateCoaches, offseason, OFFSEASON_WEEKS } from "./staff";
 import { rivalSeasonEnd } from "./rivals";
 import { EUROPE } from "./ryderCup";
+import { STAFF_LABELS, contractFee, hiredStaffer, staffContract, staffSeasonEnd, stafferFee } from "./market";
+import { addDecision } from "./inbox";
 import { STANDARD_COMMISSION, addReputation, agencySeasonEnd, clients, assignRivalAgents, emptyFinances, newAgency, newManagement } from "./agency";
 import { generateScouts } from "./scouting";
 import { AMATEUR_CLASS_SIZE, PRO_AGE, amateurPotential, amateurRanking, generateAmateur } from "./amateurs";
@@ -38,6 +40,7 @@ import { expireSponsors } from "./sponsors";
 import { canPlayDev, devPriority, courseFit, courseById, eventsInWeek, isInvitational, mixSeed, planWeek, priorityCompare, MONDAY_SPOTS } from "./entries";
 import { pointsList, rankMap, worldRanking, type RankingRow } from "./points";
 import type { Course } from "../engine";
+import type { StaffRole } from "./types";
 import { SAVE_VERSION, absWeek, type Career, type ClientSeasonSummary, type SeasonRecord, type SeasonSummary, type TourEvent, type TourStatus, type World, type WorldPlayer, type WorldStyle } from "./types";
 import { playWeek } from "./week";
 import { ensureTraits, seasonEndTraits } from "./traits";
@@ -605,6 +608,8 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
     wp.player.condition = Math.max(wp.player.condition, 90);
     wp.player.form *= 0.5;
   }
+  // Your staff: a year of loyalty and a point on every rating; deals that are up come back as decisions.
+  const expiringStaff = staffSeasonEnd(world);
   // Coaches cure a demon or two over the winter; the odd veteran's stroke goes.
   seasonEndTraits(world, rng);
   // The winter: ten weeks of practice with no events, then a new season's baseline.
@@ -625,7 +630,33 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   ensureTraits(world);
   ensureFamiliarity(world);
   ensureGoals(world);
+  for (const x of expiringStaff) staffContractDecision(world, x.role);
   return summary;
+}
+
+/** A staffer whose deal is up: re-sign them (cheaper the longer they've been with you), or let them go. */
+function staffContractDecision(world: World, role: StaffRole): void {
+  const s = hiredStaffer(world, role);
+  const c = staffContract(world, role);
+  if (!s || !c) return;
+  const label = STAFF_LABELS[role].label.toLowerCase();
+  const fee = (years: number) => contractFee({ ...s, weeklyFee: stafferFee(s.quality) }, years, c.seasonsServed);
+  const k = (n: number) => `$${(fee(n) / 1000).toFixed(1)}k a week`;
+  addDecision(world, {
+    kind: "dilemma",
+    key: `staff-${role}`,
+    clientId: "",
+    title: `${s.name}'s contract is up`,
+    text: `Your ${label} (${s.quality}/20, ${c.seasonsServed} season${c.seasonsServed === 1 ? "" : "s"} with you) wants to know where they stand. Loyalty earns them a discount on a new deal.`,
+    choices: [
+      { id: "renew2", label: "Re-sign for 2 years", detail: k(2), effects: [{ k: "staffRenew", role, years: 2 }] },
+      { id: "renew1", label: "Re-sign for 1 year", detail: k(1), effects: [{ k: "staffRenew", role, years: 1 }] },
+      { id: "renew3", label: "Re-sign for 3 years", detail: k(3), effects: [{ k: "staffRenew", role, years: 3 }] },
+      { id: "release", label: "Let them go", detail: "Nothing to pay: their deal has run out.", effects: [{ k: "staffRelease", role }] },
+    ],
+    defaultChoice: "renew2",
+    big: true,
+  });
 }
 
 /**

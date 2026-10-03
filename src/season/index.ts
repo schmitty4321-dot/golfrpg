@@ -44,3 +44,4 @@ export * from "./legacy";
 export * from "./challenges";
 export * from "./scoutTrips";
 export * from "./roundCalls";
+export * from "./weekSummary";
