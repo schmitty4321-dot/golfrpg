@@ -81,7 +81,12 @@ const POOL: [PlayerTier, number][] = [
   ["fringe", 50],
   ["college", 70],
 ];
-const TARGET_POOL_SIZE = POOL.reduce((s, [, n]) => s + n, 0);
+/**
+ * Mini-tour pros: a deeper bench below the fringe (a point weaker), so the
+ * developmental tour and the main tour's short fields fill most weeks.
+ */
+const MINI_TOUR = 100;
+const TARGET_POOL_SIZE = POOL.reduce((s, [, n]) => s + n, 0) + MINI_TOUR;
 /** Card thresholds on the season points list. Full cards go to the top 100 on the points list (the PGA TOUR's rule from 2026; it was 125). */
 export const FULL_CARD = 100;
 export const CONDITIONAL_CARD = 150;
@@ -198,6 +203,11 @@ export function createWorld(opts: CreateWorldOptions): World {
   // Top up with generated players, keeping the usual mix, until fields can fill.
   const generated: Player[] = [];
   for (const [tier, n] of POOL) for (let i = 0; i < n; i++) generated.push(generatePlayer(rng, { tier, usedNames }));
+  for (let i = 0; i < MINI_TOUR; i++) {
+    const p = generatePlayer(rng, { tier: "fringe", usedNames });
+    for (const k of GOLF_SKILLS) p.attributes[k] = clamp(p.attributes[k] - 1, 1, 20);
+    generated.push(p);
+  }
   for (const p of generated) europeanEdge(p);
   const needed = Math.max(0, TARGET_POOL_SIZE - players.length);
   // An even spread across the tiers, so a small database still gets stars, journeymen and hopefuls around it.
