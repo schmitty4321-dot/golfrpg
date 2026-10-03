@@ -885,23 +885,24 @@ select, input[type="text"], input[type="number"] {
 .gear-models { display: grid; gap: 8px; padding: 10px; }
 .gear-models .choice { text-align: left; }
 
-.person-market { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.person-option { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
-.person-option.selected { border-color: var(--green); background: var(--green-soft); box-shadow: inset 0 0 0 1px var(--green); }
+.person-market { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 10px; }
+.person-option { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; min-width: 0; padding: 10px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+.person-option:hover { border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); box-shadow: 0 3px 12px rgba(24, 55, 40, .08); }
+.person-option.selected { border-color: var(--accent); background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); }
 .person-option .portrait { border-radius: 13px; box-shadow: 0 2px 8px rgba(24, 55, 40, .14); }
 .person-option-copy { display: grid; gap: 3px; min-width: 0; }
 .market-pager { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; }
 .market-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-.market-tabs [aria-selected="true"] { color: #fff; border-color: var(--green); background: var(--green); }
+.market-tabs [aria-selected="true"] { color: #fff; border-color: var(--accent); background: var(--accent); }
 .gear-market { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .gear-card { position: relative; min-height: 164px; overflow: hidden; text-align: left; padding-top: 58px; }
-.club-art { position: absolute; inset: 0 0 auto 0; width: 100%; height: 56px; object-fit: cover; border-bottom: 1px solid var(--line); }
+.club-art { position: absolute; inset: 0 0 auto 0; width: 100%; height: 56px; object-fit: cover; border-bottom: 1px solid var(--border); }
 .coach-role-cell { display: flex; align-items: center; gap: 9px; min-width: 175px; }
 .coach-role-cell .portrait { flex: 0 0 auto; border-radius: 10px; }
 .coach-role-cell span { display: grid; gap: 2px; }
 .coach-role-cell small { color: var(--muted); }
-.coach-vacancy { place-items: center; width: 48px; height: 48px; border: 1px dashed var(--line-strong); border-radius: 10px; color: var(--muted); font-size: 24px; }
-@media (max-width: 900px) { .person-market, .gear-market { grid-template-columns: minmax(0, 1fr); } }
+.coach-vacancy { place-items: center; width: 48px; height: 48px; border: 1px dashed var(--border); border-radius: 10px; color: var(--muted); font-size: 24px; }
+@media (max-width: 900px) { .gear-market { grid-template-columns: minmax(0, 1fr); } }
 
 /* ---------- weekly planner ---------- */
 .planner { margin-top: 10px; padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); display: grid; gap: 8px; }
