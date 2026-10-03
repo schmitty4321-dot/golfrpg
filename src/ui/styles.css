@@ -1124,6 +1124,7 @@ select, input[type="text"], input[type="number"] {
 .region-tile.on { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent) inset; }
 
 .option-art { display: block; width: calc(100% + 24px); height: 86px; margin: -12px -12px 10px; object-fit: cover; object-position: center top; border-bottom: 1px solid var(--border); }
+.choice-list .option-art { height: 140px; }
 .facility-strip { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 9px; margin-bottom: 12px; }
 .facility-card { overflow: hidden; display: grid; gap: 4px; padding: 0 0 8px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); color: var(--text); font: inherit; text-align: left; }
 .facility-card.current { border: 2px solid var(--accent); background: var(--accent-soft); }
