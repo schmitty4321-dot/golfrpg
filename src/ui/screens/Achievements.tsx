@@ -2,13 +2,13 @@ import { ACHIEVEMENTS, type AchievementGroup, type World } from "../../season";
 
 const GROUPS: AchievementGroup[] = ["Career", "Agency", "Management", "Story"];
 
-const ICONS: Record<string, string> = {
-  "first-win": "♛", "five-wins": "Ⅴ", "twenty-wins": "20", "first-major": "♜", "three-majors": "Ⅲ", dynasty: "♚",
-  "grand-slam": "◆", "points-title": "№1", "players-champ": "Ⅴ", "match-play": "▦", "top-ten": "10", "world-no1": "1",
-  "ryder-three": "♟", "ryder-hero": "⚑", ace: "●", "hall-of-famer": "HOF", "rep-50": "⌖", "rep-75": "✦",
-  "rep-90": "A", "roster-5": "5", "roster-10": "10", millionaire: "$1M", "ten-million": "$10M", "profit-season": "↗",
-  center: "⚒", "hq-top": "▥", "top-agency": "Ⅰ", survivor: "5Y", gold: "★", "promises-5": "✓", "counter-deal": "⇄",
-  "decisions-25": "25", "press-10": "☏", "sponsors-3": "3", "followers-1m": "1M", friend: "☺", enemy: "!", grudge: "⚔", domination: "+5",
+const BADGES: Record<string, string> = {
+  "first-win": "trophy", "five-wins": "crown", "twenty-wins": "crown", "first-major": "major", "three-majors": "trophy", dynasty: "crown",
+  "grand-slam": "major", "points-title": "world-no1", "players-champ": "trophy", "match-play": "calendar", "top-ten": "podium", "world-no1": "world-no1",
+  "ryder-three": "ryder", "ryder-hero": "ryder", ace: "ace", "hall-of-famer": "major", "rep-50": "map", "rep-75": "headquarters",
+  "rep-90": "agency", "roster-5": "roster", "roster-10": "full-house", millionaire: "bank", "ten-million": "wealth", "profit-season": "bank",
+  center: "headquarters", "hq-top": "headquarters", "top-agency": "world-no1", survivor: "five-years", gold: "trophy", "promises-5": "agency", "counter-deal": "agency",
+  "decisions-25": "calendar", "press-10": "agency", "sponsors-3": "bank", "followers-1m": "world-no1", friend: "roster", enemy: "major", grudge: "ryder", domination: "podium",
 };
 
 /** Every achievement: the ones you've unlocked (and when), and the ones still to come. */
@@ -33,7 +33,9 @@ export function AchievementsScreen({ world }: { world: World }) {
               const when = got[a.id];
               return (
                 <div key={a.id} className={`achievement achievement-${g.toLowerCase()}${when ? " unlocked" : ""}`}>
-                  <div className="achievement-medal" aria-hidden><span>{ICONS[a.id] ?? "★"}</span></div>
+                  <div className="achievement-medal" aria-hidden>
+                    <img src={`/art/achievements/${BADGES[a.id] ?? "trophy"}.png`} alt="" />
+                  </div>
                   <div className="achievement-copy">
                     <strong>{a.title}</strong>
                     <div className="small">{a.detail}</div>
