@@ -209,24 +209,26 @@ function EventsPanel({ world, game }: { world: World; game: Game }) {
   return (
     <section className="panel">
       <div className="panel-head"><h2>Agency events and media</h2><span className="muted small">Each once a season</span></div>
-      <table>
-        <tbody>
-          {kinds.map((k) => {
-            const e = AGENCY_EVENTS[k];
-            const block = eventBlock(world, k);
-            return (
-              <tr key={k}>
-                <td><div className="event-art-row"><img src={`/art/scenes/${k === "proAm" ? "pro-am" : k}.webp`} alt="" /><span><strong>{e.label}</strong><span className="secondary small">{e.blurb}</span></span></div></td>
-                <td className="num small">costs {money(e.cost)}<br />takes about {money(eventTakings(world, k))}</td>
-                <td>
-                  <button className="btn btn-small" disabled={!!block} onClick={() => game.act((w) => { const net = holdEvent(w, k); setMessage(`${e.label}: ${net >= 0 ? "made" : "lost"} ${money(Math.abs(net))}.`); })}>Hold it</button>
-                  {block && <div className="muted small">{block}</div>}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <div className="event-card-list">
+        {kinds.map((k) => {
+          const e = AGENCY_EVENTS[k];
+          const block = eventBlock(world, k);
+          return (
+            <article className="event-card" key={k}>
+              <img src={`/art/scenes/${k === "proAm" ? "pro-am" : k}.webp`} alt="" />
+              <div className="event-card-copy">
+                <strong>{e.label}</strong>
+                <span className="secondary small">{e.blurb}</span>
+                <span className="event-card-money"><b>Costs {money(e.cost)}</b><span>Expected return {money(eventTakings(world, k))}</span></span>
+              </div>
+              <div className="event-card-action">
+                <button className="btn btn-small" disabled={!!block} onClick={() => game.act((w) => { const net = holdEvent(w, k); setMessage(`${e.label}: ${net >= 0 ? "made" : "lost"} ${money(Math.abs(net))}.`); })}>Hold it</button>
+                {block && <span className="muted small">{block}</span>}
+              </div>
+            </article>
+          );
+        })}
+      </div>
       {message && <p className="small" role="status">{message}</p>}
       <div className="pp-label" style={{ marginTop: 10 }}>Your clients' following</div>
       <p className="small" style={{ marginTop: 4 }}>
