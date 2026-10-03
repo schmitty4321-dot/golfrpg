@@ -17,17 +17,39 @@ import {
 } from "../../season";
 import { money } from "../format";
 import type { Game } from "../useGame";
+import { Portrait } from "../components/Portrait";
 
 const cash = (n: number) => (n < 0 ? `−${money(-n)}` : money(n));
 const short = (v: number) => (v >= 1e6 || v <= -1e6 ? `${(v / 1e6).toFixed(1)}M` : `${Math.round(v / 1e3)}k`);
 
 /** The agency's books: this season, a forecast, the bank over time, credit, contracts and past seasons. */
 export function Finances({ world, game }: { world: World; game: Game }) {
+  const [page, setPage] = useState<"overview" | "desk">("overview");
   const L = world.agency.ledger;
   const profit = agencyProfit(L);
   const scouts = weeklyScoutCost(world);
+  const forecast = weeklyForecast(world, scouts);
+  const runway = forecast.net < 0 ? Math.max(0, Math.floor(world.agency.bank / -forecast.net)) : null;
+  const health = forecast.net >= 0 ? "Thriving" : (runway ?? 0) >= 16 ? "Stable" : (runway ?? 0) >= 8 ? "Tight" : "At risk";
   return (
-    <main>
+    <main className="finance-page">
+      <nav className="finance-page-tabs" aria-label="Finance pages">
+        <button className={page === "overview" ? "active" : ""} onClick={() => setPage("overview")}><span>▥</span><b>Overview &amp; forecasting</b><small>Balance, profit and runway</small></button>
+        <button className={page === "desk" ? "active" : ""} onClick={() => setPage("desk")}><span>▣</span><b>Contracts &amp; credit</b><small>Loans, renewals and client money</small></button>
+      </nav>
+
+      {page === "overview" ? <>
+      <section className="finance-hero finance-overview-hero">
+        <img src="/art/finance/finance-overview.png" alt="Illustrated agency finance desk overlooking a golf course" />
+        <div className="finance-hero-shade" />
+        <div className="finance-hero-title"><span>FINANCIAL OVERVIEW</span><h1>Run the agency by the numbers</h1><p>Track the season, protect the bank and plan the next investment.</p></div>
+      </section>
+      <section className="finance-metrics" aria-label="Financial summary">
+        <Metric icon="●" label="Bank balance" value={money(world.agency.bank)} />
+        <Metric icon="↘" label="Weekly cash flow" value={cash(forecast.net)} tone={forecast.net < 0 ? "bad" : "good"} />
+        <Metric icon="♛" label="Season profit" value={cash(profit)} tone={profit < 0 ? "bad" : "good"} />
+        <Metric icon="▤" label="Credit owed" value={money(world.agency.loan ?? 0)} tone={(world.agency.loan ?? 0) > 0 ? "bad" : undefined} />
+      </section>
       <div className="grid-2">
         <section className="panel">
           <div className="panel-head"><h2>{world.agency.name}: season {world.season}</h2></div>
@@ -39,48 +61,52 @@ export function Finances({ world, game }: { world: World; game: Game }) {
       </div>
 
       <BankChart world={world} />
-
-      <div className="grid-2">
-        <CreditPanel world={world} game={game} />
-        <ContractDesk world={world} game={game} />
-      </div>
-
-      <section className="panel">
-        <div className="panel-head"><h2>Clients' money this season</h2><span className="muted small">What each client earns and spends; the agency's cut is the commission column</span></div>
-        {world.clientIds.length === 0 ? (
-          <p className="empty">No clients.</p>
-        ) : (
-          <div className="table-wrap">
-            <table>
-              <thead><tr><th>Client</th><th className="num">Prize money</th><th className="num">Endorsements</th><th className="num">Caddie</th><th className="num">Travel</th><th className="num">Coaching</th><th className="num">Training</th><th className="num">Clubs</th><th className="num">Commission</th><th className="num">Take-home</th></tr></thead>
-              <tbody>
-                {world.clientIds.map((id) => {
-                  const f = world.players[id]!.client!.finances;
-                  const net = f.prizeMoney + f.endorsements - f.caddie - f.travel - f.coaching - (f.training ?? 0) - (f.equipment ?? 0) - f.commission;
-                  return (
-                    <tr key={id}>
-                      <td>{world.players[id]!.player.name}</td>
-                      <td className="num">{money(f.prizeMoney)}</td>
-                      <td className="num">{money(f.endorsements)}</td>
-                      <td className="num">{cash(-f.caddie)}</td>
-                      <td className="num">{cash(-f.travel)}</td>
-                      <td className="num">{cash(-f.coaching)}</td>
-                      <td className="num">{cash(-(f.training ?? 0))}</td>
-                      <td className="num">{cash(-(f.equipment ?? 0))}</td>
-                      <td className="num">{cash(-f.commission)}</td>
-                      <td className={`num ${net >= 0 ? "" : "bad-text"}`}><strong>{cash(net)}</strong></td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
-
       <PastSeasons world={world} />
+      </> : <>
+        <section className="finance-hero finance-vault-hero">
+          <img src="/art/finance/contracts-credit.png" alt="Illustrated golf agency bank vault and contract office" />
+          <div className="finance-hero-shade" />
+          <div className="finance-hero-title"><span>CONTRACTS &amp; CREDIT</span><h1>Protect the players. Fund the plan.</h1><p>Renew the right clients and borrow only when the agency needs room to move.</p></div>
+          <div className={`finance-health ${health === "At risk" ? "danger" : ""}`}><small>FINANCIAL HEALTH</small><strong>{health}</strong><span>{runway === null ? "Positive weekly flow" : `${runway} weeks of runway`}</span></div>
+        </section>
+        <div className="grid-2 finance-desk-grid">
+          <CreditPanel world={world} game={game} />
+          <ContractDesk world={world} game={game} />
+        </div>
+        <ClientMoney world={world} />
+      </>}
     </main>
   );
+}
+
+function Metric({ icon, label, value, tone }: { icon: string; label: string; value: string; tone?: "good" | "bad" }) {
+  return <article className={`finance-metric ${tone ?? ""}`}><span>{icon}</span><div><small>{label}</small><strong>{value}</strong></div></article>;
+}
+
+function ClientMoney({ world }: { world: World }) {
+  return <section className="panel client-money-panel">
+    <div className="panel-head"><h2>Clients' money this season</h2><span className="muted small">From earnings through expenses and commission to take-home pay</span></div>
+    {world.clientIds.length === 0 ? <p className="empty">No clients.</p> : <div className="client-money-list">
+      {world.clientIds.map((id) => {
+        const wp = world.players[id]!;
+        const f = wp.client!.finances;
+        const expenses = f.caddie + f.travel + f.coaching + (f.training ?? 0) + (f.equipment ?? 0);
+        const net = f.prizeMoney + f.endorsements - expenses - f.commission;
+        return <article className="client-money-card" key={id}>
+          <div className="client-money-person"><Portrait player={wp.player} size={70} title={wp.player.name} /><strong>{wp.player.name}</strong></div>
+          <MoneyStep icon="♛" label="Prize money" value={money(f.prizeMoney)} />
+          <b className="money-arrow">+</b><MoneyStep icon="◆" label="Endorsements" value={money(f.endorsements)} />
+          <b className="money-arrow">−</b><MoneyStep icon="▤" label="Player expenses" value={money(expenses)} bad />
+          <b className="money-arrow">−</b><MoneyStep icon="●" label="Agency commission" value={money(f.commission)} bad />
+          <b className="money-arrow">→</b><MoneyStep icon="▣" label="Take-home" value={cash(net)} good={net >= 0} bad={net < 0} />
+        </article>;
+      })}
+    </div>}
+  </section>;
+}
+
+function MoneyStep({ icon, label, value, good, bad }: { icon: string; label: string; value: string; good?: boolean; bad?: boolean }) {
+  return <div className={`money-step ${good ? "good" : ""} ${bad ? "bad" : ""}`}><span>{icon}</span><div><strong>{value}</strong><small>{label}</small></div></div>;
 }
 
 function LedgerTable({ l }: { l: AgencyLedger }) {
