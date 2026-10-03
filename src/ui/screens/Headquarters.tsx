@@ -226,7 +226,7 @@ function EventsPanel({ world, game }: { world: World; game: Game }) {
           const e = AGENCY_EVENTS[k];
           const block = eventBlock(world, k);
           return (
-            <button type="button" className="event-card" key={k} disabled={!!block} onClick={() => game.act((w) => { const net = holdEvent(w, k); setMessage(`${e.label}: ${net >= 0 ? "made" : "lost"} ${money(Math.abs(net))}.`); })}>
+            <button type="button" className="agency-event-card" key={k} disabled={!!block} onClick={() => game.act((w) => { const net = holdEvent(w, k); setMessage(`${e.label}: ${net >= 0 ? "made" : "lost"} ${money(Math.abs(net))}.`); })}>
               <img src={`/art/scenes/${k === "proAm" ? "pro-am" : k}.webp`} alt="" />
               <div className="event-card-copy">
                 <strong>{e.label}</strong>
