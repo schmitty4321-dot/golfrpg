@@ -18,14 +18,17 @@ export function NewGame({ game }: { game: Game }) {
   };
   return (
     <main>
-      <div className="hero">
-        <h1>Fairway Manager</h1>
-        <p className="secondary" style={{ margin: 0, maxWidth: 640 }}>
-          You've just opened a golf agency with three clients: a rookie, a 25-year-old and a veteran. Plan their
-          schedules, hire their coaches, find them sponsors, then scout the tour for more players and grow the
-          business. You earn a commission on everything your clients win and endorse, and every dollar you spend
-          on one is a dollar you can't spend on the others.
-        </p>
+      <div className="hero new-game-hero">
+        <div className="new-game-hero-copy">
+          <h1>Fairway Manager</h1>
+          <p className="secondary">
+            You've just opened a golf agency with three clients: a rookie, a 25-year-old and a veteran. Plan their
+            schedules, hire their coaches, find them sponsors, then scout the tour for more players and grow the
+            business. You earn a commission on everything your clients win and endorse, and every dollar you spend
+            on one is a dollar you can't spend on the others.
+          </p>
+        </div>
+        <img src="/art/new-game/career-hero.webp" alt="An agent planning the careers of three male golfers" />
       </div>
       <section className="panel">
         <div className="panel-head"><h2>Your agency</h2></div>
@@ -38,6 +41,7 @@ export function NewGame({ game }: { game: Game }) {
           ))}
         </div>
         <div className="panel-head" style={{ marginTop: 16 }}><h2>Or take on a challenge</h2><span className="muted small">A twist, a goal and a deadline</span></div>
+        <img className="challenge-art-board" src="/art/new-game/challenge-board.webp" alt="Illustrated scenes representing the eight career challenges and two realism modes" />
         <div className="scenario-grid">
           {CHALLENGES.map((c) => (
             <button key={c.id} className="scenario" aria-pressed={challenge === c.id} onClick={() => setChallenge(challenge === c.id ? null : c.id)}>
