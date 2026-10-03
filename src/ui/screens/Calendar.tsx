@@ -55,7 +55,7 @@ export function Calendar({ world, game, go }: { world: World; game: Game; go: Go
                           {inSession.has(e.id) ? <button className="linkish" onClick={() => go("tournament", e.id)}>{e.name}</button> : e.name}
                         </span>
                       </td>
-                      <td><span className={`badge${e.tier === "major" ? " badge-major" : ""}`}>{TIER_LABELS[e.tier]}</span></td>
+                      <td><span className={`badge${e.tier === "major" ? " badge-major" : ""}`}>{e.devFinals ? `Dev Finals ${e.devFinals}/4` : TIER_LABELS[e.tier]}</span></td>
                       <td className="secondary">{course.name}</td>
                       <td className="num">{millions(e.purse)}</td>
                       <td>{w ? `${w.name} (${toPar(w.toPar)})` : week < world.week ? "–" : ""}</td>

@@ -47,6 +47,7 @@ import {
 } from "./traits";
 import { homeRegion } from "../engine";
 import { absWeek, type EventRecord, type TourEvent, type World } from "./types";
+import { DEV_PROMOTION_WINS } from "./calendar";
 import type { RoundCallAnswer } from "./roundCalls";
 import { takeSnapshot, type WeekSnapshot } from "./weekSummary";
 
@@ -288,7 +289,7 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
         earnings: r.earnings,
         seasonPoints: r.madeCut ? seasonPointsFor(f.event.tier, r.position, count, f.event.winnerPoints) : 0,
         owgrPoints: r.madeCut ? owgrPointsFor(winnerOwgr, r.position, count) : 0,
-        sgPerRound: Math.round(r.sgPerRound * 100) / 100,
+        sgPerRound: Math.round(r.sgPerRound * 100) / 100 + 0, // + 0: no negative zero, which a save can't keep
         madeCut: r.madeCut,
         via: f.mondayQualifiers.includes(r.player.id) ? "monday" : "field",
       };
@@ -304,6 +305,15 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
       if (r.madeCut) c.careerCuts++;
       if (r.madeCut && r.position <= 10) c.careerTop10s++;
       if (f.event.tier !== "dev") c.seasonEvents++;
+      // Three developmental tour wins in a season: promoted to the main tour on the spot.
+      if (r.position === 1 && f.event.tier === "dev") {
+        c.seasonDevWins = (c.seasonDevWins ?? 0) + 1;
+        if (c.seasonDevWins >= DEV_PROMOTION_WINS && (c.status === "none" || c.status === "conditional")) {
+          c.status = "graduate";
+          c.promotedSeason = world.season;
+          world.news.unshift(`${wp.player.name} wins for the ${c.seasonDevWins === 3 ? "third" : `${c.seasonDevWins}th`} time on the developmental tour this season and is promoted to the main tour.`);
+        }
+      }
       if (r.position === 1 && f.event.tier !== "dev") {
         c.seasonWins++;
         c.careerWins++;

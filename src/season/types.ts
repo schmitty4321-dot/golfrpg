@@ -27,6 +27,8 @@ export interface TourEvent {
   winnerPoints?: number;
   /** Played as match play (groups, then a knockout bracket) instead of 72 holes of stroke play. */
   format?: "matchplay";
+  /** A developmental tour Finals event (1-4; 4 is the championship). */
+  devFinals?: 1 | 2 | 3 | 4;
 }
 
 /**
@@ -83,6 +85,12 @@ export interface Career {
   careerWins: number;
   /** Developmental tour points this season. */
   devPoints: number;
+  /** Developmental tour wins this season (three earn a main-tour card on the spot). */
+  seasonDevWins?: number;
+  /** The season he was promoted mid-season from the developmental tour (he keeps the card through the next). */
+  promotedSeason?: number;
+  /** Full developmental tour status through this season (finished 21-60 on its points list). */
+  devExemptThrough?: number;
   /** Career counters that survive the pruning of old results. */
   careerMajors: number;
   careerEvents: number;

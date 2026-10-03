@@ -401,7 +401,7 @@ function EventChoice({ o, checked, onChoose }: { o: EntryOption; checked: boolea
       <span className="schedule-choice-head">
         <span className="schedule-choice-logo"><TournamentEmblem event={e} course={o.course} size={64} /></span>
         <span className="schedule-choice-title">
-          <span className="schedule-choice-kicker">{TIER_LABELS[e.tier]}</span>
+          <span className="schedule-choice-kicker">{e.devFinals ? `Dev Finals ${e.devFinals}/4` : TIER_LABELS[e.tier]}</span>
           <strong>{e.name}</strong>
           <span className="secondary small">{o.course.name}{o.course.info ? `, ${o.course.info.city}` : ""}</span>
         </span>
