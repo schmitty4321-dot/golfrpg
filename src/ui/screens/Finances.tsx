@@ -50,7 +50,14 @@ export function Finances({ world, game }: { world: World; game: Game }) {
         <Metric icon="♛" label="Season profit" value={cash(profit)} tone={profit < 0 ? "bad" : "good"} />
         <Metric icon="▤" label="Credit owed" value={money(world.agency.loan ?? 0)} tone={(world.agency.loan ?? 0) > 0 ? "bad" : undefined} />
       </section>
-      <div className="grid-2">
+      <div className="finance-overview-grid">
+        <BankChart world={world} />
+        <div className="finance-overview-side">
+          <RunwayPanel world={world} />
+          <IncomeExpensePanel world={world} />
+        </div>
+      </div>
+      <div className="grid-2 finance-ledger-detail">
         <section className="panel">
           <div className="panel-head"><h2>{world.agency.name}: season {world.season}</h2></div>
           <LedgerTable l={L} />
@@ -60,14 +67,13 @@ export function Finances({ world, game }: { world: World; game: Game }) {
         <ForecastPanel world={world} />
       </div>
 
-      <BankChart world={world} />
       <PastSeasons world={world} />
       </> : <>
-        <section className="finance-hero finance-vault-hero">
-          <img src="/art/finance/contracts-credit.png" alt="Illustrated golf agency bank vault and contract office" />
-          <div className="finance-hero-shade" />
-          <div className="finance-hero-title"><span>CONTRACTS &amp; CREDIT</span><h1>Protect the players. Fund the plan.</h1><p>Renew the right clients and borrow only when the agency needs room to move.</p></div>
+        <section className="finance-desk-intro panel">
+          <div className="finance-desk-heading"><span>FINANCIAL OVERVIEW</span><h1>Contracts &amp; credit</h1><p>Keep a healthy balance, invest in your players and give the agency room to grow.</p></div>
           <div className={`finance-health ${health === "At risk" ? "danger" : ""}`}><small>FINANCIAL HEALTH</small><strong>{health}</strong><span>{runway === null ? "Positive weekly flow" : `${runway} weeks of runway`}</span></div>
+          <div className="credit-gauge"><small>AVAILABLE CREDIT</small><strong>{money(Math.max(0, creditLimit(world) - (world.agency.loan ?? 0)))}</strong><span>of {money(creditLimit(world))}</span></div>
+          <div className="runway-mini"><small>CASH RUNWAY</small><strong>{runway === null ? "Growing" : `${runway} weeks`}</strong><span>at current weekly flow</span></div>
         </section>
         <div className="grid-2 finance-desk-grid">
           <CreditPanel world={world} game={game} />
@@ -81,6 +87,30 @@ export function Finances({ world, game }: { world: World; game: Game }) {
 
 function Metric({ icon, label, value, tone }: { icon: string; label: string; value: string; tone?: "good" | "bad" }) {
   return <article className={`finance-metric ${tone ?? ""}`}><span>{icon}</span><div><small>{label}</small><strong>{value}</strong></div></article>;
+}
+
+function RunwayPanel({ world }: { world: World }) {
+  const f = weeklyForecast(world, weeklyScoutCost(world));
+  const runway = f.net < 0 ? Math.max(0, Math.floor(world.agency.bank / -f.net)) : 24;
+  const filled = Math.min(12, Math.max(0, Math.ceil(runway / 2)));
+  return <section className="panel runway-panel">
+    <div className="panel-head"><h2>Cash runway</h2><span className="muted small">At current cash flow</span></div>
+    <div className="runway-content"><div className="runway-track" aria-label={`${runway} weeks of runway`}>{Array.from({ length: 12 }, (_, i) => <i key={i} className={i < filled ? "filled" : ""} />)}</div><div><strong>{f.net >= 0 ? "Growing" : `${runway} weeks`}</strong><span>{f.net >= 0 ? "positive weekly cash flow" : "of runway remaining"}</span></div></div>
+  </section>;
+}
+
+function IncomeExpensePanel({ world }: { world: World }) {
+  const l = world.agency.ledger;
+  const values = [
+    ["Prize income", l.prizeCommission, "♛"], ["Sponsors", l.endorsementCommission + (l.brands ?? 0), "◆"],
+    ["Headquarters", -l.office, "▥"], ["Staff", -(l.staff ?? 0), "●"], ["Scouts", -l.scouts, "◉"],
+    ["Facilities", -(l.facility ?? 0), "⚒"], ["Development", -(l.development ?? 0), "↗"], ["Interest", -(l.interest ?? 0), "%"],
+  ] as const;
+  const top = Math.max(1, ...values.map(([, value]) => Math.abs(value)));
+  return <section className="panel income-expense-panel">
+    <div className="panel-head"><h2>Income vs. expenses</h2><span className="muted small">Season to date</span></div>
+    <div className="waterfall-chart">{values.map(([label, value, icon]) => <div className={`waterfall-item ${value < 0 ? "expense" : "income"}`} key={label}><div className="waterfall-bar"><i style={{ height: `${18 + Math.abs(value) / top * 72}px` }} /></div><span>{icon}</span><strong>{cash(value)}</strong><small>{label}</small></div>)}</div>
+  </section>;
 }
 
 function ClientMoney({ world }: { world: World }) {
@@ -207,24 +237,15 @@ function CreditPanel({ world, game }: { world: World; game: Game }) {
   const owed = world.agency.loan ?? 0;
   const amounts = [100_000, 250_000, 500_000];
   return (
-    <section className="panel">
-      <div className="panel-head"><h2>Credit line</h2><span className="muted small">{Math.round(CREDIT_RATE * 100)}% a year, charged weekly</span></div>
-      <table>
-        <tbody>
-          <tr><td>Limit (grows with reputation)</td><td className="num">{money(limit)}</td></tr>
-          <tr><td>Owed</td><td className={`num ${owed ? "bad-text" : ""}`}>{money(owed)}</td></tr>
-          <tr><td>Interest a week</td><td className="num">{money(Math.round((owed * CREDIT_RATE) / 41))}</td></tr>
-        </tbody>
-      </table>
-      <div className="btn-row" style={{ marginTop: 10 }}>
-        {amounts.map((a) => (
-          <button key={`b${a}`} className="btn btn-small" disabled={owed + a > limit} onClick={() => game.act((w) => borrow(w, a))}>Borrow {money(a)}</button>
-        ))}
-      </div>
-      <div className="btn-row" style={{ marginTop: 6 }}>
-        {amounts.map((a) => (
-          <button key={`r${a}`} className="btn btn-small" disabled={owed <= 0 || world.agency.bank <= 0} onClick={() => game.act((w) => repay(w, a))}>Repay {money(a)}</button>
-        ))}
+    <section className="panel credit-bank-panel">
+      <div className="panel-head"><h2>Bank &amp; credit line</h2><span className="muted small">Flexible capital for opportunities and expenses</span></div>
+      <div className="credit-bank-body">
+        <img src="/art/finance/contracts-credit.png" alt="Illustrated golf agency bank vault" />
+        <div className="credit-bank-controls">
+          <div className="credit-facts"><div><small>Credit limit</small><strong>{money(limit)}</strong></div><div><small>Amount owed</small><strong className={owed ? "bad-text" : ""}>{money(owed)}</strong></div><div><small>Annual rate</small><strong>{Math.round(CREDIT_RATE * 100)}%</strong></div></div>
+          <div className="loan-card-grid">{amounts.map((a, i) => <article className="loan-card" key={a}><span className={`cash-stack cash-stack-${i + 1}`}>▰</span><small>Borrow</small><strong>{money(a)}</strong><button className="btn btn-small" disabled={owed + a > limit} onClick={() => game.act((w) => borrow(w, a))}>Take funds</button></article>)}</div>
+          <div className="repay-row"><span>Interest this week: <strong>{money(Math.round((owed * CREDIT_RATE) / 41))}</strong></span>{amounts.map((a) => <button key={a} className="btn btn-small" disabled={owed <= 0 || world.agency.bank <= 0} onClick={() => game.act((w) => repay(w, a))}>Repay {money(a)}</button>)}</div>
+        </div>
       </div>
     </section>
   );
@@ -235,36 +256,29 @@ function ContractDesk({ world, game }: { world: World; game: Game }) {
   const [message, setMessage] = useState<string | null>(null);
   const rows = world.clientIds.map((id) => world.players[id]!).sort((a, b) => a.client!.contract.untilSeason - b.client!.contract.untilSeason);
   return (
-    <section className="panel">
+    <section className="panel contract-desk-panel">
       <div className="panel-head"><h2>Contract desk</h2><span className="muted small">Soonest first</span></div>
       {rows.length === 0 ? (
         <p className="empty">No clients.</p>
       ) : (
-        <div className="table-wrap">
-          <table>
-            <thead><tr><th>Client</th><th>Contract</th><th className="num">Mood</th><th>Sponsors ending</th><th /></tr></thead>
-            <tbody>
+        <div className="contract-card-grid">
               {rows.map((wp) => {
                 const m = wp.client!;
                 const ending = m.contract.untilSeason <= world.season;
                 const risk = ending && m.happiness < 50;
                 const sponsorsEnding = m.sponsors.filter((s) => s.untilSeason <= world.season).length;
                 return (
-                  <tr key={wp.player.id}>
-                    <td>{wp.player.name}</td>
-                    <td className={ending ? "bad-text" : ""}>{Math.round(m.contract.commission * 100)}% · {ending ? "ends this season" : `to S${m.contract.untilSeason}`}</td>
-                    <td className={`num ${risk ? "bad-text" : ""}`}>{Math.round(m.happiness)}{risk ? " · may leave" : ""}</td>
-                    <td>{sponsorsEnding ? `${sponsorsEnding} this season` : "–"}</td>
-                    <td>
+                  <article className="contract-card" key={wp.player.id}>
+                    <div className="contract-portrait"><Portrait player={wp.player} size={118} title={wp.player.name} /><span className={risk ? "risk" : m.happiness >= 65 ? "happy" : "neutral"}>{risk ? "☹" : m.happiness >= 65 ? "☺" : "●"}</span></div>
+                    <strong>{wp.player.name}</strong>
+                    <div className={`contract-ribbon ${ending ? "ending" : ""}`}>{ending ? "Contract ends this season" : `Contract through season ${m.contract.untilSeason}`}</div>
+                    <dl><div><dt>Commission</dt><dd>{Math.round(m.contract.commission * 100)}%</dd></div><div><dt>Mood</dt><dd>{Math.round(m.happiness)}</dd></div><div><dt>Sponsors ending</dt><dd>{sponsorsEnding || "None"}</dd></div></dl>
                       {ending && (
                         <button className="btn btn-small" onClick={() => game.act((w) => setMessage(extendContract(w, wp.player.id, { commission: m.contract.commission, years: 2 }).message))}>Renew 2 seasons</button>
                       )}
-                    </td>
-                  </tr>
+                  </article>
                 );
               })}
-            </tbody>
-          </table>
         </div>
       )}
       {message && <p className="small" role="status">{message}</p>}
