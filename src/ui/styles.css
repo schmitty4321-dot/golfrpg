@@ -678,6 +678,14 @@ select, input[type="text"], input[type="number"] {
 .symbol-tooltip:hover::before, .symbol-tooltip:hover::after,
 .symbol-tooltip:focus-visible::before, .symbol-tooltip:focus-visible::after { opacity: 1; transform: translate(-50%, 0); }
 .symbol-tooltip:focus-visible { border-radius: 50%; box-shadow: 0 0 0 2px var(--accent-soft), 0 0 0 3px var(--accent); }
+/* Keep badges in the first table column from centering their tooltip outside
+   the scrollable table viewport. */
+.table-wrap td:first-child .symbol-tooltip::before { left: 0; transform: translate(0, 4px); }
+.table-wrap td:first-child .symbol-tooltip::after { left: 9px; transform: translate(-50%, 4px); }
+.table-wrap td:first-child .symbol-tooltip:hover::before,
+.table-wrap td:first-child .symbol-tooltip:focus-visible::before { transform: translate(0, 0); }
+.table-wrap td:first-child .symbol-tooltip:hover::after,
+.table-wrap td:first-child .symbol-tooltip:focus-visible::after { transform: translate(-50%, 0); }
 .archetype-badge { display: block; flex-shrink: 0; }
 .archetype-pill { display: inline-flex; align-items: center; gap: 8px; padding: 3px 12px 3px 3px; border-radius: 999px; background: var(--surface-2); color: var(--text); font-size: 13px; font-weight: 650; max-width: 100%; }
 .pp-card .archetype-pill { background: rgba(255, 255, 255, 0.13); color: #fff; }
