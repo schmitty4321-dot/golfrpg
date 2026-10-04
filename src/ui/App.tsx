@@ -22,7 +22,7 @@ import { Tournament } from "./screens/Tournament";
 import { Training } from "./screens/Training";
 import { Team } from "./screens/Team";
 import { SECTIONS, sectionOf, type Go, type SectionId, type Tab } from "./nav";
-import { SectionBar, StatusStrip, SubTabs } from "./components/Nav";
+import { AppRail, StatusStrip } from "./components/Nav";
 import type { ClientChoices } from "../season";
 import { useGame } from "./useGame";
 import { WaialaeTracerPreview } from "./screens/WaialaeTracerPreview";
@@ -101,28 +101,20 @@ export function App() {
 
   return (
     <>
-      <header className="topbar">
+      {!world && <header className="topbar">
         <div className="brand">
           <span className="brand-mark" aria-hidden>
             <svg width="12" height="14" viewBox="0 0 12 14"><path d="M2 1v13" stroke="#fff" strokeWidth="1.6" /><path d="M2 1l8 3.2L2 7.4z" fill="#fff" /></svg>
           </span>
           <span className="brand-name">Fairway Manager</span>
         </div>
-        {world && <SectionBar tab={tab} open={openSection} variant="top" />}
-        {world && <span className="topbar-section">{sectionOf(tab).label}</span>}
-        <div className="topbar-right" style={{ marginLeft: world ? undefined : "auto" }}>
-          {world && <span className="topbar-season">Season {world.season}</span>}
+        <div className="topbar-right" style={{ marginLeft: "auto" }}>
           <button className="btn btn-small" onClick={() => setTheme(nextTheme[theme])} title={`Theme: ${theme} (click to switch)`} aria-label={`Theme: ${theme}`}>
             {theme === "dark" ? "Dark" : theme === "light" ? "Light" : "Auto"}
           </button>
         </div>
-      </header>
-      {world && <StatusStrip world={world} action={action} />}
-      {world && !showEvent && <SubTabs tab={tab} go={go} />}
-
-      {!loaded ? null : !world ? (
-        <NewGame game={game} />
-      ) : showEvent ? (
+      </header>}
+      {world ? <div className="app-shell"><AppRail tab={tab} open={openSection} go={go} season={world.season} theme={theme} onTheme={() => setTheme(nextTheme[theme])} /><div className="app-main"><StatusStrip world={world} action={action} />{showEvent ? (
         <EventScreen
           key={`${world.season}-${game.state.live?.week ?? world.week}`}
           world={world}
@@ -185,9 +177,7 @@ export function App() {
         <Finances world={world} game={game} />
       ) : (
         <Career world={world} game={game} />
-      )}
-
-      {world && <SectionBar tab={tab} open={openSection} variant="bottom" />}
+      )}</div></div> : !loaded ? null : <NewGame game={game} />}
       {review && world && <SeasonReview world={world} summary={review} onClose={() => { game.dismissReview(); go("home"); }} />}
       {busy && (
         <div className="busy" role="status">

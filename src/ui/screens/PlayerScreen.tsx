@@ -1,7 +1,6 @@
 import { ARCHETYPES, nationInfo, traitsOf } from "../../engine";
 import { ARCHETYPE_KEY, PROMISE_BY_KIND, STATUS_LABELS, TRAIT_BY_ID_NAME, goalProgress, masteries, masteryPoints, masteryTier, pointsList, promiseState, rankMap, rivalriesOf, tierProgress, trustOf, type World } from "../../season";
 import { ArchetypePill } from "../components/Archetype";
-import { Nation } from "../components/Flag";
 import { Portrait } from "../components/Portrait";
 import { formWord, money } from "../format";
 
@@ -30,19 +29,7 @@ export function PlayerScreen({ world, clientId }: { world: World; clientId: stri
   const outlook = management.happiness >= 72 && p.condition >= 80 ? "Confident" : p.condition < 70 ? "Needs recovery" : p.form > .2 ? "Trending up" : "Stable";
   const best = season.length ? [...season].sort((a, b) => a.position - b.position)[0] : null;
 
-  return <main className="player-command-page">
-    <aside className="player-command-rail" aria-label="Player command sections">
-      <div className="player-command-mark">⚑<strong>PLAYER<br />COMMAND</strong></div>
-      <Portrait player={p} size={104} title={p.name} />
-      <h2>{p.name}</h2>
-      <span><Nation nationality={p.nationality} /> {p.age} · {nationInfo(p.nationality).name}</span>
-      <nav>
-        <a href="#command-overview">⌂ <span>Overview</span></a><a href="#command-performance">↗ <span>Performance</span></a><a href="#command-schedule">▣ <span>Schedule</span></a><a href="#command-team">♟ <span>Team</span></a><a href="#command-goals">◆ <span>Goals</span></a><a href="#command-career">★ <span>Career</span></a>
-      </nav>
-      <div className="rail-vitals"><span>World rank <b>#{rank}</b></span><span>Trust <b>{trust}</b></span><span>Mood <b>{mood}</b></span><span>Contract <b>to S{management.contract.untilSeason}</b></span></div>
-    </aside>
-
-    <div className="player-command-content">
+  return <main className="player-command-page"><div className="player-command-content">
       <section className="player-command-hero" id="command-overview">
         <img src="/art/player-command/hero.png" alt="Illustrated coastal golf course and clubhouse" /><div className="player-command-hero-shade" />
         <div className="player-command-title"><span>PLAYER COMMAND CENTER</span><h1>{p.name}</h1><p>{p.age} · {nationInfo(p.nationality).name} · {STATUS_LABELS[c.status]}</p>{p.archetype && <ArchetypePill id={p.archetype} tier={masteryTier(wp, ARCHETYPE_KEY)} />}</div>

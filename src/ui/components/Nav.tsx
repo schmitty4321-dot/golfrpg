@@ -39,6 +39,26 @@ export function SectionBar({ tab, open, variant }: { tab: Tab; open: (s: Section
   );
 }
 
+/** Persistent desktop navigation: major areas first, then the current area's screens. */
+export function AppRail({ tab, open, go, season, theme, onTheme }: { tab: Tab; open: (s: SectionId) => void; go: (t: Tab) => void; season: number; theme: string; onTheme: () => void }) {
+  const current = sectionOf(tab);
+  return (
+    <aside className="app-rail">
+      <div className="app-rail-brand"><span>⚑</span><strong>FAIRWAY<br />MANAGER</strong></div>
+      <nav className="app-rail-primary" aria-label="Main navigation">
+        {SECTIONS.map((s) => <button key={s.id} aria-current={current.id === s.id ? "page" : undefined} onClick={() => open(s.id)}><Icon id={s.id} /><span>{s.label}</span></button>)}
+      </nav>
+      <div className="app-rail-context">
+        <small>{current.label}</small>
+        <nav aria-label={`${current.label} screens`}>
+          {current.tabs.map((t) => <button key={t.id} aria-current={tab === t.id ? "page" : undefined} onClick={() => go(t.id)}><span>{t.label}</span><b>›</b></button>)}
+        </nav>
+      </div>
+      <div className="app-rail-footer"><span>Season {season}</span><button onClick={onTheme} title="Change theme">◐ {theme}</button></div>
+    </aside>
+  );
+}
+
 /** The current section's screens, as a row of pills. */
 export function SubTabs({ tab, go }: { tab: Tab; go: (t: Tab) => void }) {
   const section = sectionOf(tab);
