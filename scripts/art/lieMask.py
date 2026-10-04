@@ -33,7 +33,8 @@ def label(pixels):
     if b > r + 0.06 and b >= g - 0.03 and v > 0.2 and 0.48 <= h <= 0.62 and s >= 0.45:
         return "w"
     # Bunker sand is pale; desert ground and dry grass are more saturated or darker.
-    if s < 0.45 and v > 0.58 and 0.03 <= h <= 0.14 and r >= g and g >= b and rough < 45:
+    # (Pale, unsaturated sand can be busy at a bunker's lip and in its shadows.)
+    if s < 0.45 and v > 0.55 and 0.03 <= h <= 0.14 and r >= g and g >= b and rough < (62 if s < 0.32 else 45):
         return "s"
     if 0.16 <= h <= 0.36 and s > 0.3 and v > 0.45 and rough < 16:
         return "f"

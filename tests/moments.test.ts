@@ -9,6 +9,7 @@ import {
   generateTourField,
   getCourse,
   liveSnapshot,
+  markAsked,
   nextDecisions,
   nextMoment,
   planCall,
@@ -155,6 +156,26 @@ describe("key moments", () => {
       }
     }
     expect(asked).toBeGreaterThan(0);
+  });
+
+  it("puts the same question to a client at most once every four holes", () => {
+    for (const seed of [91, 92, 93]) {
+      const t = startLive(config(seed), a);
+      for (let r = 0; r < 2; r++) {
+        startLiveRound(t);
+        const last: Record<string, number> = {};
+        while (t.live[a]) {
+          const i = t.live[a]!.holes.length;
+          const ds = nextDecisions(t, a);
+          for (const d of ds) {
+            if (last[d.kind] !== undefined) expect(i - last[d.kind]!).toBeGreaterThanOrEqual(4);
+            last[d.kind] = i;
+          }
+          markAsked(t, a, ds.map((d) => d.kind));
+          playLiveHole(t, null, a);
+        }
+      }
+    }
   });
 
   it("a closing-putts call holds to the last hole and isn't asked again", () => {

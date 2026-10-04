@@ -386,6 +386,8 @@ export interface LiveTournament {
   boosts: Record<string, number>;
   /** Question kinds already asked at key moments, by `${id}:${round}` (each is asked once a round). */
   asked: Record<string, CallKind[]>;
+  /** The hole (0-based) each question was last put to a client, by `${id}:${round}` (older saves: none). */
+  lastAsked?: Record<string, Partial<Record<CallKind, number>>>;
   /** Calls that hold for the rest of a round once made (closing putts, rain, the leaderboard), by `${id}:${round}`. */
   standing: Record<string, HoleCall>;
   done: boolean;
@@ -622,14 +624,23 @@ export function nextDecisions(t: LiveTournament, id = t.controlledId): Decision[
   const key = `${id}:${t.round}`;
   const held = (k: CallKind) => !!t.standing[key]?.[k] || (t.asked[key] ?? []).includes(k);
   const all = decisionsFor(course.holes[cur.holes.length]!, course, entryOf(t, id).player, holeSituation(t, id));
-  return topDecisions(all.filter((d) => !(STANDING_KINDS.includes(d.kind) && held(d.kind))));
+  const index = cur.holes.length;
+  const last = t.lastAsked?.[key] ?? {};
+  const rested = (k: CallKind) => last[k] === undefined || index - last[k]! >= QUESTION_GAP;
+  return topDecisions(all.filter((d) => !(STANDING_KINDS.includes(d.kind) && held(d.kind)) && rested(d.kind)));
 }
 
 /** Records the questions you answered on a client's hole (the closing-putts one isn't asked again this round). */
 export function markAsked(t: LiveTournament, id: string, kinds: CallKind[]): void {
   const key = `${id}:${t.round}`;
   t.asked[key] = [...new Set([...(t.asked[key] ?? []), ...kinds])];
+  const index = t.live[id]?.holes.length ?? 0;
+  const last = ((t.lastAsked ??= {})[key] ??= {});
+  for (const k of kinds) last[k] = index;
 }
+
+/** The same question is put to a client at most once every this many holes. */
+export const QUESTION_GAP = 4;
 
 /** Plays a client's next hole as his round plan says. Returns the score. */
 export function playPlannedHole(t: LiveTournament, id = t.controlledId): number {

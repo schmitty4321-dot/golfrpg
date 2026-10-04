@@ -99,7 +99,7 @@ describe("illustrated tracer art", () => {
     const rows: string[] = [];
     for (let y = 0; y < 10; y++) {
       let row = "";
-      for (let x = 0; x < 20; x++) row += x < 5 ? "w" : x >= 9 && x <= 11 ? "f" : x === 12 && y >= 4 && y <= 6 ? "s" : "r";
+      for (let x = 0; x < 20; x++) row += x < 5 ? "w" : x >= 9 && x <= 11 ? "f" : x >= 12 && x <= 13 && y >= 3 && y <= 6 ? "s" : "r";
       rows.push(row);
     }
     const flat = rows.join("");

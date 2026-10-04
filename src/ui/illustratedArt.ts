@@ -105,18 +105,27 @@ function onGreen(art: ArtEntry, flag: Pt, shot: Shot, layout: HoleLayout, from: 
   const px = Math.min(70, yards * pixelsPerYard(art, layout));
   const dx = from.x - flag.x;
   const dy = from.y - flag.y;
-  const len = Math.hypot(dx, dy) || 1;
-  let p = { x: flag.x + (dx / len) * px, y: flag.y + (dy / len) * px };
-  // Slide toward the flag until the ball is on mown grass.
   const t = terrainOf(art);
-  if (t) {
-    for (let k = 0; k < 20; k++) {
-      const j = Math.floor(p.y / t.cell) * t.cols + Math.floor(p.x / t.cell);
-      if (t.kind[j] === 1) break;
-      p = { x: p.x + (flag.x - p.x) * 0.2, y: p.y + (flag.y - p.y) * 0.2 };
+  const at = (scale: number, turn: number): Pt => {
+    const a = Math.atan2(dy, dx) + (turn * Math.PI) / 180;
+    return { x: flag.x + Math.cos(a) * px * scale, y: flag.y + Math.sin(a) * px * scale };
+  };
+  if (!t) return at(1, 0);
+  // On the putting surface, well clear of its edge and the bunkers: the same distance first,
+  // swinging round the flag, and only then closer to it.
+  const onSurface = (p: Pt) => {
+    const cx = Math.floor(p.x / t.cell);
+    const cy = Math.floor(p.y / t.cell);
+    for (let y = cy - 1; y <= cy + 1; y++) for (let x = cx - 1; x <= cx + 1; x++) if (t.kind[y * t.cols + x] !== 1) return false;
+    return true;
+  };
+  for (const scale of [1, 0.8, 0.6, 0.4, 0.25]) {
+    for (const turn of [0, 25, -25, 50, -50, 80, -80, 120, -120, 180]) {
+      const p = at(scale, turn);
+      if (onSurface(p)) return p;
     }
   }
-  return p;
+  return at(0.15, 0);
 }
 
 function projectShotPoint(art: ArtEntry, point: Pt, layout?: HoleLayout): Pt {
@@ -129,7 +138,9 @@ function projectShotPoint(art: ArtEntry, point: Pt, layout?: HoleLayout): Pt {
   const len = Math.hypot(b.x - a.x, b.y - a.y);
   if (len < 1) return on;
   const perYard = pixelsPerYard(art, layout);
-  const off = lateralYards(layout.path, point) * perYard;
+  // The paintings look down the hole at an angle, so a sideways yard covers less of the picture than a yard
+  // along the line, and a big miss sideways shouldn't drag the ball back toward the tee.
+  const off = Math.max(-45, Math.min(45, lateralYards(layout.path, point) * perYard * 0.5));
   // Screen y runs down, so the right-hand side of the line of play is (-dy, dx).
   return { x: on.x + (-(b.y - a.y) / len) * off, y: on.y + ((b.x - a.x) / len) * off };
 }
@@ -210,7 +221,7 @@ function suits(t: Terrain, j: number, lie: Lie): boolean {
   const k = t.kind[j]!;
   const g = t.toGrass[j]!;
   // A ball in the rough or the trees never sits on the edge of a lake.
-  const wet = () => [j - t.cols, j + t.cols, j - 1, j + 1].some((n) => t.kind[n] === 3);
+  const wet = () => [j - t.cols, j + t.cols, j - 1, j + 1].some((n) => t.kind[n] === 3 || t.kind[n] === 2);
   switch (lie) {
     case "fairway":
       return k === 1;
@@ -221,7 +232,8 @@ function suits(t: Terrain, j: number, lie: Lie): boolean {
     case "ob":
       return k === 0 && g >= 6 && g <= 14;
     case "bunker":
-      return k === 2 && g <= 3;
+      // In the sand, not on its lip: most of the neighbouring cells are sand too.
+      return k === 2 && g <= 4 && [j - t.cols, j + t.cols, j - 1, j + 1].filter((n) => t.kind[n] === 2).length >= 3;
     case "water":
       return k === 3;
     default:
@@ -236,6 +248,13 @@ const WATER_SEARCH = 90;
 
 /** The nearest point to `from` on the terrain a lie needs, or null when there's none close by. */
 export function placeOnTerrain(art: ArtEntry, from: Pt, lie: Lie): Pt | null {
+  const found = searchTerrain(art, from, lie);
+  // No sand deep enough nearby: any sand will do before giving up on a bunker.
+  if (!found && lie === "bunker") return searchTerrain(art, from, lie, true);
+  return found;
+}
+
+function searchTerrain(art: ArtEntry, from: Pt, lie: Lie, anySand = false): Pt | null {
   const t = terrainOf(art);
   if (!t || !TERRAIN_LIES.has(lie)) return null;
   const cx = Math.floor(from.x / t.cell);
@@ -251,7 +270,7 @@ export function placeOnTerrain(art: ArtEntry, from: Pt, lie: Lie): Pt | null {
         const y = cy + dy;
         if (x < 0 || y < 0 || x >= t.cols || y >= t.rows) continue;
         const j = y * t.cols + x;
-        if (!suits(t, j, lie)) continue;
+        if (!(anySand ? t.kind[j] === 2 : suits(t, j, lie))) continue;
         const d = Math.hypot(dx, dy);
         if (!best || d < best.d) best = { j, d };
       }
