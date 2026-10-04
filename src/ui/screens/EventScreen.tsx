@@ -63,7 +63,7 @@ function EventHeader({ event, course, week, players, hasCut, status, compact, ch
         <div>
           <div className="event-title">
             <TournamentEmblem event={event} course={course} size={compact ? 40 : 56} />
-            <span className={`badge${event.tier === "major" ? " badge-major" : ""}`}>{TIER_LABELS[event.tier]}</span>
+            <span className={`badge${event.tier === "major" ? " badge-major" : ""}`}>{event.devFinals ? `Dev Finals ${event.devFinals}/4` : TIER_LABELS[event.tier]}</span>
             <h1 style={{ fontSize: 22 }}>{event.name}</h1>
           </div>
           <div className="facts" style={{ marginTop: 6 }}>

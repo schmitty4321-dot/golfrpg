@@ -6,7 +6,14 @@ import {
   PRO_AGE,
   SAVE_VERSION,
   DEV_WEEKS,
+  DEV_WEEKS_ADDED,
+  DEV_PROMOTION_WINS,
   SEASON_WEEKS,
+  addFullDevTour,
+  buildDevTour,
+  owgrWinnerPoints,
+  seasonWeeks,
+  sponsorPicks,
   QSCHOOL_CARDS,
   amateurPotential,
   amateurRanking,
@@ -43,8 +50,8 @@ describe("developmental tour", () => {
     const devResults = reports.flatMap((r) => r.results.filter((x) => x.event.tier === "dev"));
     expect(devResults.length).toBeGreaterThan(20);
     for (const x of devResults) {
-      expect(x.field.field.length).toBeGreaterThan(60);
-      expect(x.field.field.length).toBeLessThanOrEqual(144);
+      expect(x.field.field.length).toBeGreaterThan(Math.min(55, x.event.fieldSize * 0.6));
+      expect(x.field.field.length).toBeLessThanOrEqual(x.event.fieldSize);
     }
   });
 
@@ -188,9 +195,73 @@ describe("saves", () => {
     }
     const w = deserializeWorld(JSON.stringify(raw));
     expect(w.version).toBe(SAVE_VERSION);
-    expect(w.schedule.filter((e) => e.tier === "dev").length).toBe(DEV_WEEKS.length);
+    expect(w.schedule.filter((e) => e.tier === "dev").length).toBe(DEV_WEEKS.length + DEV_WEEKS_ADDED.length);
     expect(Object.values(w.players).filter((wp) => wp.career.status === "amateur").length).toBeGreaterThan(40);
     expect(w.history.seasons).toEqual([]);
     playWeek(w);
+  });
+});
+
+describe("the full developmental tour", () => {
+  it("plays in at least three weeks in four the main tour does, with four Finals to close", () => {
+    const weeks = new Set(seasonWorld.schedule.filter((e) => e.tier === "dev").map((e) => e.week));
+    expect(weeks.size / seasonWeeks(seasonWorld)).toBeGreaterThanOrEqual(0.75);
+    const finals = seasonWorld.schedule.filter((e) => e.devFinals).sort((a, b) => a.week - b.week);
+    expect(finals.map((e) => e.devFinals)).toEqual([1, 2, 3, 4]);
+    expect(finals.map((e) => e.fieldSize)).toEqual([156, 144, 100, 60]);
+  });
+
+  it("keeps the original events as they were", () => {
+    const now = buildDevTour(41).schedule;
+    for (const [i, week] of DEV_WEEKS.entries()) expect(now[i]!.week).toBe(week);
+    expect(now[0]!.id).toBe("d01");
+    expect(now.slice(0, DEV_WEEKS.length).map((e) => e.courseId)).toEqual(DEV_WEEKS.map((_, i) => `dev-${i + 1}`));
+  });
+
+  it("fills its later Finals only from the top of the points list", () => {
+    const champ = reports.flatMap((r) => r.results).find((x) => x.event.devFinals === 4)!;
+    expect(champ.field.field.length).toBeGreaterThan(40);
+    const ranked = devBefore;
+    for (const id of champ.field.field) expect(ranked.indexOf(id)).toBeLessThan(60 + 15);
+  });
+
+  it("gives older careers the full tour from their next season, once", () => {
+    const w = fresh();
+    w.schedule = w.schedule.filter((e) => !(e.tier === "dev" && Number(e.id.slice(1)) > DEV_WEEKS.length)).map((e) => {
+      const { devFinals: _f, ...rest } = e;
+      return rest;
+    });
+    expect(addFullDevTour(w)).toBe(true);
+    expect(w.schedule.filter((e) => e.tier === "dev")).toHaveLength(DEV_WEEKS.length + DEV_WEEKS_ADDED.length);
+    expect(addFullDevTour(w)).toBe(false);
+    for (const e of w.schedule.filter((x) => x.tier === "dev")) expect(w.courses.some((c) => c.id === e.courseId)).toBe(true);
+  });
+
+  it("is worth a fraction of a main-tour win in the world ranking", () => {
+    const strong = Array.from({ length: 140 }, (_, i) => 100 + i);
+    expect(owgrWinnerPoints("dev", strong)).toBeLessThanOrEqual(16);
+    expect(owgrWinnerPoints("standard", strong)).toBeGreaterThan(owgrWinnerPoints("dev", strong));
+  });
+
+  it("promotes a three-time winner for the rest of the season and the next", () => {
+    const w = fresh();
+    const wp = Object.values(w.players).find((x) => x.career.status === "none")!;
+    wp.career.seasonDevWins = DEV_PROMOTION_WINS;
+    wp.career.status = "graduate";
+    wp.career.promotedSeason = w.season;
+    while (w.week <= SEASON_WEEKS) playWeek(w);
+    finishSeason(w);
+    expect(["graduate", "exempt", "conditional"]).toContain(w.players[wp.player.id]!.career.status);
+  });
+
+  it("hands sponsor invitations to the developmental tour's leaders", () => {
+    const w = fresh();
+    const none = Object.values(w.players).filter((x) => x.career.status === "none" && !x.client);
+    none.forEach((x, i) => (x.career.devPoints = i * 10));
+    const event = w.schedule.find((e) => e.tier === "standard")!;
+    const picks = sponsorPicks(w, event, none.map((x) => x.player.id), 2);
+    expect(picks).toHaveLength(2);
+    const best = [...none].sort((a, b) => b.career.devPoints - a.career.devPoints).slice(0, 2).map((x) => x.player.id);
+    expect(picks).toEqual(best);
   });
 });

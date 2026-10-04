@@ -130,13 +130,39 @@ export function priorityCompare(a: WorldPlayer, b: WorldPlayer): number {
 /** The developmental tour is for professionals without a main-tour card. */
 export const canPlayDev = (wp: WorldPlayer): boolean => wp.career.status === "none" || wp.career.status === "conditional";
 
-/** Developmental tour priority: its own points list, then last season's main-tour finish. */
-export function devPriority(a: WorldPlayer, b: WorldPlayer): number {
-  return (
+/** Players just outside a later Finals' field who can take a spot someone leaves open. */
+const FINALS_ALTERNATES = 15;
+
+/** The developmental points list as ranks, worked out once a week. */
+let finalsCache: { key: string; ranks: Map<string, number> } | null = null;
+function devFinalsList(world: World): Map<string, number> {
+  const key = `${world.seed}:${world.season}:${world.week}`;
+  if (finalsCache?.key === key) return finalsCache.ranks;
+  const list = Object.values(world.players).filter((wp) => wp.career.devPoints > 0 && canPlayDev(wp)).sort((a, b) => b.career.devPoints - a.career.devPoints);
+  finalsCache = { key, ranks: new Map(list.map((wp, i) => [wp.player.id, i + 1])) };
+  return finalsCache.ranks;
+}
+
+/** For the later Finals, the players high enough on the developmental points list to play (null: open to all). */
+export function finalsEligible(world: World, event: TourEvent): Set<string> | null {
+  if (!event.devFinals || event.devFinals < 3) return null;
+  const top = Object.values(world.players)
+    .filter((wp) => wp.career.devPoints > 0 && canPlayDev(wp))
+    .sort((a, b) => b.career.devPoints - a.career.devPoints)
+    .slice(0, event.fieldSize + FINALS_ALTERNATES);
+  return new Set(top.map((wp) => wp.player.id));
+}
+
+/** Full developmental tour status this season (last season's 21-60 there). */
+export const devExempt = (world: World, wp: WorldPlayer): boolean => (wp.career.devExemptThrough ?? 0) >= world.season;
+
+/** Developmental tour priority: its exempt members, then its points list, then last season's main-tour finish. */
+export function devPriority(world: World): (a: WorldPlayer, b: WorldPlayer) => number {
+  return (a, b) =>
+    Number(devExempt(world, b)) - Number(devExempt(world, a)) ||
     b.career.devPoints - a.career.devPoints ||
     (a.career.priorPointsRank ?? 999) - (b.career.priorPointsRank ?? 999) ||
-    a.player.id.localeCompare(b.player.id)
-  );
+    a.player.id.localeCompare(b.player.id);
 }
 
 /** How well a player's game suits a course, compared with the reference venues. */
@@ -164,6 +190,12 @@ export function aiChoice(world: World, ctx: WeekContext, wp: WorldPlayer, events
 
   // Amateurs play college golf; they're only seen at a major they're invited to.
   if (c.status === "amateur") return main.tier === "major" && invited.get(main.id)?.has(id) ? { eventId: main.id, route: "entry" } : null;
+  // The Finals: everyone high enough on the developmental points list turns up (a card is at stake).
+  if (dev?.devFinals && canPlayDev(wp) && c.devPoints > 0 && !(invited.get(main.id)?.has(id))) {
+    const list = devFinalsList(world);
+    const rank = list.get(id);
+    if (rank !== undefined && rank <= (dev.devFinals >= 3 ? dev.fieldSize + FINALS_ALTERNATES : 150) && wp.player.condition >= 15) return { eventId: dev.id, route: "entry" };
+  }
   // Players without a card live on the developmental tour, with the odd Monday qualifier.
   if (c.status === "none" && dev && !(invited.get(main.id)?.has(id))) {
     if (wp.player.condition >= 60 && rng.chance(0.8)) return { eventId: dev.id, route: "entry" };
@@ -234,6 +266,8 @@ export interface FieldResult {
   /** Direct entrants who didn't get in on status. */
   alternates: string[];
   mondayQualifiers: string[];
+  /** Players given a sponsor's invitation. */
+  sponsorInvites?: string[];
   /** Everyone who played the Monday qualifier. */
   mondayPool: string[];
 }
@@ -253,7 +287,12 @@ export function buildFields(world: World, plan: WeekPlan): FieldResult[] {
       return { event, field, alternates: [], mondayQualifiers: [], mondayPool: [] };
     }
     if (event.tier === "dev") {
-      const eligible = entrants.map(([id]) => world.players[id]!).filter((wp) => canPlayDev(wp)).sort(devPriority);
+      // The later Finals are for the top of the points list only.
+      const finalsCut = finalsEligible(world, event);
+      const eligible = entrants
+        .map(([id]) => world.players[id]!)
+        .filter((wp) => canPlayDev(wp) && (!finalsCut || finalsCut.has(wp.player.id)))
+        .sort(devPriority(world));
       return {
         event,
         field: eligible.slice(0, event.fieldSize).map((wp) => wp.player.id),
@@ -268,7 +307,7 @@ export function buildFields(world: World, plan: WeekPlan): FieldResult[] {
       .map(([id]) => world.players[id]!)
       .sort(priorityCompare)
       .map((wp) => wp.player.id);
-    const spots = event.fieldSize - MONDAY_SPOTS;
+    const spots = event.fieldSize - MONDAY_SPOTS - SPONSOR_SPOTS;
     const field = direct.slice(0, spots);
     const alternates = direct.slice(spots);
     const mondayEntrants = entrants.filter(([id, c]) => c!.route === "monday" || world.players[id]!.career.status === "none").map(([id]) => id);
@@ -281,17 +320,50 @@ export function buildFields(world: World, plan: WeekPlan): FieldResult[] {
       pool = [...keep, ...others.slice(0, MONDAY_POOL_MAX - keep.length)];
     }
     const open = event.fieldSize - field.length;
-    const mondayQualifiers = mondayQualifier(world, event, pool, Math.min(open, MONDAY_SPOTS), rng);
+    // Sponsor invitations: a couple of spots for players without status, the developmental tour's best first.
+    const sponsorInvites = sponsorPicks(world, event, pool, Math.min(open, SPONSOR_SPOTS));
+    const mondayPool = pool.filter((id) => !sponsorInvites.includes(id));
+    const mondayQualifiers = mondayQualifier(world, event, mondayPool, Math.min(open - sponsorInvites.length, MONDAY_SPOTS), rng);
     // Any spots still open go down the priority list (alternates, then past members by last season's rank).
-    const fill = pool
+    const fill = mondayPool
       .filter((id) => !mondayQualifiers.includes(id))
       .map((id) => world.players[id]!)
       .sort(priorityCompare)
-      .slice(0, open - mondayQualifiers.length)
+      .slice(0, open - sponsorInvites.length - mondayQualifiers.length)
       .map((wp) => wp.player.id);
-    return { event, field: [...field, ...mondayQualifiers, ...fill], alternates, mondayQualifiers, mondayPool: pool };
+    return { event, field: [...field, ...sponsorInvites, ...mondayQualifiers, ...fill], alternates, mondayQualifiers, sponsorInvites, mondayPool: pool };
   });
 }
+
+/** Spots in a regular event the tournament gives away. */
+export const SPONSOR_SPOTS = 2;
+
+/**
+ * Who a tournament invites: a player without status who asked to play. Your
+ * client gets one now and then, likelier the bigger your agency's name;
+ * otherwise the developmental tour's points leaders get the call.
+ */
+export function sponsorPicks(world: World, event: TourEvent, pool: string[], spots: number): string[] {
+  if (spots <= 0) return [];
+  const rng = createRng(mixSeed(world.seed, world.season, world.week, 43, Number(event.id.replace(/\D/g, "")) || 1));
+  const none = pool.map((id) => world.players[id]!).filter((wp) => wp.career.status === "none");
+  const out: string[] = [];
+  for (const wp of none) {
+    if (out.length >= spots) break;
+    if (world.clientIds.includes(wp.player.id) && rng.chance(sponsorChance(world))) out.push(wp.player.id);
+  }
+  const rest = none
+    .filter((wp) => !out.includes(wp.player.id) && wp.career.devPoints > 0)
+    .sort((a, b) => b.career.devPoints - a.career.devPoints || (a.career.priorPointsRank ?? 999) - (b.career.priorPointsRank ?? 999));
+  for (const wp of rest) {
+    if (out.length >= spots) break;
+    out.push(wp.player.id);
+  }
+  return out;
+}
+
+/** The chance a tournament gives your client (without status) one of its invitations: your agency's name opens doors. */
+export const sponsorChance = (world: World): number => clamp(0.1 + world.agency.reputation / 150, 0.1, 0.6);
 
 /** One round; the lowest scores take the open spots (ties broken at random). */
 function mondayQualifier(world: World, event: TourEvent, pool: string[], spots: number, rng: Rng): string[] {
