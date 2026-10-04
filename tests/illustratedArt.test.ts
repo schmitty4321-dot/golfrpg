@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { holeLayout, pointAt, REAL_COURSES, type Shot } from "../src/engine";
-import { illustratedArtFor, illustratedShotPaths, pointInsideArt, projectArtPoint, solveArtMatrix, type ArtEntry } from "../src/ui/illustratedArt";
+import { illustratedArtFor, illustratedShotPaths, placeOnTerrain, pointInsideArt, projectArtPoint, solveArtMatrix, type ArtEntry } from "../src/ui/illustratedArt";
 
 describe("illustrated tracer art", () => {
   it("solves and applies the same three-point affine calibration used by the tracer", () => {
@@ -92,5 +92,40 @@ describe("illustrated tracer art", () => {
     const progress = Math.hypot(path.end.x - tee.x, path.end.y - tee.y) / Math.hypot(green.x - tee.x, green.y - tee.y);
     expect(progress).toBeGreaterThan(0.68);
     expect(progress).toBeLessThan(0.78);
+  });
+
+  it("puts each lie on the terrain the painting shows, and never drops a penalty back in the water", () => {
+    // A 20 x 10 map of 10 px cells: a lake on the left, a fairway band down the middle, a bunker beside it.
+    const rows: string[] = [];
+    for (let y = 0; y < 10; y++) {
+      let row = "";
+      for (let x = 0; x < 20; x++) row += x < 5 ? "w" : x >= 9 && x <= 11 ? "f" : x === 12 && y >= 4 && y <= 6 ? "s" : "r";
+      rows.push(row);
+    }
+    const flat = rows.join("");
+    let rle = "";
+    for (let i = 0; i < flat.length; ) {
+      let j = i;
+      while (j < flat.length && flat[j] === flat[i]) j++;
+      rle += flat[i]! + (j - i);
+      i = j;
+    }
+    const art: ArtEntry = { image: "t.png", width: 200, height: 100, matrix: { x: [1, 0, 0], y: [0, 1, 0] }, mask: { cell: 10, cols: 20, rows: 10, rle } };
+    const cellOf = (p: { x: number; y: number }) => flat[Math.floor(p.y / 10) * 20 + Math.floor(p.x / 10)];
+    const from = { x: 150, y: 50 };
+    expect(cellOf(placeOnTerrain(art, from, "fairway")!)).toBe("f");
+    expect(cellOf(placeOnTerrain(art, from, "bunker")!)).toBe("s");
+    expect(cellOf(placeOnTerrain(art, from, "water")!)).toBe("w");
+    const rough = placeOnTerrain(art, { x: 20, y: 50 }, "rough")!;
+    expect(cellOf(rough)).toBe("r");
+    // Not on the lake's edge.
+    expect(Math.floor(rough.x / 10)).toBeGreaterThan(5);
+    const shots: Shot[] = [
+      { stroke: 1, kind: "tee", club: "Driver", from: { x: 100, y: 95 }, to: { x: 20, y: 50 }, lie: "water", yards: 260, text: "Wet." },
+      { stroke: 2, kind: "penalty", club: "", from: { x: 20, y: 50 }, to: { x: 25, y: 50 }, lie: "rough", yards: 0, text: "Drop." },
+    ];
+    const paths = illustratedShotPaths(art, shots);
+    expect(cellOf(paths[0]!.end)).toBe("w");
+    expect(cellOf(paths[1]!.end)).toBe("r");
   });
 });

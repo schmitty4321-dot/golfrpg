@@ -45,3 +45,17 @@ The composed page uses a 16:9 course-guide layout with an oblique camera, landsc
 The tracer is image-first. `IllustratedTracer.tsx` lays projected shot arcs and numbered positions over the wide course render; Fairway Manager keeps ownership of the scorecard, strategy choices, commentary and replay controls around it. Waialae Hole 1 is the first illustrated hole. Courses without an illustrated asset still use the existing map renderer while the art set is built.
 
 For local review, copy the wide render to `public/art-demo/waialae-hole-01-course.png`, run `npm run dev`, and open `/?demo=waialae-tracer`. The whole `public/art-demo/` directory is ignored so rendered assets cannot be committed accidentally.
+
+## Terrain maps
+
+The replay puts each ball on the terrain its lie names: fairway on mown grass,
+rough just off it (on the side the shot missed), bunkers on sand beside the
+grass, water on water, trees and out of bounds further out. Hand-placed
+`targets` still decide greens, holed putts and out of bounds where a hole has
+them. After adding or changing a course's illustrations, rebuild its maps:
+
+```powershell
+python scripts/art/lieMask.py <course> [preview-directory]
+```
+
+The preview directory, when given, gets an overlay of each map on its painting.
