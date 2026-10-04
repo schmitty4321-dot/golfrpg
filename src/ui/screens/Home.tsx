@@ -242,6 +242,12 @@ function ThisWeek({ world, game, week }: { world: World; game: Game; week: WeekC
         <h2>Week {world.week}: where does everyone play?</h2>
         <span className="muted small">{remaining} weeks left</span>
       </div>
+      <div className="week-round-plans" aria-label="Round plans">
+        {world.clientIds.map((id) => {
+          const wp = world.players[id]!;
+          return <div key={id}><strong>{wp.player.name}</strong><RoundPlanPicker plan={wp.client!.roundPlan ?? "steady"} onPick={(p) => game.act((w) => (w.players[id]!.client!.roundPlan = p))} /></div>;
+        })}
+      </div>
       {world.clientIds.map((id) => (
         <ClientWeek key={`${id}-${world.week}`} world={world} game={game} id={id} choice={choices[id] ?? defaultWeekChoice(world, id)} onChoose={(c) => set(id, c)} />
       ))}
@@ -280,9 +286,6 @@ function ClientWeek({ world, game, id, choice, onChoose }: { world: World; game:
           </div>
         </div>
       </div>
-      {choice.kind === "enter" && wp.client && (
-        <RoundPlanPicker plan={wp.client.roundPlan ?? "steady"} onPick={(p) => game.act((w) => (w.players[id]!.client!.roundPlan = p))} />
-      )}
       {wp.career.status === "amateur" && (
         <div className="access">
           <span className="dot" style={{ background: "var(--pos)" }} aria-hidden />
