@@ -87,6 +87,38 @@ function lateralYards(path: Pt[], p: Pt): number {
   return best === Infinity ? 0 : best * sideOf(path, p);
 }
 
+/** How many pixels of the painted route a yard of the hole covers. */
+function pixelsPerYard(art: ArtEntry, layout: HoleLayout): number {
+  const route = art.route ?? [];
+  let length = 0;
+  for (let i = 1; i < route.length; i++) length += Math.hypot(route[i]!.x - route[i - 1]!.x, route[i]!.y - route[i - 1]!.y);
+  return length / Math.max(1, layout.yards);
+}
+
+/**
+ * A ball on the green, placed by how far it finished from the flag (a chip to
+ * two feet sits by the flag, a long lag well short of it), on the side it
+ * came in from, and on the putting surface the painting shows.
+ */
+function onGreen(art: ArtEntry, flag: Pt, shot: Shot, layout: HoleLayout, from: Pt): Pt {
+  const yards = Math.hypot(shot.to.x - layout.pin.x, shot.to.y - layout.pin.y);
+  const px = Math.min(70, yards * pixelsPerYard(art, layout));
+  const dx = from.x - flag.x;
+  const dy = from.y - flag.y;
+  const len = Math.hypot(dx, dy) || 1;
+  let p = { x: flag.x + (dx / len) * px, y: flag.y + (dy / len) * px };
+  // Slide toward the flag until the ball is on mown grass.
+  const t = terrainOf(art);
+  if (t) {
+    for (let k = 0; k < 20; k++) {
+      const j = Math.floor(p.y / t.cell) * t.cols + Math.floor(p.x / t.cell);
+      if (t.kind[j] === 1) break;
+      p = { x: p.x + (flag.x - p.x) * 0.2, y: p.y + (flag.y - p.y) * 0.2 };
+    }
+  }
+  return p;
+}
+
 function projectShotPoint(art: ArtEntry, point: Pt, layout?: HoleLayout): Pt {
   if (!art.route?.length || !layout) return projectArtPoint(art.matrix, point);
   const progress = projectAlong(layout.path, point) / layout.yards;
@@ -96,9 +128,7 @@ function projectShotPoint(art: ArtEntry, point: Pt, layout?: HoleLayout): Pt {
   const b = pointOnRoute(art.route, Math.min(1, progress + 0.02));
   const len = Math.hypot(b.x - a.x, b.y - a.y);
   if (len < 1) return on;
-  let routeLength = 0;
-  for (let i = 1; i < art.route.length; i++) routeLength += Math.hypot(art.route[i]!.x - art.route[i - 1]!.x, art.route[i]!.y - art.route[i - 1]!.y);
-  const perYard = routeLength / Math.max(1, layout.yards);
+  const perYard = pixelsPerYard(art, layout);
   const off = lateralYards(layout.path, point) * perYard;
   // Screen y runs down, so the right-hand side of the line of play is (-dy, dx).
   return { x: on.x + (-(b.y - a.y) / len) * off, y: on.y + ((b.x - a.x) / len) * off };
@@ -255,7 +285,10 @@ export function illustratedShotPaths(art: ArtEntry, shots: Shot[], layout?: Hole
     const onTerrain = handFirst && targets?.length ? null : placeOnTerrain(art, projectedEnd, shot.lie);
     // Water or out of bounds the painting doesn't show: off into the trees rather than onto the fairway.
     const offCourse = !onTerrain && !targets?.length && shot.kind !== "penalty" && (shot.lie === "water" || shot.lie === "ob") ? placeOnTerrain(art, projectedEnd, "trees") : null;
-    const end = onTerrain ?? offCourse ?? (targets?.length ? nearest(targets, projectedEnd) : projectedEnd);
+    // On the green with a painted flag: by the distance left to the hole.
+    const flag = art.targets?.holed?.[0];
+    const green = layout && flag && shot.kind !== "penalty" && shot.lie === "green" ? onGreen(art, flag, shot, layout, start) : null;
+    const end = green ?? onTerrain ?? offCourse ?? (targets?.length ? nearest(targets, projectedEnd) : projectedEnd);
     previousEnd = end;
     return { shot, start, end };
   });
