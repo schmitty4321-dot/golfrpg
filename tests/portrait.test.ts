@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { NATIONS, NATION_LIST, createRng, generatePlayer, nationFromRoll, nationInfo } from "../src/engine";
 import { FLAG_CODES } from "../src/ui/components/Flag";
-import { golferPortraitIndex, MALE_GOLFER_PORTRAIT_IDS, portraitSpec } from "../src/ui/components/Portrait";
+import { PORTRAIT_POOLS, ageBand, golferPortraitIndex, MALE_GOLFER_PORTRAIT_IDS, portraitSpec } from "../src/ui/components/Portrait";
 import { attributePotential, createWorld } from "../src/season";
 
 const world = createWorld({ seed: 42, scenario: "rookie" });
@@ -11,8 +11,23 @@ describe("player pictures", () => {
   it("selects golfer artwork only from the audited male portrait pool", () => {
     expect(MALE_GOLFER_PORTRAIT_IDS.length).toBeGreaterThan(100);
     for (let i = 0; i < 500; i++) {
-      expect(MALE_GOLFER_PORTRAIT_IDS).toContain(golferPortraitIndex(`golfer-${i}`));
+      expect(MALE_GOLFER_PORTRAIT_IDS).toContain(golferPortraitIndex({ id: `golfer-${i}`, nationality: i % 3 ? "USA" : "Japan", age: 18 + (i % 33) }));
     }
+  });
+
+  it("matches the picture to his age and to whether he's from Asia", () => {
+    const pool = (asian: boolean, age: number) => PORTRAIT_POOLS[asian ? "asian" : "other"][ageBand(age)];
+    for (let i = 0; i < 300; i++) {
+      for (const [nationality, asian] of [["Japan", true], ["Korea", true], ["Philippines", true], ["USA", false], ["Sweden", false]] as const) {
+        for (const age of [21, 25, 33, 38, 45, 50]) {
+          expect(pool(asian, age)).toContain(golferPortraitIndex({ id: `p${i}`, nationality, age }));
+        }
+      }
+    }
+    // Every pooled face is one of the audited male portraits, and the young Asian and older pools don't mix.
+    for (const group of Object.values(PORTRAIT_POOLS)) for (const ids of Object.values(group)) for (const id of ids) expect(MALE_GOLFER_PORTRAIT_IDS).toContain(id);
+    for (const id of PORTRAIT_POOLS.asian.young) expect(PORTRAIT_POOLS.other.young).not.toContain(id);
+    for (const id of PORTRAIT_POOLS.other.older) expect(PORTRAIT_POOLS.other.young).not.toContain(id);
   });
 
   it("gives a player the same picture every time, and nearly everyone a different one", () => {

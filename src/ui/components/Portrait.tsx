@@ -130,13 +130,44 @@ export function portraitSpec(player: { id: string; nationality: string; age: num
 
 type PortraitPlayer = { id: string; nationality: string; age: number };
 
-export function golferPortraitIndex(playerId: string): number {
-  return MALE_GOLFER_PORTRAIT_IDS[portraitSeed(playerId) % MALE_GOLFER_PORTRAIT_IDS.length]!;
+/** How old a portrait looks: young (up to 29), in his thirties (30-40), or older (41 and up). */
+export type AgeBand = "young" | "mid" | "older";
+export const ageBand = (age: number): AgeBand => (age <= 29 ? "young" : age <= 40 ? "mid" : "older");
+
+/**
+ * The male portraits sorted by how they look (reviewed by eye): Asian or not, and how old.
+ * There's only one older Asian face, so the older Asian pool borrows the more mature thirties faces.
+ */
+export const PORTRAIT_POOLS: Record<"asian" | "other", Record<AgeBand, readonly number[]>> = {
+  asian: {
+    young: [5, 13, 16, 28, 31, 38, 44, 49, 105, 133, 136, 161],
+    mid: [35, 42, 55, 67, 190],
+    older: [97, 42, 190],
+  },
+  other: {
+    young: [
+      1, 2, 3, 4, 6, 8, 9, 11, 12, 15, 18, 19, 20, 21, 23, 25, 30, 34, 36, 61, 71, 75, 81, 88, 90, 92, 95, 99, 101,
+      116, 123, 126, 135, 145, 151, 153, 155, 156, 157, 159, 163, 164, 167, 169, 170, 171, 173, 175, 176, 178, 179,
+      182, 184, 187, 191, 194, 196, 199,
+    ],
+    mid: [
+      26, 29, 32, 33, 37, 39, 41, 45, 46, 47, 53, 57, 60, 63, 69, 78, 84, 100, 103, 106, 110, 112, 114, 118, 120,
+      125, 128, 130, 132, 138, 140, 143, 147, 181, 193,
+    ],
+    older: [27, 40, 43, 48, 50, 51, 59, 65, 73, 79, 82, 91, 94, 108, 121, 141, 149, 185, 188, 197],
+  },
+};
+
+/** A portrait that fits him: Asian faces for players from Asia, and one his age. Stable while he stays in the same age band. */
+export function golferPortraitIndex(player: PortraitPlayer): number {
+  const pools = PORTRAIT_POOLS[NATIONS[player.nationality]?.region === "ASIA" ? "asian" : "other"];
+  const pool = pools[ageBand(player.age)];
+  return pool[portraitSeed(player.id) % pool.length]!;
 }
 
 /** One portrait, drawn at any size. */
 export function Portrait({ player, size = 72, className, title }: { player: PortraitPlayer; size?: number; className?: string; title?: string }) {
-  const index = golferPortraitIndex(player.id);
+  const index = golferPortraitIndex(player);
   return <img className={`portrait ${className ?? ""}`} src={`/people/person-${String(index).padStart(3, "0")}.webp`} width={size} height={size} alt={title ?? "Illustrated player portrait"} loading="lazy" />;
 }
 
