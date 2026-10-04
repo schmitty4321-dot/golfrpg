@@ -1,5 +1,5 @@
 import { brandLift, followerLift } from "./showcase";
-import { sponsorBoost } from "./market";
+import { hiredStaffer, sponsorBoost } from "./market";
 import { clamp, type Rng } from "../engine";
 import { rankMap } from "./points";
 import { absWeek, type SponsorCategory, type SponsorOffer, type World, type WorldPlayer } from "./types";
@@ -89,10 +89,34 @@ export function sponsorWeek(world: World, wp: WorldPlayer, rng: Rng, goodWeek: b
   const c = wp.client;
   if (!c) return 0;
   const now = absWeek(world.season, world.week);
+  // Offers nobody answered: a marketing lead closes them at full value; otherwise he
+  // sometimes signs on his own, at the sponsor's lower fallback terms.
+  for (const o of c.offers.filter((x) => x.expiresAbsWeek < now)) lapseOffer(world, wp, o, rng);
   c.offers = c.offers.filter((o) => o.expiresAbsWeek >= now);
   const pay = c.sponsors.reduce((s, x) => s + x.annualValue / seasonWeeks, 0);
   maybeOffer(world, wp, rng, Math.min(0.95, (goodWeek ? 0.5 : world.week === 1 ? 0.8 : 0.05) * offerChanceMultiplier(wp) + extraChance));
   return Math.round(pay);
+}
+
+/** A lapsed sponsor share he takes without you: this much of the offer's value. */
+export const SELF_SIGNED_SHARE = 0.7;
+const SELF_SIGN_CHANCE = 0.5;
+
+/** An offer that ran out unanswered. */
+function lapseOffer(world: World, wp: WorldPlayer, o: SponsorOffer, rng: Rng): void {
+  const c = wp.client!;
+  const { expiresAbsWeek: _drop, ...deal } = o;
+  void _drop;
+  const lead = hiredStaffer(world, "marketing");
+  if (lead) {
+    c.sponsors.push(deal);
+    world.news.unshift(`${lead.name} closes ${wp.player.name}'s ${o.category} deal with ${o.sponsor} while you were busy.`);
+    return;
+  }
+  if (!rng.chance(SELF_SIGN_CHANCE)) return;
+  const k = SELF_SIGNED_SHARE;
+  c.sponsors.push({ ...deal, annualValue: Math.round((deal.annualValue * k) / 1000) * 1000, winBonus: Math.round(deal.winBonus * k), majorBonus: Math.round(deal.majorBonus * k) });
+  world.news.unshift(`${wp.player.name} signs a smaller ${o.category} deal with ${o.sponsor} himself after the offer went unanswered.`);
 }
 
 /** Win and major bonuses owed for a result. */

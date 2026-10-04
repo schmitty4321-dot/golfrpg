@@ -35,3 +35,20 @@ describe("contract extras", () => {
     expect(w.players[id]!.client!.contract.extras).toEqual({ signingBonus: 50_000, winBonus: 25_000 });
   });
 });
+
+describe("sponsor offers nobody answers", () => {
+  it("a marketing lead closes them; without one he sometimes signs a smaller deal himself", async () => {
+    const { hireStaffer, maybeOffer, playWeek, staffMarket } = await import("../src/season");
+    const { createRng } = await import("../src/engine");
+    const w = createWorld({ seed: 23, scenario: "agency" });
+    const id = w.clientIds[0]!;
+    const wp = w.players[id]!;
+    wp.client!.sponsors = [];
+    wp.client!.offers = [];
+    const offer = maybeOffer(w, wp, createRng(1), 1)!;
+    expect(offer).toBeTruthy();
+    hireStaffer(w, staffMarket(w).find((s) => s.role === "marketing")!.id);
+    for (let i = 0; i < 5; i++) playWeek(w);
+    expect(wp.client!.sponsors.some((s) => s.id === offer.id && s.annualValue === offer.annualValue)).toBe(true);
+  });
+});

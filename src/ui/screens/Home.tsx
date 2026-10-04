@@ -36,6 +36,7 @@ import {
   type ClientChoices,
   type EntryOption,
   type World,
+  absWeek,
 } from "../../season";
 import { TIER_LABELS, fitWord, formWord, millions, money, signed } from "../format";
 import type { Go } from "../nav";
@@ -203,7 +204,10 @@ function Alerts({ world, go }: { world: World; go: Go }) {
     const wp = world.players[id]!;
     const m = wp.client!;
     if (m.contract.untilSeason <= world.season) items.push({ text: `${wp.player.name}'s contract ends this season. Extend it or he leaves.`, tab: "agency", tone: "var(--critical)" });
-    if (m.offers.length) items.push({ text: `${wp.player.name} has ${m.offers.length} sponsor offer${m.offers.length === 1 ? "" : "s"} waiting.`, tab: "agency", tone: "var(--good)" });
+    if (m.offers.length) {
+      const left = Math.min(...m.offers.map((x) => x.expiresAbsWeek)) - absWeek(world.season, world.week);
+      items.push({ text: `${wp.player.name} has ${m.offers.length} sponsor offer${m.offers.length === 1 ? "" : "s"} waiting (the first lapses ${left <= 0 ? "this week" : `in ${left} week${left === 1 ? "" : "s"}`}).`, tab: "agency", tone: "var(--good)" });
+    }
     if (m.happiness < 40) items.push({ text: `${wp.player.name} is unhappy (${Math.round(m.happiness)}).`, tab: "agency", tone: "var(--serious)" });
   }
   if (items.length === 0) return null;
