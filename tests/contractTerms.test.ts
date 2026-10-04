@@ -103,8 +103,9 @@ describe("the owners", () => {
     expect(settleBoard(w, losing)).toMatch(/Two losing seasons/);
     setObjectives(w);
     const bank = w.agency.bank;
-    expect(settleBoard(w, losing)).toMatch(/bail/);
+    const loan = w.agency.loan ?? 0;
+    expect(settleBoard(w, losing)).toMatch(/lend/);
     expect(w.agency.bank).toBe(bank + BAILOUT);
-    expect(w.agency.loan).toBe(BAILOUT);
+    expect(w.agency.loan).toBe(loan + BAILOUT);
   });
 });
