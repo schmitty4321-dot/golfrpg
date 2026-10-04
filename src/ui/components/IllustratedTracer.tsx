@@ -26,7 +26,8 @@ export function IllustratedTracer({ trace, step, courseName }: { trace: HoleTrac
 
   return (
     <section className="illustrated-replay" aria-label={`Illustrated replay of ${courseName}, hole ${trace.layout.real?.hole ?? 1}`}>
-      <div className="illustrated-stage">
+      {/* The frame takes the painting's shape (Waialae is 16:9, La Quinta and Torrey 2:1). */}
+      <div className="illustrated-stage" style={{ aspectRatio: `${art.width} / ${art.height}` }}>
         <img src={`${import.meta.env.BASE_URL}${art.image}`} alt={`Elevated illustrated view of ${courseName} Hole ${trace.layout.real?.hole ?? 1}`} />
         {!art.meta?.framed && <div className="illustrated-hole-card">
           <span>Hole {trace.layout.real?.hole ?? 1}</span>
@@ -38,7 +39,8 @@ export function IllustratedTracer({ trace, step, courseName }: { trace: HoleTrac
             <div><dt>{trace.score || "—"}</dt><dd>Score</dd></div>
           </dl>
         </div>}
-        <svg className="illustrated-arcs" viewBox={`0 0 ${art.width} ${art.height}`} aria-hidden>
+        {/* Cropped exactly like the painting (object-fit: cover), so the lines stay on it when the frame is squeezed. */}
+        <svg className="illustrated-arcs" viewBox={`0 0 ${art.width} ${art.height}`} preserveAspectRatio="xMidYMid slice" aria-hidden>
           {revealed.map(({ shot, start, end }, index) => {
             const color = SHOT_COLORS[(shot.stroke - 1) % SHOT_COLORS.length]!;
             if (shot.kind === "penalty") {
