@@ -20,10 +20,13 @@ MANIFEST = os.path.join(ROOT, "src", "ui", "illustratedArt.generated.json")
 CELL = 10
 # Where the scene's horizon sits, per course: above it only greens count (La Quinta's mountains
 # read as sand). Torrey's greens and bunkers sit high in the frame, with only sea and sky above.
-HORIZON = {"torrey-pines-south": 125}
+HORIZON = {"torrey-pines-south": 125, "tpc-scottsdale": 160}
+# Courses whose paintings show a wide band of mown rough (dark, smooth grass) between fairway and desert:
+# it gets its own label (g), so a ball in the rough sits on it and one in the desert goes past it.
+MOWN_ROUGH = {"tpc-scottsdale"}
 
 
-def label(pixels):
+def label(pixels, mown_rough=False):
     """One cell's label from its pixels (a list of RGB tuples)."""
     n = len(pixels)
     r = sum(p[0] for p in pixels) / n / 255
@@ -41,10 +44,13 @@ def label(pixels):
         return "s"
     if 0.16 <= h <= 0.36 and s > 0.3 and v > 0.45 and rough < 16:
         return "f"
+    # Darker, still smooth: the mown rough (second cut) some courses paint as a wide band.
+    if mown_rough and 0.16 <= h <= 0.3 and s > 0.5 and v > 0.25 and rough < 14:
+        return "g"
     return "r"
 
 
-def build(path, framed=False, horizon=200):
+def build(path, framed=False, horizon=200, mown_rough=False):
     im = Image.open(path).convert("RGB")
     w, h = im.size
     cols, rows = w // CELL, h // CELL
@@ -58,7 +64,7 @@ def build(path, framed=False, horizon=200):
                 labels.append("r")
                 continue
             cell = [px[x + i, y + j] for j in range(0, CELL, 2) for i in range(0, CELL, 2)]
-            l = label(cell)
+            l = label(cell, mown_rough)
             # Above the horizon only the greens on the skyline count: mountains read as sand or water.
             if framed and y < horizon and l != "f":
                 l = "r"
@@ -129,11 +135,11 @@ def main():
     course = sys.argv[1] if len(sys.argv) > 1 else "waialae"
     preview = sys.argv[2] if len(sys.argv) > 2 else None
     manifest = json.load(open(MANIFEST, encoding="utf-8"))
-    colors = {"f": (120, 255, 120), "s": (255, 240, 160), "w": (60, 140, 255), "r": (60, 60, 60)}
+    colors = {"f": (120, 255, 120), "s": (255, 240, 160), "w": (60, 140, 255), "g": (20, 120, 40), "r": (60, 60, 60)}
     for key, entry in manifest.items():
         if not key.startswith(course + ":"):
             continue
-        im, cols, rows, labels = build(os.path.join(ROOT, "public", entry["image"].split("?")[0]), bool(entry.get("meta", {}).get("framed")), HORIZON.get(course, 200))
+        im, cols, rows, labels = build(os.path.join(ROOT, "public", entry["image"].split("?")[0]), bool(entry.get("meta", {}).get("framed")), HORIZON.get(course, 200), course in MOWN_ROUGH)
         entry["mask"] = {"cell": CELL, "cols": cols, "rows": rows, "rle": rle(labels)}
         if preview:
             over = im.copy()
@@ -144,7 +150,7 @@ def main():
                 x, y = (i % cols) * CELL, (i // cols) * CELL
                 d.rectangle([x, y, x + CELL - 1, y + CELL - 1], fill=colors[l] + (110,))
             over.save(os.path.join(preview, f"mask_{key.replace(':', '_')}.jpg"), quality=75)
-        print(key, {l: labels.count(l) for l in "fswr"})
+        print(key, {l: labels.count(l) for l in "fswgr"})
     with open(MANIFEST, "w", encoding="utf-8", newline="\n") as f:
         json.dump(manifest, f, indent=2)
         f.write("\n")

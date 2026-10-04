@@ -4334,5 +4334,1566 @@
       "rows": 88,
       "rle": "r2799s2r175s2r354f1r5f1r331f2r43f2r131f2r18s7r166s4r17f1r6s1r130f3r1f1r5f1r4s4r4f6r1f2r2f1r1s3r7s1r95s1r9f1r1f4r34s4r1f15r1s3r123f3r23f8r5f11r2s4r124f3r1f1r8f1r18f2r5f5r4s4r3f1r128f3r7f1r4w10r3f2r1f8r1s5r103f1r30f2r9w15r1f11r6f1r101f2r20f1r11f1r2w19r2f5r1f5r3f3r61w1r26f3r11f1r21f6r1f1r3f1r3w15r3f9r1f3r2f3r44w2r4w3r10w1r23f3r1f14r26f3r3f1r2w12r2f16r2f3r96f13r23f5r11w3r3f16r3f3r4f1r2s1r80f1r9f1r1f6r22f9r1f2r10f9r1f1r5f1r70f4r18f1r15f8r2f1r3f1r10f5r1f2r1f25r25f1r32s1r19f2r39f5r6f1r1f1r1f2r2f4r2f28r3f1r84f10r26f1r22f17r1f9r100f1r1f1r34f1r6s4r2f25r71w2r27f7r20f4r4f3r5s5r1f27r126f1r2f7r4f1r1f2r5f28r10s2r91f1r6f2r21f3r1f1r2f30r1f6r10s2r91s1r33f25r1f1r4f8r10s2r105f1r5f2r13f22r9f1r7f4r67w2r50f7r8f21r2s5r11f1r3s1r44f1r10f2r4s1r61f29r2s4r1f1r15s2r59f5r52s1r1f34r7f1r15s2r60f8r5f1r34s1r12f31r5f1r16s2r30s2r27f9r7f1r1f5r15f1r1f5r2f1r8s3r3f32r1f5r57s1r14f8r2f1r14f1r1f1r13f1r1f7r1f5r3s5r1f3r1f29r1f6r18s2r12s5r21f3r2f1r12f3r31s1r10f6r1s6r1f3r1f30r2f5r3f1r13f1r8f1r1s1r31f5r12f1r26s1r1s1r17f3r8f44r7s1r5f1r4f1r6s1r34f1r63f4r4f39r1f3r2f1r2s2r1s1r8f1r106f40r1f5r2f1r9s1r2s1r95f1r21f36r5f1r3f1r5s2r102f5r16f1r1f33r8f1r6s2r102f2r4f5r9f2r1f27r5f4r9f2r1s2r105f3r2f2r3f39r6f2r12s3r108f3r3f5r1f33r9f1r10s2r4s1r91s2r16f39r23f1r94s1r14f44r22f1r64s1r3s1r45f40r10s3r9f1r10s1r53s2r3s1r45f37r111s3r17f1r7f26r2f8r94s1r40f25r3f9r4f2r37s2r2s2r86f3r2f14r6f2r1f4r1f2r1f4r107s4r15f1r2f1r4f6r1f26r5f2r137f5r1f12r7f5r1f5r2f2r106s3r21f2r1f1r9f9r1f1r2f1r4f4r2f2r75s1r13s2r1s1r1s1r17s3r17f1r5f1r1f2r3f4r6f5r8f4r1f1r1f1r89s1r1s5r15s4r14f10r1f1r3f10r1f2r2f2r2f1r2f3r3f2r92s1r3s1r1s1r15s3r14f1r1f3r3f1r1f3r1f9r12f3r106s1r14s3r15f1r2f1r3f6r6f3r111s1r13s1r11s1r18f1r3f3r5f3r2f2r8f1r16s1r100s1r2s1r30f9r2f1r1f1r16f2r141f1r4f7r137s2r26f4r4f2r91s1r72f3r5f1r1f2r24s1r138f11r4s1r99s1r42s1r6f1r9f7r1f1r7s1r23s7r4s1r115f1r7f9r38s1r12s1r108f2r5f1r1f5r24s2r34s1r102f2r8f3r1f1r12s1r3s6r140f3r5f2r17s5r145f4r9f1r10s3r151f5r2f1r2f2r5s1r3s1r154s2r11s2r2s1r159s7r1s7r167s1r8s1r162"
     }
+  },
+  "tpc-scottsdale:1": {
+    "image": "art-demo/tpc-scottsdale/hole-01.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -5.421357,
+        3.386053,
+        190
+      ],
+      "y": [
+        3.225001,
+        -1.38308,
+        770
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 190,
+        "y": 770
+      },
+      {
+        "at": 0.72,
+        "x": 1000,
+        "y": 470
+      },
+      {
+        "at": 0.98,
+        "x": 1510,
+        "y": 225
+      },
+      {
+        "at": 1,
+        "x": 1537,
+        "y": 218
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1519,
+          "y": 223
+        }
+      ],
+      "holed": [
+        {
+          "x": 1537,
+          "y": 218
+        }
+      ],
+      "bunker": [
+        {
+          "x": 835,
+          "y": 390
+        },
+        {
+          "x": 1590,
+          "y": 265
+        }
+      ]
+    },
+    "meta": {
+      "number": 1,
+      "par": 4,
+      "yards": 403,
+      "tourAverage": 4.018,
+      "course": "TPC Scottsdale (Stadium Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2857s1r6s3r10s1r10s1r17s2r2s1r4s1r5s1r25s1r14s1r17s1r1s1r66s1r3s1r2s1r1s1r1s1r3s2r2s1r12s1r7s1r15s2r2s2r1s2r10s2r8s2r2s1r20s1r8s1r1s1r1s1r42s1r8s1r3s3r5s1r1s4r39s2r4s1r23s1r6s1r17f4r6s1r68s1r1s1r3s1r1s1r11s1r32s1r4s2r23f7r14f1g3f2g1r2s3r2s1r45s2r4s2r12s1r1s2r2s1r28s1r5s1r3s4r4s5r15f7g1f3r2f8r1f3r4f3r47s1r1s2r27s2r4s1r7s1r7s1r12s1r4s1r1s1r3s1r7s1r10f13r1f17r1f3g1f1s2r44s1r2s1r28s2r17s1r13s2r3s1r10s4r7f13r2f18r1f3g2r2s2r1s1r62s2r8s1r9s1r2s1r5s2r8s3r2s1r4s3r13f12g1f5r2f15r5g4f1r1s2r85s2r1s1r3s3r9s1r1s1r7s2r4s1r6f22r3f9r5s3r1g4r35s1r52s1r2s2r1s1r1s2r6g1s2r4s6r2s1r9f29r7g1r1s5r1g5r1s2r28s1r11s1r1s1r18s1r28s1r7s2r1s2r1s5r7s1r2g1r1g1f15r3f14g1f2g2r1s1r1s7r1g2r2s3r1s2r28s1r9s1r3s1r8s2r2s1r29s1r13s3r1s2r9g3f11r3f21g1f2g1s10r7s1r2s2r26s1r6s1r6s1r2s2r6s2r1s1r2s1r25s1r2s3r1s1r9s1r9f2g2f9r2f27g2f1g1r2s4r6s3r1s1r37s1r10s1r5s2r2s1r34s1r12s1r6g3f39g2f3r1f1g6r4s1r6s1r29s2r12s2r6s1r2s2r1s2r29s2r2s2r1s1r13g2f7r2f28g2f2r9f1g3r8s1r2s1r28s2r55s4r4s3r8f43g2f2g1r21s2r28s1r13s3r4s2r20s1r2s1r15s5r4f17r1f31g2f1g3r11s2r4s1r1s1r3s2r26s1r14s3r5s2r30s1r2s1r4s1r3f2g1f49g1f2g2r21s1r4s1r70s3r1s1r5s2r5f2r2f4g1f47g1f3g3r16s1r79s3r11f3g3r3g2f43r1f2g3f3g4r21s2r73s1r1s1r9g1r2g2r1s6r1f1g5f38g3f5r1g2r26s1r71s1r1s1r2f1r1f3r3g3r1s6r2g5r1f34g3f4g2r25s1r4s2r43s2r9s2r9s2r5f1g2f4g2r2s2r1s7r1g1r1f3r1f34g3f4g3r9s1r2s1r12s2r49s2r3s1r5s1r1s1r1s1r5s3r4f2g1f1g5r1s9r2g3f37g3f4g3r19s1r5s2r4s1r4s6r17s1r4s1r27s2r2s1r9g2f1g6r1s9g4f36g4f3g5r21s1r9s1r1s1r5s1r8s1r13s1r36s1r8g6s10r1g2f36g6f1g2r5s1r11s2r1s1r3s1r1s1r2s3r2s1r2s2r7s1r35s1r7s3r11s2r5f3g5r2s5r2g1f2r1f35g9r5s2r13s5r3s2r6s1r15s1r27s1r8s5r6s1r3s1r10f1g7r1g4f39g9r5s1r14s1r1s2r2s7r5s1r47s5r28g3f5g1f41g3f1g1r1g2r9s1r7s1r7s6r1s1r7s1r2s1r42s1r1s1r15s1r16f5r1f42g2f1r5s1r8s1r16s3r70s1r6f5r7f44r1f2g1f1g1f2r7s2r6s3r15s4r1s3r6s5r33s4r4s2r10s2r7f2g1r1g4f1r3g1r2f40g5f2r6s1r12s1r17s1r1s3r8s2r34s3r1s1r2s1r11s2r3s1r5g2r2g2f43r1f1g9r13s1r7s1r16s1r1s1r1s3r8s1r31s1r1s5r2s1r22g2f6r1f39g1r3g4f1r14s3r6s1r1s1r15s1r2s5r42s1r4s4r2s3r3s1r4g1r3f3g4f1g1f39g4r6g1r13s3r5s1r1s1r3s3r12s1r5s2r6s2r1s1r1s1r3s1r24s2r5s3r2s2r6g6f3g1f5r1f40g3r23s1r4s1r7s3r5s2r1s1r21s1r26s3r10s2r3g8f4g3f2r1f40g3r37s1r3s1r6s3r5s1r19s1r13s1r8s3r7s3r2g10f1g4f1r2f40g5r38s4r30s1r2s3r23s2r8g7r1f2g6f1g1f42g3r42s3r2s2r10s2r19s1r12s1r11s1r2s1r7g4f1g9r1f38r1g6r1s1r2s1r8s1r2s1r2s1r1s1r17s1r3s9r30s1r2s1r19s1r4s1r5g3f3g3f1g2f1r1f39g8r1s2r11s1r27s2r2s6r1s1r5s3r13s2r1s2r5s1r15s6r7g3f3g2f5r1f40g3r3g1r16s1r4s1r21s2r5s2r2s2r5s3r10s1r3s1r6s1r14s3r8s1r6f1g1r1g3f43r1g4r6s1r15s1r3s2r31s4r2s2r4s1r29s3r18g9r1f40g4r22s1r5s4r15s2r1s1r6s2r2s1r1s4r35s1r6s1r10f2g7f42g5r3s1r20s1r23s1r1s5r4s1r2s8r25s7r1s1r18g3f2g3f41g6r3s1r25s1r2s1r1s1r3s1r9s1r3s5r1s2r2s1r1s1r1s4r17s1r3s7r1s1r1s2r15f2r3g3f2g6f32r2f1g7r2s1r26s1r6s1r17s3r3s11r17s8r5s1r7s1r9g1r1g2f1g2f1g3f1g5f1r2f1r2f22r5g4r5s1r7s1r11s1r1s1r8s1r23s3r2s13r14s7r9s4r12g12r2g2r13f5r1f8r64s2r6s1r1s1r2s5r4s2r1s2r10s8r5s1r5s3r6g1r4f6g2r1g1r4g1r1g1r13g2r9g1r20s3r26s1r16s1r5s1r2s1r1s2r1s2r6s1r3s1r10s10r4s4r3s1r3g1r3f1r4g1f3r33g3r20s2r1s4r45s2r3s1r1s3r8s1r12s2r2s1r1s1r16f1r2f8r33g1r2g1r23s6r35s1r10s1r6s2r7s3r2s1r7s1r8s1r16f11r49s1r10s6r19s1r32s1r9s2r2s1r5s2r1s1r16s1r1g1f1r2f12r1f2r32s2r1s1r22s2r1s1r1s1r2s1r1s3r12s1r3s1r22s1r5s4r1s1r1s1r2s1r3s4r3s4r9s1r2s1r4f1g1r2f10r2f2r26s1r4s3r13s1r9s3r29s1r2s1r26s4r8s1r2s1r14s1r1s1r7g1r1g3r1f6r2g2f1r29s1r3s2r52s9r2s1r22s4r10s1r12s1r1s2r4g2r3g4f3r4g1f2r28s1r2s6r53s4r3s1r1s2r8s3r11s4r8s3r12s1r6g1r2f1r1f1r4g7r3s1r34s1r20s3r2s1r29s3r5s1r9s1r27s1r15s1r1f1r2f9r3g1r1g1r17s1r41s2r22s1r13s1r2s1r2s1r6s3r9s1r18s1r15g1r3f11r14s4r46s3r17s2r6s1r21s1r1s1r2s1r1s1r10s1r27g1r3f13r1f1r7s3r1s2r1s2r46s2r11s1r7s2r3s2r21s2r4s1r34s2r6f13r9s1r1s1r1s3r1s1r46s3r22s5r22s3r2s1r36g2r2f13r14s1r6s1r44s1r24s4r22s3r1s2r14s1r21g1r3f1r1f11r1g2r10s2r57s2r18s2r24s2r4s3r34f1r1g1r3f8r4s2r4s1r3s3r59s1r23s2r17s1r37s1r9g2r2f4r9s2r1s6r1s1r11s1r12s2r40s2r2s1r39s3r1s1r20s1r14g4r13s6r2s1r8s1r2s1r6s1r5s2r11s2r28s1r1s1r46s1r49s1r1s5r14s1r1s3r32s2r24s1r36s1r24s2r27s8r17s1r20s2r20s1r17s1r28s2r3s2r5s1r21s1r5s2r20s1r1s3r19s1r1s2r6s1r7s1r2s2r16s2r4s1r5s3r10s1r31s1r28s1r17s2r4s1r3s1r2s1r1s3r35s2r10s1r9s1r6s2r13s2r14s1r15s1r2s1r6s1r12s1r25s3r1s4r7s1r3s1r28s1r3s1r22s1r2s2r1s4r15s1r9s1r1s3r1s1r9s1r11s3r18"
+    }
+  },
+  "tpc-scottsdale:2": {
+    "image": "art-demo/tpc-scottsdale/hole-02.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -16.496767,
+        2.87653,
+        260
+      ],
+      "y": [
+        4.549218,
+        -1.258015,
+        815
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 260,
+        "y": 815
+      },
+      {
+        "at": 0.656,
+        "x": 950,
+        "y": 490
+      },
+      {
+        "at": 0.982,
+        "x": 1490,
+        "y": 265
+      },
+      {
+        "at": 1,
+        "x": 1495,
+        "y": 266
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1492,
+          "y": 265
+        }
+      ],
+      "holed": [
+        {
+          "x": 1495,
+          "y": 266
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1210,
+          "y": 418
+        },
+        {
+          "x": 1370,
+          "y": 258
+        },
+        {
+          "x": 1590,
+          "y": 293
+        }
+      ]
+    },
+    "meta": {
+      "number": 2,
+      "par": 4,
+      "yards": 442,
+      "tourAverage": 4.197,
+      "course": "TPC Scottsdale (Stadium Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2926w1r5w2r9w1r6w1r135w1r62s1r20s1r1s1r6s2r4s1r23s1r63s1r11s2r7s4r3s1r3s1r2s1r17s1r4s1r3s1r5s1r2s1r8s1r48s2r6s1r1s1r1s2r2s1r1s2r3s2r1s2r1s1r1s2r4s1r4s1r3s2r4s2r15s1r4s1r48s1r12s2r48s1r8s1r10s1r22s3r13s1r5s1r3s1r55w2r26s1r5s1r3s1r48s3r6s1r7s1r31s2r128s3r1s1r37s1r18s1r1s1r23s1r2s2r105s1r9s1r12s1r20s1r107s1r31s1r3s1r14s1r7g1r11g1r4s1r1s2r64s1r4s1r23s1r35s2r16g1r1g1r4s3r1g1r1f6r1f4r3g1r13s1r47s1r4s1r3s2r52s1r8s1r9g7r3s4r5f6r1f9g2r15s1r85s1r13s1r16g2r1g4r10f2r2f2r1f12r1f3r6g3r2s2r7s1r42s1r12s1r29s1r1s2r2s1r8s2r7g1r1g6r5f17r2f15g1r5g4r3s1r51s3r38s2r1s1r7s1r2s3r8g2r1g1r2f23g2f1r13g2r1s5r1g1r6s1r48s1r3s1r1s1r44s2r3s1r6f46r3s7r1f1r53s2r3s2r11s1r47g5f45r4f3r56s2r16s1r22s1r6s1r1s1r9f2g7r2f38r5f1r54s1r2s1r4s1r4s1r10s1r3s1r29g3r2g8r5f38r3g2r14s1r61s1r10s2r20g13r6f32g1r1g1r5g2r55s1r3s1r2s1r1s1r24s1r18s1r3g12r4f30r3g6r84s1r8s1r19s1r1s1r3g10r4f31r3g2r1g6r10s5r13s1r3s1r33s1r41s4r3g12r3f33r2g6r2g3r2s1r5s1r5s1r5s1r5s2r15s5r12s2r3s1r24s1r16s1r1s2r2g12r3f36r4g6r1g2r2s1r5s1r4s4r1s2r39s1r11s1r14s2r3s2r17g14r1f37g2r7g2r1g5s2r5s4r3s1r1s1r8s1r35s1r21s1r11s1r1s1r2s2r2s1r3g12r1f33r8s7r1g7r1s2r3s2r1s1r3s1r11s1r11s1r18s5r27s1r12s1r7g10r1f33r1g2r2s9r2g4r4s1r1s2r5s3r4s1r6s1r30s6r10s2r1s2r1s1r16s2r3s1r1s2r2s2r5g7r1f34g2r1s9r1g2r1g2r23s1r50s1r8s1r10s1r9s8r7g4r1f35r3s9f1r1g2r9s2r1s1r17s1r45s1r8s2r4s1r6s1r2s1r6s4r1s1r6g4f38r1g2r8g4r1s1r6s3r2s1r13s1r2s1r53s5r13s6r2s1r4s2r2g5r1f38g10r1g1r2g1r9s2r8s1r52s1r11s1r4s1r1s1r2s1r6s3r3s1r9g6f41g8f1g1r12s4r1s1r14s1r42s2r1s2r17s1r12s1r8g5f1g1f41g7r2g1r14s2r2s1r31s1r22s7r7s1r7s1r6s4r10g10f41r1g7r1g1r14s4r1s1r53s2r4s2r15s2r7s1r1s2r3g13r1f41g7r1g1r9s1r3s5r54s3r23s2r1s2r2s2r3g1r1g12r2f42g9r5s1r1s2r69s1r9s1r16g8r2g6r3f43g11r1s2r2s3r6s1r5s1r38s2r6s2r1s3r4s2r14s1r5f1r1f1g9r1g6r2f45g2r2g1r1g2r4s4r1s1r1s2r42s1r7s1r7s3r3s2r12s1r8g5r1g9r1g4r2f45g1r1g3r4g1r4s4r1s1r1s2r58s1r17s1r4g1r2g8r1g11r2f46g3r12s6r84g1r5g1r1g7r2g6r1f47g2r1g3r13s1r76s2r19g4r2g4r2f45g9r92s2r4s1r15g4r1g1r1f44g2r4g6r17s1r36s1r19s1r12s1r5s1r1s1r2s1r8g1r11g2f39r1g3r8g1r32s1r60s2r2s6r3g6r9g2r1f35g9r28s2r13s1r7s1r29s1r21s7r4g5r2f12r2g3r1g4r2g1f4g1r2g2f1r4g7r1g1r2g2r1g4r3s1r44s2r15s1r1s2r8s2r24s4r2g2r2g3r2f13r1g8r1g5r3g2r3g6r2g3r8g3r15s2r1s1r9s1r46s4r4s3r3s1r12s4r8g1r2f13r1g9r1g3r1g20r10g3r13s4r13s2r9s1r36s1r5s1r4s1r4s4r4s2r15f9r1g3r1g14r4g3r5g4r14s1r11s2r66s1r9s6r2s1r5s1r3g1r9g3r6g6r5g7r14g3r13s3r41s4r15s1r18s1r2s1r6s6r2s1r4s2r3f12r4g7r2g12r29s2r2s2r8s1r1s1r28s2r16s1r25s6r5s1r8f16r1g4r1g1r2g4r2g1r1g2r1g3r28s2r10s1r46s1r4s1r1s2r20s3r16f1r1f16r1g8r1g4r25s1r8s1r8s2r4s1r46s2r1s3r1s8r15s5r8s1r3f1r9f8r1g7r2g1r1g1r28s1r71s1r8s4r6s1r6s2r3s1r9s3r5g1r1g7r6g4r1g2r9s1r9s1r7s2r1s3r24s1r50s1r7s4r8s10r7s3r15g1r2g4r2f2r6s4r1s2r9s2r10s1r12s1r2s1r9s2r56s3r7s12r9g2f15r15s6r1s2r8s2r5s1r1s1r29s2r55s5r6s3r3s3r1s1r7s1r1g1r1f24g1r1g1r1g1r1s2r1s1r2s3r1s2r3s5r8s2r7s1r1s2r17s2r2s1r40s1r5s2r2s6r2s1r3s3r4s1r5s1r1s2r1g1r2f23r1g6r2s2r5s4r3s1r1s4r10s1r5s4r11s5r2s2r39s1r15s3r1s6r1s1r3s2r5s1r2g2r4f21r1g5r2s1r1s1r16s2r16s6r17s1r40s3r2s1r12s1r5s1r3s1r4s1r1s2r2g3f22r2f1r1g5r2s4r7s1r9s2r12s2r4s1r4s1r15s1r10s4r26s5r21s1r7s1r2g3f23r3g2r5s4r1s3r6s4r16s4r1s1r1s1r8s1r1s1r21s1r1s2r26s7r31f26r1g4r5s1r3s2r5s5r5s1r11s8r32s4r24s1r4s7r4s1r13s1r7g1r6f20g6r14s5r1s2r3s3r11s7r21s1r39s4r3s1r16s1r4s1r2g1r11g4r3g3r1f8g2r2g1r5s1r12s2r2s12r6s1r1s1r25s1r2s1r37s1r2s2r2s2r2s2r6s1r6s1r1s2r23g5r3g4r2g1r16s1r8s10r5s1r72s3r10s1r5s2r41g3r23s9r5s1r1s4r91s1r3s1r40s2r20s4r12s5r2s3r64s1r1s1r20s1r3s1r12s1r2s1r21s1r1s2r8s5r6s3r12s1r2s4r1s1r1s3r60s1r3s2r19s2r9s1r7s1r21s1r1s3r2s1r1s2r2s13r15s2r1s1r38s1r53s1r9s1r32s2r1s20r16s1r43s1r26s3r1s2r64s19r12s1r37s1r2s1r5s3r27s1r1s2r3s1r9s1r11s1r34s2r3s19r48s1r1s1r1s1r1s2r2s1r4s1r27s2r1s3r9"
+    }
+  },
+  "tpc-scottsdale:3": {
+    "image": "art-demo/tpc-scottsdale/hole-03.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        8.833664,
+        2.624246,
+        170
+      ],
+      "y": [
+        -2.518095,
+        -1.035976,
+        760
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 170,
+        "y": 760
+      },
+      {
+        "at": 0.52,
+        "x": 720,
+        "y": 520
+      },
+      {
+        "at": 0.9,
+        "x": 1250,
+        "y": 300
+      },
+      {
+        "at": 0.985,
+        "x": 1575,
+        "y": 200
+      },
+      {
+        "at": 1,
+        "x": 1582,
+        "y": 196
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1577,
+          "y": 199
+        }
+      ],
+      "holed": [
+        {
+          "x": 1582,
+          "y": 196
+        }
+      ],
+      "bunker": [
+        {
+          "x": 840,
+          "y": 365
+        },
+        {
+          "x": 1450,
+          "y": 215
+        },
+        {
+          "x": 1645,
+          "y": 235
+        }
+      ]
+    },
+    "meta": {
+      "number": 3,
+      "par": 5,
+      "yards": 558,
+      "tourAverage": 4.496,
+      "course": "TPC Scottsdale (Stadium Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2880s1r6s1r17s1r32s1r1s1r96s4r50s1r1s1r11s1r3s1r3s1r54f2g3r42s1r51s2r1s1r10s1r46s1r4g1f3r1f6r1f2r3f1g1r44s1r107g1r6f1r3f12r1f2g1r3s1r46s1r52s1r37f4r1f6r2s2r4f16g2r83g1r51f12r1f2r2s6r2f9r5g5r3s1r25s1r1s1r76s1r18g2f20r2s3r2f4r1f1r8s4r2g2r58s1r46s1r21f8r1f15r2f10g3r2s5g3r47s1r38s1r8s2r10s2r16f42r1s6r65s1r12s1r33s1r1s1r5f13r2f23r6g7r43s1r76s1r4f7r1f21r1f5r1f1g6r4g1r15s1r47s1r62s1r4f1r1f1r1f21r1f1r2f1r5g3r2g1r17s3r47s1r49s1r5s1r12f2r1f22r1f1r10f1r12s3r2s1r1s1r58s1r49f1r2f7r3f22r10g1r6s1r4s4r8s1r1s1r50s1r20s1r29f5g1f3r1f27r1f2r12s1r1s2r4s5r3s5r2s1r81s1r15f6r1f33r1f1g1f1r1g1r18s2r1s9r97f1g2f41g5r16s13r2s1r34s1r23s1r19s1r18f4g1f36g2f1r3g1r18s11r1s1r6s1r70s1r4f1g1f3r12f1g1f35g5r23s12r6s1r26s1r5s1r38s1r3g2f1g1r1g2r2s8r2f35g6r23s11r9s1r70s1r2g2f1r3s9r1g3f33g6r1f1r8s1r12s1r3s2r2s9r76s1r4f3s8r2f3r1f32g6r23s1r5s1r2s3r2s3r6s1r10s1r59s1r3g1r1f1g2r6g1f2r2f31r1f1g2r4g1r20s1r7s3r1s3r2s1r1s1r4s1r13s1r50s1r6s1r4g1f10r2f35g1r11s1r23s2r3s4r22s1r47s1r9f5g1f6r1f39g1r26s2r1s4r1s1r1s6r1s1r9s1r10s1r17s1r11s1r19s1r10g2f4g1f1r1f40g3r21s1r2s7r3s1r2s4r6s1r16s3r25s2r11s1r13f1r5f3g2r1f46r17s1r3s1r1s8r7s1r8s1r18s1r22s2r26f4g1f4g1f1r1f47g3r3s1r17s1r1s4r5s5r35s1r4s2r9s1r25g1r4f5r1f42g9r3s1r17s2r2s1r1s1r4s4r5s4r30s1r4s1r8s1r29f4r1f44g6r19s2r1s1r1s1r4s8r41s1r33g2f2r6g2r1f43g1r6g1r24s1r4s11r31s2r32s1r8f2g2f5r1f44g2r27s1r1s5r1s11r3s1r29s1r20s3r19g1f49g3r29s2r1s1r4s4r2s2r2s2r75f4g1r1f42g5r17s1r1s2r4s1r1s1r3s2r11s1r9s1r38s1r14s1r6f5g2f5r1f44g2f1g2r4g1r12s1r7s7r7s2r18s1r19s1r21s1r4s1r3g2f5g3f3g2r2f42g4f1g3r1g1r25s8r72g3f5g3f4g1r2f45g1f2g2r25s1r3s1r6s1r7s1r31s3r19s1r10f5g4f4g1r2f46g1f1g4r34s1r1s1r2s2r2s1r33s4r25f4g6f4g1r1f45g3f1r3g1r37s1r2s3r38s3r7s1r6s1r4f4g9f4g1r1f46g2r1g2r23s1r12s8r2s2r3s2r21s1r6s2r3s4r2s1r12f2g10f4g2r2f47r30s3r1s1r4s5r1s2r1s3r5s2r34s4r3s1r10f1g10f3g2r2f44r1g3r18s1r21s3r1s2r1s1r2s4r2s1r6s1r29s4r7s1r7g9f2g1f49g5r28s1r5s1r9s6r1s4r1s4r1s2r29s4r1s1r1s1r1s1r12f3g1f3g1f50g4r16s1r11s1r17s4r3s5r3s1r30s4r19f1r1f59g2r35s1r11s3r1s1r4s1r6s2r22s1r4s3r21f1g4f47g3f1g6r16s1r13s1r17s1r1s3r4s1r1s1r28s4r26f2g1f44g9r33s1r56s4r15s3r9g1f1g6f37g1r5g1r6g1r9s1r1s1r38s1r35s4r29f1g12f2r1f14r1f13r100s4r18f1r6g1f7g7r1g1r1g1r2g1r2f5r3f1r4f2r3f4g2r89s1r9s4r21f4r6f6g1r13g1r2g1r12g1r1g3r24s1r9s1r49s1r16s4r7s1r8f1r2f11r3g3r15g1r18g1r21s1r3s1r1s1r6s1r1s1r44s2r22s1r13f1g1r2f13r2g1r59s1r8s1r2s1r59s1r9s3r4s1r7g1r2f13r2g1r5s1r116s1r20s5r9f1g1r3f11r1g2f1r71s1r1s1r4s1r7s1r44s1r12s3r7f5g4r4f4r2g1r74s1r2s1r3s1r1s1r1s1r2s1r35s1r11s1r24g4f4g1f1r5f1r17s2r44s1r2s1r6s1r10s1r1s1r18s1r26s1r4s1r5s5r4f2r3f4r5g4f1r1f1r13s3r2s3r48s1r75s5r5g1r3f10r5g2r11s1r1s4r3s2r60s1r11s2r50s3r6g1r2f13r4g2r11s6r22s1r50s1r8s1r52g2r2f15r1f1r11s2r1s4r78s1r18s1r1s1r36g2r2f15r2g1r12s5r4s2r81s2r47g2f1r1f15r3g1r13s2r1s1r7s1r8s1r5s1r7s2r45s1r35s1r23f1g4r3f10r14s5r10s2r21s1r105s1r4g1r2g2r4f1r1f1r15s5r25s1r9s1r106s1r5s1r1g4r17s4r26s1r145s4r149s1r4s1r19s1r85s1r1s2r61s1r18s3r7s2r33s2r47s4r58s2r17s5r95s1r1s1r74s4r40s1r59s1r15s1r53s1r3s1r7s1r21s1r2s1r58s1r10s1r46"
+    }
+  },
+  "tpc-scottsdale:4": {
+    "image": "art-demo/tpc-scottsdale/hole-04.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -9.001389,
+        5.508197,
+        330
+      ],
+      "y": [
+        -13.952167,
+        -3.442623,
+        760
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 330,
+        "y": 760
+      },
+      {
+        "at": 0.956,
+        "x": 1300,
+        "y": 248
+      },
+      {
+        "at": 1,
+        "x": 1338,
+        "y": 250
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1313,
+          "y": 249
+        }
+      ],
+      "holed": [
+        {
+          "x": 1338,
+          "y": 250
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1100,
+          "y": 330
+        },
+        {
+          "x": 1515,
+          "y": 305
+        }
+      ]
+    },
+    "meta": {
+      "number": 4,
+      "par": 3,
+      "yards": 183,
+      "tourAverage": 2.977,
+      "course": "TPC Scottsdale (Stadium Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2865s1r2s1r6s1r26s1r10s1r8s1r53s2r1s2r53s1r25s2r8s1r23s1r43s1r39s3r56s1r12s2r5s3r30s2r8s1r22s2r2s2r7s4r6s1r3s1r10s1r49s1r17s2r2s1r10s1r23s1r1s1r16s1r23s2r25s2r45s1r71s1r30s1r18s1r73s1r41s2r11f4r1f9r1f1r7f2r31s1r77s2r4s1r25s1r1s1r3f6r18g6f2g3r12s1r14s1r32s1r26s1r18s1r3s1r13s2r13f2r1g1f4r2f12r1f5r4g2f7r4s1r12s1r31s2r22s2r24s1r17s1r1s1r8s1r8g2r1f2r2f14r1f10r3f4g2f1r3s2r8s1r35s1r19s1r2s1r25s2r8s3r20f3r1f2r4f15r1f13r1f3g3f1g1r3s1r47s2r10s2r2s1r3s2r14s1r14s2r2s1r22f4r2f23r1f7r5g6r5s1r2s1r42s2r6s1r2s1r50s1r5f5r4g2r1f1r1f31r1f1r10g3f1r54s1r8s1r1s1r46f4r1f1r8g2r1f1r1f29r1f1g2r2s7r2g3r64s1r45g1f5g2r2s6r1g1r2f1r2f25r1f1g1r1g1r1s10r1g3r40s1r1s1r3s1r8s4r49f4g4f1r1s8r1g3r1g2r6f14r3f4r1g1r2s10f1g1r12s2r2s1r25s1r6s2r2s1r54g2f2g6r2s9r1s3r3g1r4f2r9f1r2f4r1g1r3s10r1g1r12s2r1s2r33s1r12s1r47g7f2g1r1s15r1g1r1g2f16g5r2s9r1f1r11s2r88s1r11g2f2g3r1f1r1s15r1g1r1g1f1r1f15r1f2g5r3s1r4f1g1r11s1r56s1r43f6r1g3r4s9r2g1r1f26g1r1g2f4r95s2r12g4f4r2f3g7r2g1r6g5f29g1r113g2f1g1f1g16f1g1f5g4f1g5r2f23g1r5s1r108g19f1g1f2g16f3r2f16g2r86s1r4s1r16g3r1g1f2g2r1g16f3g24r2f2r1f1r2f3r1g2r60s1r22s1r2s2r21g2f3g20f2g7f1g15r1g3f3r70s1r20s2r29g2r1g19f1g15r1g1f3g2f7r2g2r67s1r23s2r1s1r12s1r12g20f3g19f4g1f3r1g2r1g1r94s1r3s1r2s1r11f1g23r2g18f1g8f1g9r8s1r86s1r5s2r16g16r1g4f3g32r1g1r13s1r4s1r23s1r77g13f1g1f4g9r1g16f3g1r1g6r26s1r34s1r8s1r4s1r44f2r1f1r1f3g8f4r1g6f5g18r1g1r2g2r126g3f1g2f2g1r1g8f2g15r1g1r1g1r1g5r27s1r16s1r89g7r1g1f2g2r2g27r12s1r8s1r5s3r3s1r10s1r14s1r76g2r1g3r4g4r1g3r3g16r1g2r31s3r10s1r14s1r87g2r1g22f1r35s2r20s2r19s2r71g2r3g6r1g3r2g4r3g1r56s1r13s1r1s2r8s1r1s1r16s2r38s1r3s1r1s1r6s1r1g1r4g2r1g3r4g1r37s3r21s1r14s1r1s3r87g1r9g1r12s2r8s1r13s1r1s4r30s3r1s1r11s3r97s1r2s1r22s2r1s1r11s2r6s1r10s4r34s2r3s1r38s3r31s1r28s1r16s1r11s3r2s1r4s1r2s1r3s1r2g2r37s1r25s1r4s2r2s1r30s1r34s1r17s2r2s1r8s1r2g3r3f7r58s2r1s2r1s1r30s1r19s1r13s2r14s3r1s1r2s1r1s1r7g3r3f13r13s3r39s1r2s3r28s1r37s1r12s3r1s1r13g1r3f15r3g3r43s1r4s2r3s2r66s1r12s2r12g2r5f14r2g1r7s1r7s1r24s2r4s1r38s1r40s1r11s3r7s1r7g2r4f10r2g1r1g1r21s1r23s3r81s2r17s1r8g1r2g2r3f5r2g2r55s1r77s1r33g2r4g1r1g2r21s1r2s1r72s1r29s1r38g10r22s1r6s1r68s1r14s1r1s1r7s4r34s1r4f1r4g6r36s1r12s1r46s2r25s1r2s1r3s1r39f1r6s1r39s1r56s1r17s1r7s1r4s2r16s2r8s2r4g2r5g2r3f2r50s1r67s1r5s1r1s1r1s1r1s1r16s5r8g3r4f3r4g5f1r14s1r32s3r61s2r5s2r1s1r2s4r17s1r1s3r5g3r3f10r5g1r14s1r25s1r69s1r11s1r4s1r16s1r2s2r4g3r3f16r4g2r1g1r7s1r20s1r2s4r66s1r16s1r5s1r5s1r10s1r4g2r3f22r31s1r1s1r1s2r1s1r1s1r70s2r5s3r1s1r30f1r1f23r1f1r1g3r28s1r8s1r39s6r17s1r3s1r3s3r1s1r29s2r1s2r1f23r2g3r1g2r21s3r2s2r6s1r2s1r44s1r1s1r16s1r4s1r13s1r22s5r3f16r2g4f1g2r2g1r21s1r3s1r2s1r4s1r4s1r101s9r4f11r3g2r1g4r69s1r34s1r40s6r1s3r4f4r1f1r2g5r1g2r10s3r13s1r7s1r4s1r27s1r2s1r50s1r1s1r4s1r20s3r2s2r1s3r7g1r1g3r1g3r9s1r58s1r52s2r35s5r2g2r2g6r18s2r47s1r93s6r1g1r1g2r3g3r20s1r1s1r2s1r1s1r39s1r49s1r5s1r37s6r8g2r25s1r1s1r12s1r2s1r28s4r71s1r17s4r28s2r10s1r7s1r4s1r21s1r3s4r2s1r71s1r15s5r6s1r20s1r11s1r18s1r16s3r13s1r1s1r79s4r21s1r40s1r13s1r55s1r17s1r23s1r23s1r37s4r14s3r52s1r90s1r11s1r119s3r12s2r22s1r4s1r14s1r1s1r28s1r1s2r82s5r11s3r78s1r35s2r21s1r22s5r8s2r18s1r102"
+    }
+  },
+  "tpc-scottsdale:5": {
+    "image": "art-demo/tpc-scottsdale/hole-05.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -16.560604,
+        3.055352,
+        160
+      ],
+      "y": [
+        15.401166,
+        -1.342136,
+        770
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 160,
+        "y": 770
+      },
+      {
+        "at": 0.617,
+        "x": 950,
+        "y": 470
+      },
+      {
+        "at": 0.983,
+        "x": 1505,
+        "y": 210
+      },
+      {
+        "at": 1,
+        "x": 1530,
+        "y": 198
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1513,
+          "y": 206
+        }
+      ],
+      "holed": [
+        {
+          "x": 1530,
+          "y": 198
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1340,
+          "y": 380
+        },
+        {
+          "x": 1610,
+          "y": 235
+        }
+      ]
+    },
+    "meta": {
+      "number": 5,
+      "par": 4,
+      "yards": 470,
+      "tourAverage": 3.995,
+      "course": "TPC Scottsdale (Stadium Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2956s1r36s1r14s1r71s1r7s2r18s2r9s1r48s1r1s1r14s1r52s1r45s1r42f2r14g3r2s1r46s1r2s1r84s1r4s1r12g3f3r1f13r3f3r38s1r10s1r1s1r20s1r2s2r12s1r8s1r1s1r1s1r3s3r10s1r13s1r8s1r9f2r3f16r1g1f2g2r66s1r29s1r10s1r18g1r14f11r2f15r6g3r35s1r1s1r20s1r55s1r22f2r2f11r6f7r3f1r1s4r1g3r50s1r61s2r19f22r3f5r6s5r1g2r115s1r9s1r3f29r1f5g2s8r1g2r86s1r45f29g6r70s1r21s1r3s1r18s1r16s1r9g2f26g1r1g2r8g2r110s1r10s1r14g1f2g2f20g1f1r20s1r50s1r32s1r1s1r19s1r2s2r15g1f6g1f22r19s2r1s1r80s2r20s2r9g5f12r1f23r5s1r11s1r3s1r2s2r30s1r47s2r7s1r8s1r7g3f1g5f8r3f27r16s2r6s2r79s1r6s1r9f1g4f15r2f28g5r5s1r10s1r70s1r1s2r1s1r13s1r11g5f14r2f26r3f1g7r121f2g3f8r1f27r1f2r1f9g1r8s1r86s3r18g2f10r4f26r2f2r8g2r1f3r10s4r6s1r8s1r62s2r2s1r17g2f5g1f4r2f34g2r1s6r1g3r4s4r5s3r9s1r66s3r4s1r14g2f3g3f3r1f35r5s7r1g1r1f1r4s2r2s1r12s1r70s1r18g3f3g2f2r2f37g2r1s8r1g2r51s2r39s3r11s1r3g7f5r1f38r1g3s9r1g2r54s2r36s3r1s2r5s1r5g6f5r1f36g1f1g3r1s10r1g1r26s2r2s1r3s1r1s2r41s1r14s2r1s1r12g6f5r1f34g7r1s9r1g2r28s2r2s2r36s1r36s1r2g6f40g10r5g1r1g4r24s2r2s1r33s1r45g7f2g3r1f34r1g11r7g1r1g1r4s1r19s3r37s1r11s1r8s3r3s5r13g3f3g3r1f36g11r10g1r3s1r20s7r6s1r26s2r5s2r7s1r2s1r5s2r4s1r8g2r3g1f5g1r2f36r1g6f1r3g1r36s1r2s1r35s1r4s2r10s1r13s2r8g2f1g1f1g1f3r1f39g1f2g2r1g1r21s2r13s1r8s1r2s1r33s3r27s1r1s1r8f4r2f39r4g1r25s2r25s1r1s1r29s3r2s1r5s1r23g3r5g2r2f41r57s1r1s3r26s1r5s1r2s1r2s1r21g6f4r1f40r3f1r82s3r11s1r3s2r8s1r7g1r5g2f4r1f40r36s1r50s1r14s2r1s1r9s1r9g3f1g1f3r2f39r1f3r34s4r46s3r30g3r4g1f1g1f3r1f43g2r15s1r22s1r42s4r5s2r18s1r8g2f2g5r2f39r1g1f1g5r14s1r18s1r2s2r19s1r22s4r22s3r4g5f1g6r2f40r1g2f1g5r80s4r24s2r2g4f2g6r2f41r1g1f2g5r73s1r6s5r26g5f1g6r2f42g2f1g5r1g1r35s1r23s1r22s4r26g2f2g5r2f42r1g1f2g3f1r39s1r48s4r3s1r20f2g6r1f43g2f2g2f2r1s1r88s4r1s1r10s1r6g1f4g5r1f43g1r2f1g4r20s2r43s1r27s1r16g4f3g3f1g3r1f24r1f17r1g2r4g3r20s1r44s1r3s1r33s1r6g2f3g4f2g3f25r4f12r1g2r1g1r5g2r10s1r26s1r28s3r3s1r3s1r22s2r1s3r2g2f3g6f2g5r1f22r5f8r1f1r1g4r17s1r1s1r56s1r8s1r23s3r3g2f1g1f1g16r1f13r3f5r5f1r2f1r4g6r52s1r29s1r2s1r12s4r8s2r1g6f1g14f2g3f1r4f3r1f1r1f1r3f1r18g1r2f1r51s2r32s1r25s1r3f2g1f1g11r2g1r2g4r11f1r14g1r94s4r9s3r15g1r4g11r6g1r1g1r45s1r11s1r66s1r6s3r19f4r5g1f3g2r48s1r1s2r2s1r12s1r65s1r6s3r14g1r3f9r2g1f3r47s1r4s5r47s1r33s2r2s1r1s1r15f10r2g1r51s2r6s1r41s1r1s1r24s2r5s1r8s2r1s1r14f10r2g2f1r13s1r40s2r17s1r36s1r3s1r13s1r1s1r3s2r22g1r2f10r2g1r15s1r91s1r3s1r2s4r20s1r1s2r3s1r13f1g1r1g3r3f5r1g2f1r132s1r9s1r2s2r6s1r3g1r4g7r5f1r17s1r1s2r2s1r37s1r56s1r18s2r4s1r6s1r6g1r4f2r4g3f3r4s1r7s2r9s1r67s1r30s3r4s1r16s1r11g2r2f9r3g1f1r11s4r17s1r3s1r15s1r38s1r34s1r1s1r29g1r2f11r15s4r22s1r118f1g2r2f12r13s5r37s1r12s1r7s1r47s1r35g1r2f12r17s2r9s1r1s2r8s1r29s1r1s1r31s1r26s1r31f13r1g2r11s5r55s4r1s1r77s1r2f2r1g2r3f7r14s4r59s1r1s3r76s3r3g2r1g4r3f1r2g1r11s6r6s2r4s1r41s1r85s2r1s2r5g3r1g4r13s4r6s1r2s1r1s1r20s2r4s1r24s1r63s1r16s1r3s1r9g1r11s5r12s1r1s1r25s1r21s1r64s1r10s1r14s4r13s7r11s1r1s2r7s1r44s1r55s1r20s1r8s1r15s6r14s1r10s1r16s1r112s1r6s1r6s3r1s2r22s1r44s2r97s8r1s1r24s3r26s1r99s1r11s8r28s1r124"
+    }
+  },
+  "tpc-scottsdale:6": {
+    "image": "art-demo/tpc-scottsdale/hole-06.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -3.009309,
+        3.126593,
+        200
+      ],
+      "y": [
+        1.547383,
+        -1.273266,
+        753
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 200,
+        "y": 753
+      },
+      {
+        "at": 0.671,
+        "x": 950,
+        "y": 463
+      },
+      {
+        "at": 0.981,
+        "x": 1495,
+        "y": 215
+      },
+      {
+        "at": 1,
+        "x": 1515,
+        "y": 218
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1502,
+          "y": 216
+        }
+      ],
+      "holed": [
+        {
+          "x": 1515,
+          "y": 218
+        }
+      ],
+      "bunker": [
+        {
+          "x": 705,
+          "y": 400
+        },
+        {
+          "x": 990,
+          "y": 285
+        },
+        {
+          "x": 1280,
+          "y": 365
+        },
+        {
+          "x": 1235,
+          "y": 475
+        },
+        {
+          "x": 1550,
+          "y": 270
+        },
+        {
+          "x": 1320,
+          "y": 220
+        },
+        {
+          "x": 1370,
+          "y": 210
+        }
+      ]
+    },
+    "meta": {
+      "number": 6,
+      "par": 4,
+      "yards": 432,
+      "tourAverage": 4.046,
+      "course": "TPC Scottsdale (Stadium Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2865s1r16s1r5s1r66s1r177s1r146s3r1s1r21s1r19g2f1g7f1g4f2g3r41s1r1s1r9s1r15s1r20s2r57g3r3s1r2f2r11g4f2g4r2s1r66s1r56s1r4s1r9f1r3g1r2s4r4f8r1f3r3g1f2r67s1r57s1r4s1r4g5f2g3r10f1r1f17r1f2r2s1r68s2r1s1r58g5f4g2r1s5r2g2f2r1f18r1f2g1r1s1r123s1r3g4f6g4r2s3r3f1r1f3r1f14r2g1r2g1r87s1r2s1r37g1f2g3f7r2f1r4f11r2f6r8g5r47s2r1s1r11s1r24s1r16s1r13g1f1g4f3g2f4r3f22r1f5r3s5r1g7r47s1r9s1r1s1r41s1r6g2r4f12r3f26g1r6s7r2g1r87s1r14s2r3g3r1s5r5f4g1f1r3f30g1r1s13r66s1r45s6r1g4r4f35g1r2s10r2g1r39s1r1s1r12s1r11s3r40s7r1f1r3f41g2r9g1r13s4r26s1r3s1r55s1r13f2r1f38r2f7g3r1g1f1g1r2s2r9s2r2s1r36s2r59g3f1r2f38g1f5g6f2r52s2r2s1r62g1f1r1f30r3f1g5f5g2r1g1r1g3r1f1r15s1r87s1r10g4r3f28r2g1r4g2r1f4g5r4g1r1g1r16s1r79s1r8g1f9r3f31r1f1g3r6g8r111g4f43g4r1s6r2g5r26s1r3s1r33s1r48g7f1r1f36g3r2s6r2g4r105g2r2s7r1g4r1f37g4s8g4r13s1r24s2r19s1r46g2r1s9r1g3r1f36g6r3s4r1g2r1g1r3s2r15s1r8s1r55s1r17g3r2s9r1g2f1r1f38g2f5g4r7s1r32s1r52s1r15g2r1s10r1g3r1f36r1g3f2g6r36s1r8s4r46s2r14g2s10r1g3r1f37g12r16s1r1s1r3s2r2s3r1s1r1s1r14s1r23s2r22s2r2s1r17s2r4g3r1f38g13r19s2r8s1r39s2r22s5r14g8f4r1f38g6r8g2r16s1r9s1r38s1r25s1r1s1r1s1r10s1r2g7f5r1f40g4r1s9r1g1r7s1r98g8f5r1f40g5r1s8r6s1r19s2r53s1r26g7f5r1f40g5r2s8r24s2r48s1r5s1r28g5f48g4r1s8r4s4r29s1r15s1r18s5r36g2f4g1r1f42g5s9r2s1r31s2r18s1r13s4r42f3g1r1f43r1g5r1s8r29s2r7s1r12s2r12s2r2s1r35g2r4g1f2g2f1r1f44g7r2s5r2g2r28s2r30s1r3s1r2s2r16s1r14g6f6r1f46g11r1g1r1g1r27s1r36s2r36g1f2g2f6r2f46g11r10s1r33s2r5s2r1s1r9s5r38g1f1g3f1g4r1f47g4f1g2r1g2r45s1r2s1r2s2r2s1r9s4r41g3f1g3r2f48g4r1g1r15s2r50s2r2s2r27s2r12g1r1f2g1f1r1f48g4r15s3r1s3r30s1r15s1r2s4r9s1r37f1r1f47g2r4g1r19s1r3s1r47s3r6s1r37g3r1f47g2r55s1r19s4r25s1r10g1r1f1g1r5f2r1f46g2r2g1r74s5r16s1r1s2r9s1r4g4f1g2f5r1f42r2f1g4r31s1r40s1r4s2r18s1r3s1r12g3f5g5f41r5g1r117g5f4g6f37g1r16s1r1s1r100g1r3g1f1g2f4g1f2g8r1f1r1f23r1f3g1r1g1r1g1r13s1r2s1r19s1r7s1r42s3r26g1r3f3r5g1f6g5r2g5f16r6g1r1g1r3s1r1g1r33s1r1s1r2s1r47s2r26g1r2f9r3g3f5r5g3r3g1r1g12r19s1r2s1r103f1g1r2f12r2g6r16g12r18s1r4s1r62s1r19s1r20f12r2g4r3g1r18g4r2g1r20s3r2s1r3s1r95f1g1r1f12r2g4r24g2r33s1r95g5r3f6r2g5r133s1r7s1r12f1r5g1f1g3r5g2f2r29s1r21s1r8s1r13s1r49s1r5s1r1s1r18g1r3f7r5g2r2g2r4s2r71s1r58s1r20f12r2g1r11s1r3s1r75s1r13s1r1s3r30s2r18f13r1g1r14s3r123s2r15g1r2f13r2g1r15s3r23s2r11s1r11s3r67s1r4s1r17f13r5s1r11s3r2s1r35s1r10s1r3s1r64s4r8s1r1s1r6g1r3f12r2g1r12s5r31s1r19s1r62s1r5s1r11s1r6g2r2f13r2g1r13s2r33s1r3s1r10s1r35s2r5s4r46g6r2f8r14s6r33s1r6s1r52s1r1s1r22s1r21g10r3f1r15s6r88s1r3s1r11s1r38g1r3g6r2g1r14s6r6s1r34s1r2s1r2s1r43s1r12s2r1s2r12s1r23s1r1s1r1g1r1g2r17s5r35s1r4s1r61s1r2s1r1s2r35s1r1s1r24s5r16s1r102s1r1s1r9s1r42s2r16s4r42s1r24s1r4s1r23s3r1s1r9s2r42s2r4s1r12s1r2s1r100s1r52s2r43s1r130s1r42s1r51s1r1s1r75s4r116s1r53s6r148"
+    }
+  },
+  "tpc-scottsdale:7": {
+    "image": "art-demo/tpc-scottsdale/hole-07.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        15.435155,
+        5.218605,
+        330
+      ],
+      "y": [
+        46.087657,
+        -2.790698,
+        730
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 330,
+        "y": 730
+      },
+      {
+        "at": 0.963,
+        "x": 1400,
+        "y": 290
+      },
+      {
+        "at": 1,
+        "x": 1452,
+        "y": 250
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1417,
+          "y": 277
+        }
+      ],
+      "holed": [
+        {
+          "x": 1452,
+          "y": 250
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1225,
+          "y": 310
+        },
+        {
+          "x": 1515,
+          "y": 360
+        }
+      ]
+    },
+    "meta": {
+      "number": 7,
+      "par": 3,
+      "yards": 215,
+      "tourAverage": 3.107,
+      "course": "TPC Scottsdale (Stadium Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2930s1r103s1r97s1r1s1r42s1r75s1r74s1r6s1r19s1r56s2r16s1r77g2r21s1r78s1r64g8f1r3g8r119s1r34f1g3r1f1r4f3r1f2r4f3g1r75s2r53s1r20g5f2r2f6r1f6r2f2g1r71s2r75g6f2r1f16r1f2g1r149g1f1g3f1g1r1f15r1f3r12s2r104s1r23g2f4g6f2r1f15r1f2r13s1r126f1r11g3f3r1f14r1f1r1g2r1s1r19s1r77s1r37g2r1f2r5s5r1g3r1f14r1f2g2r98s1r37g3f2r1g1r2s8r1g2r1f14r1f2g2r136g7r2s6r2g3r2f13r1f3g4r136f1g3r2s7r1g2f1r2f13r1f2r1g2r2g1r2g1r51s1r72g4f1r1g2r1g2r3s8r1g1f1r2f13r2f1r10g3r3s2r114g4f2g5r2s12f1r2f14r1f1r4s7r1g4r118g4f2g4r1s11r4f14r1f1g1r2s9r1g3r112g1r2g1r2g5f1g1f1g4r3s4r3g1r2f15r1g4r1s9r1g2r1g1r116g8f6r1f1r1g5f2r1f15r1g1f1g3r1s9r1g1r121g3f1g1f4g4f2g6f1r2f11r2f2r2g1r3s8r1g1r108g6r6g6f2g18f1r10f2r1g2r2s9r1g3r106f1g1r1g14f1g1f2g2f1g27f1g3r2s9r1f1g3r105g17f2g7f1g8f1g2f1g18r2s7r1g2r1g2r16s1r89g14f1g21f2g2f6g1f5g2r1g4r5g1f1g1r112g10f2g21f1g5f6g6f1g6r87s1r20g1r1g2r6g56r1g1r105g17r1g3f1g1f1g37f2g7r109g13f1g2f1g40r1f1g7r17s1r81g6r7g13f4g39f1g5r37s1r63g9r1g1r4f1g4f5g11f1g17f1g13r1f1g4r1g1r19s1r82g13f2g5r1g8f1g40r2g2r18s1r20s1r63g8f6g1f3g12r1f1g36r34s1r34s2r39g3f4g2f1g1f6g3f2g3r1g3r1g22r5g1r2g6r40s1r19s1r1s1r3s1r3s1r40g5f1g9r2g7f4g4f1g16f1g2r15s2r23s1r35s1r1s1r46g6r1g13f4r1g5r1g4r1g14r1g1r49s1r77g1r1g1r7g10r1g6r1g19r28s1r1s1r51s1r47g1r9g7r2g1r2g1r3g3f1g1f1g15r27s1r55s1r56g6r8g1r7g6f1g3r2g3r81s1r50s1r7g6r13g12r3g1r103g1f1r10s1r1s1r28g1r18g3r1g2r102g2r6g1r3f1r37g1r20g1r1g2r100g2r3f5r5g1r1g1f1r56g1r98g3r3f11r6f2r151g2r3f16r3g2r57s1r96f18r2g5r133s1r17f17r2g7r144g1r3g1r3f14r2g4r3g3r145g6r4f8r2g4r1g1r42s1r112f1r3g2r4f1r3g6r59s1r94g1f2r3f2r3g3r4g2r30s1r1s1r37s1r78s3r2g4r5g2r2f2r3g4r50s1r96s4r3g3r2f1r1f2r5g2r1f3r19s1r33s1r94s4r3g3r3f9r5g2r30s1r1s1r11s1r38s1r62s4r3g3r3f15r5g2f1r20s1r80s1r36s5r3g3r3f21r5f1r135s2r1s3r8f24r3g2r19s1r8s1r110s1r2s3r3f24r2g5r8s1r3s1r3s1r1s2r3s1r72s1r42s8r2f19r2g6r1g1r1g1r80s1r56s9r4f14r2g8r2g1r73s1r4s1r1s1r2s1r24s1r31s9r5f8r2g7r21s1r61s3r62s10r6f1r4g7r152s10r2g1r3g1r1g6r155s2r2s6r2g14r14s1r143s5r2g1r2g5r3g1r12s1r145s2r3s2r3g3r40s2r127s1r1s2r6g1r168s3r44s1r89s1r39s5r172s7r25s1r146s5r70s1r101s7r91s1r39"
+    }
+  },
+  "tpc-scottsdale:8": {
+    "image": "art-demo/tpc-scottsdale/hole-08.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -0.778097,
+        2.942839,
+        190
+      ],
+      "y": [
+        1.777645,
+        -1.186529,
+        763
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 190,
+        "y": 763
+      },
+      {
+        "at": 0.611,
+        "x": 1000,
+        "y": 500
+      },
+      {
+        "at": 0.983,
+        "x": 1530,
+        "y": 210
+      },
+      {
+        "at": 1,
+        "x": 1532,
+        "y": 210
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1531,
+          "y": 210
+        }
+      ],
+      "holed": [
+        {
+          "x": 1532,
+          "y": 210
+        }
+      ],
+      "bunker": [
+        {
+          "x": 815,
+          "y": 415
+        },
+        {
+          "x": 1400,
+          "y": 205
+        },
+        {
+          "x": 1580,
+          "y": 250
+        }
+      ]
+    },
+    "meta": {
+      "number": 8,
+      "par": 4,
+      "yards": 475,
+      "tourAverage": 4.059,
+      "course": "TPC Scottsdale (Stadium Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2905s1r2s1r7s2r6s1r2s1r119s1r9s1r5s1r25s1r19s1r39s1r72s1r1s1r48s1r1s1r46s1r5g5f1r9g1r48s1r46s1r61g2r2g1f2r3f5r1f3r3g1r69s1r66s1r8s2r3s1r2f1g1r1s2r1g1r1f16g3r138s1r9g1r2s4r2f14r1f2r2f1r118s1r2s1r16s1r7g3r2s4r3f2r1f5r9g1r10s1r107s1r19s1r9g1r1f4r3f9r1g3r2s4r1g1r143f1g1f6r1f14r4s4r2g1r36s1r2s1r62s1r38g5f1g4f10r2f2g1r1s7r39s1r3s1r7s1r52s1r1s1r6s1r28f7g3f11r1g5r2s5r127s1r12f11r1f13g4r76s1r1s1r16g1r11s1r1s4r24s1r6g1f8r1f21g1r19s1r106s2r1s1r6s1r3g2f9r2f23r1g1r48s1r49s1r2s1r33g4f3g1f31r14s1r7s2r54s1r1s1r30s1r1s1r24f5g2f1r1f22r1f2g3r29s1r82s1r2s1r21f7g1r2f24g2r2f1r104s1r29g2r1f2g1f3r2f26g3r57s1r52s1r10s1r4s2r11g5r1f26g5r58s1r77g7r2f25g7r34s1r39s1r16s1r16s1r14s1r5g2r5g1f1g2f1g1r1f26g7r34s1r24s2r32s1r13s2r16g6f6g3f1r1f27r8f1r73s1r1s1r28s1r16g3r1g1f12r2f23r1f1g2r11s2r12s3r15s1r4s1r87g1f8r2f25r1g1r12s1r1s1r13s1r58s2r35g1r1s12r1g1f2g2f2r1f28r28s2r59s2r22s1r14s10r2g2f1g3r1f29r32s1r22s1r60s1r12s7r1g9r1f26g3r10s1r71g1r34s1r6g1r1s9r1g10r1f29g2r31s1r92s10r1g8r1f29g3r112s1r3s1r10s6r2g6f1r1f29g5r112s2r11g3r3g5f3r2f30g6r38s1r80g14f4r1f31g6r15s1r17s1r3s2r68s1r13g11f3r2f33g6r8s1r1s1r2s1r23s1r62s6r17g1f10r1f38g4r24s1r11s1r1s4r3s1r49s7r2s1r3s2r1s1r13f6r2f39g5r40s1r40s1r15s3r25g3f1r1f41g4r2s1r101s2r18f1g1r1f1r2f38g8r45s1r18s1r30s1r21g3f1g2r3g1f1r1f39g9r45s1r18s2r27s1r1s2r11s1r10g4f2g1r1f38g13r87s2r14s1r6g2r5g3f2r2f36g16r30s1r12s2r23s1r15s3r1s1r21g4f1g2f4r1f37r1g9f1g5r35s1r20s1r25s6r21g5f1g2f4r1f36r3g2r4g5r6s1r34s1r23s1r20s6r20g5f1g1f4r2f36r1f1r14s1r1s1r6s1r16s1r10s1r1s1r46s5r22g1f1g3f3r2f35r1f1r18s1r25s1r1s1r9s2r3s1r40s3r3s2r16g2f1g3f4r1f34r2g2f1g1r21s1r19s1r60s1r23g3f4r2f34g6r53s1r46s2r8s1r11f1g2r1f7r1f33r1g8r52s1r48s4r18g1f43g10r50s1r6s1r36s3r1s5r7s1r10f9g1f4r1f28g12r24s1r4s1r10s1r24s1r28s6r21g5f4g1f1g1r4f23r2g6r3g3r1g3r21s2r5s1r1s1r32s1r27s7r16f1r3f2r4g3f6r7f4r15g1f1r1g3r6g1r66s1r29s3r2s1r19f8r3g2r14g12r22s1r30s1r10s1r18s1r28s4r17f1r2f10r20g2r2g2r1g1r55s2r1s2r53s1r1s3r19f10r21g1r5g1r22s1r1s1r2s1r28s2r3s2r3s1r2s1r3s1r4s1r36s1r3s1r15g1r1g1r3f7r1g2r42s2r3s2r39s4r3s2r2s1r15s1r38s1r6g1r1g2f3r6g1r40s2r6s2r40s2r2s1r1s1r2s1r13s1r18s1r25g1f1r4g4r2f1g2r2g1r40s1r9s2r35s2r7s3r58g1f1r2f1r1f2r4g4f2r28s1r19s1r11s1r27s1r10s1r11s1r3s1r36s1r4g2r3f9r3g1r1g1r1s2r23s1r1s2r32s1r33s1r10s2r6s1r20s1r18g2r3f12r1g1r28s1r4s1r28s2r35s1r10s1r1s4r2s1r34s1r2g2f1r2f12r12s2r1s2r15s1r3s1r14s1r11s1r14s1r2s1r15s1r4s2r1s3r7s2r28s1r13g2r2f12r2g1r10s5r49s1r36s1r3s1r1s2r51f13r1g1r3s1r7s5r39s1r3s1r1s1r2s2r13s2r11s1r19s2r2s1r47f9r14s3r30s1r13s1r3s2r9s1r2s1r1s2r4s2r5s2r8s2r11s2r1s1r51f3r2g1r11s5r22s1r15s1r9s3r20s1r27s1r5s1r53g1r12s2r43s1r8s1r1s1r1s1r8s1r44s1r61s4r7s1r21s1r2s1r11s3r36s3r1s1r1s1r78s8r14s1r1s1r6s1r1s1r3s1r16s1r9s1r32s1r23s1r55s4r19s1r17s1r20s1r27s1r1s1r1s1r18s2r6s1r50s2r4s3r30s1r6s1r126s6r30s1r6s1r3s1r125s6r2s2r37s1r1s1r91s1r22"
+    }
+  },
+  "tpc-scottsdale:9": {
+    "image": "art-demo/tpc-scottsdale/hole-09.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        3.282727,
+        2.969821,
+        165
+      ],
+      "y": [
+        -0.41963,
+        -1.218778,
+        780
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 165,
+        "y": 780
+      },
+      {
+        "at": 0.64,
+        "x": 1000,
+        "y": 430
+      },
+      {
+        "at": 0.982,
+        "x": 1520,
+        "y": 220
+      },
+      {
+        "at": 1,
+        "x": 1538,
+        "y": 222
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1526,
+          "y": 221
+        }
+      ],
+      "holed": [
+        {
+          "x": 1538,
+          "y": 222
+        }
+      ],
+      "bunker": [
+        {
+          "x": 710,
+          "y": 460
+        },
+        {
+          "x": 940,
+          "y": 360
+        },
+        {
+          "x": 1400,
+          "y": 355
+        },
+        {
+          "x": 1380,
+          "y": 430
+        },
+        {
+          "x": 1410,
+          "y": 225
+        },
+        {
+          "x": 1630,
+          "y": 210
+        },
+        {
+          "x": 1620,
+          "y": 250
+        }
+      ]
+    },
+    "meta": {
+      "number": 9,
+      "par": 4,
+      "yards": 453,
+      "tourAverage": 4.033,
+      "course": "TPC Scottsdale (Stadium Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2861s1r34s1r21s1r14s1r11s1r54s1r62s2r11s1r2s2r1s1r2s1r27s1r2s3r2s1r40s1r107s1r2s1r6s4r1s2r20s2r28g3r95s1r41s1r4s1r2s1r17g3r14g2r1g1r2g1r70s1r24s1r36s1r17g3f3r1f14r3s2r2g2r36s1r26s1r15s1r64g2r10f14r2s4r3g1r5s1r26s1r13s1r5s1r8s1r13s1r61g1f2g2f2r1s6g1r2f16r5f1r5s2r42s1r83f6g3f4g1r1s5r1f1r2f10r8g4r38s1r62s1r21f21g3r4f9r6g1r1s5g5r2s1r32s1r80f27r1f16g1f1r4s5r1g3r1g1r28s1r8s4r67g2f21g1f6r1f22g2r1s6r3g1r3s1r36s1r67g2f3g2f20r3f27g4r2g1r36s1r76f4g1f18r2f31g4f2r40s1r76g1f51g5f1r46s1r3s1r2s1r45s1r1s1r8g2f5g1f14r1f34g2f1g5r57s1r52g2f51r1f3g2f1g7r56s1r43s2r7g2f46r5g1f2g8r110g4f1r7g3f1r1f33r7g1f1g4r1g1f1r64s1r1s2r40g5f2r6s3r1g4f29r2g1r2s4r1g1f1g4f2r16s1r48s1r40g5f1r4g1r1s7r1g5f25r1g3r1s6r1g6f1g2r16s1r68s1r13s1r3g5f3g1r2s10r1g5f1r1f24g4r1s8r1g6f1r67s1r14s1r4s1r13g5f2g3f1r1s11r3g1f1r1f28g1r3s6r2g7r64s3r37g1f1g6r13f32g2f2g13f3r38s1r23s3r15s1r2s1r22g1f5g5f8r1f31g2f2g10f6r40s1r21s1r1s1r34f4g2f5g5f44r1g2r6g3f1g2f1g3r32s2r50s1r3f1r3g1r1f1r9f2g7f2g2f1g1f1r1f35g3r1s8r1g7r34s1r9s1r29s1r13g3f2r2g1r9g8f40r1f1r2g2r1s9r1g6r5s1r30s1r9s2r40g3f1r2g2r1s9g5f42r1g4r1s8r2g5r6s2r1s1r34s1r7s1r28s1r11g4r3s8r1g4f43g4r1s9r1g5r4s1r91s12r1g1r1g1r1f3r1f41g4r2s6r1f1g5r4s1r83g2r3s13r1g3r1g3r1f41g3f3r1g7f5r2s1r20s2r15s1r48g5s14g6r1f41g4r2g9f2r26s1r19s1r47g4r2s10r3g1f43g13r3f1g1r50s1r1s1r42f2g7r8f4r1f41g8r2g1r1f1r30s1r69f1g13f5r1f42g5r38s2r7s1r60g19f43g6r39s1r10s1r1s3r15s1r40g11f2g1r2f42g8r23s2r2s2r20s1r1s1r18s1r39g6f1g3f3r2f42g10r20s2r14s2r11s1r20s3r33g8f7r2f41g9r4g1r20s2r14s1r31s2r20s1r14g6f1g2f4r2f41g9r1f1r24s2r22s1r1s1r22s2r23s2r8g3r1g5f4r2f40g10r1f1g2r23s1r6s1r14s1r24s3r6s1r27g1r2g2f1g6r1f42g1f1g3r7g1r4s1r1s1r25s1r6s1r29s4r36g1f8r2f43g1f1g1r19s1r37s1r21s5r4s1r1s1r28g1r1f2g2f3r1f42r1g3r36s1r2s1r43s1r43f1r1f44g4r38s1r43s4r36g1r4f43r1g3r84s3r19s1r2s1r22f40g5r84s3r20s1r9f1r14f6r1f29r1f1g5r26s1r19s1r41s2r23g1r4g2r1g1r7g1r2g1r1f6r2f10r1f14r2g7f1r48s1r6s2r30s5r16g1r4g4r1f6g2f1g10r7f1r2f16r2g12r46s1r2s1r7s1r31s4r1s1r11g1r3f1r6g3f3r1f1r2f1g6r23f1g14r1g1r2g1r52s1r37s3r10f1g1r3f8r13g1r1g2r21g3r5g5r3g1r37s1r18s4r36s2r14f11r2f1r3s1r5g1r1g2r15g1r6g2r53s1r2s1r54s5r4g1r3f11r2g1r4s1r7g4r77s1r28s1r26s6r3g1r2f12r1g2r38s1r16s1r1s1r44s1r16s1r29s5r4g1r1g1r4f7r2g2r46s1r19s1r42s1r5s1r22s1r13s1r4g1r1g2r1g4r7g1r47s3r73s1r2s2r25s3r11g7r51s1r13s1r5s1r52s1r1s1r10s1r14s4r4g1r2f6r4g3r11s1r2s1r33s1r20s3r42s1r14s1r12s1r8s1r1s2r4g1r3f11r6s1r11s1r42s2r8s2r78s6r3g1r3f11r2f1r15s4r66s1r48s1r6s1r7s6r6f12r2g1r15s2r36s1r2s1r2s1r10s1r71s1r6s4r4g1r2f12r11s1r7s1r44s1r4s1r65s1r19s1r7f12r2g1r10s1r3s4r44s2r2s3r7s1r5s1r4s1r21s1r28s1r24f10r15s5r43s1r16s4r1s1r2s1r82f4r2g1r11s6r1s1r116s1r2s2r29g1r16s5r36s1r25s2r64s1r39s1r1s2r1s1r13s1r73s1r48s3r17s1r10s5r16s1r49s1r15s2r8s2r46s1r19s2r7s6r17s2r13s1r7s2r75s1r24s1r28s4r14s1r17s2r83s1r35s1r19s1r2s1r13s1r5s1r122s1r1s1r2s1r7"
+    }
+  },
+  "tpc-scottsdale:10": {
+    "image": "art-demo/tpc-scottsdale/hole-10.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        3.061882,
+        3.538985,
+        190
+      ],
+      "y": [
+        -1.645765,
+        -1.41555,
+        753
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 190,
+        "y": 753
+      },
+      {
+        "at": 0.678,
+        "x": 950,
+        "y": 480
+      },
+      {
+        "at": 0.981,
+        "x": 1540,
+        "y": 215
+      },
+      {
+        "at": 1,
+        "x": 1546,
+        "y": 210
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1542,
+          "y": 213
+        }
+      ],
+      "holed": [
+        {
+          "x": 1546,
+          "y": 210
+        }
+      ],
+      "bunker": [
+        {
+          "x": 850,
+          "y": 385
+        },
+        {
+          "x": 1040,
+          "y": 300
+        },
+        {
+          "x": 1340,
+          "y": 330
+        },
+        {
+          "x": 1410,
+          "y": 205
+        },
+        {
+          "x": 1590,
+          "y": 255
+        }
+      ]
+    },
+    "meta": {
+      "number": 10,
+      "par": 4,
+      "yards": 428,
+      "tourAverage": 4.038,
+      "course": "TPC Scottsdale (Stadium Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2895s1r3s1r4s1r2s1r15s1r81s1r1s2r63s2r48s1r126s1r15s2r8s1r16s1r5s1r29f2r6f4r1f2g3r79s1r8s1r7s1r44s1r12f2r2g2r2g1r15f2g1r52s1r15s2r8s1r66f5g3s1r2s1f2r1f14r1f3r84s1r54g2r1f5g3r2s3r3f19g1r72s1r11s1r16s1r27s1r5f1g1f11g1r1s5r3f18g2r1f1r1s1r42s1r13s1r26s1r43g1f17r1f1r1f3r1f12r10g2r86s1r9s1r29g1f22r1f9r6f2r1s6r87s1r13s1r3s1r2s1r15g1f33r9g4r1s5r1f1r84s1r32g5f3g1f31g1r1s6r5s5r85s2r27g11f1r1f29g2f2r2s12r2f2r83s1r32f1r1g2f2r1f34g5f1r8f6g1r107f1r2s4r2g2f26r1f13g2f1r8f1r111g2f1g2r1s6r1g2f22r3g2f1g4f10r121g3r3s3r2f1r1f22r2s4r2g4f4r126g2f3g1f1g1f24r4s4r3g7r18s3r103g3f3g2r2f24g1r1s6r1f5r1g1r1g2r21s1r83s1r4s1r6g1f1g10f1r1f28r7f4r111s1r16g4f34r1g3f3r1f2r106s1r12g4r1s6r1f1r1g1f1r1f32r1f1r3f1r15s1r6s1r69s1r2s2r16s2r5g5r1s7r2g3r1f32r25s1r5s1r31s1r33s1r23g7r2s7r1g5r1f32r19s3r20s1r21s1r45s3r12f1g2r1s9f1g3r2f32g1r20s1r25s1r12s1r54g1r1g2r5g4r1s8r2g2r1f30r1f3g2r22s1r1s1r22s1r22s1r24s1r20g3f4g5r7g1r3f33g4r22s1r23s2r49s3r18g4f6g5f41g3r47s1r47s5r6g1r7s1r4g3f1g2f3g1f1r1f43g3r21s2r73s1r22g1f1g3f3r2f45g4r118g1f1g1f2r1f44r1f1r2g1r94s2r17s1r4f1r1g1f1g3r1f46r85s1r1s1r14s1r23g2r2f45r95s1r10s1r17f3g2r1f41r1f3r92s3r2s1r11s1r3s1r13f1g2r1f46r33s1r58s1r16s1r7g3r4f2g2r1f38r1f4g1f1g4r21s1r9s1r66s1r4s1r10g4f5g3r1f41g6r111s1r7f6g2r1f42g5f1r53s1r41s1r9s2r7g1r5f1g5r2f39g1f1g6r20s1r38s1r45s1r11f6g3r2f43g5r69s2r6s3r29s1r2g2r4f5g3r1f40r1f2g6r60s1r33s1r18g2f3g3f1g2f1r1f45g5r56s1r3s2r2s1r5s1r17s3r2s1r20f7g3f1r1f46g5r40s1r28s1r8s1r11s2r1s1r22f7r1f47g4r1g1r91s3r11f2r7f47r1g1f4r2g5r6s1r22s1r64s5r8f1g1f53r1g1f2r7g3r5s2r16s1r73s3r5f1g2r3g2f3r1f47r2f1r7g1r21s1r1s2r17s1r18s1r31s1r1s1r2s2r8g1r2f1r5f1g1f8r2f2r1f26r2f4r4f1r32s1r44s1r24s4r7f1r3f8r3f5r4f1r1f2r3f1r1f25r1g1r37s1r22s2r5s1r11s1r11s2r11s5r7g1r2f10r2f2g2r1f1r10f2r3f9r1f3r2f7r23s1r6s1r24s1r14s1r14s1r7s1r3s1r7s5r7g1r2f10r2g4r1f1r5f1r8f1r1f6g1f3r2f1r5f2g2r22s2r16s1r64s1r7s2r4f11r1f1g1f1r2f1r21f4r11g2f1g1r54s1r23s1r24s2r13f10r2g1r1g1r24g2r13f2r1g1r77s1r1s1r21s5r8g5r2f6r2g1f1r132s1r7s1r4s5r13g1f3g2r4g1f1r1g1r130s1r1s1r9s6r6f2r2f5r4g1f2g3r48s1r96s5r1s1r5f1r2f11r2g1r1g1r4s1r65s1r72s5r8f1r3f11r2g1r59s1r29s1r13s1r1s1r40s4r11f12r1g2r3s3r77s2r24s2r16s1r32f12r4g1r35s1r45s2r26s2r2s1r41g1r2f13r1g2r3s1r11s2r68s1r25s1r15s1r1s1r10s1r9s1r6g1r2f12r17s4r72s1r53s1r14f1g1r2f10r16s2r92s1r1s1r27s1r6s1r17g3r3f2r1f1r10s2r2s5r19s1r12s1r33s1r22s1r1s1r1s1r15s1r11s1r26g6r19s4r49s1r29s1r7s1r1s1r53s2r27s2r35s1r28s1r64s1r15s1r5s1r20s4r65s1r85s3r17s6r55s1r9s1r52s4r29s1r1s4r13s6r38s1r17s1r23s1r39s1r19s1r15s1r13s1r1s4r1s2r35s2r113s5r2s3r7s4r50s1r20s2r83s12r4s2r8s1r41s2r43s1r1s1r31s1r33s3r51s1r89s1r20"
+    }
+  },
+  "tpc-scottsdale:11": {
+    "image": "art-demo/tpc-scottsdale/hole-11.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0.916905,
+        2.841795,
+        210
+      ],
+      "y": [
+        -0.7774,
+        -1.161197,
+        750
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 210,
+        "y": 750
+      },
+      {
+        "at": 0.614,
+        "x": 1000,
+        "y": 440
+      },
+      {
+        "at": 0.983,
+        "x": 1520,
+        "y": 225
+      },
+      {
+        "at": 1,
+        "x": 1515,
+        "y": 218
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1518,
+          "y": 223
+        }
+      ],
+      "holed": [
+        {
+          "x": 1515,
+          "y": 218
+        }
+      ],
+      "water": [
+        {
+          "x": 300,
+          "y": 400
+        },
+        {
+          "x": 600,
+          "y": 350
+        },
+        {
+          "x": 900,
+          "y": 320
+        },
+        {
+          "x": 1200,
+          "y": 250
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1465,
+          "y": 345
+        },
+        {
+          "x": 1630,
+          "y": 245
+        }
+      ]
+    },
+    "meta": {
+      "number": 11,
+      "par": 4,
+      "yards": 472,
+      "tourAverage": 4.151,
+      "course": "TPC Scottsdale (Stadium Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2879s1r3s1r2s1r10s1r50s1r4s1r24s2r21s1r56s2r4s1r3s1r32s2r30s1r46s1r41s1r18s2r46s1r23s2r4s1r70s1r68s1r21w12r3w3r6s1r3w1r3g1r1g3r1g1r76s1r3s1r47w30r12f1r7g4r109w2r5w30r6g3f3r1f14r3g3r45s1r45s1r12w39r5f2g1f5r1f16r1f1r7s1r83w2r11w41s1r6f1g1f2g2r4f12r1f1r2s5r67s1r8w12r8w43r10g1f8r5f1r4g1r2s6r8s1r46s1r18w69r4s1r2f14g1f1r4s5r61s2r7s1r4w73r3f2g2r1f10r1g2r2s5r11s1r25s1r23s1r2s1r10w70r5f2g2r2f11g6r75w1r2w65r7f5r2f13g3f2r1f1r8s1r60w67r8f1g2f1r4f17g3f1g1r68w66r6f5r4f20g4f2g1r67w61r7f3g1r3f21r7g7r2s1r63w59r6f4r3f22r1f2g1r2s6r1g5r42s1r20w59s1r4f3g1f1r2f23r1f2g3r1s7r2g3r43s1r16w1r2w58r5f4r2f24r1g1f1r6s6r1g4r52w2r5w59r7f4g1r1f28g2r1s10r1g3r45w3r4w63r9g1f3g2r1f28g3s10r4g1r44w4r4w61r10g1f1g4r1f29g4r3s3r48w9r2w60r11g1f2g2r1f31g7r18s1r18s2r3w2r4w73r9g1f3g2r1f33g4f2r35s1r6w80r7g3f3r1f33g9r40w76r11g3f2r1f34g10r15s1r3s1r7s1r11w74r10f2g1f40g6r1g1r20s2r1s1r14w77r10f1g1f40g3r4g1r12s1r2s1r22w79r7g6r1f35g5r44w68r2w9r6g5r1f35g7r39s1r5w65r7w4r5f6r2f34g9r44w65r6g1r8f6r2f30g16r43w65r12f3g3f1r1f31g9r4g2r9s1r25s2r7s1r1w58r2w6r8f7r2f32g7r7g1r34s1r4s4r5w55r7w2r9g2f3r1f32r1g7f1g2r29s2r19s1r5w1r6w46r14f4g1f1g1r1f34g6r2f1r32s2r1s1r33w2r4w36r12f3g2f1g1f1r1f33g6r2g1r50s1r28w28r5w2r10f5g1f1r2f33g3f2g1r23s1r12s2r1s1r1s1r19s2r23w24r8s2r9g5r2f33g8r21s1r7s1r5s2r23s2r24w13r5w5r2s1r5s1r11g3r2f34g8r29s1r2s1r3s1r33s1r11g1r4w12r7w4r15f1g2f2g1r2f35g9r34s1r48g1r3w11r9w1r14g3f3g1r1f37r2g5r32s2r2s3r52w1r5w3r22f2g2f42r6g1r1g1r9s1r21s1r66w2r16f3g4f3g1r2f35r1f2g1r17s1r24s1r57s1r9s1r11f3g3f43r1g5r40s1r30s1r37s1r10f4g3f4r1f37r1f2g5r17s3r9s1r42s2r27s1r1s1r17g2f3g1f41g9r17s1r50s2r2s1r27s2r9s1r2f4g7f38r5g6r23s1r1s1r85s1r2g1r5g1f3g8f28r2f1r5g1r3g2r28s1r55s5r1s1r25g1r2f4r4f1r1f1g1r2g6r2g1r6f14r21s2r40s1r24s1r10s1r2s6r5s1r10s1r4g1r2f10r1g2f3g6r10g1r7f1r17s2r5s1r14s1r22s2r1s2r3s1r33s1r3s1r1s1r1s3r19f11r1g1r1f3r1f3r2g1r17g1r2g2r16s3r41s1r7s1r7s1r33s4r12g1r2f11r2g1f1r45s1r14s1r37s3r4s2r36s4r6s1r3g1f1r2f10r2g1f1r47s1r48s5r6s1r38s3r9g1r1f1r3f8r1g2r5s2r24s2r5s1r58s2r10s1r9s2r26s3r3s1r5g3r1g2f1r2f4r17s1r95s2r8s1r3s1r24s2r8g1r4g3f3g2r34s1r8s1r26s1r43s1r35s1r2s1r7g2r2f4r4g2f2r17s2r20s1r3s1r6s1r4s1r1s1r16s1r3s1r68s6r6g2r2f9r2g3r49s1r1s1r2s3r90s2r9g1r2f11r2g1f1r58s2r18s1r37s1r12s1r16s3r8g1r3f10r2g1r4g1r107s1r2s1r2s1r1s1r1s1r9s1r15s2r7f1r1g2r3f9r1g2r6s2r12s1r65s1r38s1r8s2r21g3r1g4r3f4r72s1r51s1r8s1r26s2r4g1r1g5r4g2r27s1r39s1r56s1r5s1r27s2r2s1r4g2r1g1r28s3r1s4r95s1r2s5r31s2r30s5r59s1r43s3r1s2r31s1r1s1r25s7r46s2r10s2r9s1r40s1r19s2r15s5r16s6r9s1r41s3r6s2r37s2r5s1r26s1r11s1r5s12r2s3r3s1r1s3r9s1r41s1r1s5r42s2r3s1r29s1r21s11r63s6r10s1r26s1r62s1r4s2r68s4r11s1r64s1r25s1r71s5r70"
+    }
+  },
+  "tpc-scottsdale:12": {
+    "image": "art-demo/tpc-scottsdale/hole-12.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        2.815531,
+        4.776042,
+        350
+      ],
+      "y": [
+        -17.878513,
+        -3.182292,
+        753
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 350,
+        "y": 753
+      },
+      {
+        "at": 0.958,
+        "x": 1250,
+        "y": 265
+      },
+      {
+        "at": 1,
+        "x": 1267,
+        "y": 262
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1256,
+          "y": 264
+        }
+      ],
+      "holed": [
+        {
+          "x": 1267,
+          "y": 262
+        }
+      ],
+      "water": [
+        {
+          "x": 1450,
+          "y": 450
+        },
+        {
+          "x": 1600,
+          "y": 550
+        },
+        {
+          "x": 1350,
+          "y": 520
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1030,
+          "y": 250
+        },
+        {
+          "x": 1100,
+          "y": 315
+        }
+      ]
+    },
+    "meta": {
+      "number": 12,
+      "par": 3,
+      "yards": 192,
+      "tourAverage": 3.138,
+      "course": "TPC Scottsdale (Stadium Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2866s1r30s1r59s1r2s1r5s1r2s1r4s1r3s1r5s1r10s1r5s1r82s1r3s1r52s1r22s1r3s1r13s1r1s2r147s1r260s1r229g4r1g1f1g3f5r155g3r6g1r1f2r16g1r1g5r137g1f1r2g3r3s2r4f1r2f11r1f3r8g4r92s1r45s7r2f1r1f12r1f9r3f1r3g1f1r13s1r110g2r4s9r2g1f1r2f13r1f16r127g2f1r1s10r1f2r1f15r1f2r1f7r2f1g1r127g2f2g2r2s6r4f2r1f27g1r32s1r45s1r41s2r11f5r15f20r1f2g1r6w5r7w2r11s1r84s1r1s2r15g1r2g2r11g1r5f15r2f2r7w16r56s1r56g4r1s11r1g1r2g1f1r2f11r2f1r9w24r102g4f1g2f1r1s14r2g1r1f3r8f1r11w26r6w1r79s1r13g3f2g4r3s10r3g1f9r15w29r2w3r81s1r1s1r7g14r9g7f1r4f1r1g1r13w35r39s1r20s1r9s1r4s1r8g18f10g8f2g4r15w36r41s1r29s1r4g21f12g2f8g3r17w38r73g8r1g2f4g4f15g1f2g2f5g5r16w38r71g10f3g7f13g10f1r1g1r19w42r70g18f13g8f2g2r18w45r72g5f2g9f12g8f2g4r15w48r71g6f5g5f12g12r15w51r17s1r56g4f1g3f1g1f1g1f11g11r2g1r11w55r43s1r9s1r20g4f1g7f11g11r14w54r10s1r12s1r46g8f5g4f11g11r13w56r9s1r28s1r30g17f12g11r12w57r65g3r1g15f13g11r11w57r1s1r35s3r6s1r19g18f13g13r8w60r62g11r1g4f16r1g14r9w59r53s1r5g12f22g17r8w59r38s1r17g12r1f7g1f13r1g20r7w59r52g1r2g12f16g3f1g23r12w55r39s1r8g2r2g14f18g26r13w54s1r32s1r11g17r1f17g3r2g1r1g20r1g3r5s1r6w1r2w51s1r42g17f5r1f2r2f1r2f4r1g4r3g1r3g1r2g19r16w50r42f1r5g3f1g1r4g1r1f5r11g1r3g2r11g18r17w50r7s2r13s1r2s1r6g1r3f3r8f2r5f8g3r13g2r1g1r11g4r1g4r3g3r20w49r21s1r1s1r5g1r4f9r5g1f2r1f1r3g1r1g4r19g2r12g1r1g1r3g1r3g1r3s1r19w48r15s2r3s1r2s1r3g1r3f16r4g2r77w47r13s2r4s1r5g1r4f17r2g1r1g1r78w47r11s1r13g3r3f14r2g3r80w2r4w41r9s3r15g4f1r3f7r3g3r46s1r42w23r2w1r5w9r8s3r17g4r2g1f1r2f1r4g2r93w20r11w8r7s5r21g3r6g2r55s1r44w13r12w8r7s4r21f2r3g5r70s1r33w10r13w1r2w5r6s3r2s1r15g3r6f2r49s1r2s1r56w9r19w1r2s1r4s3r16g3r4f2r6g1r14s1r32s2r57w2r2w6r27s1r14g2r1g1r3f8r5g2r77s1r29s1r2w3r24s6r11g3r3f14r4g3r64s1r42s1r1s1r23s1r1s2r11g1r1g1r2f20r5g1r134s2r8g3r2f26r4f1r11s1r61s1r57s4r5g1r3f1r1f27r1f1r2g1r1g2r75s1r5s1r48s3r1s2r3f1r3f27r2g5r129s10r3f2r1f24r1g8r13s1r15s1r101s10r3f2r2f18r2g3r1g3r83s1r53s1r1s6r4f2r1f14r2g10r81s1r56s9r4g1r3f9r1g5r1g3r1g1r132s1r8s10r8f2r1f1r3g6r1g1r136s1r11s2r2s1r1s3r2g3r4g1r1g7r82s1r73s5r2f2g2r3g3r1g2r131s2r27s4r2g3r2g1r1g2r1g1r114s1r45s6r2g1r3g2r164s7r16s1r33s1r85s1r35s2r1s4r11s2r115s1r43s1r1s5r6s2r1s1r6s1r121s1r34s5r6s1r164s8r2s1r166s2r1s6r119s1r2s1r46s1r2s7r118s1r7"
+    }
+  },
+  "tpc-scottsdale:13": {
+    "image": "art-demo/tpc-scottsdale/hole-13.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        6.603161,
+        2.438929,
+        150
+      ],
+      "y": [
+        0.378816,
+        -1.076322,
+        790
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 150,
+        "y": 790
+      },
+      {
+        "at": 0.52,
+        "x": 700,
+        "y": 470
+      },
+      {
+        "at": 0.9,
+        "x": 1150,
+        "y": 300
+      },
+      {
+        "at": 0.985,
+        "x": 1530,
+        "y": 200
+      },
+      {
+        "at": 1,
+        "x": 1542,
+        "y": 195
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1534,
+          "y": 198
+        }
+      ],
+      "holed": [
+        {
+          "x": 1542,
+          "y": 195
+        }
+      ],
+      "water": [
+        {
+          "x": 1200,
+          "y": 400
+        },
+        {
+          "x": 1400,
+          "y": 450
+        },
+        {
+          "x": 1550,
+          "y": 550
+        },
+        {
+          "x": 1100,
+          "y": 480
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1370,
+          "y": 205
+        },
+        {
+          "x": 1480,
+          "y": 240
+        },
+        {
+          "x": 1630,
+          "y": 220
+        }
+      ]
+    },
+    "meta": {
+      "number": 13,
+      "par": 5,
+      "yards": 558,
+      "tourAverage": 4.501,
+      "course": "TPC Scottsdale (Stadium Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2865s1r54s1r14s1r2s1r154s1r1s1r7s2r47f2r14f2g1r42s1r19s2r10s1r5s2r8s1r2s1r16s1r36f6r3f3r2f14r2f3g1r35s1r8s1r22s1r68f9g2r7g1r1f15r5g3r32s1r2s1r35s1r9s1r47f11g1r4s4r4f16r2s4r1g3r1s1r30s1r37s1r7s1r3s1r3s1r2s1r19s2r11f7r1f9r8f3r1f13r4s5r2g2r74s1r10s1r23s1r4g5f1r1f30r13f1r2s7r1g1r2s1r61s1r38s1r4s1r1f3g2f36g2r1s1r7g5f1r2s3r52s1r13s1r11s1r18s1r13f36r12s6r1f2r1g1r1g2f2g1r4s1r4s1r54s1r32s1r13f5r1f27r2f1r6s1r1s2r8g1r2g1r7s1r1s1r3s1r30s2r24s2r33s1r6f5r4f27r2f2r71s1r23s1r36f6r2f28r2f2r77s1r21s1r17s1r1s2r12f8r1f25r4f3g3r16s1r6s1r5s1r4s1r51s1r11s1r19s2r3s1r9g1f4r1f24r3f1r43w1r63s1r18s4r2s1r6f5r2f24r2f3g1r2s1r4s1r14w2r3w4r12w5r59s1r25f7r2f26r2f3g2r18s1r4w16r5w6r5w1r31s1r3s2r32s1r7f33r2f3g1r12s1r1s1r10w29r7s1r34s1r35f35r1f3r4g1r10s1r8w2r2w31r41s1r19s1r9s1r7f6r2f25r1f1r6s1r8s1r8w1r2w36r14s2r27s1r18s3r13f31r2f1r6s1r14w43r15s1r47s2r16g2r1f25g4r14w2r2w39r3w4r12s1r45s4r1s1r14f3r2f25g1f1g2f1r13w43r5w3r11s1r48s1r6s1r8f4r1f26r1f2g1f1r13w43r7w1r4s1r9s1r24s1r1s1r1s1r1s2r20s1r2f38r1f2g1f1r12w43r1f1r5s3r2s1r39s3r3s1r19f38r1g4r13w1r3w38r10s2r2s1r39s1r1s1r17s1r7f3g1r1f29r1g3f2r6s1r11w37r12s1r44s1r26f1r1f28r1f3g1r1f1r19w38r1w2r7s3r1s2r46s2r3s1r9f5r1f28r1g1f2g1f1r22w39r3s1r1s1r10s1r2s1r36s1r5s1r5f3r7f31g2f2r17s1r6w40r2s1r52s4r5f1g1f1g4f3r5f29g4r20w1r3w42r4s1r1s2r47s2r7g5f6r1f31g3f1r19w49r6s1r7s1r12s1r20s1r3s4r1f5g2r1f7r1f31r1f1g2f1r2s1r14w53r8s2r3s1r2s3r29s4r5f3g1f1g1f39r1g4f1r8s1r1s1r3w60r4s1r38s3r8f2g2f40g4f1r14w61r4s5r3s3r28s2r9f2g1f40r1g3r9s1r4w63r2s2r3s4r26s1r6s1r8f44r1g2f2r1s1r3s1r3s1r5w62r55f7r1f34g2f2r7s1r8w60r38s2r2s1r13f42r1f4r16w56r2s1r37s4r2s2r12g2f40r1f5r14w55r1s1r34s4r7s2r5s1r6g1f2g1r1f2r1f35r1f1g2f2r4s1r6w1r5w8r3w1r3w1r7w27r5s1r13s2r15s5r16g2f3r8f1r1f3r1f2r1f27r2f5r8w1r6w1r2w3r18w27r5s2r1s1r5s1r19s1r19f4r20f35r17w1r20w26r3s1r1s1r2s1r37s4r1f8r8g2r9f38r35w17r2w8r36s1r5g1f1r5f8r20f2r1f31r1f4g1f1r11w1r20w15r7w1r2w8r5s1r22s1r3s1r1s1f1r2f3r6g1r23f1r3f1r1f34g2f1r30w14r12w7r32s1r1f1r2f8r2f1r26f1r2f36g4r32w8r14w7r6s1r22s2r1g1r2f8r2f1r30f35r1f2g4r31w7r15w8r26s2r1f1r2f8r2g1r31g1r2f37g3f2r2s1r26w5r16w9r11s2r14f1r1f9r2g1r35f3r1f34g4f2r27w4r17w9r12s3r7s2r2g1r5f5r2g2r36f3g1f33g1f1g4r5s1r20s1r22w9r6s4r1s1r13f2g3f3r4g1r36f1g4f2g1f5r2f2r1f19g3f1g2r31s1r2w1r16w8r6s3r21f4g5r3s1r32f2g1r1g4f4r3f2r3f2r2f4r2f5r1g2f1g1f1g1r2s1r50w6r5s4r21g2f1g5f1r4s1r37g6r10f1r3f1r5f2r1g2f2g1f1r1g1r22s1r11s4r15w6r4s6r8s2r4f5r7g2r44g1r1g2r25f1g1r20s4r14s2r18w6r4s5r8s2r1f1r2f11r2g1r5s1r43g1r24g1r22s1r13s1r26w2r3s1r7s1r4s1r2f1r2f11r1g2r119s1r13w1r6w1r8s1r8g2r2f11r1g2r83s1r49w2r6w1r14s1r1g1r2f12r1g2r19s2r63s1r22s2r31w1r17g1r2f12r1g1r3s1r7s2r68s1r2s1r27s1r1s4r12s1r23s1r3g2r3f11r1g2r2s2r5s1r7s1r64s1r19s1r1s2r7s2r1s1r3s2r6s1r1s1r24s1r1g7f1r5f3r5s2r5s1r9s1r64s1r8s1r27s2r2s1r3s2r2s1r23g4r1g8r1g2r5s1r2s2r4s1r1s2r3s2r89s1r6s1r7s1r2s1r2s1r36g3r3g1r6s1r2s1r3s1r2s1r11s1r55s3r31s1r1s2r10s1r29f8r93s1r1s1r30s1r8s2r1s1r20s1r9f9r2g1r17s2r13s2r61s1r38s1r20s1r6f1r1f10r1g1r28s1r4s1r58s1r1s2r34s1r39f4r5s1r17s1r72s1r31s1r45g1r9s1r14s1r4s1r1s1r45s1r10s1r34s1r4s1r8s1r2s1r27s5r2s1r9s3r11s1r1s1r4s1r96s1r9s1r31s2r2s1r2s2r10s2r1s1r162s2r82s1r4s1r36s1r11s1r39s4r6s1r15s1r109s1r24"
+    }
+  },
+  "tpc-scottsdale:14": {
+    "image": "art-demo/tpc-scottsdale/hole-14.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -1.684868,
+        3.040381,
+        130
+      ],
+      "y": [
+        1.677745,
+        -1.239169,
+        778
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 130,
+        "y": 778
+      },
+      {
+        "at": 0.592,
+        "x": 900,
+        "y": 520
+      },
+      {
+        "at": 0.984,
+        "x": 1555,
+        "y": 195
+      },
+      {
+        "at": 1,
+        "x": 1576,
+        "y": 195
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1562,
+          "y": 195
+        }
+      ],
+      "holed": [
+        {
+          "x": 1576,
+          "y": 195
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1310,
+          "y": 398
+        },
+        {
+          "x": 1420,
+          "y": 203
+        },
+        {
+          "x": 1640,
+          "y": 223
+        }
+      ]
+    },
+    "meta": {
+      "number": 14,
+      "par": 4,
+      "yards": 490,
+      "tourAverage": 4.095,
+      "course": "TPC Scottsdale (Stadium Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2877s1r2s1r1s1r10s3r2s1r23s1r15s1r4s3r2s1r12s1r13s1r89s1r22s2r13s1r1s1r40s1r10g1r10f1g1r7s1r45s1r21s1r10s1r10s1r3s1r14s2r19s1r12s1r10g1r3f11r4f1g1r9s1r56s1r25s1r34s1r16s2r4g2r1s3r1f1r1f11r1f4r1f2g2r75s1r3s1r27s1r38f1r1s4r3f14r7g1f1g1r5s1r46s1r85s1r4g2r2s3r3f12r2g1r2s4r1g3r28s2r4s1r26s1r12s1r53s1r9f10g4r5f2r4f1r3s5r1g2r39s1r23s1r66s1r2s1r1f1g1f20r1f3g6r1s6r1g1r114s1r15s1r6f8g2f16r2f4r42s1r62s1r25s1r10s1r2g2f2g2f24r1f1r65s1r6s1r3s1r35s1r10s1r4s1r3s2r4s1r4g2r1f23r2f1r74s1r4s1r28s1r22s1r14g2f26r2f1r104s2r11s2r11s1r13g2f26r18s1r41s1r21s1r6s1r3s1r17s1r8s1r1s2r9s1r13g2f6r2f19g1r21s2r48s1r47s1r6s1r11f1g2f32r1g1f1r2f1r18s1r71s1r2s2r42g1f7r4f25r19s2r77s1r7s1r26f34r2f3r1f1r2g1r11s1r100s1r4s1r11f34r2f6r6s1r15s2r32s1r46s1r11s1r7s2r10g2f32g1f4r16s1r67s1r33s1r8g1f1g2f39r5f4r14s1r4s3r38s1r44s1r10s1r3s1r2g2f40r8g2r2f1r9s1r49s1r3s2r32s1r10s1r11f1g2f7r2f29g1r3s6r67s1r56f1g3f6r1f30g2r1s8r1g2r19s1r15s1r4s1r23s1r5s1r33s1r5s2r9g3f38r1g2r2s6r1g4r2s1r7s1r3s1r4s2r41s1r15s1r6s1r4s1r1s1r2s2r6s1r8f3r1g1f6g1f36g3r3s8f1r84s3r5s1r16s1r1g1f1g3f12r1f31g1r5s8r83s2r1s3r8s1r8s1r8f1g1r1g2f5g1f36g1r2s8r2g2r62s1r39s1r13f4g5f36g2r1s7r1g5r18s1r1s1r3s1r47s1r31s1r13f1g8f1r1f32g3r7g4r24s1r43s4r18s1r18s4r8f3g2f38g10f1g1r29s1r4s1r22s3r5s7r17s1r19s1r5g1r1g3f3g3f40g5f1g4r21s1r1s1r38s6r48f3g2f8r1f40g5r23s1r18s1r19s4r8s1r43g3f51g5r36s1r4s1r20s4r1s1r5s1r46f8r1f42g5r32s1r4s2r23s3r1s1r54g3f47g1f3r41s1r4s1r28s1r19s1r12s1r8f4g6r2f45g1f2r7s2r16s1r16s1r1s2r18s2r9s1r37g9f3r2f44g1f1g5r5s1r16s2r19s1r20s1r8s1r4s1r1s1r27f1r1g8f4r1f46g4r1g2r1g1r18s3r1s1r1s1r43s1r2s1r7s1r1s1r11s1r13f1g2f3g2f4r1f48g4r15s1r8s1r49s2r5s1r3s2r28f6r1f45r4f1r19s1r1s1r7s2r25s2r12s1r10s2r36f53r30s1r6s1r36s3r2s2r3s2r2s2r1s3r20f5g1r2f4r1f47r76s1r6s1r6s1r26g1f1g2f5r1f48r36s2r45s3r4s2r28f57r90s1r17g4f2r5f54g2f1r38s1r55s1r4s1r3g2r6f11g3f34r2f3r2f1g4r1g5r38s1r50s3r9g2r2f3r7f2r2f40r2f1r3f1g1r3g1r2g1r1g4r15s2r19s2r30s2r17s3r7g2r2f9r2f1r7f1r1f6r1f26r9g1r9f2r16s1r66s1r13g1r2f9r3f1r11g1r2g1r5g1r1g1r4f3r2f4r2g2f1g1r8g1r72s1r35f1r2f10r1f1r35g2f1r3g4r8f1r7s1r3s1r2s1r3s1r11s2r23s1r6s1r30s2r11g2f2r4f5r2f2r9s1r6s1r18f1g4f1g3r98s6r10g8f4r3f1r12s1r70s1r59s8r8f1g1r4f5g7r19s1r1s1r3s1r19s1r41s1r41s1r10s5r2s1r10g1r2f3r7g4r10s1r7s1r1s1r60s1r6s1r22s1r2s1r38s1r3g2r2f10r2g1r2f1r12s1r66s1r6s3r29s1r21s3r13g1r2f10r2g2r20s1r60s1r8s1r39s1r13s2r13f1r2f10r1g2f1g1r5s1r5s1r19s1r7s1r50s1r28s2r23s2r11g2f1g3r5f2r2g2f1r10s2r8s1r16s2r31s1r3s2r12s4r30s1r3s1r2s1r16s1r9g1r4g2f2g2f1g4r15s3r7s1r12s1r3s1r31s1r6s1r14s1r6s1r24s2r29g1r3f3r6g4r19s3r17s1r54s1r5s2r23s1r1s1r2s1r27g2r2f11r44s1r58s1r1s1r50s2r1f1g2r2f11r2g1r8s2r66s1r25s1r5s1r49g1r2f12r1g2r5s1r3s1r41s1r83s2r24f11r2g2r10s1r2s1r85s2r2s1r58s1r2f7r1g2r9s2r88s4r1s2r35s1r33g1r2s2r4s2r48s1r45s2r11s1r23s2r1s1r21s1r1s1r4g2r8s4r48s1r80s1r5s2r18s1r15s6r40s1r52s2r34s1r40s4r1s1r49s2r75s1r2s1r3s1r2s3r30s5r33s1r8s1r10s1r2s1r114s2r2s2r47s1r6s1r47s2r51s1r13s4r64s1r25s1r15s2r50"
+    }
+  },
+  "tpc-scottsdale:15": {
+    "image": "art-demo/tpc-scottsdale/hole-15.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -2.529006,
+        2.538047,
+        150
+      ],
+      "y": [
+        2.654533,
+        -1.025085,
+        800
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 150,
+        "y": 800
+      },
+      {
+        "at": 0.524,
+        "x": 850,
+        "y": 540
+      },
+      {
+        "at": 0.9,
+        "x": 1250,
+        "y": 360
+      },
+      {
+        "at": 0.985,
+        "x": 1540,
+        "y": 232
+      },
+      {
+        "at": 1,
+        "x": 1556,
+        "y": 230
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1545,
+          "y": 231
+        }
+      ],
+      "holed": [
+        {
+          "x": 1556,
+          "y": 230
+        }
+      ],
+      "water": [
+        {
+          "x": 700,
+          "y": 420
+        },
+        {
+          "x": 1100,
+          "y": 250
+        },
+        {
+          "x": 1350,
+          "y": 300
+        },
+        {
+          "x": 1700,
+          "y": 250
+        },
+        {
+          "x": 500,
+          "y": 460
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1640,
+          "y": 240
+        }
+      ]
+    },
+    "meta": {
+      "number": 15,
+      "par": 5,
+      "yards": 553,
+      "tourAverage": 4.719,
+      "course": "TPC Scottsdale (Stadium Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2895s1r9s2r1s1r1s1r6s1r1s1r43s1r100s1r2s1r20s3r137s1r20s1r93s1r8s1r2s2r52s1r5s1r93w1r11w11r142w8r3w3r16w13r38s1r72s1r10w17r16f5r10w7r70s1r51w16r11f13r9w6r28s1r20s2r7s1r62w16r8f2r1f12r3s4r4w6r33s1r21s1r62w19r9f2r3f8r1f1r1s4r5w6r96s1r7w1r3w30r8s1r3f1g1f1r6g2r1s4r5w6r101w42r4s1r22w7r79s1r14w4r1w48r3w2r13w1r3w8r59s2r32w4r4w25r3w2r3w35r2w2r30s1r29s1r2s1r25f1r8w1r7w23r13w1r2w1r2w23r61s1r1s1r31f2r16w16r15f1g2r10w19r95g3r16w15r1s1r4g1r1g1r4f10r2g2r5w16r113w13r4g1f3r1f1r1f18g3r4w2r2w1r3w5r10s1r96w1r6w9r1f1g2r4f24r1f1g2f2r7s1r5w2r5w1r100w14r2f3r2f26r1f1g4f1r16w1r94w1r3w4r3w10r1s1r2f1g3r1f27r1g2f1g2f2r100s1r9w22r6g3r1f25r1g2f2g1f4r23s2r84w23r6g3f26g2f2g2f3r1s1r19s1r2s1r8s1r5s1r38s1r28w23r2s1r7f1g1f3r1f22r1g1f2g2f3r43s1r7s1r19s2r26w3r4w23r11f5r1f22r1g2f2g2f2g1r17s1r4s1r10s1r6s2r9s2r15s1r25w2r2w26r3s1r12g1f2r1f24r1g2f2g2f2g3r34s2r14s1r25s1r1s1r5w4r7w25r12g2f1g4r1f25r1f1g1f2g2f3g3r23s1r7s2r38s2r9w6r2w1r2w23r11g1f1g6f1r1f28g2f1g3f2g2r6s1r4s1r20s2r6s1r15s3r24w32r3s1r9g3f32r1f1g6f1r15s2r18s1r22s4r20w1r4w32r9g2f1g3f3r1f28r1f1g5f2r1f1r16s2r4s1r8s1r34s1r8w2r4w34r3s1r5g1f2g6r1f29r2f1g5f1r1g1r1s1r13s1r11s1r20s1r20s1r1s1r6w3r1w35r6f1g2f3g2f2r2f29r1f2g4r2f1r4s1r37s1r26s4r8w2r5w3r3w17r3w3s1r8g1f3g1f2r2f30r1f2g4r1g1r19s1r72w1r2f2r1w12r8w1r7g3f2g3f1r1f31r1f2g4r19s1r2s1r3s1r8s1r9s1r1s1r3s1r3s1r39w1r1g1r5w8r19g2f1g3r1f32r1f2g2f2r26s1r22s1r1s1r50g1r2w6r1s3r14g2f2g4r1f31r1f2g2f1r18s1r9s1r84s1r16g1f3g3f32r2f3g1r29s1r6s2r1s1r16s2r8s1r42s1r23f2g3r1f31r1f5g1r30s2r4s1r3s1r20s3r13s1r2s1r45g4f2g3f1r2f36g4r28s1r10s1r7s1r12s1r16s1r43g7f1g3f1r2f28r2g3f3r3g1r60s3r17s2r37g8f2g3r2f29r2g4f1g2r46s1r37s1r1s2r36f1g3f4g1r3f31r1g4f1g3r70s1r3s1r12s1r22s1r16g1f3r3f33r1g6r4s1r62s1r12s1r12s1r5s1r17s1r7g3r1f3r2f34r1f4g4r11s2r56s1r23s2r4s2r14s1r10g1f3r2f35r1f3g4r2s1r1s1r6s4r51s1r26s3r5s1r12s1r14f1r2f35r1g1f3g5r30s1r63s1r17s2r4g1r6f3r2f34r3f3r2g4r7s1r5s1r18s2r49s1r1s2r28s1r3g5f3r2f34r2g1r4g1r7s3r30s1r1s1r47s2r5s3r23g1f1g3f3r2f34r1f2g1r27s1r66s3r6s2r20g1f3g4f1r2f34r2f4r51s1r43s2r24g1f5g4f1r3f34r1f5g3r19s2r12s1r11s1r46s4r5s2r10f7r2g4f4r1f34r2g1f2g3r2f1r46s1r28s1r18s4r6s1r7f8r2f2g2f1r2f33r2f1g3f2g1f1g1r41s1r2s1r31s1r21s1r15f9r1f3g1f33r3f3g3f3g3r42s1r4s1r25s1r40f8r1f6g4f1r1f20r3f8g3f2g3r57s1r41s3r12g1f1r2f6r1g1f5g4f7g1f5r1f4r9f1g4r3g1r2g1r3s1r95s6r10g4f5r7g1r2f1g2f1g3r1f1g1r1f3r3g1f1g1r12g3r10s1r42s2r20s1r2s1r26s5r12f1r5g2f1r2f1r9g1r1g2f2r3f1r2f1r17g1r71s3r2s2r31s2r12f7r3g1r11g1r31s2r11s2r57s1r36s1r11f10r19s1r9s1r28s1r2s1r1s1r57s1r1s1r3s1r21s2r12g1r2f9r21s1r24s2r13s2r1s1r3s2r32s1r17s4r26s2r12g4r3f4r23s1r38s2r13s1r17s1r8s1r18s1r26s1r19g1f3r24s1r3s1r36s1r58s1r28s1r12f6r6g1r62s1r11s2r1s1r56s2r18s1r7f11r11s1r51s1r10s1r4s1r4s1r54s2r16s3r5f11r1g1r3s1r3s5r37s1r14s4r12s1r32s1r1s1r44g1r5f1r1f5r10s3r23s1r31s1r1s5r12s1r13s2r4s1r12s1r23s1r6s1r21f1r3g1r7s2r1s1r60s2r1s1r3s1r5s1r2s1r16s1r16s1r2s2r21s1r4s1r25s1r3s4r67s3r69s3r30s3r69s4r12s1r10s1r19s1r23s1r19s2r10s5r16s1r20s1r1s1r31s4r14s1r72s4r6s2r15s3r12s1r44s2r17s1r4s1r54s1r13s3r24s2r8s1r3s1r10s2r7s1r51s1r34s1r13"
+    }
+  },
+  "tpc-scottsdale:16": {
+    "image": "art-demo/tpc-scottsdale/hole-16.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0.073379,
+        4.957055,
+        520
+      ],
+      "y": [
+        -25.612896,
+        -3.361963,
+        750
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 520,
+        "y": 750
+      },
+      {
+        "at": 0.951,
+        "x": 1310,
+        "y": 320
+      },
+      {
+        "at": 1,
+        "x": 1328,
+        "y": 322
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1316,
+          "y": 321
+        }
+      ],
+      "holed": [
+        {
+          "x": 1328,
+          "y": 322
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1125,
+          "y": 345
+        },
+        {
+          "x": 1500,
+          "y": 370
+        },
+        {
+          "x": 1410,
+          "y": 420
+        }
+      ]
+    },
+    "meta": {
+      "number": 16,
+      "par": 3,
+      "yards": 163,
+      "tourAverage": 2.992,
+      "course": "TPC Scottsdale (Stadium Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2856s2r1s1r3s2r8s1r12s1r30s1r2s1r9s1r50s5r2s2r1s1r5s2r2s1r2s1r68s2r13s5r2s1r65s6r2s1r40s1r7s1r1s1r38s4r24s1r16s1r7s1r29s8r1s2r85s1r73s1r9s9r1s1r1s1r3s1r68s6r42w1r34s1r1s2r9s7r36s1r2s1r11s1r14s1r1s5r8s1r25w1r5w2r46s1r1s1r8s6r30s1r29s3r3s1r5s2r2s1r24w1r3w3r47s2r5s2r1s1r6s8r50s7r3s2r39w4r41s1r4s1r8s2r1s1r1s2r4s6r42s1r2s4r1s1r4s3r38w1r52s2r13s1r2s1r4s7r36s1r1s1r1s1r2s1r1s1r2s1r41w1r58s2r6s2r7s1r4s5r40s2r46w1r46g1r16s2r3s2r9s1r4s1r32s2r38s1r9w1r39g27r9s2r10s1r34s4r5s5r1s1r23s1r15w1r31g15r1g21r9s1r2s1r8s1r31s4r2s1r26s2r14w1r4w2r28g12r4f3g8r1g1r1g12r20s1r31s3r1s1r2s1r5s1r12s3r17w1r33g6r2g6f6g28r6s1r6s1r37s1r3s1r9s1r4s2r24w4r25g8r2s4r3g1r1f4g1r5f2r7f1g3r2g10r8s1r10s4r39s3r27w1r26g12r1s8r1g1r1f2r2f10r1f4r3g1f2r1g11r2s1r13s4r29w1r3s1r15w1r13w3r26g16r1s9g1r1f1r2f19r2f2g1r2g8r3s1r9s1r3s3r42w1r7w1r9w2r26g19r2s8r1f2r2f21r1f1r7g6r12s1r3s3r45w2r7w2r1w1r26g22r1s8r1g1f2r1f16r1f5r1f1r3s5r1g6r2s1r12s3r32w1r3w1r7w3r5w1r28g25s9r1g1r1f1r1f22r1f1r2s7r1g5r3s1r2s1r9s2r35w2r9w2r30g28r1s9r1g3r2f20r1g1f1g1r2s6g6r3s1r7s1r5s1r13w1r58g34r2s7r1g2r2f1r3f15r2f3r1g1s7r1g6r2s1r5s3r74g41r5g1r3f6r14f2r5g1r2s4r1g7r3s1r3s1r74g47f17r1f2r1g1r12g3r2g1r1g8r3s3r4s1r40w1r25g50f19g4r3s9r1g14r12s1r60g33r1g18r1f20g3r1s12r1g14r34w1r34g54r2f20r1g3s12r1g17r8s1r22w1r32g21r1g19r1g1r3g1r1g7r2f22r1g3r1s8r2g19r2s1r2s2r5s1r8w1r38g39r1g13r5f26g3r1g1r6g22r11s2r12w2r7w1r24g36r2g5r7f34g7r2g26r9s3r11w1r31g43r2f41g37r7s4r3w2r36g44r1f41r1g38r4s1r1s5w1r2w1r9w1r25g45r1f41r1g39r2s9r36g48f39r1g41r1s2r1s1r1s6r34g43r1g6f37r1g42r1s2r3s7r5w1r25g53r1f32r1g46r1s1r3s7r30g56r1f28r2g47r1s1r4s7r27g60r1f25r1g49r1s1r4s7r27g32r1g30r1f20r2g4r1g45r1s1r4s7r26g9r1g49r1g7r3f12r3g52r1s1r4s8r24g63r1g11r6g57r1s2r2s9r22g100r1g40s2r4s7r22g19r1g55r2g3r2g3r1g24r1g11r1g18r1s1r4s8r20g20r1g1r1g119r1s1r4s8r19g20r3g1r1g1r2g37r1g77r1s2r3s8r17g20r3g1r6g2r1g30r1g18r1g38r1g23r1s1r5s8r16g15r1g4r2g1r3f5r3g1r2g33r1g16r1g57r1s2r3s9r15g8r1g11r6f9r4g1r1g63r1g21r2g18r1s4r2s8r14g22r4f14r3g47r1g5r1g3r1g47r1s1r10s2r14g25r3f11r2g8r1g10r1g87r1s1r5s2r18g13r1g16r2f7r2g6f1g1r3g76r1g20r1s7r19g28r1g4r7g8r2g3r2g34r1g33r1g23r3s9r19g29r1g4r3g3r1g3r4f1r3g3r1g87r3s14r17g31r1g4r2g4r3f6r4g2r2g40r1g40r3s14r19s1r2g35r1g2r3f11r3g3r2g25r2g48r3s14r22s1r4g18r1g15r3f15r4g2r2g22r1g14r2g7r1g23r3s14r5s1r23s1r2g19r1g13r2f18r3g2r1g25r1g4r2g18r1g2r1g12r2s15r6s1r27s1r2g27r1g2r1g2r3f15r3g16r1g48r3s15r15s1r23s1r1g23r1g7r1g3r2f13r2g22r2g8r1g1r1g28r3s16r37s1r2s1r4g7r1g1r2g12r1g11r2f9r2g11r1g1r2g8r1g3r2g3r1g1r2g25r4s15r42s2r7g20r1g2r1g11r3f4r2g10r3g1r2g10r1g4r1g3r2g14r2g7r3s16r47s1r3s1r4g11r1g8r1g10r2g3r5g5r1g4r1g20r1g1r2g1r1g15r1g5r3s16r5s1r2s1r45s1r3s1r2g32r2g2r1g10r1g1r1g1r1g11r1g2r6g21r3s17r63s1r2g7r1g15r1g12r2g5r5g13r1g1r4g1r2g12r1g5r3s17r68s1r1g4r1g2r2g14r2g2r1g4r1g3r1g7r1g18r1g19r3s18r51w1r23g22r1g15r3g12r1g5r1g1r1g15r4s18r80g8r1g13r2g4r1g5r1g2r1g11r1g8r2g2r1g5r1g1r4s19r86g9r1g17r1g1r1g1r1g7r1g4r4g5r1g3r1g6r4s20r88s1r2g1r1g1r1g1r1g1r3g15r1g1r1g5r1g2r1g9r1g11r4s20r32w1r1w1r3w1r52s4r2g3r1g2r2g2r1g8r1g1r1g2r3g12r1g5r2g4r5s21r95s2r2s1r1g8r1g16r2g13r1g4r5s22r37w2r2w2r29"
+    }
+  },
+  "tpc-scottsdale:17": {
+    "image": "art-demo/tpc-scottsdale/hole-17.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        31.643741,
+        2.663351,
+        220
+      ],
+      "y": [
+        -26.722797,
+        -0.561755,
+        760
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 220,
+        "y": 760
+      },
+      {
+        "at": 0.72,
+        "x": 1100,
+        "y": 420
+      },
+      {
+        "at": 0.976,
+        "x": 1480,
+        "y": 230
+      },
+      {
+        "at": 1,
+        "x": 1505,
+        "y": 228
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1488,
+          "y": 229
+        }
+      ],
+      "holed": [
+        {
+          "x": 1505,
+          "y": 228
+        }
+      ],
+      "water": [
+        {
+          "x": 1100,
+          "y": 220
+        },
+        {
+          "x": 1300,
+          "y": 215
+        },
+        {
+          "x": 950,
+          "y": 225
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1470,
+          "y": 370
+        },
+        {
+          "x": 1585,
+          "y": 275
+        }
+      ]
+    },
+    "meta": {
+      "number": 17,
+      "par": 4,
+      "yards": 332,
+      "tourAverage": 3.706,
+      "course": "TPC Scottsdale (Stadium Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2902s1r5s1r61s1r37s1r83g1r47s1r20s3r53s1r71s1r46s1r1s2r81s1r10s1r25s2r3s1r10w1r10w3r8w7r4w1r7f1r8s1r88s1r14s1r14w3r3w8r4w9r2w9r12g2r5s1r1s1r67s1r34s2r12w32r3f2r5f10r77s1r15s1r2s1r3s1r6s1r3s1r11w31r1s1r2f2r2f18r2g1r14s1r75s1r11s3r1s3r10w28r4g1f1r1f21r2g2f1r47s1r1s1r9g1r2s1r39s1r16w25r1s1r2g1f1g1r2f17r2f3g1f3g1r5s1r51g2r1s1r43s1r2s1r3s2r4w22r4g2f1g4r4f9r3g1r2g1r2g8r3s1r90s1r10s1r1s1r9w15r5g3f15r8g1r1s6r2g2f2r3s2r86s1r4s1r23w5r7g2f3g1f1r4f11r1g3f1g2r4s6r10s1r27s1r10s1r45s1r22g5f1r1f2r3f5r8f17r1f1g4r1s9r11s1r37s1r45s1r19g2f11r5f28r1f1g4r2s6r57s1r37s1r1s1r8f1r1g7f4g1f1g1r5f33r2f1g1f2r3g2f2r1g5r14s1r33s1r23s2r18s1r15g1f7r3f36r1f3r10g2r2f2g1r95s1r3f4r7f3g1r2f37r2f4r3s9r1f1r1g2f1g1r50s2r34s2r8g1f1g2f1g4f4g2r1f37r2g3f1r2g1r2s10r2g2r56s1r17s1r1s1r12s1r1s1r7g1f1g1f1g2f6g1r1f37r1f1g4r1g1r5s10r3g1r56s1r31s2r10f4g1f5g1r1f38g3f1g2r2s18r86s1r1s1r1s1r10f1g1f4g3f1g1f38g7s15r1s1r86s2r19g1f2g2f40g8r2s12r4g2r56s1r6s1r42g1f1g4f37g5f1g4r1s9r32s1r10s1r41s2r1s1r15f3r9g4f38g1f3g2r3s8r16s1r66s4r18g1r4f3r2f1g5r1f37g6r1s11r73s2r8s1r8s1r9g1r8f1g1f1g6r1f35r1g8r2s7r10s2r1s4r23s1r39s4r16g4r11g6r2f36g16r100g9f2g1r5g3r3f36g12r1g1r14s1r8s1r30s2r23s1r22g7f2g4f2g3r3f38r1g1f1g3r1g2r3g1r58s1r3s1r15s3r20g8f4g2f2g2r3f40r1g6r20s4r9s2r34s3r21s1r13g4f1g3f3g1f1g3r3f42r1f2g5r20s2r2s1r1s2r6s1r33s2r4s1r7s4r10s1r12f3g2f1g1f3g1r4f42r2g5r10s1r2s1r23s1r34s1r12s4r25g3f3g1r3f43r2g4r3g1r1s1r10s1r1s1r21s1r30s1r38g2r3g1r1g6r2f43r2f1g4f2r15s2r46s1r7s1r14s2r20g12r3f46g4f3r19s1r26s1r14s1r16s1r8s4r3s1r1s1r4s1r6g12r2f47g3f3r14s1r1s2r2s1r28s4r31s1r5s1r6s1r6g4f4g1f2g1f2g2r2f47g4f1g1r10s1r4s1r33s2r39s1r4s1r6s1r2g5f9g1r2f47g8r9s1r4s1r34s1r33s1r5s5r11g5f7g1r2f48g10r48s1r30s2r7s4r14g2f2g2f1g1f1g2r1f50g6r1g1r83s1r6s3r10f2g12r1f50g5r67s1r17s1r2s1r4s3r8g2f1g14r1f49g4r93s3r10g4f2g6f2g2f1r1f47r1g4r93s3r13f4g13r1f43r1g6r15s1r40s1r14s2r2s1r18s1r15g4f3g10f38r3g8r72s1r18s5r12g2r1g20r2f28r9g5r14s1r43s1r3s1r10s1r8s1r1s2r4s4r2s1r10g2r3g3f1g11f1g3r1g1r1g2r3f21r11g2r24s1r64s1r1s3r1s2r17f1r6g12f1g1r4g1r12f6r4g1r1g1r70s2r11s1r13s1r4s3r2s1r8s2r2g2r2f8r4g7r17g1r1g13r38s1r38s1r25s3r1s1r1s2r9g2r2f12r2g2r3g1r6g1r13g1r1g10r18s3r3s1r12s1r31s1r7s1r23s2r3s1r13g1r3f11r2g1r30g1r3g2r17s1r4s1r48s1r27s6r17g1r3f1r1f9r2g1r58s3r44s1r1s3r27s4r1s1r11s1r1g6r3f8r1g3r47s3r28s1r26s2r2s1r11s1r13s7r14g1r1g8r4f1r2g1r34s1r13s2r1s1r52s1r8s1r22s8r2s1r10g6r1g1f2g7r52s1r23s1r1s1r42s1r5s1r11s6r1s1r4s2r1s2r3g1r6g9r79s1r12s1r29s2r16s7r7s2r2g2r2f6r4g5r7s1r58s3r50s1r4s1r12s1r2s5r1s1r1s1r7g2r2f12r3g2r65s1r1s2r21s1r7s1r26s1r1s1r12s4r7s1r2g2r3f12r2g1f1r91s1r7s1r6s1r11s1r23s1r1s1r5s2r2g3r2f13r1g2r79s1r1s1r11s1r1s1r9s1r18s1r5s3r10s1r2s1r7g3r2f13r2g2r7s1r72s1r11s3r10s1r1s1r26s1r7s1r11g2r3f1r1f11r1g1r8s1r1s1r79s3r15s1r1s1r27s1r15g6r3f10r3g1r16s1r71s1r1s2r16s1r30s1r10s1r3g1r1g1r3g3r3f6r6s1r4s1r19s1r61s2r1s1r21s1r45g1r2g2r1g1r102s1r53s1r16g2r5g2r75s1r9s1r9s1r11s1r45s1r37s3r11s1r63s1r11s1r40s1r24s1r3s1r1s1r14s1r8s1r1s2r2s2r60s2r10s1r1s2r21s1r41s1r4s2r22s1r1s1r7s1r1s1r55s1r13s1r70s1r14s2r6s3r66s1r16s2r2s1r78s1r7s2r7s1r4s1r45s1r25s1r70s1r9s1r8s1r85s1r1s2r44"
+    }
+  },
+  "tpc-scottsdale:18": {
+    "image": "art-demo/tpc-scottsdale/hole-18.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -2.644444,
+        3.024222,
+        150
+      ],
+      "y": [
+        3.864712,
+        -1.246151,
+        773
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 150,
+        "y": 773
+      },
+      {
+        "at": 0.656,
+        "x": 950,
+        "y": 520
+      },
+      {
+        "at": 0.982,
+        "x": 1500,
+        "y": 195
+      },
+      {
+        "at": 1,
+        "x": 1504,
+        "y": 192
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1501,
+          "y": 194
+        }
+      ],
+      "holed": [
+        {
+          "x": 1504,
+          "y": 192
+        }
+      ],
+      "water": [
+        {
+          "x": 300,
+          "y": 400
+        },
+        {
+          "x": 600,
+          "y": 330
+        },
+        {
+          "x": 900,
+          "y": 300
+        },
+        {
+          "x": 150,
+          "y": 450
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1320,
+          "y": 413
+        },
+        {
+          "x": 1380,
+          "y": 208
+        },
+        {
+          "x": 1590,
+          "y": 223
+        }
+      ]
+    },
+    "meta": {
+      "number": 18,
+      "par": 4,
+      "yards": 442,
+      "tourAverage": 4.01,
+      "course": "TPC Scottsdale (Stadium Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2985g1r167f2r5g8r95s1r54g7r6f5r1f2r4f3g1r83s1r3s1r2s3r18s1r30f4g2r8g1f1r1f7r1f10g1r4s2r104s1r16f2r5f1r1f5g5f2r1s6r2g1r2f11r7g2r4s1r93s1r19f1r1f15g7f1g2r2s7r1g2f1r12s6r1g2r4s1r4s1r24s1r51w1r28f2r1f17g8f1r1s5r2g3f3r3g1r5s6r1g3r3s1r3s1r61w1r50g1f17r1g14r1f3r1g6r1s8r1g3r2s2r64w2r3s1r17w3r3w1r15s1r8f19r1f4g1f1r4f4g9r7g1r8s2r32s1r32s1r14w1r3w5r28f2g1f31r5f1r5g3r44s1r44w23r4w2r12g1f32r4f7r9s1r7s1r27s1r2s1r1s2r5s1r10s1r15w1r1w30r2w4r4w2r5g1f28r2f15g2r1s1r10s1r34s1r13s3r10s1r7w42r5g1f2r1f21r8g1f11g1r13s1r1s1r37s1r8s1r21w28r3w5r2w1r2s1r3g1f23r5s2r1s4r3f6r5s2r8s4r26s2r39w28r5w3r9f24r2s4r3s4r1s2r1f2g2r13s3r54s2r15w28r14g1f1r2f19r1f1r2s4r4s2r1g1r1s3r1f1g3r14s1r3s1r1s1r32s2r5s1r1s1r16w3r5w21r5w2r10f25r1f1g1r2s4r1g1r1s2r1g2r1s4g1f1g3r20s1r56w6r3w21r7w2r6g2f26g2r1s4r4s2r1g1r1s4r2f1g3r3s1r12s4r47w1r7w33r9s1r5g2f24g1r3s3r2g1r1s3r1g1r1s3r1g6r20s3r45w4r2w35r11g3f1r1f23g1r4s2r4s3r1g1r2s3r1g7r22s1r44w33r5w4r9g2f24r1f1r4s4r4s3r1g1r1s3r1f1r2g2f2r24s1r24w1r2w5r6w38r7w3r8g1f2r1f22r1g2r1s5r4s3r4s3r8f1r47w1r1w9r4w25r2w2r2w7r8w3r2s1r1g3f26g1r1g1r1s4r1g1r2s3r2g1r1s3r1g2r1s5r51w35r10w6r8w2r6g4f21r1f1g1r3s3r2g1r1s4r1g1r2s3r1g2r1s5g1f1g1r1g1r16s1r16w2r12w34r12w5r15g4r1f20r1g2r1s5r4s3r1g1r2s4r1g2r1s5r1g1f1g2r32w3r12w34r13w6r13g4r1f19r1g3r1s4r1g1r2s3r1g1r2s4r2g1r2s6r1g3r1s1r19s1r9w5r11w35r13w3r14g4r2f19r1g2r2s4r3s3r1g1r2s4r1g2r2s7r2g1r9s1r4s1r3s1r13w7r5w40r14w1r14g1f2r1f21r1g2r1s4r3s3r4s5r1g2r1s7r3g1r9s1r10s1r9w56r8g1r15g2f27g3r1s4r2s3r1g1r2s5r1g1r2s3r1s1r17s1r9s1r2s1r4w59r24f29g2r2s7r3s4r5s5r18s1r3s1r11s1r2w50r3w1r2w3r17g3f34r1g3r1s4r2s4r5s6r8s4r6s1r19w48r9w2r1s1r14g1f37r1g5r4s4r7s1r12s3r1s1r11s2r12w5r5w37r29f39g11r19s2r9s1r5s1r1s1r12w4r6w37r14s1r10f1r2f1r1f38g3f3r1f4r19s1r6s1r5s3r28w1r2w27r3w2r13s1r4g3f2g1f2r2f42r1f2r4g1r1g1r17s1r8s1r2s1r1s3r32w25r7s1r3s1r11g2f1g4f36r1g1f1g3f4g2r5g1r9s1r18s1r4s2r3s1r28w1r2w17r4w2r21g2f2g2f1r2f34r1f2g2f2g1r1g3r1g1r40s1r36w3r4w8r7s1r18g2f2g3r2f34r1f3g9r43s1r5s1r3s1r36w1r9s1r6s1r1s1r9g4f1g3r1f38g3f1g4r1g2r13s1r28s2r4s3r36s1r1s1r30f1g4r1f35r1g7r2g1r8s1r8s1r30s1r16s1r29s1r19s2r5f3g3r1f37g4f2g2r6s1r2s2r4s2r34s2r54s1r7s1r4g3f6r1f38g4f1r13s1r6s1r78s1r1s2r9s2r7g2r1g1f5r2f41g1f2r13s1r87s1r16g4f1g3f3r1f39r1f3g1f1r8s1r12s1r50s1r28s1r17g3f2g1f3r1f40r7g1r9s1r87s1r2s2r15s1g6f44r86s1r11s1r31f4g1f39r3g1r6g1r10s1r30s2r67s3r8g3f1g1f9r1f2r1f26r24s1r26s1r45s1r15s1r1s2r10g1f5g8r1f3r1f1r6f19r92s2r26s2r7g4f2g1f4g10r7f14r3f1g3f1r20s1r11s1r56s3r13s1r8s1r5g3r4g4f8g1f2g1f1g1r12f7g13r23s1r23s2r38s5r19s2r1s1r5g1r3f3r7f1r2g1f1r22g1r1g13r30s1r23s1r34s4r14s5r1s1r4g2r3f9r2g1f1g3r1g3r18g1r4g1r50s1r44s1r2s3r6s1r7s4r8g1r3f9r2g1r3g1r6g1r18s1r37s1r1s3r4s1r6s3r4s1r34s1r3s6r5s1r4s3r11g1r3f9r2g2r69s3r12s2r40s8r11s4r9f1r3f10r2g2r46s1r23s2r12s1r25s3r14s7r12s4r7f2r2f10r2g2r28s1r1s2r40s1r25s1r14s1r3s1r10s1r3s1r1s1r2s1r7s5r12g2r4f2r3g3r72s1r13s1r4s1r5s2r39s2r3s5r1s1r7g1r2f3r6g1r3g1r58s1r42s1r5s1r4s1r28s2r2s6r10f10r4f1r1s1r80s2r62s4r7g1r2f11r2g4r11s2r133s4r9f11r2g2r8s1r34s1r39s1r20s1r44s3r9f10r2g1r152s2r9g1r4f5r2g3r151s2r11g3r5g1r10s2r82s1r15s1r1s1r42s3r12g1r3g2r5s1r51s1r31s1r23s1r42s6r12s1r158s9r67s1r49s1r2s1r18s1r30s10r169s10r121s1r49s1r1s1r2s7r4s1r109s1r54s10r1s1r107s1r45"
+    }
   }
 }

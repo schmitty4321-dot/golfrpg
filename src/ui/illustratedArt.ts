@@ -158,7 +158,8 @@ interface Terrain {
 }
 
 const terrains = new WeakMap<ArtEntry, Terrain | null>();
-const KIND: Record<string, number> = { r: 0, f: 1, s: 2, w: 3 };
+/** Terrain letters: r the rest, f mown grass, s sand, w water, g mown rough (a wide second cut, where a course paints one). */
+const KIND: Record<string, number> = { r: 0, f: 1, s: 2, w: 3, g: 4 };
 
 function terrainOf(art: ArtEntry): Terrain | null {
   if (terrains.has(art)) return terrains.get(art)!;
@@ -167,7 +168,7 @@ function terrainOf(art: ArtEntry): Terrain | null {
   if (m) {
     const kind = new Uint8Array(m.cols * m.rows);
     let i = 0;
-    for (const [, l, n] of m.rle.matchAll(/([fswr])(\d+)/g)) {
+    for (const [, l, n] of m.rle.matchAll(/([fswgr])(\d+)/g)) {
       kind.fill(KIND[l!]!, i, i + Number(n));
       i += Number(n);
     }
@@ -192,8 +193,9 @@ function terrainOf(art: ArtEntry): Terrain | null {
     // Distance to mown grass, breadth first from every grass cell.
     const toGrass = new Uint8Array(kind.length).fill(255);
     const queue: number[] = [];
+    // Mown rough counts as grass here, so "the trees" means past it.
     kind.forEach((k, j) => {
-      if (k === 1) {
+      if (k === 1 || k === 4) {
         toGrass[j] = 0;
         queue.push(j);
       }
@@ -217,12 +219,16 @@ function terrainOf(art: ArtEntry): Terrain | null {
 }
 
 /** Whether a cell suits a lie: the fairway on mown grass, the rough just off it, a bunker on sand beside the grass, and so on. */
-/** Sand with at least six of its eight neighbours sand too: the middle of a small bunker. */
-function mostlySand(t: Terrain, j: number): boolean {
-  if (t.kind[j] !== 2 || t.toGrass[j]! > 4) return false;
+/** How many of a cell's eight neighbours are sand. */
+function sandAround(t: Terrain, j: number): number {
   let sand = 0;
   for (const dy of [-1, 0, 1]) for (const dx of [-1, 0, 1]) if ((dx || dy) && t.kind[j + dy * t.cols + dx] === 2) sand++;
-  return sand >= 6;
+  return sand;
+}
+
+/** Sand with at least six of its eight neighbours sand too: the middle of a small bunker. */
+function mostlySand(t: Terrain, j: number): boolean {
+  return t.kind[j] === 2 && t.toGrass[j]! <= 4 && sandAround(t, j) >= 6;
 }
 
 function suits(t: Terrain, j: number, lie: Lie): boolean {
@@ -239,7 +245,8 @@ function suits(t: Terrain, j: number, lie: Lie): boolean {
     case "fairway":
       return k === 1 && deep();
     case "rough":
-      return k === 0 && g >= 1 && g <= 2 && !wet();
+      // On the mown rough where the painting has it, else just off the grass.
+      return (k === 4 || (k === 0 && g >= 1 && g <= 2)) && !wet();
     case "trees":
       return k === 0 && g >= 3 && g <= 7 && !wet();
     case "ob":
@@ -272,13 +279,14 @@ export function placeOnTerrain(art: ArtEntry, from: Pt, lie: Lie): Pt | null {
     const mid = searchTerrain(art, from, lie, false, true);
     if (gain(mid) > 8 * cell) return mid;
     // Even a bunker too small to have a middle, when the only deep sand is far back down the hole.
-    const edge = searchTerrain(art, from, lie, true);
+    // (a real bunker's edge, not a speck of pale ground)
+    const edge = searchTerrain(art, from, lie, true, false, true);
     if (gain(edge) > 15 * cell) return edge;
   }
   return found;
 }
 
-function searchTerrain(art: ArtEntry, from: Pt, lie: Lie, anySand = false, smallBunker = false): Pt | null {
+function searchTerrain(art: ArtEntry, from: Pt, lie: Lie, anySand = false, smallBunker = false, solidOnly = false): Pt | null {
   const t = terrainOf(art);
   if (!t || !TERRAIN_LIES.has(lie)) return null;
   const cx = Math.floor(from.x / t.cell);
@@ -295,7 +303,7 @@ function searchTerrain(art: ArtEntry, from: Pt, lie: Lie, anySand = false, small
         if (x < 0 || y < 0 || x >= t.cols || y >= t.rows) continue;
         const j = y * t.cols + x;
         // The looser pass still wants sand that borders the grass (a beach or a desert wash isn't a bunker).
-        if (!(anySand ? t.kind[j] === KIND_OF[lie] && (lie !== "bunker" || t.toGrass[j]! <= 2) : smallBunker ? mostlySand(t, j) : suits(t, j, lie))) continue;
+        if (!(anySand ? t.kind[j] === KIND_OF[lie] && (lie !== "bunker" || (t.toGrass[j]! <= 2 && (!solidOnly || sandAround(t, j) >= 3))) : smallBunker ? mostlySand(t, j) : suits(t, j, lie))) continue;
         const d = Math.hypot(dx, dy);
         if (!best || d < best.d) best = { j, d };
       }
