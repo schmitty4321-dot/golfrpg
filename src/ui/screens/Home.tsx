@@ -242,16 +242,7 @@ function ThisWeek({ world, game, week }: { world: World; game: Game; week: WeekC
         <h2>Week {world.week}: where does everyone play?</h2>
         <span className="muted small">{remaining} weeks left</span>
       </div>
-      <div className="week-round-plans" aria-label="Round plans">
-        {world.clientIds.map((id) => {
-          const wp = world.players[id]!;
-          return <div key={id}><strong>{wp.player.name}</strong><RoundPlanPicker plan={wp.client!.roundPlan ?? "steady"} onPick={(p) => game.act((w) => (w.players[id]!.client!.roundPlan = p))} /></div>;
-        })}
-      </div>
-      {world.clientIds.map((id) => (
-        <ClientWeek key={`${id}-${world.week}`} world={world} game={game} id={id} choice={choices[id] ?? defaultWeekChoice(world, id)} onChoose={(c) => set(id, c)} />
-      ))}
-      <div className="btn-row" style={{ marginTop: 14 }}>
+      <div className="btn-row" style={{ marginBottom: 14 }}>
         <button className="btn btn-primary" onClick={() => play(1)}>Play week {world.week}</button>
         <div className="tabs tempo-tabs" role="radiogroup" aria-label="How to play the week">
           {(Object.keys(TEMPO_LABELS) as WeekTempo[]).map((k) => (
@@ -264,6 +255,15 @@ function ThisWeek({ world, game, week }: { world: World; game: Game; week: WeekC
         <button className="btn" onClick={() => play(Math.min(4, remaining))} title="Your clients pick their own schedules after this week">Auto 4 weeks</button>
         <button className="btn" onClick={() => play(remaining)} title="Your clients pick their own schedules after this week">Auto to season end</button>
       </div>
+      <div className="week-round-plans" aria-label="Round plans">
+        {world.clientIds.map((id) => {
+          const wp = world.players[id]!;
+          return <div key={id}><strong>{wp.player.name}</strong><RoundPlanPicker plan={wp.client!.roundPlan ?? "steady"} onPick={(p) => game.act((w) => (w.players[id]!.client!.roundPlan = p))} /></div>;
+        })}
+      </div>
+      {world.clientIds.map((id) => (
+        <ClientWeek key={`${id}-${world.week}`} world={world} game={game} id={id} choice={choices[id] ?? defaultWeekChoice(world, id)} onChoose={(c) => set(id, c)} />
+      ))}
     </section>
   );
 }
