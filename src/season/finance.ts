@@ -41,6 +41,7 @@ export function chargeDevelopment(world: World, id: string, amount: number, kind
   if (agency > 0) {
     world.agency.bank -= agency;
     world.agency.ledger.development = (world.agency.ledger.development ?? 0) + agency;
+    m.finances.agencyFunded = (m.finances.agencyFunded ?? 0) + agency;
     recordDealFunding(world, id, agency);
   }
   if (kind === "coaching") m.finances.coaching += his;

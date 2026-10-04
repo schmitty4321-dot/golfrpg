@@ -6,7 +6,7 @@ import { negotiationBonus, staffWages } from "./market";
  */
 import { clamp, createRng } from "../engine";
 import { mixSeed } from "./entries";
-import { HQ_TIERS, addReputation, clients, hqTier } from "./agency";
+import { HQ_TIERS, SUPPORT_PER_CLIENT, addReputation, clients, hqTier } from "./agency";
 import { developmentCost, earningsAtLevel } from "./finance";
 import { overall } from "./development";
 import { JET_LEASE_WEEKLY, JET_UPKEEP_WEEKLY } from "./team";
@@ -212,15 +212,40 @@ export function recordBank(world: World): void {
 
 // ------------------------------------------------------------------ the books
 
-export const agencyIncome = (l: AgencyLedger): number => l.prizeCommission + l.endorsementCommission + (l.brands ?? 0) + (l.buyouts ?? 0) + Math.max(0, l.events ?? 0);
+export const agencyIncome = (l: AgencyLedger): number =>
+  l.prizeCommission + l.endorsementCommission + (l.winBonuses ?? 0) + (l.brands ?? 0) + (l.buyouts ?? 0) + Math.max(0, l.events ?? 0);
 export const agencyCosts = (l: AgencyLedger): number =>
-  l.office + l.scouts + (l.development ?? 0) + (l.facility ?? 0) + (l.interest ?? 0) + (l.staff ?? 0) + (l.clientCare ?? 0) + Math.max(0, -(l.events ?? 0));
+  l.office + l.scouts + (l.development ?? 0) + (l.facility ?? 0) + (l.interest ?? 0) + (l.staff ?? 0) + (l.clientCare ?? 0) + (l.support ?? 0) + (l.signingBonuses ?? 0) + Math.max(0, -(l.events ?? 0));
+
+export interface ClientBook {
+  id: string;
+  name: string;
+  /** Everything the agency took from him: prize and endorsement commission, win bonuses. */
+  income: number;
+  /** What he cost the agency: support, development it funded, signing bonus. */
+  costs: number;
+  profit: number;
+}
+
+/** Each client's season for the agency: what he brought in against what he cost, best first. */
+export function clientBooks(world: World): ClientBook[] {
+  return world.clientIds
+    .map((id) => world.players[id])
+    .filter((wp): wp is NonNullable<typeof wp> => !!wp?.client)
+    .map((wp) => {
+      const f = wp.client!.finances;
+      const costs = (f.agencySupport ?? 0) + (f.agencyFunded ?? 0) + (f.agencyBonus ?? 0);
+      return { id: wp.player.id, name: wp.player.name, income: f.commission, costs, profit: f.commission - costs };
+    })
+    .sort((a, b) => b.profit - a.profit);
+}
 export const agencyProfit = (l: AgencyLedger): number => agencyIncome(l) - agencyCosts(l);
 
 /** Weekly running costs: office, scouts, center, staff, interest and the jet. */
 export function weeklyRunningCosts(world: World, scouts: number, staff = 0): number {
   const jet = world.agency.jet === "lease" ? JET_LEASE_WEEKLY : world.agency.jet === "own" ? JET_UPKEEP_WEEKLY : 0;
-  return hqTier(world.agency).office + scouts + centerTier(world).upkeep + Math.max(staff, staffWages(world)) + jet + Math.round(((world.agency.loan ?? 0) * CREDIT_RATE) / 41);
+  const support = world.clientIds.length * SUPPORT_PER_CLIENT;
+  return hqTier(world.agency).office + scouts + centerTier(world).upkeep + Math.max(staff, staffWages(world)) + jet + support + Math.round(((world.agency.loan ?? 0) * CREDIT_RATE) / 41);
 }
 
 /**

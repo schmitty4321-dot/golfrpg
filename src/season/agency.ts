@@ -224,11 +224,14 @@ function payBonus(world: World, amount: number | undefined): void {
 export const SUPPORT_PER_CLIENT = 600;
 export const SUPPORT_STAR_EXTRA = 900;
 
+/** This week's support for every client, booked against each one; returns the total. */
 export function clientSupportCost(world: World): number {
   const ranks = rankMap(world);
   return clients(world).reduce((s, wp) => {
     const r = ranks.get(wp.player.id) ?? 999;
-    return s + SUPPORT_PER_CLIENT + (r <= 50 ? SUPPORT_STAR_EXTRA : r <= 125 ? SUPPORT_STAR_EXTRA / 3 : 0);
+    const cost = SUPPORT_PER_CLIENT + (r <= 50 ? SUPPORT_STAR_EXTRA : r <= 125 ? SUPPORT_STAR_EXTRA / 3 : 0);
+    wp.client!.finances.agencySupport = (wp.client!.finances.agencySupport ?? 0) + cost;
+    return s + cost;
   }, 0);
 }
 
@@ -240,6 +243,7 @@ export function signClient(world: World, id: string, offer: Offer): void {
   const extras = cleanExtras(offer.extras);
   if (extras) wp.client.contract.extras = extras;
   payBonus(world, extras?.signingBonus);
+  if (extras?.signingBonus) wp.client.finances.agencyBonus = extras.signingBonus;
   world.clientIds.push(id);
   world.agency.knowledge[id] = { accuracy: 1, reports: 99, absWeek: absWeek(world.season, world.week) };
   onSigned(world, wp);
@@ -270,6 +274,7 @@ export function applyExtension(world: World, id: string, offer: Offer): void {
   const { extras: _old, ...rest } = wp.client!.contract;
   wp.client!.contract = { ...rest, commission: offer.commission, untilSeason: world.season + offer.years, ...(extras ? { extras } : {}) };
   payBonus(world, extras?.signingBonus);
+  if (extras?.signingBonus) wp.client!.finances.agencyBonus = (wp.client!.finances.agencyBonus ?? 0) + extras.signingBonus;
   makePromises(world, wp, offer.promises);
   world.news.unshift(`${wp.player.name} extends with ${world.agency.name} until the end of season ${world.season + offer.years}.`);
 }

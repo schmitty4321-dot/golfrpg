@@ -14,6 +14,7 @@ import {
   weeklyScoutCost,
   type AgencyLedger,
   type World,
+  clientBooks,
 } from "../../season";
 import { money } from "../format";
 import type { Game } from "../useGame";
@@ -66,6 +67,7 @@ export function Finances({ world, game }: { world: World; game: Game }) {
         </section>
         <ForecastPanel world={world} />
       </div>
+      <ClientBooks world={world} />
 
       <PastSeasons world={world} />
       </> : <>
@@ -82,6 +84,32 @@ export function Finances({ world, game }: { world: World; game: Game }) {
         <ClientMoney world={world} />
       </>}
     </main>
+  );
+}
+
+/** Which clients make the agency money and which cost it, this season. */
+function ClientBooks({ world }: { world: World }) {
+  const rows = clientBooks(world);
+  if (!rows.length) return null;
+  return (
+    <section className="panel">
+      <div className="panel-head"><h2>Profit by client</h2><span className="muted small">This season: what each brought in against what he cost you</span></div>
+      <div className="table-wrap">
+        <table>
+          <thead><tr><th>Client</th><th className="num">Commission and bonuses</th><th className="num">Support, development, signing</th><th className="num">Profit</th></tr></thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.id}>
+                <td>{r.name}{r.profit < 0 && <span className="badge" style={{ marginLeft: 6 }}>Costing you</span>}</td>
+                <td className="num">{cash(r.income)}</td>
+                <td className={`num ${r.costs ? "bad-text" : ""}`}>{r.costs ? cash(-r.costs) : "$0"}</td>
+                <td className={`num ${r.profit < 0 ? "bad-text" : "good-text"}`}><strong>{cash(r.profit)}</strong></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
   );
 }
 
@@ -143,6 +171,8 @@ function LedgerTable({ l }: { l: AgencyLedger }) {
   const rows: [string, number, boolean][] = [
     ["Commission on prize money", l.prizeCommission, true],
     ["Commission on endorsements", l.endorsementCommission, true],
+    ["Win bonuses from contracts", l.winBonuses ?? 0, false],
+    ["Buyouts and release clauses", l.buyouts ?? 0, false],
     ["Brand partnerships", l.brands ?? 0, false],
     ["Agency events", l.events ?? 0, false],
     ["Office and headquarters", -l.office, true],
@@ -152,6 +182,8 @@ function LedgerTable({ l }: { l: AgencyLedger }) {
     ["Client development you fund", -(l.development ?? 0), false],
     ["Interest", -(l.interest ?? 0), false],
     ["Client care (inbox decisions)", -(l.clientCare ?? 0), false],
+    ["Client support (admin, travel, team)", -(l.support ?? 0), false],
+    ["Signing bonuses", -(l.signingBonuses ?? 0), false],
   ];
   return (
     <table>

@@ -440,6 +440,12 @@ export interface SeasonGoal {
 
 /** One client's money for the season. */
 export interface Finances {
+  /** What looking after him cost the agency this season (support). */
+  agencySupport?: number;
+  /** Development the agency paid for this season. */
+  agencyFunded?: number;
+  /** Signing bonus the agency paid him this season. */
+  agencyBonus?: number;
   prizeMoney: number;
   endorsements: number;
   caddie: number;
