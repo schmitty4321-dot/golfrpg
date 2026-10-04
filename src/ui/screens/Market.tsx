@@ -100,7 +100,7 @@ export function Rivals({ world }: { world: World }) {
                 <tr key={r.name} className={r.yours ? "row-current" : undefined}>
                   <td className="num"><span className={`league-rank rank-${i + 1}`}>{i + 1}</span></td>
                   <td><span className="agency-crest mini">{r.yours ? "FM" : crest(r.name)}</span>{r.yours ? <strong>{r.name}</strong> : r.name}</td>
-                  <td><div className="league-person"><Portrait player={{ id: `league-agent-${r.name}`, nationality: "USA", age: r.yours ? 34 : 38 + r.name.length % 20 }} size={36} title={r.yours ? "You" : agentOf(r.name).agent} /><span>{r.yours ? "You" : agentOf(r.name).agent}</span></div></td>
+                  <td><div className="league-person"><Portrait player={{ id: `league-agent-${r.name}`, nationality: "USA", age: r.yours ? 34 : 55 }} {...(!r.yours && agentOf(r.name).portrait ? { index: agentOf(r.name).portrait } : {})} size={36} title={r.yours ? "You" : agentOf(r.name).agent} /><span>{r.yours ? "You" : agentOf(r.name).agent}</span></div></td>
                   <td className="num">{r.clients}</td>
                   <td className="num">{r.wins}</td>
                   <td className="num">{r.majors}</td>
@@ -155,7 +155,7 @@ function RivalAgencies({ world }: { world: World }) {
               return (
               <article className="rival-card" key={rival.name}>
                 <div className="rival-card-head"><span className="agency-crest">{crest(rival.name)}</span><strong>{rival.name}</strong></div>
-                <div className="rival-agent"><Portrait player={{ id: `staff-${rival.name}`, nationality: "USA", age: 38 + rival.name.length % 20 }} size={118} title={agentOf(rival.name).agent} /><div><strong>{agentOf(rival.name).agent}</strong><span className={`relationship ${(rival.relationship ?? 0) <= -20 ? "hostile" : (rival.relationship ?? 0) >= 20 ? "friendly" : "neutral"}`}>{relationshipWord(rival.relationship ?? 0)} ({Math.round(rival.relationship ?? 0)})</span></div></div>
+                <div className="rival-agent"><Portrait player={{ id: `staff-${rival.name}`, nationality: "USA", age: 55 }} {...(agentOf(rival.name).portrait ? { index: agentOf(rival.name).portrait } : {})} size={118} title={agentOf(rival.name).agent} /><div><strong>{agentOf(rival.name).agent}</strong><span className={`relationship ${(rival.relationship ?? 0) <= -20 ? "hostile" : (rival.relationship ?? 0) >= 20 ? "friendly" : "neutral"}`}>{relationshipWord(rival.relationship ?? 0)} ({Math.round(rival.relationship ?? 0)})</span></div></div>
                 <dl><div><dt>Reputation</dt><dd>{Math.round(rival.reputation)}</dd></div><div><dt>Players</dt><dd>{players}/{style.capacity}</dd></div><div><dt>Dev deals</dt><dd>{deals}</dd></div></dl>
                 <div className="rival-style" title={style.blurb}><span>{styleIcon(rival.style)}</span><div><strong>{style.label}</strong><small>{style.blurb}</small></div></div>
                 <div className="small rival-moves">

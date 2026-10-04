@@ -15,16 +15,17 @@ import { amateurRanking } from "./amateurs";
 
 export type Voice = "smug" | "fast" | "polished" | "fatherly" | "brash" | "warm";
 
-export const RIVAL_AGENTS: Record<string, { agent: string; voice: Voice }> = {
-  "Apex Sports Management": { agent: "Grant Sterling", voice: "smug" },
-  "Fairway Global": { agent: "Rick Moreno", voice: "fast" },
-  "Links & Co.": { agent: "Fiona Ashby", voice: "polished" },
-  "Pinnacle Talent": { agent: "Walt Brennan", voice: "fatherly" },
-  "Clubhouse Partners": { agent: "Tommy Vance", voice: "brash" },
-  "Eagle Rock Agency": { agent: "Maya Okonkwo", voice: "warm" },
+/** Each head agent has his (or her) own picture: seasoned faces, no two alike (see public/people). */
+export const RIVAL_AGENTS: Record<string, { agent: string; voice: Voice; portrait: number }> = {
+  "Apex Sports Management": { agent: "Grant Sterling", voice: "smug", portrait: 188 },
+  "Fairway Global": { agent: "Rick Moreno", voice: "fast", portrait: 108 },
+  "Links & Co.": { agent: "Fiona Ashby", voice: "polished", portrait: 98 },
+  "Pinnacle Talent": { agent: "Walt Brennan", voice: "fatherly", portrait: 65 },
+  "Clubhouse Partners": { agent: "Tommy Vance", voice: "brash", portrait: 141 },
+  "Eagle Rock Agency": { agent: "Maya Okonkwo", voice: "warm", portrait: 137 },
 };
 
-export const agentOf = (agency: string): { agent: string; voice: Voice } => RIVAL_AGENTS[agency] ?? { agent: "Their head agent", voice: "polished" };
+export const agentOf = (agency: string): { agent: string; voice: Voice; portrait?: number } => RIVAL_AGENTS[agency] ?? { agent: "Their head agent", voice: "polished" };
 export const relationshipOf = (world: World, agency: string): number => world.rivals?.find((r) => r.name === agency)?.relationship ?? 0;
 
 export function relationshipWord(v: number): string {

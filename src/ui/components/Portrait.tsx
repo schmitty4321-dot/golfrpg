@@ -166,8 +166,9 @@ export function golferPortraitIndex(player: PortraitPlayer): number {
 }
 
 /** One portrait, drawn at any size. */
-export function Portrait({ player, size = 72, className, title }: { player: PortraitPlayer; size?: number; className?: string; title?: string }) {
-  const index = golferPortraitIndex(player);
+export function Portrait({ player, size = 72, className, title, index: fixed }: { player: PortraitPlayer; size?: number; className?: string; title?: string; index?: number }) {
+  // A fixed picture (a rival head agent) or one that fits the player.
+  const index = fixed ?? golferPortraitIndex(player);
   return <img className={`portrait ${className ?? ""}`} src={`/people/person-${String(index).padStart(3, "0")}.webp`} width={size} height={size} alt={title ?? "Illustrated player portrait"} loading="lazy" />;
 }
 
