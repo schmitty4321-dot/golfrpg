@@ -214,6 +214,8 @@ export interface ClientContract {
   signedSeason: number;
   /** Last season (inclusive) of the deal; he leaves after it unless extended. */
   untilSeason: number;
+  /** Ladder or star structure, a majors rate, win bonuses, a release clause (see contractTerms.ts). */
+  extras?: import("./contractTerms").DealExtras;
 }
 
 /** Everything the agency manages for one client. */
@@ -348,6 +350,10 @@ export interface AgencyLedger {
   buyouts?: number;
   /** What inbox decisions cost: retention bonuses, psychologists, travel home. */
   clientCare?: number;
+  /** Signing bonuses paid to new clients. */
+  signingBonuses?: number;
+  /** Win bonuses clients paid under their contracts. */
+  winBonuses?: number;
 }
 
 export interface Agency {

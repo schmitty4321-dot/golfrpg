@@ -50,6 +50,7 @@ import { absWeek, type EventRecord, type TourEvent, type World } from "./types";
 import { DEV_PROMOTION_WINS } from "./calendar";
 import type { RoundCallAnswer } from "./roundCalls";
 import { takeSnapshot, type WeekSnapshot } from "./weekSummary";
+import { prizeCut } from "./contractTerms";
 
 /** What a client does this week. "auto" lets him pick his own schedule. */
 export type ClientChoice =
@@ -343,15 +344,23 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
       if (wp.client) {
         const m = wp.client;
         const caddie = caddiePay(world, wp, r.earnings, caddieShare(r.position, r.madeCut));
+        const prizeBefore = m.finances.prizeMoney;
         m.finances.prizeMoney += r.earnings;
         chargeDevelopment(world, wp.player.id, Math.round(r.earnings * COACH_PRIZE_SHARE * coachesHired(world, wp.player.id)), "coaching");
         m.finances.caddie += caddie;
         m.finances.travel += Math.round(TRAVEL_COST[f.event.region] * mode.cost);
-        const commission = Math.round(r.earnings * m.contract.commission);
+        const commission = prizeCut(m.contract, prizeBefore, r.earnings, f.event.tier === "major");
         m.finances.commission += commission;
         recordDealCommission(world, wp.player.id, commission);
         world.agency.bank += commission;
         world.agency.ledger.prizeCommission += commission;
+        // A win bonus in his contract: paid to the agency on top of the commission.
+        const winBonus = r.position === 1 && f.event.tier !== "dev" ? m.contract.extras?.winBonus ?? 0 : 0;
+        if (winBonus) {
+          world.agency.bank += winBonus;
+          world.agency.ledger.winBonuses = (world.agency.ledger.winBonuses ?? 0) + winBonus;
+          m.finances.commission += winBonus;
+        }
         const bonus = sponsorBonus(wp, r.position, f.event.tier === "major");
         if (bonus > 0) payEndorsement(world, wp.player.id, bonus);
         addReputation(world.agency, reputationFor(r.position, r.madeCut, f.event.tier) + (f.event.tier === "dev" ? 0 : reputationBonus(wp, r.position, r.madeCut)));

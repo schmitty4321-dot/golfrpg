@@ -260,6 +260,18 @@ export function rivalPoaching(world: World, rng: Rng): string[] {
   for (const wp of [...clients(world)]) {
     const m = wp.client!;
     // A client who doesn't trust you listens sooner.
+    // A release clause lets a rival take him while he's merely restless, for the clause's price.
+    const clause = m.contract.extras?.releaseClause;
+    if (clause && m.contract.untilSeason > world.season && m.happiness < 55 && rng.chance(0.3)) {
+      const taker = likeliestSuitor(world, wp.player.id, rng);
+      world.agency.bank += clause;
+      world.agency.ledger.buyouts = (world.agency.ledger.buyouts ?? 0) + clause;
+      releaseClient(world, wp.player.id);
+      wp.agent = { agency: taker, untilSeason: world.season + 2, commission: STANDARD_COMMISSION };
+      news.push(`${taker} trigger the release clause for ${wp.player.name} and pay ${Math.round(clause / 1000)}k to take him.`);
+      poachMessage(world, taker, wp.player.name);
+      continue;
+    }
     if (m.contract.untilSeason <= world.season || m.happiness >= (trustOf(wp) < 40 ? 50 : 40)) continue;
     const rival = likeliestSuitor(world, wp.player.id, rng);
     if (!rng.chance(0.35 * bidPressure(world, rival))) continue;

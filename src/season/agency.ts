@@ -12,6 +12,7 @@ import { absWeek, type Agency, type ClientManagement, type World, type WorldPlay
 import { ensureGoals } from "./goals";
 import { competingBid, planRivalWinters, rivalMarket } from "./rivals";
 import { commissionWeight, decisionSensitivity, extensionBias, heldOutPenalty, onSigned, recruitingBonus } from "./traits";
+import { cleanExtras, extrasAppeal, type DealExtras } from "./contractTerms";
 
 export const RIVAL_AGENCIES = [
   "Apex Sports Management",
@@ -101,6 +102,8 @@ export function assignRivalAgents(world: World, _rng?: Rng): void {
 export interface Offer {
   commission: number;
   years: number;
+  /** Structure, majors rate, bonuses and a release clause (see contractTerms.ts). */
+  extras?: DealExtras;
   /** What you promise him (see promises.ts): at most two. */
   promises?: PromiseKind[];
 }
@@ -176,6 +179,7 @@ export function acceptChance(world: World, id: string, offer: Offer): number {
   if (bid) score -= competitionPenalty(world, wp, bid);
   // What you promise him, and a head start if one of your old players sent him.
   score += promiseAppeal(wp, rankMap(world).get(id) ?? 999, offer.promises);
+  score += extrasAppeal(wp, rankMap(world).get(id) ?? 999, offer.extras, offer.commission);
   score += referralBonus(world, id);
   return clamp(1 / (1 + Math.exp(-score / 7)), 0.02, 0.97);
 }
@@ -209,11 +213,21 @@ export function offerRepresentation(world: World, id: string, offer: Offer): Off
   return { accepted: true, chance, message: `${wp.player.name} signs with ${world.agency.name}!` };
 }
 
+/** A signing bonus: the agency pays it out. */
+function payBonus(world: World, amount: number | undefined): void {
+  if (!amount) return;
+  world.agency.bank -= amount;
+  world.agency.ledger.signingBonuses = (world.agency.ledger.signingBonuses ?? 0) + amount;
+}
+
 export function signClient(world: World, id: string, offer: Offer): void {
   const wp = world.players[id]!;
   // A player still on a rival's books in his final season joins you when that deal ends; we simplify and let him move now.
   wp.agent = null;
   wp.client = newManagement(world.season, offer.commission, offer.years);
+  const extras = cleanExtras(offer.extras);
+  if (extras) wp.client.contract.extras = extras;
+  payBonus(world, extras?.signingBonus);
   world.clientIds.push(id);
   world.agency.knowledge[id] = { accuracy: 1, reports: 99, absWeek: absWeek(world.season, world.week) };
   onSigned(world, wp);
@@ -240,7 +254,10 @@ export function extendContract(world: World, id: string, offer: Offer): OfferRes
 /** The new deal takes effect: terms, promises and the headline. */
 export function applyExtension(world: World, id: string, offer: Offer): void {
   const wp = world.players[id]!;
-  wp.client!.contract = { ...wp.client!.contract, commission: offer.commission, untilSeason: world.season + offer.years };
+  const extras = cleanExtras(offer.extras);
+  const { extras: _old, ...rest } = wp.client!.contract;
+  wp.client!.contract = { ...rest, commission: offer.commission, untilSeason: world.season + offer.years, ...(extras ? { extras } : {}) };
+  payBonus(world, extras?.signingBonus);
   makePromises(world, wp, offer.promises);
   world.news.unshift(`${wp.player.name} extends with ${world.agency.name} until the end of season ${world.season + offer.years}.`);
 }
@@ -258,7 +275,8 @@ export function extendChance(world: World, id: string, offer: Offer): number {
     negotiationBonus(world, "lawyer") +
     // Promises kept build trust; broken ones make him wary of new ones.
     (trustOf(wp) - START_TRUST) * 0.25 +
-    promiseAppeal(wp, rankMap(world).get(id) ?? 999, offer.promises) * (trustOf(wp) / START_TRUST);
+    promiseAppeal(wp, rankMap(world).get(id) ?? 999, offer.promises) * (trustOf(wp) / START_TRUST) +
+    extrasAppeal(wp, rankMap(world).get(id) ?? 999, offer.extras, offer.commission);
   return clamp(1 / (1 + Math.exp(-score / 7)), 0.02, 0.98);
 }
 

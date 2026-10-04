@@ -18,11 +18,13 @@ import { bidPressure } from "./rivalAgents";
 import { has } from "./traits";
 import { teamOf } from "./ryderCup";
 import { absWeek, type World, type WorldPlayer } from "./types";
+import { describeExtras, type DealExtras } from "./contractTerms";
 
 export interface Terms {
   commission: number;
   years: number;
   promises: PromiseKind[];
+  extras?: DealExtras;
 }
 
 export interface NegotiationLine {
@@ -61,7 +63,7 @@ export const activeNegotiation = (world: World): Negotiation | null => (world.ne
 
 /** The odds he'd accept these terms (the same as a straight offer). */
 export function termsChance(world: World, n: Pick<Negotiation, "playerId" | "kind">, t: Terms): number {
-  const offer: Offer = { commission: t.commission, years: t.years, promises: t.promises };
+  const offer: Offer = { commission: t.commission, years: t.years, promises: t.promises, ...(t.extras ? { extras: t.extras } : {}) };
   return n.kind === "sign" ? acceptChance(world, n.playerId, offer) : extendChance(world, n.playerId, offer);
 }
 
@@ -129,17 +131,18 @@ function findCounter(world: World, n: Negotiation, t: Terms): Terms {
     .sort((a, b) => b.appeal(wp, 999) - a.appeal(wp, 999))
     .slice(0, Math.max(0, MAX_PROMISES - t.promises.length))
     .map((p) => p.kind);
-  return { commission: MIN_COMMISSION, years: t.years, promises: [...t.promises, ...best] };
+  return { commission: MIN_COMMISSION, years: t.years, promises: [...t.promises, ...best], ...(t.extras ? { extras: t.extras } : {}) };
 }
 
 export function describeTerms(t: Terms): string {
   const promises = t.promises.length ? `, and ${t.promises.map((k) => PROMISES.find((p) => p.kind === k)!.label.toLowerCase()).join(" and ")}` : "";
-  return `${pct(t.commission)} for ${t.years} season${t.years === 1 ? "" : "s"}${promises}`;
+  const extras = describeExtras(t.extras);
+  return `${pct(t.commission)} for ${t.years} season${t.years === 1 ? "" : "s"}${extras ? ` (${extras})` : ""}${promises}`;
 }
 
 function close(world: World, n: Negotiation, t: Terms): void {
   const wp = world.players[n.playerId]!;
-  const offer: Offer = { commission: t.commission, years: t.years, promises: t.promises };
+  const offer: Offer = { commission: t.commission, years: t.years, promises: t.promises, ...(t.extras ? { extras: t.extras } : {}) };
   n.status = "agreed";
   n.counter = null;
   if (n.kind === "sign") {

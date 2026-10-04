@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MAX_ROUNDS, describeTerms, warmth, type PromiseKind, type World } from "../../season";
+import { MAX_ROUNDS, RELEASE_CLAUSE_STEPS, SIGNING_BONUS_STEPS, STRUCTURE_LABELS, WIN_BONUS_STEPS, cleanExtras, describeTerms, warmth, type CommissionStructure, type PromiseKind, type World } from "../../season";
 import type { Game } from "../useGame";
 import { PromisePicker } from "./Promises";
 
@@ -12,9 +12,17 @@ export function NegotiationTable({ world, game, playerId, onClose }: { world: Wo
   const [commission, setCommission] = useState(Math.round((start?.commission ?? current) * 100));
   const [years, setYears] = useState(start?.years ?? 2);
   const [promises, setPromises] = useState<PromiseKind[]>(start?.promises ?? []);
+  const was = start?.extras ?? wp?.client?.contract.extras;
+  const [structure, setStructure] = useState<CommissionStructure>(was?.structure ?? "flat");
+  const [majors, setMajors] = useState<number | "same">(was?.majorCommission !== undefined ? Math.round(was.majorCommission * 100) : "same");
+  const [winBonus, setWinBonus] = useState(was?.winBonus ?? 0);
+  const [signing, setSigning] = useState(was?.signingBonus ?? 0);
+  const [clause, setClause] = useState(was?.releaseClause ?? 0);
   if (!n || n.playerId !== playerId || !wp) return null;
   const open = n.status === "open";
-  const terms = { commission: commission / 100, years, promises };
+  const extras = cleanExtras({ structure, ...(majors !== "same" ? { majorCommission: majors / 100 } : {}), winBonus, signingBonus: signing, releaseClause: clause });
+  const terms = { commission: commission / 100, years, promises, ...(extras ? { extras } : {}) };
+  const k = (n: number) => (n === 0 ? "None" : n >= 1e6 ? `$${(n / 1e6).toFixed(1)}M` : `$${n / 1000}k`);
   const finish = () => {
     game.act((w) => {
       if (w.negotiation?.status === "open") game.lib.abandonNegotiation(w);
@@ -64,6 +72,38 @@ export function NegotiationTable({ world, game, playerId, onClose }: { world: Wo
                 </label>
                 <span className="small">Your read: <strong>{warmth(world, n, terms)}</strong></span>
               </div>
+              <details className="deal-extras">
+                <summary className="small secondary">Deal structure and bonuses{extras ? " (set)" : ""}</summary>
+                <div className="btn-row" style={{ alignItems: "center", marginTop: 8, flexWrap: "wrap" }}>
+                  <label className="small secondary" title={STRUCTURE_LABELS[structure].blurb}>Structure
+                    <select value={structure} onChange={(e) => setStructure(e.target.value as CommissionStructure)} style={{ marginLeft: 6 }}>
+                      {(Object.keys(STRUCTURE_LABELS) as CommissionStructure[]).map((s) => <option key={s} value={s}>{STRUCTURE_LABELS[s].label}</option>)}
+                    </select>
+                  </label>
+                  <label className="small secondary">On majors
+                    <select value={majors} onChange={(e) => setMajors(e.target.value === "same" ? "same" : Number(e.target.value))} style={{ marginLeft: 6 }}>
+                      <option value="same">Same rate</option>
+                      {[5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map((c) => <option key={c} value={c}>{c}%</option>)}
+                    </select>
+                  </label>
+                  <label className="small secondary" title="Paid to the agency each time he wins">Win bonus
+                    <select value={winBonus} onChange={(e) => setWinBonus(Number(e.target.value))} style={{ marginLeft: 6 }}>
+                      {WIN_BONUS_STEPS.map((v) => <option key={v} value={v}>{k(v)}</option>)}
+                    </select>
+                  </label>
+                  <label className="small secondary" title="Paid by the agency when he signs">Signing bonus
+                    <select value={signing} onChange={(e) => setSigning(Number(e.target.value))} style={{ marginLeft: 6 }}>
+                      {SIGNING_BONUS_STEPS.map((v) => <option key={v} value={v}>{k(v)}</option>)}
+                    </select>
+                  </label>
+                  <label className="small secondary" title="A rival can pay this to take him while he's restless">Release clause
+                    <select value={clause} onChange={(e) => setClause(Number(e.target.value))} style={{ marginLeft: 6 }}>
+                      {RELEASE_CLAUSE_STEPS.map((v) => <option key={v} value={v}>{k(v)}</option>)}
+                    </select>
+                  </label>
+                </div>
+                <p className="muted small" style={{ margin: "6px 0 0" }}>{STRUCTURE_LABELS[structure].blurb} Stars care most about structure and majors; players without status love a signing bonus; nobody likes a win bonus.</p>
+              </details>
               <PromisePicker wp={wp} value={promises} onChange={setPromises} />
               <div className="btn-row" style={{ marginTop: 10 }}>
                 <button className="btn btn-primary" onClick={() => game.act((w) => game.lib.makeOffer(w, terms))}>Make this offer</button>

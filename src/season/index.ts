@@ -45,3 +45,4 @@ export * from "./challenges";
 export * from "./scoutTrips";
 export * from "./roundCalls";
 export * from "./weekSummary";
+export * from "./contractTerms";
