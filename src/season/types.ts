@@ -350,6 +350,8 @@ export interface AgencyLedger {
   buyouts?: number;
   /** What inbox decisions cost: retention bonuses, psychologists, travel home. */
   clientCare?: number;
+  /** Running each client: admin, travel support and the team around him. */
+  support?: number;
   /** Signing bonuses paid to new clients. */
   signingBonuses?: number;
   /** Win bonuses clients paid under their contracts. */

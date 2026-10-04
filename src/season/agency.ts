@@ -220,6 +220,18 @@ function payBonus(world: World, amount: number | undefined): void {
   world.agency.ledger.signingBonuses = (world.agency.ledger.signingBonuses ?? 0) + amount;
 }
 
+/** Weekly cost of looking after one client: admin and travel support, more for a star's entourage. */
+export const SUPPORT_PER_CLIENT = 600;
+export const SUPPORT_STAR_EXTRA = 900;
+
+export function clientSupportCost(world: World): number {
+  const ranks = rankMap(world);
+  return clients(world).reduce((s, wp) => {
+    const r = ranks.get(wp.player.id) ?? 999;
+    return s + SUPPORT_PER_CLIENT + (r <= 50 ? SUPPORT_STAR_EXTRA : r <= 125 ? SUPPORT_STAR_EXTRA / 3 : 0);
+  }, 0);
+}
+
 export function signClient(world: World, id: string, offer: Offer): void {
   const wp = world.players[id]!;
   // A player still on a rival's books in his final season joins you when that deal ends; we simplify and let him move now.

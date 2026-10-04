@@ -21,7 +21,7 @@ import { seasonWeeks, majorSetup } from "./calendar";
 import { asSetUp, tallyRealScoring } from "./courseSetup";
 import { buildFields, courseById, mixSeed, planWeek, weekContext, type AiChoice, type FieldResult } from "./entries";
 import { owgrPointsFor, owgrWinnerPoints, seasonPointsFor, tieCounts } from "./points";
-import { addReputation, clients, hqTier, reputationFor, updateHappiness } from "./agency";
+import { addReputation, clientSupportCost, clients, hqTier, reputationFor, updateHappiness } from "./agency";
 import { scoutingWeek, weeklyScoutCost } from "./scouting";
 import { sponsorBonus, sponsorWeek } from "./sponsors";
 import { recordEvent } from "./history";
@@ -476,6 +476,10 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
     world.agency.bank -= costs;
     world.agency.ledger.office += office;
     world.agency.ledger.scouts += costs - office;
+    // Each client costs money to look after, a star more than a journeyman.
+    const support = clientSupportCost(world);
+    world.agency.bank -= support;
+    world.agency.ledger.support = (world.agency.ledger.support ?? 0) + support;
     payCenter(world);
     payStaff(world);
     payBrands(world);

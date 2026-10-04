@@ -215,8 +215,9 @@ describe("playWeek", () => {
     expect(w.players.client!.client!.finances.prizeMoney).toBe(rec.earnings);
     const m = w.players.client!.client!;
     expect(m.finances.commission).toBe(Math.round(rec.earnings * m.contract.commission));
-    // The agency banks the commission and pays its weekly office costs.
-    expect(w.agency.bank).toBe(STARTING_BANK + m.finances.commission - OFFICE_COST);
+    // The agency banks the commission and pays its weekly office and client-support costs.
+    expect(w.agency.bank).toBe(STARTING_BANK + m.finances.commission - OFFICE_COST - (w.agency.ledger.support ?? 0));
+    expect(w.agency.ledger.support).toBeGreaterThan(0);
     expect(w.agency.ledger.prizeCommission).toBe(m.finances.commission);
     expect(w.players.client!.client!.finances.travel).toBeGreaterThan(0);
   });
