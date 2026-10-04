@@ -257,6 +257,22 @@ th.num, td.num { text-align: right; }
 .ticker { margin: 8px 0 0; }
 tr.mine td { font-weight: 600; }
 .client-strip { display: grid; gap: 8px; }
+.schedule-filter { margin: 0; flex-wrap: wrap; }
+.schedule-progress { height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
+.schedule-progress > span { display: block; height: 100%; background: var(--accent); }
+.schedule-weeks { display: grid; gap: 8px; }
+.schedule-week { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 14px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+.schedule-week.now { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; background: var(--accent-soft); }
+.schedule-week.past { opacity: 0.82; }
+.schedule-when { display: grid; align-content: start; gap: 2px; }
+.schedule-when .badge { width: fit-content; margin-top: 4px; }
+.schedule-events { display: grid; gap: 8px; }
+.schedule-event { display: flex; gap: 10px; align-items: flex-start; }
+.schedule-event.tier-dev, .schedule-event.tier-opposite { opacity: 0.9; }
+.schedule-event-main { display: grid; gap: 2px; min-width: 0; }
+.schedule-mine { margin-left: 8px; padding: 1px 7px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.schedule-note { width: fit-content; padding: 2px 8px; border-radius: 6px; background: var(--surface-2); color: var(--text-2); font-size: 12px; font-weight: 600; }
+@media (max-width: 620px) { .schedule-week { grid-template-columns: 1fr; gap: 6px; } }
 .week-summary .ws-clients { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; }
 .ws-client, .ws-box { padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
 .ws-client-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; }

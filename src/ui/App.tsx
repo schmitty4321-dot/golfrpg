@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { AchievementsScreen } from "./screens/Achievements";
 import { Agency } from "./screens/Agency";
 import { Calendar } from "./screens/Calendar";
+import { Schedule } from "./screens/Schedule";
 import { ClientPicker } from "./components/ClientPicker";
 import { Scouting } from "./screens/Scouting";
 import { Career } from "./screens/Career";
@@ -138,6 +139,8 @@ export function App() {
         <Stats world={world} game={game} />
       ) : tab === "calendar" ? (
         <Calendar world={world} game={game} go={go} />
+      ) : tab === "schedule" ? (
+        <Schedule world={world} game={game} go={go} />
       ) : (tab === "player" || tab === "training" || tab === "team") && !clientId ? (
         <main><section className="panel"><p className="empty">You have no clients. Sign one from the Scouting tab.</p></section></main>
       ) : tab === "player" ? (
