@@ -345,10 +345,10 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
       recordFamiliarity(wp, f.event.courseId, r.rounds.length, r.position, r.madeCut);
       playedIds.add(r.player.id);
 
-      // Contending hardens the mind, for everyone.
-      if (r.madeCut) pressureGrowth(wp, r.position, f.event.tier);
       if (wp.client) {
         const m = wp.client;
+        // Contending hardens a client's mind (the tour's own players are calibrated without it).
+        if (r.madeCut) pressureGrowth(wp, r.position, f.event.tier);
         if (r.madeCut) checkBreakthrough(world, wp, r.position, f.event.tier);
         const caddie = caddiePay(world, wp, r.earnings, caddieShare(r.position, r.madeCut));
         const prizeBefore = m.finances.prizeMoney;
