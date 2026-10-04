@@ -19,6 +19,8 @@ export interface DealExtras {
   signingBonus?: number;
   /** What a rival must pay to take him before the deal ends (none: he can only be poached when he's miserable). */
   releaseClause?: number;
+  /** A weekly retainer he pays the agency whatever his results: steady income in a slump. */
+  retainer?: number;
 }
 
 /** The season prize money at which a ladder or star deal changes rate, and by how much. */
@@ -34,6 +36,7 @@ export const STRUCTURE_LABELS: Record<CommissionStructure, { label: string; blur
 export const WIN_BONUS_STEPS = [0, 25_000, 50_000, 100_000];
 export const SIGNING_BONUS_STEPS = [0, 50_000, 150_000, 300_000];
 export const RELEASE_CLAUSE_STEPS = [0, 500_000, 1_500_000, 4_000_000];
+export const RETAINER_STEPS = [0, 500, 1_000, 2_000];
 
 /**
  * The agency's cut of one event's prize money: the rate for this event (majors can differ),
@@ -66,6 +69,8 @@ export function extrasAppeal(wp: WorldPlayer, worldRank: number, x: DealExtras |
   // A release clause is a way out: the lower it is, the freer he feels.
   if (x.releaseClause) score += x.releaseClause <= 500_000 ? 4 : x.releaseClause <= 1_500_000 ? 2.5 : 1;
   if (wp.player.attributes.ambition >= 15 && x.releaseClause) score += 1;
+  // A retainer stings most for those who earn least.
+  if (x.retainer) score -= (x.retainer / 500) * (worldRank > 125 ? 3 : worldRank > 50 ? 2 : 1);
   return score;
 }
 
@@ -79,6 +84,7 @@ export function describeExtras(x: DealExtras | undefined): string {
   if (x.winBonus) parts.push(`${k(x.winBonus)} a win`);
   if (x.signingBonus) parts.push(`${k(x.signingBonus)} signing bonus`);
   if (x.releaseClause) parts.push(`${k(x.releaseClause)} release clause`);
+  if (x.retainer) parts.push(`$${x.retainer.toLocaleString("en-US")} a week retainer`);
   return parts.join(", ");
 }
 
@@ -91,5 +97,6 @@ export function cleanExtras(x: DealExtras | undefined): DealExtras | undefined {
   if (x.winBonus) out.winBonus = x.winBonus;
   if (x.signingBonus) out.signingBonus = x.signingBonus;
   if (x.releaseClause) out.releaseClause = x.releaseClause;
+  if (x.retainer) out.retainer = x.retainer;
   return Object.keys(out).length ? out : undefined;
 }

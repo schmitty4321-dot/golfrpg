@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { STRUCTURE_AT, acceptChance, createWorld, prizeCut, rankMap, signClient } from "../src/season";
+import { STRUCTURE_AT, acceptChance, createWorld, playWeek, prizeCut, rankMap, signClient } from "../src/season";
 
 describe("contract extras", () => {
   it("a ladder takes more of a big season, a star deal less, and majors can have their own rate", () => {
@@ -50,5 +50,23 @@ describe("sponsor offers nobody answers", () => {
     hireStaffer(w, staffMarket(w).find((s) => s.role === "marketing")!.id);
     for (let i = 0; i < 5; i++) playWeek(w);
     expect(wp.client!.sponsors.some((s) => s.id === offer.id && s.annualValue === offer.annualValue)).toBe(true);
+  });
+});
+
+describe("retainers", () => {
+  it("a client on a retainer pays it every week, and the books still balance", () => {
+    const w = createWorld({ seed: 24, scenario: "agency" });
+    const id = w.clientIds[0]!;
+    w.players[id]!.client!.contract.extras = { retainer: 1_000 };
+    const bank = w.agency.bank;
+    const L0 = { ...w.agency.ledger };
+    playWeek(w);
+    expect(w.agency.ledger.retainers).toBe(1_000);
+    const L = w.agency.ledger as unknown as Record<string, number>;
+    const before = L0 as unknown as Record<string, number>;
+    const d = (k: string) => (L[k] ?? 0) - (before[k] ?? 0);
+    const income = d("prizeCommission") + d("endorsementCommission") + d("winBonuses") + d("retainers") + d("brands") + d("events") + d("buyouts");
+    const costs = d("office") + d("scouts") + d("development") + d("facility") + d("interest") + d("staff") + d("clientCare") + d("support") + d("signingBonuses");
+    expect(w.agency.bank - bank).toBe(income - costs);
   });
 });

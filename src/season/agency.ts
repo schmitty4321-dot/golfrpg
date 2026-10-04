@@ -231,7 +231,13 @@ export function clientSupportCost(world: World): number {
     const r = ranks.get(wp.player.id) ?? 999;
     const cost = SUPPORT_PER_CLIENT + (r <= 50 ? SUPPORT_STAR_EXTRA : r <= 125 ? SUPPORT_STAR_EXTRA / 3 : 0);
     wp.client!.finances.agencySupport = (wp.client!.finances.agencySupport ?? 0) + cost;
-    return s + cost;
+    // His retainer comes the other way and nets against the cost.
+    const retainer = wp.client!.contract.extras?.retainer ?? 0;
+    if (retainer) {
+      wp.client!.finances.commission += retainer;
+      world.agency.ledger.retainers = (world.agency.ledger.retainers ?? 0) + retainer;
+    }
+    return s + cost - retainer;
   }, 0);
 }
 

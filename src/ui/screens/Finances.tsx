@@ -172,6 +172,7 @@ function LedgerTable({ l }: { l: AgencyLedger }) {
     ["Commission on prize money", l.prizeCommission, true],
     ["Commission on endorsements", l.endorsementCommission, true],
     ["Win bonuses from contracts", l.winBonuses ?? 0, false],
+    ["Retainers from contracts", l.retainers ?? 0, false],
     ["Buyouts and release clauses", l.buyouts ?? 0, false],
     ["Brand partnerships", l.brands ?? 0, false],
     ["Agency events", l.events ?? 0, false],

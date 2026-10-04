@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MAX_ROUNDS, RELEASE_CLAUSE_STEPS, SIGNING_BONUS_STEPS, STRUCTURE_LABELS, WIN_BONUS_STEPS, cleanExtras, describeTerms, warmth, type CommissionStructure, type PromiseKind, type World } from "../../season";
+import { MAX_ROUNDS, RELEASE_CLAUSE_STEPS, RETAINER_STEPS, SIGNING_BONUS_STEPS, STRUCTURE_LABELS, WIN_BONUS_STEPS, cleanExtras, describeTerms, warmth, type CommissionStructure, type PromiseKind, type World } from "../../season";
 import type { Game } from "../useGame";
 import { PromisePicker } from "./Promises";
 
@@ -18,9 +18,10 @@ export function NegotiationTable({ world, game, playerId, onClose }: { world: Wo
   const [winBonus, setWinBonus] = useState(was?.winBonus ?? 0);
   const [signing, setSigning] = useState(was?.signingBonus ?? 0);
   const [clause, setClause] = useState(was?.releaseClause ?? 0);
+  const [retainer, setRetainer] = useState(was?.retainer ?? 0);
   if (!n || n.playerId !== playerId || !wp) return null;
   const open = n.status === "open";
-  const extras = cleanExtras({ structure, ...(majors !== "same" ? { majorCommission: majors / 100 } : {}), winBonus, signingBonus: signing, releaseClause: clause });
+  const extras = cleanExtras({ structure, ...(majors !== "same" ? { majorCommission: majors / 100 } : {}), winBonus, signingBonus: signing, releaseClause: clause, retainer });
   const terms = { commission: commission / 100, years, promises, ...(extras ? { extras } : {}) };
   const k = (n: number) => (n === 0 ? "None" : n >= 1e6 ? `$${(n / 1e6).toFixed(1)}M` : `$${n / 1000}k`);
   const finish = () => {
@@ -94,6 +95,11 @@ export function NegotiationTable({ world, game, playerId, onClose }: { world: Wo
                   <label className="small secondary" title="Paid by the agency when he signs">Signing bonus
                     <select value={signing} onChange={(e) => setSigning(Number(e.target.value))} style={{ marginLeft: 6 }}>
                       {SIGNING_BONUS_STEPS.map((v) => <option key={v} value={v}>{k(v)}</option>)}
+                    </select>
+                  </label>
+                  <label className="small secondary" title="He pays the agency this every week, whatever his results">Retainer
+                    <select value={retainer} onChange={(e) => setRetainer(Number(e.target.value))} style={{ marginLeft: 6 }}>
+                      {RETAINER_STEPS.map((v) => <option key={v} value={v}>{v ? `$${v.toLocaleString("en-US")}/wk` : "None"}</option>)}
                     </select>
                   </label>
                   <label className="small secondary" title="A rival can pay this to take him while he's restless">Release clause

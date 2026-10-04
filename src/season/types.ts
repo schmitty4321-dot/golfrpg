@@ -356,6 +356,8 @@ export interface AgencyLedger {
   signingBonuses?: number;
   /** Win bonuses clients paid under their contracts. */
   winBonuses?: number;
+  /** Weekly retainers clients paid under their contracts. */
+  retainers?: number;
 }
 
 export interface Agency {

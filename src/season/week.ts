@@ -477,9 +477,10 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
     world.agency.ledger.office += office;
     world.agency.ledger.scouts += costs - office;
     // Each client costs money to look after, a star more than a journeyman.
+    const retainersBefore = world.agency.ledger.retainers ?? 0;
     const support = clientSupportCost(world);
     world.agency.bank -= support;
-    world.agency.ledger.support = (world.agency.ledger.support ?? 0) + support;
+    world.agency.ledger.support = (world.agency.ledger.support ?? 0) + support + (world.agency.ledger.retainers ?? 0) - retainersBefore;
     payCenter(world);
     payStaff(world);
     payBrands(world);
