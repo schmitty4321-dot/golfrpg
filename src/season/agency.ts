@@ -13,6 +13,7 @@ import { ensureGoals } from "./goals";
 import { competingBid, planRivalWinters, rivalMarket } from "./rivals";
 import { commissionWeight, decisionSensitivity, extensionBias, heldOutPenalty, onSigned, recruitingBonus } from "./traits";
 import { cleanExtras, extrasAppeal, type DealExtras } from "./contractTerms";
+import { overall } from "./development";
 
 export const RIVAL_AGENCIES = [
   "Apex Sports Management",
@@ -25,6 +26,16 @@ export const RIVAL_AGENCIES = [
 
 /** Standard terms, the kind most pros are on. */
 export const STANDARD_COMMISSION = 0.1;
+
+/**
+ * The going rate for a player's management: stars pay less (agencies queue up for them),
+ * journeymen the standard 10%, players without status more. Offers are judged against it.
+ */
+export function marketRate(wp: WorldPlayer): number {
+  if (wp.career.status === "none" || wp.career.status === "amateur") return 0.13;
+  const level = overall(wp.player);
+  return level >= 15 ? 0.07 : level >= 14 ? 0.08 : level >= 13 ? 0.09 : level >= 12 ? 0.1 : level >= 11 ? 0.11 : 0.12;
+}
 export const ENDORSEMENT_COMMISSION = 0.2;
 /** Agency overheads per week of the season. */
 export const OFFICE_COST = 2_500;
@@ -166,7 +177,7 @@ export function acceptChance(world: World, id: string, offer: Offer): number {
   const wp = world.players[id]!;
   const a = wp.player.attributes;
   let score = world.agency.reputation - expectedReputation(world, id);
-  score += (STANDARD_COMMISSION - offer.commission) * 100 * 3 * commissionWeight(wp); // each point under 10% helps
+  score += (marketRate(wp) - offer.commission) * 100 * 3 * commissionWeight(wp); // each point under his going rate helps
   score += recruitingBonus(world);
   score += negotiationBonus(world, "agent");
   // Ambitious players want a big-name agency; young ones like security, veterans like flexibility.
@@ -329,7 +340,8 @@ export function updateHappiness(wp: WorldPlayer, week: { played: boolean; sgVsEx
   target += clamp(wp.player.form * 15, -12, 12);
   target += Math.min(10, c.sponsors.reduce((s, x) => s + x.annualValue, 0) / 150_000);
   const sensitivity = decisionSensitivity(wp);
-  target -= (c.contract.commission - STANDARD_COMMISSION) * 100 * 1.5 * sensitivity;
+  // Paying well over his going rate rankles; a bargain pleases him.
+  target -= (c.contract.commission - marketRate(wp)) * 100 * 1.5 * sensitivity;
   if (week.heldOut) target -= (15 + heldOutPenalty(wp)) * sensitivity;
   target += financeMood(wp);
   // He's happier with an agent he trusts.
