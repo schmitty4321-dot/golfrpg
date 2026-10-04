@@ -176,7 +176,12 @@ export interface Injury {
 export interface SwingRebuild {
   weeksLeft: number;
   totalWeeks: number;
+  /** What's being rebuilt (older saves: the swing). */
+  area?: RebuildArea;
 }
+
+/** What a rebuild works on: the full swing, the short game, or the putting stroke. */
+export type RebuildArea = "swing" | "shortGame" | "putting";
 
 export interface Development {
   /** Hidden: the overall level (average golf attribute) the player can grow to. */

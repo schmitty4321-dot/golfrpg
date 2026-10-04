@@ -1,7 +1,8 @@
+import { useState } from "react";
 import { ATTRIBUTE_LABELS, createRng, type AttributeKey } from "../../engine";
 import {
   COACH_ROLES,
-  REBUILD_WEEKS,
+  REBUILDS,
   ROLE_LABELS,
   WINTER,
   canStartRebuild,
@@ -17,6 +18,7 @@ import {
   type TrainingFocus,
   type WinterProgram,
   type World,
+  type RebuildArea,
 } from "../../season";
 import { money } from "../format";
 import { Stars } from "../components/Stars";
@@ -50,7 +52,9 @@ export function Training({ world, game, clientId }: { world: World; game: Game; 
   const ceiling = ceilingEstimate(wp, bestCoach, createRng(mixSeed(world.seed, world.season, 77)));
   const changes = Object.entries(seasonChange(wp)) as [AttributeKey, number][];
   const weekly = weeklyStaffCost(world, clientId);
-  const rebuildCheck = canStartRebuild(world, clientId);
+  const [area, setArea] = useState<RebuildArea>("swing");
+  const rebuildCheck = canStartRebuild(world, clientId, area);
+  const R = REBUILDS[area];
   const act = game.act;
 
   return (
@@ -132,10 +136,10 @@ export function Training({ world, game, clientId }: { world: World; game: Game; 
           </section>
 
           <section className="panel">
-            <div className="panel-head"><h2>Swing rebuild</h2></div>
+            <div className="panel-head"><h2>{wp.rebuild ? REBUILDS[wp.rebuild.area ?? "swing"].label : "Rebuild part of his game"}</h2></div>
             {wp.rebuild ? (
               <>
-                <p style={{ marginTop: 0 }}>Under way: {wp.rebuild.weeksLeft} of {wp.rebuild.totalWeeks} weeks left. His ball-striking is worse while the new move beds in, easing week by week.</p>
+                <p style={{ marginTop: 0 }}>Under way: {wp.rebuild.weeksLeft} of {wp.rebuild.totalWeeks} weeks left. He plays worse while the change beds in, easing week by week.</p>
                 <div className="meter" aria-hidden><span style={{ width: `${(1 - wp.rebuild.weeksLeft / wp.rebuild.totalWeeks) * 100}%` }} /></div>
                 <div className="btn-row" style={{ marginTop: 12 }}>
                   <button className="btn" onClick={() => confirm("Abandon the rebuild? The weeks spent so far are lost.") && act((w) => game.lib.abandonRebuild(w, clientId))}>Abandon</button>
@@ -144,14 +148,19 @@ export function Training({ world, game, clientId }: { world: World; game: Game; 
             ) : (
               <>
                 <p style={{ marginTop: 0 }}>
-                  A {REBUILD_WEEKS}-week overhaul with his swing coach. He'll lose up to 0.9 strokes a round at first. If it works, his long game and approach improve and his ceiling rises.
+                  <span className="tabs" role="radiogroup" aria-label="What to rebuild" style={{ display: "flex", marginBottom: 8 }}>
+                    {(Object.keys(REBUILDS) as RebuildArea[]).map((a) => (
+                      <button key={a} role="radio" aria-checked={area === a} aria-selected={area === a} onClick={() => setArea(a)}>{REBUILDS[a].label}</button>
+                    ))}
+                  </span>
+                  A {R.weeks}-week project with his {R.coach === "shortGame" ? "short-game" : R.coach} coach. He'll lose up to {R.penalty} strokes a round at first. If it works, {R.blurb.toLowerCase()} improves and his ceiling rises; if it doesn't, the weeks are gone.
                 </p>
-                {m.staff.swing && (
+                {m.staff[R.coach] && (
                   <p className="secondary small">
-                    Chance it works with his current coach: {Math.round(rebuildSuccessChance(quality.swing ?? 4, wp.player.attributes.coachability) * 100)}%.
+                    Chance it works with his current coach: {Math.round(rebuildSuccessChance(quality[R.coach] ?? 4, wp.player.attributes.coachability) * 100)}%.
                   </p>
                 )}
-                <button className="btn btn-primary" disabled={!rebuildCheck.ok} onClick={() => act((w) => game.lib.startRebuild(w, clientId))}>Start rebuild</button>
+                <button className="btn btn-primary" disabled={!rebuildCheck.ok} onClick={() => act((w) => game.lib.startRebuild(w, clientId, area))}>Start</button>
                 {!rebuildCheck.ok && <p className="muted small">{rebuildCheck.reason}</p>}
                 <p className="muted small">Tip: start one near the end of a season and the winter break absorbs most of the dip.</p>
               </>

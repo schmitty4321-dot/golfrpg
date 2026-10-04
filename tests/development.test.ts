@@ -185,6 +185,17 @@ describe("swing rebuild", () => {
     expect(w.news.some((n) => n.includes("rebuild is complete"))).toBe(true);
   });
 
+  it("can rebuild the putting stroke with a putting coach, hurting only his putting", () => {
+    const w = fresh();
+    expect(canStartRebuild(w, "client", "putting").ok).toBe(false);
+    hireCoach(w, "client", w.coaches.find((c) => c.role === "putting")!.id);
+    startRebuild(w, "client", "putting");
+    const c = w.players.client!;
+    expect(c.player.sgAdjust!.putting!).toBeLessThan(0);
+    expect(c.player.sgAdjust!.approach).toBeUndefined();
+    expect(c.rebuild!.totalWeeks).toBe(8);
+  });
+
   it("succeeds more often with a better coach and a coachable player", () => {
     expect(rebuildSuccessChance(18, 16)).toBeGreaterThan(rebuildSuccessChance(6, 6));
   });

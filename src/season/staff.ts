@@ -8,7 +8,8 @@ import { clamp, createRng, type Rng } from "../engine";
 import { COACH_GROUPS, INTENSITY, developWeek, overall, potentialEstimate } from "./development";
 import { mixSeed } from "./entries";
 import { has, injuryLength, injuryRisk, returnFromInjury } from "./traits";
-import type { Coach, CoachRole, Injury, World, WorldPlayer } from "./types";
+import type { Coach, CoachRole, Injury, RebuildArea, World, WorldPlayer } from "./types";
+import type { AttributeKey } from "../engine";
 
 export const COACH_ROLES: CoachRole[] = ["swing", "shortGame", "putting", "mental", "fitness"];
 
@@ -87,20 +88,29 @@ export const REBUILD_WEEKS = 16;
 /** Strokes a round lost at the start of a rebuild; it eases as the new move beds in. */
 export const REBUILD_PENALTY = 0.9;
 
-export function canStartRebuild(world: World, clientId: string): { ok: boolean; reason?: string } {
+/** What each kind of rebuild takes and gives: its length, the coach it needs, the strokes it costs at first and where. */
+export const REBUILDS: Record<RebuildArea, { label: string; weeks: number; coach: CoachRole; penalty: number; sg: Partial<Record<"offTheTee" | "approach" | "aroundTheGreen" | "putting", number>>; skills: readonly AttributeKey[]; blurb: string }> = {
+  swing: { label: "Swing rebuild", weeks: REBUILD_WEEKS, coach: "swing", penalty: REBUILD_PENALTY, sg: { offTheTee: 0.4, approach: 0.6 }, skills: COACH_GROUPS.swing, blurb: "His long game and approach" },
+  shortGame: { label: "Short-game overhaul", weeks: 10, coach: "shortGame", penalty: 0.5, sg: { aroundTheGreen: 1 }, skills: COACH_GROUPS.shortGame, blurb: "His chipping, pitching and bunker play" },
+  putting: { label: "New putting stroke", weeks: 8, coach: "putting", penalty: 0.6, sg: { putting: 1 }, skills: COACH_GROUPS.putting, blurb: "His putting" },
+};
+
+export function canStartRebuild(world: World, clientId: string, area: RebuildArea = "swing"): { ok: boolean; reason?: string } {
   const { wp, c } = mgmt(world, clientId);
   if (wp.rebuild) return { ok: false, reason: "A rebuild is already under way." };
-  if (!c.staff.swing) return { ok: false, reason: "Hire a swing coach first." };
+  const coach = REBUILDS[area].coach;
+  if (!c.staff[coach]) return { ok: false, reason: `Hire a ${coach === "shortGame" ? "short-game" : coach} coach first.` };
   return { ok: true };
 }
 
-export function startRebuild(world: World, clientId: string): void {
-  const check = canStartRebuild(world, clientId);
+export function startRebuild(world: World, clientId: string, area: RebuildArea = "swing"): void {
+  const check = canStartRebuild(world, clientId, area);
   if (!check.ok) throw new Error(check.reason);
   const wp = world.players[clientId]!;
-  wp.rebuild = { weeksLeft: REBUILD_WEEKS, totalWeeks: REBUILD_WEEKS };
+  const r = REBUILDS[area];
+  wp.rebuild = { weeksLeft: r.weeks, totalWeeks: r.weeks, area };
   applyRebuildPenalty(wp);
-  world.news.unshift(`${wp.player.name} begins a swing rebuild. Expect some rough weeks.`);
+  world.news.unshift(`${wp.player.name} begins a ${r.label.toLowerCase()}. Expect some rough weeks.`);
 }
 
 /** A rebuild the player starts on his own (a Swing Tinkerer), coach or no coach. */
@@ -113,14 +123,17 @@ export function abandonRebuild(world: World, clientId: string): void {
   const { wp } = mgmt(world, clientId);
   wp.rebuild = null;
   delete wp.player.sgAdjust;
-  world.news.unshift(`${wp.player.name} abandons his swing rebuild and goes back to the old move.`);
+  world.news.unshift(`${wp.player.name} abandons the change and goes back to what he knew.`);
 }
 
 function applyRebuildPenalty(wp: WorldPlayer): void {
   if (!wp.rebuild) return;
+  const r = REBUILDS[wp.rebuild.area ?? "swing"];
   const left = wp.rebuild.weeksLeft / wp.rebuild.totalWeeks;
-  const pen = REBUILD_PENALTY * left;
-  wp.player.sgAdjust = { offTheTee: -pen * 0.4, approach: -pen * 0.6 };
+  const pen = r.penalty * left;
+  const adjust: Partial<Record<"offTheTee" | "approach" | "aroundTheGreen" | "putting", number>> = {};
+  for (const [k, share] of Object.entries(r.sg)) adjust[k as keyof typeof adjust] = -pen * share!;
+  wp.player.sgAdjust = adjust;
 }
 
 /** Chance the new swing takes: better coaches and more coachable players succeed more. */
@@ -132,19 +145,22 @@ function progressRebuild(world: World, wp: WorldPlayer, rng: Rng): void {
   if (!wp.rebuild) return;
   wp.rebuild.weeksLeft--;
   if (wp.rebuild.weeksLeft > 0) return applyRebuildPenalty(wp);
+  const done = wp.rebuild.area;
   wp.rebuild = null;
   delete wp.player.sgAdjust;
-  const coachQ = world.coaches.find((c) => c.id === wp.client?.staff.swing)?.quality ?? 4;
+  const area = REBUILDS[done ?? "swing"];
+  const coachQ = world.coaches.find((c) => c.id === wp.client?.staff[area.coach])?.quality ?? 4;
   if (rng.chance(rebuildSuccessChance(coachQ, wp.player.attributes.coachability))) {
-    wp.development.potential = Math.min(19, wp.development.potential + 1);
-    const pool = [...COACH_GROUPS.swing];
-    for (let i = 0; i < 3; i++) {
+    // The whole swing lifts the ceiling most; a short game or putting change, less.
+    wp.development.potential = Math.min(19, wp.development.potential + (done === "swing" || !done ? 1 : 0.5));
+    const pool = [...area.skills];
+    for (let i = 0; i < Math.min(3, pool.length); i++) {
       const k = pool.splice(rng.int(0, pool.length - 1), 1)[0]!;
       wp.player.attributes[k] = Math.min(20, wp.player.attributes[k] + 1);
     }
-    world.news.unshift(`${wp.player.name}'s swing rebuild is complete, and it's worked: his ball-striking is better than ever.`);
+    world.news.unshift(`${wp.player.name}'s ${area.label.toLowerCase()} is complete, and it's worked: ${area.blurb.toLowerCase()} is better than ever.`);
   } else {
-    world.news.unshift(`${wp.player.name}'s swing rebuild is complete, but the new move hasn't made him any better.`);
+    world.news.unshift(`${wp.player.name}'s ${area.label.toLowerCase()} is complete, but it hasn't made him any better.`);
   }
 }
 
