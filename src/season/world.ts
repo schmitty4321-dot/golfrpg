@@ -49,7 +49,7 @@ import { generateCaddies } from "./team";
 import { ensureGoals, settleGoals } from "./goals";
 import { investmentsSeasonEnd } from "./investments";
 import { setObjectives, settleBoard } from "./board";
-import { bloomsAndBusts, developmentReports } from "./progression";
+import { bloomsAndBusts, developmentReports, settleTargets } from "./progression";
 
 /** How your first client's career starts. */
 export type Scenario = "agency" | "rookie" | "journeyman" | "grinder" | "veteran";
@@ -623,6 +623,8 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
 
   // Each client's season of development, before the winter changes anything.
   developmentReports(world);
+  // Practice targets met earn mastery, and a line in the report.
+  settleTargets(world);
   for (const wp of Object.values(world.players)) {
     if (wp.client) wp.client.fatigue = 0;
     const c = wp.career;

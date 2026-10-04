@@ -7,7 +7,7 @@
  */
 import { centerTier, recordDealFunding } from "./business";
 import { clamp, createRng, traceSeed } from "../engine";
-import { COACH_ROLES, abilityView, coachFee, staffQuality } from "./staff";
+import { COACH_ROLES, abilityView, clientPeakView, coachFee, staffQuality } from "./staff";
 import { GOLF_SKILLS, developWeek, overall } from "./development";
 import { effectivePeak } from "./traits";
 import type { CoachRole, Intensity, TrainingFocus, WinterProgram, World, WorldPlayer } from "./types";
@@ -169,14 +169,18 @@ export function projectDevelopment(world: World, id: string, plan: DevPlan, runs
   const start = world.players[id]!;
   const ceiling = abilityView(world, id).potential;
   const facility = centerTier(world).growth;
+  // His peak is hidden too: the projection runs on his coaches' best guess.
+  const view = clientPeakView(world, id);
+  const peakGuess = Math.round((view.low + view.high) / 2);
   // Two seasons past his peak too, so the plan's effect on his decline shows.
-  const seasons = clamp(effectivePeak(start) - start.player.age + 3, 2, 10);
+  const seasons = clamp(peakGuess - start.player.age + 3, 2, 10);
   const sums = Array<number>(seasons).fill(0);
   const mins = Array<number>(seasons).fill(Infinity);
   const maxs = Array<number>(seasons).fill(-Infinity);
   for (let run = 0; run < runs; run++) {
     const wp: WorldPlayer = structuredClone(start);
     wp.development.potential = ceiling;
+    wp.player.peakAge += peakGuess - effectivePeak(start);
     wp.injury = null;
     const rng = createRng(traceSeed("projection", id, String(world.season), String(run)));
     const events = clamp(wp.targetEvents ?? 25, 10, 32);

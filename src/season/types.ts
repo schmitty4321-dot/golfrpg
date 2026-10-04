@@ -239,6 +239,8 @@ export interface ClientManagement {
   /** His caddie (id in World.caddies) and how many weeks they've worked together. */
   caddieId?: string;
   caddieWeeks?: number;
+  /** This season's practice targets: two or three skills he works on above the rest (see progression.ts). */
+  skillTargets?: import("./progression").SkillTargets;
   /** Career breakthroughs already had (see progression.ts). */
   breakthroughs?: string[];
   /** 0-100: built by training load and events, cleared by rest; past 60 he grows slower and gets hurt more. */

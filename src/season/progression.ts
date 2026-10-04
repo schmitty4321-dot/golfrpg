@@ -1,12 +1,17 @@
 /**
  * The moments and pressures that shape a career beyond the weekly grind:
  * breakthroughs that lift a client's ceiling, the mind hardening in
- * contention, burnout from too much work, late bloomers and busts, and a
- * season-end development report with milestones.
+ * contention, burnout from too much work, late bloomers and busts, a
+ * season-end development report with milestones, practice targets for a
+ * season, and a peak age that is only ever an estimate.
  */
-import { clamp, type AttributeKey, type Rng } from "../engine";
+import { clamp, createRng, type AttributeKey, type Rng } from "../engine";
 import { addReputation } from "./agency";
-import { MAX_POTENTIAL, overall } from "./development";
+import { seasonWeeks } from "./calendar";
+import { GOLF_SKILLS, MAX_POTENTIAL, overall } from "./development";
+import { mixSeed } from "./entries";
+import { masteries } from "./mastery";
+import { effectivePeak } from "./traits";
 import type { World, WorldPlayer } from "./types";
 
 // ---------------------------------------------------------------- breakthroughs
@@ -129,3 +134,140 @@ export function developmentReports(world: World): void {
     if (to - from >= 0.8) addReputation(world.agency, 1.5);
   }
 }
+
+// ---------------------------------------------------------------- practice targets
+
+/** Up to three skills a season, chosen in its first weeks. */
+export const MAX_TARGETS = 3;
+export const TARGET_SET_WEEKS = 6;
+/** Mastery points a met target adds to every trait (or archetype) built on that skill. */
+export const TARGET_MASTERY = 20;
+
+export interface SkillTarget {
+  key: AttributeKey;
+  /** Where the skill stood (with its progress towards the next point) when the target was set. */
+  from: number;
+  /** The gain asked for: a full point while he's still growing, half a point once he's at his peak. */
+  goal: number;
+  met?: boolean;
+}
+
+export interface SkillTargets {
+  season: number;
+  skills: SkillTarget[];
+}
+
+const skillLevel = (wp: WorldPlayer, k: AttributeKey): number => wp.player.attributes[k] + (wp.development.progress[k] ?? 0);
+
+/** This season's targets (last season's don't count). */
+export const targetsOf = (world: World, wp: WorldPlayer): SkillTarget[] => (wp.client?.skillTargets?.season === world.season ? wp.client.skillTargets.skills : []);
+
+/** The skills this week's training is aimed at. */
+export const activeTargets = (world: World, wp: WorldPlayer): AttributeKey[] => targetsOf(world, wp).map((t) => t.key);
+
+/** Why the targets can't be changed now, or null. */
+export function targetsBlock(world: World, wp: WorldPlayer): string | null {
+  if (!wp.client) return "Only your clients.";
+  if (targetsOf(world, wp).length && world.week > TARGET_SET_WEEKS) return `Targets are set for the season after week ${TARGET_SET_WEEKS}.`;
+  return null;
+}
+
+/** Sets a client's practice targets for the season; an empty list clears them. */
+export function setSkillTargets(world: World, clientId: string, keys: AttributeKey[]): void {
+  const wp = world.players[clientId];
+  if (!wp?.client) throw new Error("Not a client.");
+  const block = targetsBlock(world, wp);
+  if (block) throw new Error(block);
+  const unique = [...new Set(keys)];
+  if (unique.length > MAX_TARGETS) throw new Error(`At most ${MAX_TARGETS} targets.`);
+  if (unique.some((k) => !GOLF_SKILLS.includes(k as (typeof GOLF_SKILLS)[number]))) throw new Error("Targets are golf skills.");
+  if (!unique.length) {
+    delete wp.client.skillTargets;
+    return;
+  }
+  const goal = wp.player.age < effectivePeak(wp) ? 1 : 0.5;
+  // Targets already running keep their starting point.
+  const kept = targetsOf(world, wp);
+  wp.client.skillTargets = { season: world.season, skills: unique.map((key) => kept.find((t) => t.key === key) ?? { key, from: skillLevel(wp, key), goal }) };
+}
+
+/** The coaches' pick: his three weakest golf skills with room left to grow. */
+export function suggestTargets(wp: WorldPlayer): AttributeKey[] {
+  return [...GOLF_SKILLS]
+    .filter((k) => wp.player.attributes[k] < 20)
+    .sort((a, b) => wp.player.attributes[a] - wp.player.attributes[b])
+    .slice(0, MAX_TARGETS);
+}
+
+export type TargetPace = "met" | "ahead" | "on track" | "behind";
+
+/** How a target is going: the gain so far against where he should be by this week. */
+export function targetProgress(world: World, wp: WorldPlayer, t: SkillTarget): { gained: number; share: number; pace: TargetPace; comment: string } {
+  const gained = skillLevel(wp, t.key) - t.from;
+  const share = clamp(gained / t.goal, 0, 1);
+  const due = clamp(world.week / seasonWeeks(world), 0.05, 1);
+  const pace: TargetPace = gained >= t.goal ? "met" : share >= due + 0.15 ? "ahead" : share >= due - 0.15 ? "on track" : "behind";
+  const comment = {
+    met: "Done. Whatever he adds now is a bonus.",
+    ahead: "Ahead of schedule. The work is paying off.",
+    "on track": "On track, if he keeps at it.",
+    behind: due < 0.3 ? "Early days yet." : "Behind. A matching training focus or more range days would help.",
+  }[pace];
+  return { gained, share, pace, comment };
+}
+
+/** Season end: a met target adds mastery to the traits built on that skill, and goes in his development report. */
+export function settleTargets(world: World): void {
+  for (const id of world.clientIds) {
+    const wp = world.players[id];
+    const c = wp?.client;
+    if (!wp || !c) continue;
+    const list = targetsOf(world, wp);
+    if (!list.length) continue;
+    const met: AttributeKey[] = [];
+    for (const t of list) {
+      t.met = skillLevel(wp, t.key) - t.from >= t.goal - 1e-9;
+      if (!t.met) continue;
+      met.push(t.key);
+      for (const m of masteries(wp)) {
+        if (m.skills.includes(t.key)) (wp.mastery ??= {})[m.key] = (wp.mastery[m.key] ?? 0) + TARGET_MASTERY;
+      }
+    }
+    const report = c.devReports?.at(-1);
+    const label = (k: AttributeKey) => k.replace(/([A-Z])/g, " $1").toLowerCase();
+    if (report?.season === world.season) report.milestones.push(`Practice targets: ${met.length} of ${list.length} met${met.length ? ` (${met.map(label).join(", ")})` : ""}`);
+    if (met.length === list.length) world.news.unshift(`${wp.player.name} hit every practice target he set this season.`);
+  }
+}
+
+// ---------------------------------------------------------------- the hidden peak
+
+export interface PeakView {
+  low: number;
+  high: number;
+  /** Past it and plainly declining: no doubt left. */
+  exact: boolean;
+}
+
+/**
+ * When a player will peak is never known for sure. His coaches give a range,
+ * narrower the better they are, the longer they've watched him and the
+ * nearer he gets to it; two years past it, the decline gives it away.
+ */
+export function peakView(wp: WorldPlayer, readerQuality: number, seasonsWatched: number, seed: number): PeakView {
+  const truth = effectivePeak(wp);
+  if (wp.player.age >= truth + 2) return { low: truth, high: truth, exact: true };
+  let half = clamp(Math.round((20 - readerQuality) / 5), 1, 3) - Math.floor(seasonsWatched / 2);
+  if (truth - wp.player.age <= 1) half = Math.min(half, 1);
+  half = Math.max(0, half);
+  // A fixed lean per player, so the range doesn't jump around from week to week.
+  let h = 0;
+  for (const ch of wp.player.id) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  const lean = createRng(mixSeed(seed, h, 2501)).next() * 2 - 1;
+  const centre = truth + Math.round(lean * half);
+  return { low: centre - half, high: centre + half, exact: false };
+}
+
+/** The range as words. */
+export const describePeak = (v: PeakView, age: number): string =>
+  v.exact ? `${v.low} (past it)` : v.high < age ? "past it" : v.low === v.high ? `${v.low}` : `${v.low}–${v.high}`;

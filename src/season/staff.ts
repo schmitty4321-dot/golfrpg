@@ -10,7 +10,7 @@ import { mixSeed } from "./entries";
 import { has, injuryLength, injuryRisk, returnFromInjury } from "./traits";
 import type { Coach, CoachRole, Injury, RebuildArea, World, WorldPlayer } from "./types";
 import type { AttributeKey } from "../engine";
-import { burnoutInjury, fatigueWeek } from "./progression";
+import { activeTargets, burnoutInjury, fatigueWeek, peakView, type PeakView } from "./progression";
 
 export const COACH_ROLES: CoachRole[] = ["swing", "shortGame", "putting", "mental", "fitness"];
 
@@ -236,7 +236,8 @@ export function endOfWeek(world: World, competed: Set<string>, rng: Rng, boosts:
     const mentored = mentor && isClient && wp.player.age < 25 && !has(wp, "mentor");
     const boost = boosts.get(wp.player.id);
     const burnout = isClient ? fatigueWeek(wp, played) : 1;
-    const changes = developWeek(wp, { plan, coachQuality: quality, competed: played, mentored, managed: isClient, ...(isClient ? { facility: centerTier(world).growth, burnout } : {}), ...(boost ? { boost } : {}) }, rng);
+    const targets = isClient ? activeTargets(world, wp) : [];
+    const changes = developWeek(wp, { plan, coachQuality: quality, competed: played, mentored, managed: isClient, ...(isClient ? { facility: centerTier(world).growth, burnout } : {}), ...(targets.length ? { targets } : {}), ...(boost ? { boost } : {}) }, rng);
     masteryWeek(wp, played, plan.focus);
     if (isClient) {
       wp.player.condition = clamp(wp.player.condition + INTENSITY[plan.intensity].condition, 0, 100);
@@ -305,4 +306,11 @@ export function abilityView(world: World, clientId: string): { current: number; 
   const estimate = potentialEstimate(wp, coachQuality, createRng(mixSeed(world.seed, world.season, 77)));
   const current = overall(wp.player);
   return { current, potential: Math.max(current, estimate), coachQuality };
+}
+
+/** When his coaches think he'll peak: a range that narrows with better staff, seasons on your books, and his age. */
+export function clientPeakView(world: World, clientId: string): PeakView {
+  const wp = world.players[clientId]!;
+  const watched = Math.max(0, world.season - (wp.client?.contract.signedSeason ?? world.season));
+  return peakView(wp, abilityView(world, clientId).coachQuality, watched, world.seed);
 }

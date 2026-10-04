@@ -200,7 +200,13 @@ export interface DevelopmentInputs {
   facility?: number;
   /** Burnout slows growth (1: fresh, down to 0.5). */
   burnout?: number;
+  /** This season's practice targets: they grow faster, everything else a little slower. */
+  targets?: readonly AttributeKey[];
 }
+
+/** A practice target's growth, and the rest of his game's while he chases it. */
+export const TARGET_GROWTH = 1.3;
+export const OTHERS_GROWTH = 0.95;
 
 /** The coach quality a computer player works with, by standing. */
 export function impliedStaff(wp: WorldPlayer): Partial<Record<CoachRole, number>> {
@@ -287,6 +293,7 @@ export function developWeek(wp: WorldPlayer, inputs: DevelopmentInputs, rng: Rng
     if (inputs.boost && delta > 0 && (body || !inputs.managed)) delta *= body ? inputs.boost.fitness : inputs.boost.training;
     if (injured) delta *= 0.3;
     if (delta > 0 && inputs.burnout !== undefined) delta *= inputs.burnout;
+    if (delta > 0 && inputs.targets?.length) delta *= inputs.targets.includes(key) ? TARGET_GROWTH : OTHERS_GROWTH;
     if (delta > 0) delta *= (mastered.get(key) ?? 1) * MASTERY_CENTRE;
 
     // Ageing: power goes first, then the short putts; fitness work slows it.

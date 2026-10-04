@@ -13,11 +13,12 @@ import {
   WINTER,
   abilityView,
   ceilingStars,
+  clientPeakView,
   coachFee,
+  describePeak,
   costBurden,
   developmentCost,
   earningsAtLevel,
-  effectivePeak,
   fundingOf,
   overall,
   payback,
@@ -66,7 +67,7 @@ export function DevelopmentTab({ world, game, wp, potential, known }: { world: W
   const m = wp.client;
   const now = overall(wp.player);
   const view = abilityView(world, id);
-  const yearsLeft = Math.max(0, effectivePeak(wp) - wp.player.age);
+  const peak = clientPeakView(world, id);
   const sinceStart = now - levelOf(wp.development.seasonStart);
   const all = plans(world, id);
   const current = projectDevelopment(world, id, all.current);
@@ -89,12 +90,12 @@ export function DevelopmentTab({ world, game, wp, potential, known }: { world: W
           <Stat label="Level now" value={now.toFixed(1)} />
           <Stat label="This season" value={signed(sinceStart, 1)} />
           <Stat label="Ceiling (coaches)" value={<><Stars value={ceilingStars(view.potential)} /> {view.potential.toFixed(1)}</>} />
-          <Stat label="Growing years left" value={yearsLeft ? `about ${yearsLeft}` : "past his peak"} />
+          <Stat label="Peak age (coaches)" value={describePeak(peak, wp.player.age)} />
           <Stat label="At his peak, this plan" value={peakLevel(current).toFixed(1)} />
           <Stat label="At his peak, best plan" value={peakLevel(best).toFixed(1)} />
         </div>
         <p className="muted small" style={{ marginBottom: 0 }}>
-          The ceiling is an estimate: better coaches see it more clearly. Tour average is 12; a top-20 player is about 14.5.
+          The ceiling and peak age are estimates: better coaches, and seasons on your books, see them more clearly. Tour average is 12; a top-20 player is about 14.5.
         </p>
       </section>
 

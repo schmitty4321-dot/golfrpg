@@ -7,6 +7,8 @@ import {
   WINTER,
   canStartRebuild,
   ceilingEstimate,
+  clientPeakView,
+  describePeak,
   mixSeed,
   rebuildSuccessChance,
   seasonChange,
@@ -22,6 +24,7 @@ import {
 } from "../../season";
 import { money } from "../format";
 import { Stars } from "../components/Stars";
+import { PracticeTargets } from "../components/PracticeTargets";
 import { Portrait } from "../components/Portrait";
 import type { Game } from "../useGame";
 
@@ -50,6 +53,9 @@ export function Training({ world, game, clientId }: { world: World; game: Game; 
   const quality = staffQuality(world, clientId);
   const bestCoach = Math.max(4, ...Object.values(quality));
   const ceiling = ceilingEstimate(wp, bestCoach, createRng(mixSeed(world.seed, world.season, 77)));
+  // His peak age is hidden: the coaches' range, and its middle for the advice.
+  const peak = clientPeakView(world, clientId);
+  const peakGuess = Math.round((peak.low + peak.high) / 2);
   const changes = Object.entries(seasonChange(wp)) as [AttributeKey, number][];
   const weekly = weeklyStaffCost(world, clientId);
   const [area, setArea] = useState<RebuildArea>("swing");
@@ -126,14 +132,17 @@ export function Training({ world, game, clientId }: { world: World; game: Game; 
               <Stars value={ceiling} /> <span className="secondary">according to his coaches</span>
             </p>
             <p className="secondary small" style={{ marginBottom: 0 }}>
-              {wp.player.age <= wp.player.peakAge - 3
+              Expected peak age: <strong>{describePeak(peak, wp.player.age)}</strong>.{" "}
+              {wp.player.age <= peakGuess - 3
                 ? "He's young: most of his improvement is still ahead of him."
-                : wp.player.age <= wp.player.peakAge + 2
+                : wp.player.age <= peakGuess + 2
                   ? "He's around his peak years: gains come slowly now."
                   : "He's past his peak: expect distance to fade, while experience keeps him sharp."}{" "}
-              Better coaches give a more reliable read.
+              Better coaches, and seasons on your books, give a more reliable read.
             </p>
           </section>
+
+          <PracticeTargets world={world} game={game} clientId={clientId} />
 
           <section className="panel">
             <div className="panel-head"><h2>{wp.rebuild ? REBUILDS[wp.rebuild.area ?? "swing"].label : "Rebuild part of his game"}</h2></div>
