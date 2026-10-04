@@ -4,12 +4,14 @@ import { LiveScorecard } from "../components/LiveScorecard";
 import { HoleDrawing } from "../components/ShotTracer";
 import { hasIllustratedTracerArt, IllustratedTracer } from "../components/IllustratedTracer";
 
-const course = REAL_COURSES.find((item) => item.id === "waialae")!;
+// `?course=` picks any illustrated course (Waialae by default).
+const params = new URLSearchParams(window.location.search);
+const course = REAL_COURSES.find((item) => item.id === (params.get("course") ?? "waialae")) ?? REAL_COURSES.find((item) => item.id === "waialae")!;
 const player = generatePlayer(createRng(19), { tier: "tour", nationality: "USA" });
 /** Development-only review of the tracer in its eventual game context. */
 export function WaialaeTracerPreview() {
-  const requestedHole = Number(new URLSearchParams(window.location.search).get("hole"));
-  const [holeNumber, setHoleNumber] = useState(requestedHole >= 1 && requestedHole <= 3 ? requestedHole : 1);
+  const requestedHole = Number(params.get("hole"));
+  const [holeNumber, setHoleNumber] = useState(requestedHole >= 1 && requestedHole <= course.holes.length ? requestedHole : 1);
   const trace = useMemo(() => {
     const hole = course.holes[holeNumber - 1]!;
     return traceHole({

@@ -17,7 +17,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 204,
         "y": 780
       },
@@ -27,7 +27,7 @@
         "y": 470
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1450,
         "y": 100
       }
@@ -79,7 +79,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 190,
         "y": 790
       },
@@ -89,7 +89,7 @@
         "y": 455
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1530,
         "y": 112
       }
@@ -141,7 +141,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 115,
         "y": 835
       },
@@ -151,7 +151,7 @@
         "y": 480
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1450,
         "y": 115
       }
@@ -197,7 +197,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 470,
         "y": 760
       },
@@ -207,7 +207,7 @@
         "y": 430
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1160,
         "y": 145
       }
@@ -259,7 +259,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 175,
         "y": 820
       },
@@ -269,7 +269,7 @@
         "y": 475
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1490,
         "y": 105
       }
@@ -321,7 +321,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 170,
         "y": 825
       },
@@ -331,7 +331,7 @@
         "y": 480
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1480,
         "y": 115
       }
@@ -383,7 +383,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 275,
         "y": 790
       },
@@ -393,7 +393,7 @@
         "y": 475
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1260,
         "y": 150
       }
@@ -445,7 +445,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 170,
         "y": 820
       },
@@ -455,7 +455,7 @@
         "y": 470
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1540,
         "y": 90
       }
@@ -507,7 +507,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 170,
         "y": 820
       },
@@ -522,7 +522,7 @@
         "y": 350
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1490,
         "y": 110
       }
@@ -574,7 +574,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 175,
         "y": 820
       },
@@ -584,7 +584,7 @@
         "y": 470
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1485,
         "y": 110
       }
@@ -636,7 +636,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 310,
         "y": 760
       },
@@ -646,7 +646,7 @@
         "y": 500
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1090,
         "y": 315
       }
@@ -698,7 +698,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 175,
         "y": 820
       },
@@ -708,7 +708,7 @@
         "y": 470
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1490,
         "y": 110
       }
@@ -760,7 +760,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 175,
         "y": 820
       },
@@ -770,7 +770,7 @@
         "y": 470
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1490,
         "y": 110
       }
@@ -822,7 +822,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 175,
         "y": 820
       },
@@ -832,7 +832,7 @@
         "y": 470
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1490,
         "y": 110
       }
@@ -890,7 +890,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 175,
         "y": 820
       },
@@ -900,7 +900,7 @@
         "y": 470
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1490,
         "y": 110
       }
@@ -958,7 +958,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 175,
         "y": 820
       },
@@ -968,7 +968,7 @@
         "y": 465
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1500,
         "y": 150
       }
@@ -1026,7 +1026,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 330,
         "y": 770
       },
@@ -1036,7 +1036,7 @@
         "y": 500
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1000,
         "y": 220
       }
@@ -1088,7 +1088,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 170,
         "y": 820
       },
@@ -1103,7 +1103,7 @@
         "y": 350
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1490,
         "y": 110
       }
@@ -1155,7 +1155,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 251,
         "y": 685
       },
@@ -1170,7 +1170,7 @@
         "y": 251
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1560,
         "y": 226
       }
@@ -1233,7 +1233,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 256,
         "y": 770
       },
@@ -1248,7 +1248,7 @@
         "y": 274
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1604,
         "y": 252
       }
@@ -1327,7 +1327,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 282,
         "y": 681
       },
@@ -1342,7 +1342,7 @@
         "y": 242
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1546,
         "y": 212
       }
@@ -1413,7 +1413,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 306,
         "y": 714
       },
@@ -1423,7 +1423,7 @@
         "y": 338
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1367,
         "y": 292
       }
@@ -1482,7 +1482,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 304,
         "y": 752
       },
@@ -1502,7 +1502,7 @@
         "y": 242
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1617,
         "y": 210
       }
@@ -1583,7 +1583,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 305,
         "y": 728
       },
@@ -1593,7 +1593,7 @@
         "y": 311
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1427,
         "y": 265
       }
@@ -1670,7 +1670,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 448,
         "y": 736
       },
@@ -1685,7 +1685,7 @@
         "y": 253
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1533,
         "y": 220
       }
@@ -1758,7 +1758,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 256,
         "y": 718
       },
@@ -1778,7 +1778,7 @@
         "y": 224
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1636,
         "y": 198
       }
@@ -1865,7 +1865,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 257,
         "y": 708
       },
@@ -1880,7 +1880,7 @@
         "y": 270
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1590,
         "y": 232
       }
@@ -1961,7 +1961,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 340,
         "y": 712
       },
@@ -1976,7 +1976,7 @@
         "y": 252
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1543,
         "y": 216
       }
@@ -2057,7 +2057,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 262,
         "y": 696
       },
@@ -2077,7 +2077,7 @@
         "y": 214
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1610,
         "y": 185
       }
@@ -2156,7 +2156,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 470,
         "y": 709
       },
@@ -2171,7 +2171,7 @@
         "y": 250
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1436,
         "y": 216
       }
@@ -2246,7 +2246,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 312,
         "y": 702
       },
@@ -2256,7 +2256,7 @@
         "y": 316
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1430,
         "y": 283
       }
@@ -2333,7 +2333,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 326,
         "y": 684
       },
@@ -2348,7 +2348,7 @@
         "y": 256
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1556,
         "y": 225
       }
@@ -2407,7 +2407,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 314,
         "y": 728
       },
@@ -2422,7 +2422,7 @@
         "y": 251
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1562,
         "y": 225
       }
@@ -2505,7 +2505,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 312,
         "y": 708
       },
@@ -2525,7 +2525,7 @@
         "y": 224
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1655,
         "y": 183
       }
@@ -2588,7 +2588,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 320,
         "y": 682
       },
@@ -2598,7 +2598,7 @@
         "y": 357
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1360,
         "y": 325
       }
@@ -2669,7 +2669,7 @@
     },
     "route": [
       {
-        "at": 0.0,
+        "at": 0,
         "x": 350,
         "y": 706
       },
@@ -2684,7 +2684,7 @@
         "y": 248
       },
       {
-        "at": 1.0,
+        "at": 1,
         "x": 1497,
         "y": 222
       }
@@ -2753,6 +2753,1586 @@
       "cols": 177,
       "rows": 88,
       "rle": "r3606s1r424f1r145w1r8w6r2w3r4w3r5f3r1f7r108s1r22w30r6f19r115w2r2w33r4f16r12f1r95w5r3w40r4f15r97s1r6w1r2w50r5f3r3f3r11s4r91w41r2w1r16f2r1f7r6s4r81s1r4w1r9w37r2w1r9f17r1f2r3s8r84w1r2w2r7w37r3f1r8f3r1f18r92w8r2w38r7f26r9f1r86w44r7f2r1f2r4f1r2f4r2f7r100w44r11f21r93w1r4w46r13f19r2f1r1s3r18f1r65s1r4w49r9f23r7s1r19f4r65w49r9f26r4f1r1f1r14f1r68s1r1w50r5f35r2f2r70s1r10w50r6f38r82w46r9f36r60s1r22w48r9f31r13s2r71w51r11f24r2f1r1f2r4s2r5s2r63w1r6w53r11f26r2f1r1s6r1s7r49s1r11w4r3w54r8f28r1f4r2s9r64w60r7f20r17s5r9f3r46s1r5w1r2w58r5f18r28f1r6f1r52w1r3w58r9f18r10f1r4s2r6s2r6f1r19f2r33w4r3w54r1s1r10f12r11f2r5s4r5s3r62w4r3w53r12f1r2f23r8s6r55w2r7w61r11f2r3f3r1f11r2f9r4s9r4f1r47w4r3w62r13f20r1f3r1f1r1f2r1s13r4f1r47w5r2w62r14f18r1f4r3f2r1s10r33f1r11w2r8w4r3w63r8f1r4f8r2f16r32f2r24w2r7w6r1w62r3s1r8f2r2f25r4f6r6f2r1f1r38w2r3w2r2w68r8f1r2f39r5f3r1f2r41s1r7w1s1r1w58r2w1r13f31r3f1r69w56r16f23r1f5r5f2r70w55r13f25r4f2r7f1r72w53r14f30r79s1r3w45r20f1r1f28r13f7r62s1r2w41r24f34r1f1r1f4r1f1r54s2r1s2r12w27r3w9r26f13r4f4r1f7r7f1r77w24r5w8r33f14r2f5r45f3r4f1r34w4r2w16r7w8r31f5r3f10r37f1r53w1r6w2r5w8r7w8r36f10r34f1r61f3r10w2r2w1r9w3r3w2r16f7r6f4r1f12r7f1r72s1r7s1r5f7r2f3r24w1r14f1r3f1r15f1r2f3r4f1r7f1r1f1r72s2r2s1r6f15r4f1r18w1r3w1r9f1r21f1r20f1r71s1r1s1r4f24r15s1r5w1r8f4r31f1r77s1r11f25r4f3r23f2r3f1r2f1r25f3r12f1r47s1r11s1r8f27r4f3r62f1r1f3r1f1r72f36r139f6r2f23r1f1r1f1r20s1r120f5r4f23r25s1r115f1r2f1r1f2r2f17r1f6r2f1r22s1r64f1r2f1r50f1r1f2r4f17r3f3r1f2r88f2r61f4r2f9r5f1r1f1r25s1r41f2r2f1r12f1r56s1r25f6r38s1r26f4r7f2r68s2r89f1r84s2r4s1r43s1r529s1r95s1r281s1r258s2r109s1r59s1r5s1r2s1r91s1r19s1r53s5r18"
+    }
+  },
+  "torrey-pines-south:1": {
+    "image": "art-demo/torrey-pines-south/hole-01.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -1.075531,
+        2.644717,
+        300
+      ],
+      "y": [
+        -0.583123,
+        -1.373937,
+        790
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 300,
+        "y": 790
+      },
+      {
+        "at": 0.643,
+        "x": 1090,
+        "y": 410
+      },
+      {
+        "at": 0.982,
+        "x": 1495,
+        "y": 178
+      },
+      {
+        "at": 1,
+        "x": 1497,
+        "y": 168
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1496,
+          "y": 175
+        }
+      ],
+      "holed": [
+        {
+          "x": 1497,
+          "y": 168
+        }
+      ],
+      "bunker": [
+        {
+          "x": 970,
+          "y": 365
+        },
+        {
+          "x": 1145,
+          "y": 485
+        },
+        {
+          "x": 1240,
+          "y": 430
+        },
+        {
+          "x": 1420,
+          "y": 165
+        },
+        {
+          "x": 1505,
+          "y": 220
+        }
+      ]
+    },
+    "meta": {
+      "number": 1,
+      "par": 4,
+      "yards": 451,
+      "tourAverage": 4.054,
+      "course": "Torrey Pines (South Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2441f14r159f6r6f9r153f6r9f1r2f1r2f1r4f1r147f9r8f2r1f2r4f3r1f1r141f3r1f8r7f10r3f5r141f11r5f12r3f2r145f10r6f2r1f6r103s2r9s2r1s1r21s1r11f10r3f8r6s1r5s1r101s1r36f24r6s3r4s1r104s1r31f1r1f26s7r4s2r99s1r37f1r1f25r3s4r3s1r96s1r3s1r35f31r7s1r1s1r13s1r78s1r2s2r41f28r1f1r1f1r1s1r143f26r3f2r1s2r19s1r118f2r2f21r1f3r3f1r3s2r76s1r1s1r56f27r1f4r2f2r2f1r1s1r7s3r56s1r4s1r25s1r36f3r2f28r1f3r2f1r1s3r6s2r114f2r7f28r1f4r7f1r1s1r9s2r43s3r57s1r9f3r5f3r1f26r1f2r4f1r5s1r10s2r110f5r6f2r5f25r9s2r11f1r42s1r58s1r8f4r8f31r3f1r5s2r62s1r31s2r15s2r9f1r1f1r3s5r3f30r2f1r5s1r96s1r5s3r9s1r7f2r6s4f31r2f3r4s2r10f1r93s3r6s2r9f2r5s2r2f25r1f3r3f3r4s2r10f1r95s1r18f2r2s4f1r3f24r7f1r6s1r6f4s2r17s1r77s1r16f1r3f1s5f27r16f1r4f1r101s1r15f1r10f27r23s2r1f1r122f24r26s3r38s1r1s2r30s1r21s2r15f1r10f24r5s3r50s1r7s2r30s1r1s2r40f1r10f22r6s4r87s2r45f1r4f1r1f24r7s4r7s1r106s1r23f2r1f24r8s5r6s1r21s2r81s1r20f2r2f26r20s2r83s1r39f2r3f2r2f22r20s2r128f2r1f21r5s4r12s2r23s1r105f2r2f21r5s3r11s2r134f21r5s6r6s3r4f1r2f1r122f3r1f22r7s6r138f1r2f22r120s1r1s1r31f21r15s1r106s3r28f23r16s1r19s4r13s1r68s4r24f26r16s1r20s1r1s1r3s2r78s2r25f25r17s2r28s2r75s2r23f27r18s1r69s1r35s2r23f27r18s2r129f26r19s2r127f28r18s3r30s1r96f27r20s2r122f31r21s2r3f5r96s1r17f31r22s1r2f1r4f2r64s1r30s2r18f2r1f25r21s4r73s1r31s1r20f23r22s3r32s3r77f3r12f1r1f23r15s1r5s2r30s2r82f18r5f16r20s3r25s3r88f18r7f9r22s4r26s1r56s1r33f13r4f7r5f2r25s2r29s1r87f7r3f9r2f1r2f1r2f2r26s3r106s1r13f3r6f1r4f7r6f2r22s6r32s3r82f3r8f2r2f1r2f3r1f1r16f1r9s6r41s1r20s1r44s3r10f7r2f1r1f2r1f3r1f1r28s4r1s1r3s3r6s1r29s6r63s2r9f7r5f1r3f3r29s1r2s2r3s3r17s3r18s1r1s2r2s2r72f6r8f3r28s2r6s2r20s3r1s1r15s2r1s1r4s1r61s1r7f4r1f3r9f3r63s1r17s2r75f6r8f4r72s2r8s1r4s1r57s4r7f3r13f4r2s1r41s1r7s1r29s1r55s1r8s3r6f8r6f5r52s1r31s2r1s1r68f12r1f3r142s2r15f12r1f2r10s1r2s2r131s2r3s3r7f12r1f1r13s4r93s1r39s6r6f11r15s4r89s1r5s3r40s5r4f1r2f7r14s2r93s1r6s1r43s5r2f2r1f1r2f2r14s4r147s5r1f4r15s3r151s5r16s2r157s4r13s2r134"
+    }
+  },
+  "torrey-pines-south:2": {
+    "image": "art-demo/torrey-pines-south/hole-02.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        4.099764,
+        3.71173,
+        130
+      ],
+      "y": [
+        -1.631701,
+        -1.635564,
+        795
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 130,
+        "y": 795
+      },
+      {
+        "at": 0.72,
+        "x": 1050,
+        "y": 385
+      },
+      {
+        "at": 0.979,
+        "x": 1545,
+        "y": 178
+      },
+      {
+        "at": 1,
+        "x": 1540,
+        "y": 173
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1543,
+          "y": 176
+        }
+      ],
+      "holed": [
+        {
+          "x": 1540,
+          "y": 173
+        }
+      ],
+      "bunker": [
+        {
+          "x": 830,
+          "y": 383
+        },
+        {
+          "x": 1250,
+          "y": 378
+        },
+        {
+          "x": 1450,
+          "y": 175
+        },
+        {
+          "x": 1575,
+          "y": 230
+        }
+      ]
+    },
+    "meta": {
+      "number": 2,
+      "par": 4,
+      "yards": 389,
+      "tourAverage": 3.969,
+      "course": "Torrey Pines (South Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2442f8r7f2r160f3r1f1r173f2r8f1r3f2r4f1r148f1r3f3r14f1r8f1r146f3r1f1r1f1r9f10r5f1r1f1r138f5r3f2r10f12r3f1r142f9r8f13r86s2r51f1r4f11r4s4f11r48s1r74s1r15f22r5f7r5s4r136f1r1f29r5s5r135f14r2f16r1s7r5f1r2s1r85s1r4s1r30f37r1f1r3s6r6s1r95s1r19f19r2f24r1f1r68s1r34s2r25f40r1f1r6f2r95s4r1s1r17f4r2f44r3f3r5f1r89s2r2s1r22f44r4f4r1f1r52s1r1s1r38s2r22f1r8f7r2f29r4f3r96s2r20f1r4f1r5f4r2f27r1f4r5f1r2f1r118f1r10f3r2f2r1f24r1f3r7f1r130f1r6f30r7f3r63s1r2s1r31s2r14s1r7s6f1r2f3r2f28r9f1r67s1r46s2r8s5r4f2r3f25r105s1r8s3r22s3f33r106s3r6s3r15f1r3s6r1f7r1f23r4s5f1r106s2r17f1r2s5r4f28r5s5r105s2r1s1r16f1r5s3f1r2f29r4s5r107s1r17f2r5s4r1f31r4s5r105s1r14f2r6s6r6f28r111s2r25s3r1f1r4f29r127f2r3f2r4s5f1r1f30r21s1r1s1r89s1r18f4r2s5r2f31r66s1r13s1r13s1r15s3r12f5r1f3r12f29r83s1r8s1r3s1r29f9r9f1r1f28r72s1r27s1r29f7r7f1r1f31r8f1r7s1r2s1r1s2r65s1r41f5r2f2r2f31r3f1r23s1r3s1r1s1r56s2r26s2r10f45r4f1r29s1r1s2r38s1r44s2r14f38r5f1r1f1r72s1r39s3r17f34r5f1r116s4r8f3r1f11r1f26r4f1r98s1r18s2r2s1r9f12r1f26r3f2r3f1r94s1r19s3r13f6r1f29r4f2r97s2r19s3r14f1r2f5r1f25r4f1r19s1r68s1r47f2r1f31r27s2r1s3r23s1r76f1s1r2f1r3f2r2f33r2f1r25s2r24s1r9s1r70f1r2f3r1f5r1f27r66s1r72f3r1f5r1f26r123s2r16f1r2f32r39s1r32s1r47s1r22f7r1f24r11s2r106s5r11f2r6f33r7f1r111s1r2s1r10f42r120s3r14f14r7f18r6f1r130f1r4f2r8f1r1f1r8f1r1f3r3f4r137f7r9f4r1f2r39s1r24s1r88f6r1f7r1f6r1f1r42s1r23s1r68s1r12f1r3f6r2f21r31s1r97s3r15f6r2f13r1f4r2f1r9f2r36s1r18s1r63s1r11f1r2f2r2f3r3f13r3f3r8f1r7s1r14s1r116f6r2f13r5f1r15s1r16s2r2s1r4s1r102f2r2f3r7f10r1f1r18s1r19s2r4s2r96s1r11f8r4f2r1f3r21s1r22s2r102s3r6f11r2f3r2f1r21s1r6s2r10s1r116f11r2f2r13s2r14s1r1s2r11s1r6s3r106f11r3f2r15s1r16s2r7s1r111s1r6f11r2f2r42s2r1s1r2s2r100s3r9f9r19s1r151f5r16s2r135s4r5f2r8f1r1f1r16s4r40s1r96s1r5f6r4f3r11s1r4s2r139s1r5f8r13s5r3s1r8s1r36s1r101f1r2f3r12s4r14s2r136s3r15s6r17s1r1s2r131s7r8s6r59s2r31s1r66s4r1s2r2s7r26s1r2s2r135s7r130s1r202"
+    }
+  },
+  "torrey-pines-south:3": {
+    "image": "art-demo/torrey-pines-south/hole-03.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -3.860434,
+        4.616915,
+        390
+      ],
+      "y": [
+        34.676537,
+        -2.487562,
+        675
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 390,
+        "y": 675
+      },
+      {
+        "at": 0.96,
+        "x": 1330,
+        "y": 320
+      },
+      {
+        "at": 1,
+        "x": 1318,
+        "y": 295
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1326,
+          "y": 312
+        }
+      ],
+      "holed": [
+        {
+          "x": 1318,
+          "y": 295
+        }
+      ],
+      "water": [
+        {
+          "x": 200,
+          "y": 300
+        },
+        {
+          "x": 120,
+          "y": 400
+        },
+        {
+          "x": 300,
+          "y": 200
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1220,
+          "y": 345
+        }
+      ]
+    },
+    "meta": {
+      "number": 3,
+      "par": 3,
+      "yards": 201,
+      "tourAverage": 2.857,
+      "course": "Torrey Pines (South Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r3563w14r21s4r138w15r20s3r2s2r4s1r11s1r53s1r64w15r19s1r11s1r1s1r55f1r5f6r61w16r19s1r1s1r33s1r21s1r5f5r10f1r4s3r55w18r12s3r4s1r12s1r13s1r4s1r5s1r12s1r9f4r1f2r11f1r7s1r52w12r17s5r2s1r10s1r11s1r25s1r12f5r1f7r14s2r50w11r19s1r2s1r1s2r10s1r49f5r1f5r1f4r64w10r24s3r7s1r55f1r1f6r2f4r9f1r53w8r23s6r6s1r41f1r4f2r5f11r1f6r10f1r51w8r23s5r51f12r1f8r1f8r1f1r58w14r18s4r49f9r3f2r1f18r59w14r15s1r3s3r41s1r1s1r2f10r9f19r57w11r21s3r4s1r16s1r1s1r2s1r24f4r3s5r3f1r2f16r78s1r2s1r6s4r19s1r7s1r26f1r1s8r8f15r55w1r4w1r13s2r7s1r2s3r53f1r3s11r1s2r4f13r5f1r68s1r1s1r3s3r4s5r55s15r1f15r79s11r62s9r1f15r4f1r3f1r69s8r1s1r51f1r11f1r3s5r1f16r31w7r9w4r8w1r19s6r9s1r54f6r5f20r28w10r4w10r6w1r20s2r11s1r2s2r33s1r13f8r4f1r1f17r31w24r3w1r19s5r3s1r9s1r11s1r36f11r1f1r1f17r1f1r29w6r2w3r3w1r7w7r20s4r7s1r53f26r1f3r33w5r18w3r24s3r23s1r29f1r6f17r2f3r1f6r17s1r17w4r45s2r6s1r33s1r11f1r1f1r1f1r4f24r42w2r46s1r19s1r3s3r22f5r1f1r5f25r89s2r18s1r28f37r90s2r20s1r27f36r90s2r23s2r22f7r1f29r91s2r49f33r2f1r89s1r1s1r34s1r14f34r22s1r2s1r66s1r10s1r11s1r11s1r9f5r2f31r18s5r2s2r64s2r1s1r9s1r11s1r21f5r1f32r15s3r3f5s2r64s1r2s1r12s1r28f37r16s4r4f4r1f2r58s1r4s1r22s1r22f4r1f29r1f1r5s1r3s1r5s5r73s1r4s3r37f6r1f28r18s5r120f33r15s1r4s4r89s1r27f6r1f27r1f2r19s4r117f33r22s4r119f2r1f3r1f24r24s3r67s1r52f3r6f19r1f1r23s3r73s1r48f5r3f19r1f1r39s1r52s1r2f4r51f2r8f14r73s1r5s1r19f4r51f1r10f2r2f3r2f1r105f7r28s1r14f2r3f2r85s1r1s1r17s2r17f8r30s1r14s1r39s1r63s1r14f5r5f6r26s3r121s1r1f4r2f12r6f3r28s1r121f2r2f17r4f3r123s1r1s1r26f16r5f4r39s1r1s1r107f1r3f15r3f2r1f3r81s1r65s1r3f3r3f10r4f5r43s5r104f8r1f6r4f5r39s1r6s5r2s1r14s3r62s1r22f8r5f1r1f1r1f3r21s1r3s1r24s6r1s4r96f1r4f4r4f2r1f2r2f1r18s3r29s1r2s2r98f7r12f1r15s1r12s1r9s1r3s1r14s1r12s5r81f10r5f1r16s1r4s1r18s1r9s1r26s4r72s1r2f1r2f11r4f2r46s1r8s1r11s1r12s4r76f10r3f2r57s1r25s6r67s1r8f5r64s1r1s1r24s6r174s5r64s1r2s1r16s1r48s2r12s1r25s7r62s1r2s3r10s1r51s1r22s1r18s5r64s1r2s3r51s1r50s7r51s1r5s2r2s1r2s2r2s3r57s1r37s1r3s3r1s5r56s1r5s4r1s1r102s9r58s3r111s6r40s2r15s2r60s1r50s1r3s5r36s2r135s5r31"
+    }
+  },
+  "torrey-pines-south:4": {
+    "image": "art-demo/torrey-pines-south/hole-04.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -7.798486,
+        2.561548,
+        285
+      ],
+      "y": [
+        -1.828798,
+        -1.215838,
+        775
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 285,
+        "y": 775
+      },
+      {
+        "at": 0.592,
+        "x": 1060,
+        "y": 430
+      },
+      {
+        "at": 0.984,
+        "x": 1500,
+        "y": 168
+      },
+      {
+        "at": 1,
+        "x": 1487,
+        "y": 170
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1496,
+          "y": 169
+        }
+      ],
+      "holed": [
+        {
+          "x": 1487,
+          "y": 170
+        }
+      ],
+      "water": [
+        {
+          "x": 150,
+          "y": 200
+        },
+        {
+          "x": 80,
+          "y": 350
+        },
+        {
+          "x": 350,
+          "y": 130
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1270,
+          "y": 423
+        },
+        {
+          "x": 1365,
+          "y": 313
+        },
+        {
+          "x": 1440,
+          "y": 153
+        }
+      ]
+    },
+    "meta": {
+      "number": 4,
+      "par": 4,
+      "yards": 490,
+      "tourAverage": 4.269,
+      "course": "Torrey Pines (South Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2436f2r5f1r5f7r157f2r3f1r7f10r154f6r7f2r4f1r1f3r152f7r5f8r1f4r153f1r1f4r4f10r2f2r154f4r1f5r1f5r4f1r3f1r142f1r3f6r1f11r54w9r28s3r6s4r1s1r46f9r2f17r50w8r28s4r1s9r46f31r49w5r34s1r5s2r9s1r40f7r2f21r50w4r33s2r5s1r8s1r1s1r15s1r21f2r1f26r3f2r50w1r12w3r15s1r4s1r10s1r1s5r36f11r1f19r1f2r1f2r57w5r16s1r39s1r19f35r1f3r52w3r22s1r26s1r33f9r1f24r1f4r50w3r19s1r2s1r15s2r46f23r6f8r71s3r7s1r48f2r5f1r1f2r1f2r1f16r8f3r2f2r1s2r57s1r11s1r6s2r49f12r2f18r2s5r5f2r4s1r54s3r1s3r14s1r52f2r1f5r2f19r3s4r12s2r53s2r2s3r8s1r58f1r1f3r3f19r1f1r2s5r15s2r1s1r47s2r2s3r10s2r40s1r10f10r2f23r1s5r16s3r45s1r1s7r40s1r22f9r1f24r4s4r13s5r44s2r14s1r2s1r48f10r1f1r2f25r25s2r52s3r3s2r49f2r2f8r2f26r26s2r51s3r3s3r18s1r17s1r9f14r1f26r9f2r15s1r1s2r50s3r1s5r1s1r4s1r9s1r6s1r22f13r1f23r1f3r5f6r18s1r19w2r29s7r2s3r6s1r5s2r2s3r10s1r1s1r11f3r1f2r2f5r1f23r10f1r4s1r1s1r17s1r35s2r12s4r1s1r2s1r3s2r2s1r6s1r1s1r4s1r24f4r1f31r23s1r12s2r46s3r1s6r3s1r45f3r1f5r1f22r5s5r1f1r26s1r4s1r41s3r1s1r3s2r1s1r12s1r35f2r2f4r1f23r5s5r16s1r11s3r42s5r7s2r9s1r34f1r1f3r1f4r1f23r6s4r31s2r41s4r40s1r1s1r16f5r1f25r5s7r71s3r44s1r13f33r6s6r67s1r4s1r57f34r2f1r139f3r1f35r37s2r94f4r2f37r40s1r57s1r35f2r2f31r3f4r42s1r90f3r1f31r6f2r4f1r38s3r86f36r5f2r48s3r81f37r3f4r52s1r66s1r15f6r1f27r3f4r1f1r51s3r79f5r1f29r2f2r2f2r53s3r1s2r66f1r5f1r1f4r1f31r2f1r59s4r49s1r15f2r1f10r1f26r1f1r67s4r65f10r1f29r65s1r3s3r45s1r19f8r1f30r70s4r42s1r16f1r1f3r2f4r1f27r1f2r73s4r40s1r15f1r2f40r75s3r56f9r1f31r77s3r43s1r7f2r2f36r1f3r5f1r6s2r6s1r5s1r53s2r42s2r10f33r1f2r4f3r11s1r14s1r1s1r98f1r5f1r2f30r7f2r14s1r9s1r5s6r2s2r36s1r16s1r33f37r1f1r7f1r38s1r1s2r37s1r49f6r1f27r2f2r128s1r11f19r4f1r1f7r32s1r29s2r78f18r1f4r12f2r4f2r52s1r1s1r82f17r6f1r3f2r7f2r54s1r2s1r65s2r6f1r2f5r6f5r1f1r2f1r11f1r4f3r135f7r4f5r159f7r6f4r42s1r95s1r16f2r1f1r3f4r5f4r47s1r1s1r1s1r97s3r7f5r8f2r6s2r34s1r8s2r2s1r94s1r3s1r5f2r3f3r54s1r6s1r105f7r7f2r159f9r6f1r111s1r37s4r6f10r156s2r3s1r3f10r6f1r63s1r95f9r78s1r78s3r5f1r4f6r13s2r60s1r79s8r4f2r5f1r13s2r140s11r2f7r111s1r54s5r2f3r12s1r157s5r5s1r111s1r2s1r52s7r117s1r33s1r21s1r75s1r45s1r32s1r176"
+    }
+  },
+  "torrey-pines-south:5": {
+    "image": "art-demo/torrey-pines-south/hole-05.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0.130931,
+        2.748143,
+        300
+      ],
+      "y": [
+        -1.183984,
+        -1.426361,
+        800
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 300,
+        "y": 800
+      },
+      {
+        "at": 0.639,
+        "x": 1090,
+        "y": 420
+      },
+      {
+        "at": 0.982,
+        "x": 1515,
+        "y": 170
+      },
+      {
+        "at": 1,
+        "x": 1525,
+        "y": 163
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1518,
+          "y": 168
+        }
+      ],
+      "holed": [
+        {
+          "x": 1525,
+          "y": 163
+        }
+      ],
+      "bunker": [
+        {
+          "x": 970,
+          "y": 365
+        },
+        {
+          "x": 1260,
+          "y": 445
+        },
+        {
+          "x": 1430,
+          "y": 170
+        },
+        {
+          "x": 1540,
+          "y": 220
+        }
+      ]
+    },
+    "meta": {
+      "number": 5,
+      "par": 4,
+      "yards": 454,
+      "tourAverage": 4.01,
+      "course": "Torrey Pines (South Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2441f1r14f5r154f3r9f3r1f2r3f4r148f2r2f3r9f8r3f3r145f5r1f2r9f10r2f4r142f2r2f3r11f10r3f4r142f2r2f4r7f11r1f1r2f2r143f1r16f3r1f5r131s2r19f1r13f8r5s3r153f3r1f11r4s5r124s2r13f1r2f3r5f1r1f16r1s6r124s1r15f2r7f20r3s6r87s1r50f1r1f1r5f24r10s1r115s2r25f23r1f3r5s1r115s2r23f25r3f1r6s1r44s1r69s2r23f26r9s2r114s1r22f3r1f24r2f1r2f1r2s2r136f29r3f1r63s1r3s1r69f1r4f29r61s1r59s1r11f2r11f29r121s2r8f6r3f1r6f29r121s2r8f4r8f33r120s1r9f5r3s5f2r1f29r121s1r8f2r1f5r1s4r4f29r71s1r48s2r7f6r5s4f32r19s1r101s1r7f6r5s2r5f26r1f1r20s1r49s1r51s1r8f6r1s6r6f26r132f7r1s4r5f26r21s1r109f2r1f3r12f26r2f1r21s1r106f1r5f3r9f25r7f4r13s2r3s1r111f1r7f28r2s4r3f2r14s1r111f1r10f24r1f2r4s5r15s1r1s2r21s1r98f24r1f2r5s4r16s1r3s2r118f24r1f2r4s5r22s1r90s1r26f23r1f2r5f1r1s6r5s1r14s1r87s3r26f23r1f2r10s3r6s1r102s1r27f23r1f1r20s1r101s2r16f2r9f23r1f2r20s1r12s1r86s3r27f23r1f1r19s1r4s1r97s2r26f24r1f1r16f1r2s1r5s1r2s1r121f23r2f1r1f1r16s3r128f24r2f1r19s2r59s1r67f25r2f1r22s2r48s1r2s1r45s2r25f23r152f24r124s2r23f26r125s2r22f27r37s2r2s2r81s3r22f26r4f1r35s1r85s2r21f26r4f1r39s1r1s1r102f27r4f1r8s1r21s1r11s2r96f1r2f27r4f1r9s1r111s3r17f1r1f27r5f1r45s1r76s2r17f28r55s2r87f31r14s2r37s1r1s1r2s1r79f2r5f22r2f6r13s3r38s2r5s1r65s3r14f17r5f1r6f1r14s3r113s1r18f4r1f1r5f2r30s1r3s1r120f3r7f7r31s1r115s2r12f5r4f1r3f7r24s1r117s1r11f4r6f2r4f1r3f1r1f1r22s3r32s1r3s1r22s1r55s3r9f7r2f4r2f1r2f1r25s2r118s3r8f7r9f3r71s1r74s2r9f6r9f2r59s2r86s4r7f2r1f1r12f2r60s1r19s2r67s1r11f4r9f1r4s1r61s1r14s1r1s1r74f5r9f1r1f2r85s1r71f10r4f3r2f1r146s2r8f11r2f1r151s1r9f11r73s2r82s1r6f12r113s1r28s3r22f8r14s1r129s2r17s2r1f3r3f4r16s1r147s4r2f4r96s1r75s1r152s2r24s2r150s2r24s3r147"
+    }
+  },
+  "torrey-pines-south:6": {
+    "image": "art-demo/torrey-pines-south/hole-06.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -0.720578,
+        2.532924,
+        140
+      ],
+      "y": [
+        0.776396,
+        -1.168334,
+        813
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 140,
+        "y": 813
+      },
+      {
+        "at": 0.514,
+        "x": 900,
+        "y": 430
+      },
+      {
+        "at": 0.9,
+        "x": 1380,
+        "y": 253
+      },
+      {
+        "at": 0.985,
+        "x": 1530,
+        "y": 168
+      },
+      {
+        "at": 1,
+        "x": 1527,
+        "y": 173
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1529,
+          "y": 170
+        }
+      ],
+      "holed": [
+        {
+          "x": 1527,
+          "y": 173
+        }
+      ],
+      "bunker": [
+        {
+          "x": 730,
+          "y": 413
+        },
+        {
+          "x": 800,
+          "y": 383
+        },
+        {
+          "x": 850,
+          "y": 363
+        },
+        {
+          "x": 920,
+          "y": 340
+        },
+        {
+          "x": 1470,
+          "y": 183
+        },
+        {
+          "x": 1580,
+          "y": 210
+        },
+        {
+          "x": 1505,
+          "y": 145
+        }
+      ]
+    },
+    "meta": {
+      "number": 6,
+      "par": 5,
+      "yards": 564,
+      "tourAverage": 4.483,
+      "course": "Torrey Pines (South Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2622f2r176f4r3f3r1f1r1f2r168f7r1f2r166f2r2f3r1f1r156f2r10f6r158f1r1f4r6f6r154f4r1f1r2f1r4f8r4s3r13s3r97s1r26s1r15f14r2s3r16s2r133f1r1f19r11s1r7s1r133f1r1f18r1f4r19s2r110s1r18f20r138f3r2f3r4f2r2f20r1f1r1f1r23s1r83s1r22s2r3f6r8f21r34s1r103f1r3f4r4f1r2f17r1f4r32s1r2s1r1s1r77s1r14s1r5f5r9f24r26s1r103s1r1s1r8f1r10f20r24s3r125f1r1f17r1f1r40s1r100s1r11f1r1f17r1f2r44s1r94s2r6s2r2f20r143s2r11f21r53s1r1s1r84s2r6s4r1f19r1f1r141s1r3f1r9f17r1f1r143s2r5s3r1f20r150s4r2f21r153f18r1f1r141s1r7s4r3f16r144s1r3s1r9f19r135s1r4s1r9s3r2f20r141s1r5s6r2f20r3f2r133s2r2s1r7s1r4f17r1f1r5f1r130s1r6s2r10f18r2f1r3f1r28s1r81s1r27s2r5f24r5f3r29s1r106s3f3r9f16r5f3r6s1r127s1r2s2r4f2r6f17r46s1r98s2r8f2r1f18r113s1r16s1r13s3r11f16r116s1r30s2r9f1r1f14r8f1r139s1r10f1r1f13r6f1r21s1r109s4r2s1r6s1r10f1r1f12r4f4r1f2r26s1r100s3r4s1r4s2r11f14r4f1r120s2r7f1r2s5r8s1r4f3r1f17r4s1r128f4r1s2r5s2r2s2r4f1r2f3r1f15r13s1r107s3r2s1r5f2r3s2r6s1r2s2r3f1r3f3r1f13r18s1r1s2r1s2r25s1r69s3r11f2r4s4r3s1r3s2r1f2r2f4r1f12r1f1r20s2r115f1r2s3r1f1r2s1r2s2r1f5r2f1r1f13r23s3r106f1r3s1r1f1r3s3r3s2r2s1r1f4r3f15r26s2r50s1r39s1r12f1r3s3r1f1r8s1r3s1r2f4r4f13r20s3r3s1r1s1r57s3r26s1r1s1r12f3r2s4r1f2r5s2r3s1r4f6r3f9r10s1r13s1r1s1r1s1r1s2r51s1r9s1r26s1r10f2r2s4r2f1r5s3r2s1r7f1r3f4r1f2r16s1r76s2r2s1r2s1r34f4r2s3r2f1r5s2r2s2r2f2r2f4r1f2r2f5r132f7r1s4r5s3r11f1r110s1r34f4r4s3r5s3r8f3r7f3r102s1r33f5r9s3r5f2r5f1r103s1r32s1r10f6r7s4r4f7r8f3r9s1r84s1r32s1r11f1r6s4r1s2r1f4r14f1r1f1r137f3r11s3r1f4r3f2r9f1r12s1r48s1r46s1r32s3r9s2r1f8r2f1r2f2r1f4r139s4r12f2r6f3r8f2r138s3r11s2r1f1r4f4r1f1r147s4r10s1r3f2r4f2r149s1r38s2r134s2r6f1r13f4r6s3r14s2r125s2r11s1r8f5r11s1r148s2r4f6r16s2r10s1r118s1r16s2r1f10r1f1r14s2r11s2r133f7r1f1r1f1r1f2r30s1r128s1r11f6r18s1r129s1r7s4r6f5r2f1r21s2r4s1r130s3r7f5r1f2r21s4r134s2r4f1r4f2r2f1r19s1r5s1r5s1r1s1r153s1r9s1r349s2r5s2r164s1r4s1r1s1r5s1r17s1r116"
+    }
+  },
+  "torrey-pines-south:7": {
+    "image": "art-demo/torrey-pines-south/hole-07.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0.314768,
+        3.011554,
+        210
+      ],
+      "y": [
+        -0.576941,
+        -1.43251,
+        790
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 210,
+        "y": 790
+      },
+      {
+        "at": 0.628,
+        "x": 1050,
+        "y": 410
+      },
+      {
+        "at": 0.983,
+        "x": 1520,
+        "y": 165
+      },
+      {
+        "at": 1,
+        "x": 1538,
+        "y": 160
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1526,
+          "y": 163
+        }
+      ],
+      "holed": [
+        {
+          "x": 1538,
+          "y": 160
+        }
+      ],
+      "bunker": [
+        {
+          "x": 960,
+          "y": 355
+        },
+        {
+          "x": 1535,
+          "y": 215
+        }
+      ]
+    },
+    "meta": {
+      "number": 7,
+      "par": 4,
+      "yards": 462,
+      "tourAverage": 4.092,
+      "course": "Torrey Pines (South Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2445f14r1f1r158f6r2f4r6f4r151f8r2f11r3f3r148f8r4f13r2f3r148f6r2f15r3f2r1f1r145f8r1f3r1f8r152f10r2f5r2f1r151f1r4f8r2f9r3f1r3s5r75s2r64f9r3f11r2s1r3s5r77s1r62f9r2f15r1s8r1f1r141f24r3s7r1f1r134f4r1f24r149f8r1f19r4f5r108s1r27f11r1f17r5f5r49s1r89f8r1f13r1f2r7f4r10s1r125f11r1f18r4f1r16s1r95s1r20f1r7f9r2f22r112s1r5s2r18f12r2f19r1f3r135f36r2f2r14s2r102s1r9s1r13f29r2f1r133f1r3f3r2s4f1r2f3r1f20r2f1r136f2r4s4r1f1r1f24r78s2r41s1r22s3r3f25r78s1r43s1r19s6r2f28r1f1r116s1r15f2r4s5r1f31r1f2r53s1r81f1r5f32r2f3r134f2r4f28r1f3r1f3r111s2r10f2r1f3r10f28r2f3r2f3r52s1r70f1r1f4r1f6r2f28r2f3r2f2r127f1r3f34r1f5r4f1r131f33r2f5r8s1r14s1r33s1r58s1r8f1r10f33r2f4r20s1r78s1r37f32r3f2r14s1r8s1r76s4r37f29r2f3r118s1r20f36r142f33r14s1r123f37r141f34r118s2r24f4r2f26r145f3r1f25r1f1r7s1r107s1r30f1r1f25r2f1r115s1r23f31r1f1r23s1r2s1r113f1r3f5r1f26r2f1r24s1r88s2r21f1r2f34r2f1r1f1r69s1r40s2r24f6r1f25r1f1r2f4r26s1r108f6r1f25r1f1r4f3r31s1r91s1r12f4r1f25r4f1r1f2r4s1r30s1r7s1r1s1r65s1r23f6r1f14r4f7r49s1r5s1r6s2r83f2r1f16r7f1r1f1r52s4r1s5r1s1r54s1r31f17r65s1r7s1r83f18r71s1r81f24r70s1r77f9r1f18r29s1r40s1r79f11r1f6r2f3r146f17r1f16r144f4r1f10r2f3r1f6r148f2r5f9r4f1r1f2r151f7r1f7r11f2r2f5r23s2r96s2r14f1r3f6r2f4r144s3r1s1r3s1r3s1r2f1r2f7r2f3r5s1r141s1r17f5r3f3r163f4r8f1r2s1r54s2r103f2r3f2r3f1r1f1r146s2r14f7r1f1r1f1r63s2r99f8r1f3r150s1r9f1r3f7r1f3r20s1r142f8r2f2r22s1r141f7r2f3r162f1r2f6r2f1r152s2r10f4r161s6r2s4r2f5r105s1r57s1r5s3r3f2r96s1r6s1r67s5r13s1r159s6r172s9r106s1r46"
+    }
+  },
+  "torrey-pines-south:8": {
+    "image": "art-demo/torrey-pines-south/hole-08.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -1.282977,
+        5.734463,
+        340
+      ],
+      "y": [
+        35.438857,
+        -3.451977,
+        753
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 340,
+        "y": 753
+      },
+      {
+        "at": 0.955,
+        "x": 1330,
+        "y": 268
+      },
+      {
+        "at": 1,
+        "x": 1355,
+        "y": 262
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1338,
+          "y": 266
+        }
+      ],
+      "holed": [
+        {
+          "x": 1355,
+          "y": 262
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1165,
+          "y": 238
+        },
+        {
+          "x": 1235,
+          "y": 348
+        }
+      ]
+    },
+    "meta": {
+      "number": 8,
+      "par": 3,
+      "yards": 177,
+      "tourAverage": 2.939,
+      "course": "Torrey Pines (South Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r3490f7r171f11r12s2r121s1r25f1r2f19r5s1r3s2r52s1r83s7f7r3f3r1f11s2r1s1r120s1r20s6r1f4r4f5r4f10r1s1r106s1r11s1r19s8r1f1r1f17r3f8r139s5r2f1r1f27r116s1r26f5r1f26r3f1r113s1r14f17r1f18r1f9r4f1r98s1r8s2r5s1r9f20r1f27r2f3r7s3r112f24r6f14r2f2r5f2r7s1r94s1r17f25r12f2r5f6r7f2r4s1r97s2r10s1r1f1r1f16r6f1r3s6r2f4r2f2r2f4r8f1r1f1r96s4r17f3r1f11r12s8f2r9f2r1f1r5f3r79s1r16s4r15f1r3f15r2s6r3s8r1f1r7f1r13f1r7s2r78s1r8s1r18f1r3f16s17r21f2r1f1r20s1r63s2r4s1r24f1r2f17r1s17r10f1r8f1r10s1r43s1r37s3r5s1r1s1r18f20r8s14r1f1r2f2r7f1r8s1r13s1r57s1r9s2r5s2r24f26r3s11r1f1r8f2r1f2r20s1r58s1r16s2r10s1r15f26r4s6r2f1r7f3r2f1r97s1r24f30r15f1r2f1r2f1r108s1r17f28r17f1r5f1r6s2r89s2r6s1r1s1r19f32r3f4r5f1r72s1r1s1r32s2r15f2r3f3r2f22r1f9r2f1r1f2r15s1r1s1r4s2r2s1r104f2r1f2r4f1r2f29r20s3r9s1r81s2r33f18r2f1r1f1r2f2r19s1r2s2r6s1r96s1r21f3r6f3r1f5r29s1r9s1r102f1r8f3r3f1r2f1r1f7r3f4r155f9r2f9r3f1r28s1r11s1r42s1r66f15r4f1r34s1r52s4r71f1r46s4r51s3r66s1r21s2r22s1r10s1r51s2r64s1r22s1r13s1r12s3r58s1r76s1r24s6r11s1r53s4r15s1r85s1r4s1r66s5r1s1r11s2r49s1r21s1r22s1r1s1r62s1r1s4r5s1r74s1r2s1r1s1r85s2r1s6r47s1r27s1r3s1r13s5r73s8r42s1r1s1r11s1r22s2r5s1r2s4r79s5r28s1r8s1r2s1r1s1r1s1r19s1r27s1r80s5r13f1r8f2r1f1r5s2r2s1r2s1r39s3r1s2r4s4r81s6r17f8r1f2r4s1r2s1r40s1r2s2r8s2r83s3r14f8r1f1r1f3r1f2r34s1r108s3r15f7r1f2r2f5r162f10r3f3r61s2r86f1r4f19r1f1r143s2r8f24r5f2r35s1r87s1r17f3r6f12r3f6r8f6r27s1r15s1r73s6r8f4r2f4r5f4r6f4r11f2r50s1r71s4r9f2r3f9r10f5r24s1r3s1r107s1r17f10r27s1r4s1r114s1r9f2r3f2r7f3r27s2r81s1r48f2r2f8r15f1r146f3r2f14r11f1r10s1r3s1r51s1r64s2r2s1r14f13r22s1r2s1r2s1r117s3r13f15r21s1r3s1r100s1r20s1r12f15r21s1r5s1r115s3r1s2r13f14r10f1r5s2r8s1r117s6r10f15r18s1r10s3r22s1r51s2r39s4r15f10r11s1r18s1r118s6r3f1r12f4r18s2r8s2r1s1r1s1r119s5r1s1r2f4r2f1r30s1r3s3r1s1r2s3r19s1r98s2r1s1r3s3r8f1r24s2r7s3r1s1r21s1r106s5r36s1r2s1r1s1r4s1r125s8r32s2r9s1r1s1r2s1r121s1r1s8r39s1r131s9r38s2r124s2r5s10r22s1r9s3r136s8r4s1r15s1r12s1r99"
+    }
+  },
+  "torrey-pines-south:9": {
+    "image": "art-demo/torrey-pines-south/hole-09.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -85.393203,
+        1.606791,
+        120
+      ],
+      "y": [
+        26.397869,
+        -0.769672,
+        775
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 120,
+        "y": 775
+      },
+      {
+        "at": 0.472,
+        "x": 980,
+        "y": 430
+      },
+      {
+        "at": 0.837,
+        "x": 1380,
+        "y": 250
+      },
+      {
+        "at": 0.985,
+        "x": 1575,
+        "y": 150
+      },
+      {
+        "at": 1,
+        "x": 1585,
+        "y": 155
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1578,
+          "y": 152
+        }
+      ],
+      "holed": [
+        {
+          "x": 1585,
+          "y": 155
+        }
+      ],
+      "bunker": [
+        {
+          "x": 910,
+          "y": 375
+        },
+        {
+          "x": 1110,
+          "y": 430
+        },
+        {
+          "x": 1430,
+          "y": 250
+        },
+        {
+          "x": 1490,
+          "y": 160
+        },
+        {
+          "x": 1590,
+          "y": 180
+        }
+      ]
+    },
+    "meta": {
+      "number": 9,
+      "par": 5,
+      "yards": 615,
+      "tourAverage": 4.619,
+      "course": "Torrey Pines (South Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2633f4r172f1r1f3r5f3r164f4r3f1r177f2r155f2r3f6r167f8r84s2r44s1r1s1r28f2r1f12r4f1r4f3r14s1r57s1r4s1r18s2r22s1r19s2r9f11r4f1r24s1r51s1r5s2r65s1r5f2r2f10r7f7r17s2r51s2r5s3r67f15r9f3r73s1r66s2r6f15r1s1r89s1r61s1r8f14r3s1r2f1r83s1r65f1r3f14r151s1r9f11r1f4r148s1r3f2r6f11r28s1r123s1r3f1r3f1r2f12r2f1r9f1r14s2r120s1r1s1r11f11r2f1r94s2r2s1r8s1r38s2r13f12r28s2r67s1r50s1r14f11r4f1r27s1r63s1r4s2r3s1r40s2r16f11r34s1r2s2r16s1r46s3r7s1r50f13r36s1r2s2r11s3r51s3r1s1r3s1r47f12r3f1r36s2r1s1r8s2r59s2r39s3r6f13r41s2r1s2r11s1r85s2r9s2r6f13r44s5r6s3r84s1r1s1r7s2r6f15r47s3r32s1r5s1r5s2r48s1r8s3r4f15r1f1r47s2r43s1r49s1r15f15r5s3r44s2r35s1r9s1r60f16r7s2r2f1r1f1r40s2r84s3r17f16r4s3r5f1r42s1r83s2r11f1r7f16r4s3r51s1r89f2r8f16r2f1r2s4r2s2r63s1r2s1r59s1r8f1r4f2r4f16r11s3r2f1r13s1r49s2r57s1r11f2r6f16r32s1r5s2r40s3r56s1r19f16r36s1r2s2r98s2r8f2r7f17r16f2r23s2r116f16r16f5r66s1r51s1r19f17r15f3r29s1r89s3r18f17r15f2r32s1r3s1r84s3r17f16r16f2r9s1r113s1r16f17r16f1r43s1r2s1r77s1r17f16r26s1r35s1r2s1r76s1r12f1r2f17r15f1r1s1r48s2r2s1r2s2r22s1r45s1r4f1r1f2r2f1r3f1r2f14r15f1r17s1r5s1r30s3r1s1r68s2r5f5r2f1r7f10r72s7r2s1r62s2r8f1r2f1r11f4r77s1r1s2r1s1r1s1r1s1r61s1r10f2r94s2r72f1r10f1r91s3r9s1r23f1r31s1r1f1r1f4r2f1r30f1r62s1r2s3r1s2r64s1r3f3r56s1r40s1r2s4r7s1r40s1r18s1r5f3r29f1r66s4r1s1r46s1r19s2r9f1r94s4r21s1r46s1r9f1r26s1r26s1r44s1r17s2r24s2r12s1r3s1r4s2r101s5r42s1r2s3r1s1r19s4r27s1r53s1r4s2r14s2r3s1r21s2r16s3r4s1r19s3r2s1r18s1r2s2r55s2r4s1r1s2r35s3r17s1r14f3r2f1r1f1r5s2r12s3r3s1r45s1r23s1r1s1r21s1r14s1r2s1r15s1r8s1r4f7r1f1r1f1r4s2r48s1r34s2r7s2r2s1r17s1r16s1r11s2r13f7r2f1r2f1r58s1r2s1r3s1r27s1r7s2r17s1r26s2r14f6r54s1r62s1r7s1r21s1r6s2r16f3r56s2r13s2r48s2r1s1r29s2r32s1r44s1r15s2r51s1r3s1r3s1r3s2r13s2r7f3r5f3r14s3r113s7r18s2r8f6r1f1r2f2r64s1r68s3r2s2r14s1r8f6r3f4r9s1r58s1r24s1r60s1r7f6r16s2r56s2r2s1r20s1r2s2r29s1r29s1r6f6r16s2r58s1r2s2r3s1r79s1r6f3r17s4r62s1r29s2r1s3r40s2r14f2r1f1r13s1r3s2r57s1r2s1r2s1r26s3r6s1r42s1r3s1r22s2r106s1r1s2r63s2r71s1r8s1r28s1r1s1r6s1r34s1r3s1r15s2r66s2r4s1r9s2r18s1r1s1r6s1r1s1r47s1r12s1r70s1r3s2r10s1r19s1r6s1r1s1r137s2r6s1r4s2r16s1r6s2r4s1r144s1r1s1r23s2r5s1r36"
+    }
+  },
+  "torrey-pines-south:10": {
+    "image": "art-demo/torrey-pines-south/hole-10.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        4.157471,
+        2.561247,
+        270
+      ],
+      "y": [
+        0.744019,
+        -1.296974,
+        773
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 270,
+        "y": 773
+      },
+      {
+        "at": 0.639,
+        "x": 1080,
+        "y": 410
+      },
+      {
+        "at": 0.982,
+        "x": 1470,
+        "y": 183
+      },
+      {
+        "at": 1,
+        "x": 1473,
+        "y": 185
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1471,
+          "y": 184
+        }
+      ],
+      "holed": [
+        {
+          "x": 1473,
+          "y": 185
+        }
+      ],
+      "bunker": [
+        {
+          "x": 880,
+          "y": 388
+        },
+        {
+          "x": 1170,
+          "y": 463
+        },
+        {
+          "x": 1385,
+          "y": 180
+        },
+        {
+          "x": 1490,
+          "y": 230
+        }
+      ]
+    },
+    "meta": {
+      "number": 10,
+      "par": 4,
+      "yards": 454,
+      "tourAverage": 4.058,
+      "course": "Torrey Pines (South Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2610f1r1f17r153f1r1f8r7f1r3f3r1f2r150f7r22f2r145f8r9f8r3f6r140f1r1f8r9f12r1f2r1f3r136f1r2f9r8f12r1f1r6f2r38s1r15s1r7s2r1s1r17s2r47f15r2s5r1f9r10f1r70s1r12s1r52f9r2f1r1f1r6f7r4s4r1f1r2f1r5s1r128f1r1f1r2f22r7s3r66s1r19s1r49f2r2f12r3f11r2s9r9s2r64s1r7s1r49f2r3f9r2f18r5s3r67s2r61f1r1f1r1f11r3f23r56s1r28s1r30s1r1s2r16f40r1f1r2f1r4s1r122f2r1f1r3f8r1f27r3f1r1f1r112s1r13f2r1f7r1f32r3f2r1f2r125f6r2f4r1f2r1f26r2f4r1f2r108s1r18f4r1f1r1f2r2f1r2f17r1f6r3f2r2f1r1f2r114s1r10f4r4f2r3f1r1f26r8f2r2s1r87s1r36f4r2f2r1f2r1f25r120s2r19f9r1f21r2f1r120s4r17f5r1f2r2f22r1f3r120s2r21f5r1f20r1f1r112s1r12s1r15s5f1r2f3r1f21r1f4r139s3r4f2r1f28r139s3f1r5f27r121s1r10f1r7s3r4f1r1f24r1f3r118s1r18s5r4f1r1f22r4f1r120s2r12f2r3s5r5f25r3f2r86s1r29s3r13f1r10f1r1f23r5f3r1f2r115s2r10f1r13f23r9f5r115s1r2s1r6f1r1f1r3f1r7f21r5s5f3r44s1r1s2r82f2r10f20r7s4r50s1r70s2r11f1r5f1r1f1r1f18r1f1r8s4r56s2r63s2r13f1r3f1r1f1r1f19r10s6r133f1r3f1r1f1r1f18r1f1r13s4r116s1r18f1r1f20r26s1r126f3r1f20r147f2r1f1r1f3r1f20r148f2r1f2r1f1r1f20r77s1r72f3r2f21r34s1r94s2r16f1r1f3r1f1r1f21r129s2r15f4r4f22r128s4r14f4r4f20r1f1r131s1r11f5r5f21r2f1r22s1r120f3r1f3r1f21r22s1r98s6r6s1r14f2r1f24r18s1r3s1r4s1r59s1r33s3r27f22r1f1r21s1r66s1r52f1r1f4r7f20r4f1r14s1r107s1r16f6r2f24r20s1r131f25r31s1r87s3r21f1r6f23r39s1r84s1r18f3r7f22r5f1r118s3r17f2r6f15r1f6r145f1r1f2r5f1r2f2r4f1r2f2r60s2r100f4r67s1r14s1r1s1r77f4r13f1r77s3r1s1r71f1r3f4r2f4r91s3r68f1r2f5r2f5r29s2r1s2r128f1r6f2r8f2r25s2r54s1r56s4r23f2r38s2r51s1r12s1r41s2r19f1r8f7r30s4r63s2r61f5r113s1r56f8r1f2r107s1r55f9r2f2r106s2r54f9r3f1r12s2r149f9r16s3r93s1r46s3r3f1r2f7r16s4r94s1r48s4r3f5r16s3r173s3r154s4r13s5r156s6r6s6r163s5r3s1r5s1r164s1r325"
+    }
+  },
+  "torrey-pines-south:11": {
+    "image": "art-demo/torrey-pines-south/hole-11.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0.94852,
+        4,
+        350
+      ],
+      "y": [
+        -21.134123,
+        -2.924444,
+        760
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 350,
+        "y": 760
+      },
+      {
+        "at": 0.964,
+        "x": 1235,
+        "y": 245
+      },
+      {
+        "at": 1,
+        "x": 1250,
+        "y": 222
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1240,
+          "y": 237
+        }
+      ],
+      "holed": [
+        {
+          "x": 1250,
+          "y": 222
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1120,
+          "y": 230
+        },
+        {
+          "x": 1120,
+          "y": 305
+        },
+        {
+          "x": 1320,
+          "y": 295
+        }
+      ]
+    },
+    "meta": {
+      "number": 11,
+      "par": 3,
+      "yards": 225,
+      "tourAverage": 3.248,
+      "course": "Torrey Pines (South Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2422f4r172f6r167f11r162f11r6f3r153f10r11f7r147f10r1f1r8f12r149f7r1f9r3f1r4f5r86s1r1s2r4s1r29s1r18f1r1f1r7f1r1f7r2f3r2f1r2f9r78s1r55f6r5s3r1f9r1f6r1f8r59s1r29s1r30s1r15f1r10s3r3f8r1f16r10s1r70s1r12s1r38f2r9s4r1f11r1f9r138f7r6s3r3f16r106s1r38f7r7f1r1f14r110s2r1s1r13s3r4f1r15f9r5f12r4s4r125f4r11f1r2f7r6f12r4s5r129f9r3f9r2s4r1f12r2s5r133f5r1f10r4s4r3f8r4s4r15s1r91s4r24f3r5f3r8s5r1f2r1f7r2s5r7f3r94s1r1s1r1s1r42s7r1f1r1f8r2s6r6f1r6s1r83s1r18s3r18f1r5f1r7s6r2f10r2s5r2f1r3f1r112s2r22f1r16f12r2s1r2f2r2f2r112s3r19f1r3f2r11f23r114s5r17f2r13f2r1f20r118s1r19f3r2f6r1f3r2f13r1f2r17s1r104s4r17f2r3f8r2f19r122s2r19f2r3f6r2f22r1f2r2f1r5s1r104s1r1s3r26f5r1f23r11s1r107s3r13s1r8f1r2f29r19s1r102s2r20f26r1f3r23s1r118f33r20s2r125f2r1f4r1f16r1f2r32s1r89s2r28f4r1f15r1f3r9s1r114s1r19f1r11f15r1f2r9s1r26s2r110f4r6f16r11s1r95s1r41f1r1f6r1f16r14s1r74s1r16s1r46f3r1f19r14s1r38s1r22s2r54s1r24f1r2f15r54s1r23s1r39s1r4s4r2s1r29f18r100s1r18s7r1s1r30f18r101s1r17s9r29f18r24s1r100s1r24f3r5f18r10s1r115s1r2s1r17f29r15s1r11s1r3s1r118f26r15s1r1s2r114s1r10f1r7f24r136s1f4r2f1r2f30r16s1r15s1r103f4r1f33r3f2r34s2r100f32r5f1r40s1r67s1r31f3r7f2r1f15r6f1r107s1r22f3r11f3r6f1r5f3r2f4r126s2r11f3r1f3r2f7r14f1r3f2r2f4r17s1r30s1r72s5r11f1r1f12r19f5r3f1r96s1r24s2r15f3r4f4r19f2r1f2r102s1r19s3r13f3r6f4r25f1r16s2r84s1r20s2r11f10r48s1r28s1r50s1r33f1r3f9r87s1r46s1r30f10r162f2r2f10r7f1r144s2r13f9r6f4r27s1r124f1r1f3r3f5r13s1r1s1r23s1r2s1r7s2r32s1r73s2r8f5r9f1r42s4r106s1r1f1r3f4r4f1r1f2r3f3r4s1r4s1r20s1r3s1r12s1r106f1r2f9r44s1r5s1r15s3r8s1r89f10r14s1r51s1r14s1r65s1r2s2r10f1r2f12r55s1r1s1r2s1r10s1r3s2r5s5r76f12r63s2r11s2r7s3r3s1r58s2r9f1r3f11r15s1r47s1r13s1r67s1r3s1r7s1r3f2r2f10r149s2r7s4r5f1r3f5r83s1r106s1r158f1r31s1r43s1r1s2r8s1r10s1r16s1r30s1r1s1r43s3r57s1r4s2r3s1r59s5r40s2r103s1r26s4r40s2r18s2r86s1r24s3r41s1r20s1r86s1r24s1r42s1r107s1r25"
+    }
+  },
+  "torrey-pines-south:12": {
+    "image": "art-demo/torrey-pines-south/hole-12.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -3.523605,
+        2.454113,
+        220
+      ],
+      "y": [
+        -1.332908,
+        -1.207909,
+        783
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 220,
+        "y": 783
+      },
+      {
+        "at": 0.574,
+        "x": 1000,
+        "y": 460
+      },
+      {
+        "at": 0.984,
+        "x": 1430,
+        "y": 176
+      },
+      {
+        "at": 1,
+        "x": 1427,
+        "y": 175
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1429,
+          "y": 176
+        }
+      ],
+      "holed": [
+        {
+          "x": 1427,
+          "y": 175
+        }
+      ],
+      "bunker": [
+        {
+          "x": 850,
+          "y": 413
+        },
+        {
+          "x": 815,
+          "y": 453
+        },
+        {
+          "x": 1175,
+          "y": 413
+        },
+        {
+          "x": 1145,
+          "y": 448
+        },
+        {
+          "x": 1340,
+          "y": 180
+        },
+        {
+          "x": 1470,
+          "y": 205
+        }
+      ]
+    },
+    "meta": {
+      "number": 12,
+      "par": 4,
+      "yards": 505,
+      "tourAverage": 4.303,
+      "course": "Torrey Pines (South Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2623f1r164f6r2f1r1f1r170f1r1f3r1f4r5f1r163f7r170f6r5f1r154f1r9f1r2f1r9f2r1f1r68s1r60s2r6s3r9f2r1f1r2f1r1f7r3s3r6f1s1r45w1r16s3r2s2r66s1r3f1r12f13r5f2r20s1r29w2r4s2r4s2r17s3r53s2r13f1r1f14r2f2r5f1r70s3r7s1r53s1r15f14r4f1r56s1r4s1r11s2r1s4r51s2r11f1r11f16r31f4r42s4r1s1r50s1r3s3r9f1r8f1r1f15r37f1r29s1r15s1r54s2r18f16r1f1r18s1r48s4r67s2r16f1r1f17r70s2r59s2r7s1r9f1r1f1r3f18r36s2r97s1r4s1r15f20r130s1r4s3r17f20r78s2r52s6r18f19r80s2r52s5r15f22r80s3r52s2r16f21r19f2r115s1r1s2r15f22r138s2r14f21r140s2r12f22r93s1r46s2r13f22r45s3r30s1r14s1r35s1r9s2r12f21r1f1r43s3r1s1r2s4r39s1r42s2r1s2r4s2r6f21r33s1r16s5r4s3r77s1r1s2r4s4r4f23r1s3r26s1r5s1r19s3r1s1r77s3r3s5r4f21r2s4r35s1r8s1r6s1r83s1r5s5r3f20r4s6r1f2r21s1r6s1r1s2r18s1r76s2r11f24r11f1r1f1r27s4r102s3r3f23r3s4r30s3r2s3r100f1s4r5f21r3s5r27s1r2s7r2s2r29s1r52s5r11s4r4f21r39s1r1s3r5s3r26s1r51s6r13s2r3f22r44s4r3s1r65s1r15s4r1f1r15f23r38s2r8s2r83s3r17f23r31s1r2s1r4s1r9s2r66s1r17s2f1r11f1r3f22r40s1r1s1r5s1r52s1r17s3r14s2r16f23r33s2r9s1r3s1r25s1r61s2r14f24r48s1r63s1r23s2r14f24r36s1r5s1r3s1r2s3r61s5r18s2r14f24r36s2r3s1r5s4r2s1r1s1r57s3r13s2r5s1r15f24r46s1r1s1r66s1r16s4r15f25r50s1r81s2r3f1r13f25r52s1r61s3r14s2r17f26r58s1r59s2r9s3r2f1r10f4r1f26r125s6r8f2r4f30r32s1r86s1r6s7r14f28r89s1r22s5r4s2r3s2r2s3r18f25r13f1r7s1r5s1r1s1r81s4r13s1r2s2r24f18r17f1r96s1r2s1r8s1r1s2r3s2r20f1r5f13r1f1r42s1r73s1r35f6r4f4r5f2r94s2r39s1r16f1r1f1r1f3r116s1r24s1r13s2r15f2r54s1r89s1r9s3r13f1r57s1r1s6r90s1r1s6r4f3r65s3r1s4r1s4r2s1r81s5r5f6r30f1r34s1r2s2r3s3r76s4r2s5r4f7r70s1r6s3r7s2r2s1r64s6r6f3r1f3r79s3r3s1r1s3r4s4r1s1r2s2r2s1r49s5r1f1r5f1r1f5r84s2r4s5r3s3r7s11r36s5r3f9r87s5r4s2r17s8r1s3r32s3r5f8r81s1r5s2r3s2r3s6r14s12r29s4r1f1r5f5r1f1r93s3r4s2r18s5r1s2r2s1r25s5r1f1r1f1r3f1r15s1r9f1r72s4r1s2r10s2r11s2r1s1r1s1r1s6r21s5r1f9r22s1r78s1r1s2r2s1r9s1r2s1r9s6r1s2r2s2r9s1r9s4r1f8r3s3r25s1r74s4r10s1r1s1r1s1r7s4r7s2r1s1r16s3r2f6r5s3r27s2r77s3r16s1r2s3r8s1r5s1r12s2r12s2r11s1r25f1r73s1r16s1r19s1r10s4r11s1r36s1r77s6r10s1r31s1r25s1r24s2r73s1r2s7r9s1r2s1r14s1r37s1r16s1r89s1r3s2r2s3r27s4r54s1r9s3r1s3r66s3r2s2r10s1r13s1r1s1r1s5r54s3r9s3r1s3r74s2r1s1r5s1r11s1r1s5r13s4r23s1r16s3r9s2r4s2r70s1r2s2r1s2r17"
+    }
+  },
+  "torrey-pines-south:13": {
+    "image": "art-demo/torrey-pines-south/hole-13.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        6.035196,
+        2.100706,
+        190
+      ],
+      "y": [
+        -0.641867,
+        -1.04381,
+        800
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 190,
+        "y": 800
+      },
+      {
+        "at": 0.467,
+        "x": 1090,
+        "y": 470
+      },
+      {
+        "at": 0.829,
+        "x": 1395,
+        "y": 240
+      },
+      {
+        "at": 0.985,
+        "x": 1460,
+        "y": 160
+      },
+      {
+        "at": 1,
+        "x": 1450,
+        "y": 163
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1457,
+          "y": 161
+        }
+      ],
+      "holed": [
+        {
+          "x": 1450,
+          "y": 163
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1330,
+          "y": 420
+        },
+        {
+          "x": 1320,
+          "y": 465
+        },
+        {
+          "x": 1365,
+          "y": 380
+        },
+        {
+          "x": 1420,
+          "y": 165
+        },
+        {
+          "x": 1500,
+          "y": 185
+        }
+      ]
+    },
+    "meta": {
+      "number": 13,
+      "par": 5,
+      "yards": 621,
+      "tourAverage": 4.922,
+      "course": "Torrey Pines (South Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2441f1r1f1r6f2r1f1r157f2r3f4r1f1r7f1r159f2r1f4r4f7r1f1r2f2r155f1r9f2r5f2r156f3r7f1r1f1r9f1r154f5r175f4r4f1r7f2r106w1r43s1r10f1r1f5r7f2r124w1r3w1r16s1r11f3r1f8r4f4r1s1r6s3r67s1r2s1r3s1r41w1r17s1r11f2r1f8r3f1r5s1r13s3r1s1r59s1r3s1r31w1r42f1r1f8r4f1r5f1r80s1r62s1r13f8r8s1r1f1r73s1r71s1r5f5r1f10r6s1r1f1r71s1r9s1r66f2r7f9r1f4r2s1r1f1r6s1r142f6r2f16r1s1r11s1r134f2r9f10r1f1r1f3r2s1r149f4r4f12r4f1r1s1r144f1r4f4r1f1r1f12r3f2r2s2r147f5r3f12r3f3r1s2r147f2r6f12r8s1r145f4r5f13r2f5r1s2r131s1r11f4r6f12r4f1r4s2r131s2r8f3r8f18r5s1r145f2r5f15r2s1r3f1r1s2r8s1r116s1r10f1r5f3r5f16r2s3r2f1r1s2r54s3r6s1r75f6r4f14r4s3r3f1r1s1r118s1r1s1r18f5r5f16r3s4f1r2s2r130f3r4f1r2f3r4f15r4s2r3f3s2r21s1r1s1r110f5r8f16r2s5r2f2r1s2r122s1r9f5r8f17r2s4r3f2r1s2r133f1r4f2r4f18r4s3r3f1r2s2r129f1r5f2r6f20r8f2r2s2r106s1r22f7r6f20r2s1r3s2r4s3r125f11r4f22r5s2r3f1r1s2r127f3r8f24r3s6r4s2r138f20r1f1r8s3r3s2r96s1r1s1r24f3r11f22r15s2r15s1r116f1r4f22r11f2r2s2r15s1r97s1r3s1r11f3r4f23r10f3r1s3r126f4r3f1r2f23r10f2r2s2r18s2r1s1r105f2r4f2r1f26r8f3r1s2r9s1r11s1r3s1r101f2r2f4r1f26r3f1r4f1r3s2r9s2r14s1r86s2r14f6r2f24r14s2r15s1r96s4r8f11r2f24r9f1r3s2r8s1r24s1r9s1r70s1r7f5r12f21r9f1r3s3r7s1r12s1r24s2r78s1r1f1r1f4r7f20r13s3r46s2r84f28r9f2r2s3r35s1r8s5r51s1r26s1r4s1r1f3r1f1r3f20r7f2r2s3r46s4r48s1r1s2r25s1r15f17r13s3r47s1r1s2r50s1r42f14r15s3r85s4r56f11r18s2r2s1r10s1r70s1r2s1r8s1r50f2r30s1r9s2r67s1r12s2r14s1r35f1r112s2r58f2r172f1r49s2r109s1r6f1r5f2r49s1r122f1r66s1r29w1r17s1r57f3r76s2r15s1r44s2r19f5r74s1r14s1r3s2r77f5r1f3r28s1r2s3r51s1r53s1r13s1r7f3r1f1r7f2r6s1r26s1r2s1r11s1r12s1r16s1r8s1r73f4r3f3r68s1r4s2r9s1r67s2r11f7r75s1r3s1r14s2r42s1r31f6r70s1r4s2r17s1r48f3r13f1r9f4r71s3r65f2r3f5r3f1r4f1r3f1r4f7r2f1r51s2r90f10r3f1r1f2r5f10r10s1r132f16r1f3r4f8r144f15r12f3s1r148f6r3f4r163s1r174s1r694"
+    }
+  },
+  "torrey-pines-south:14": {
+    "image": "art-demo/torrey-pines-south/hole-14.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        7.078298,
+        2.648632,
+        270
+      ],
+      "y": [
+        1.208248,
+        -1.5172,
+        813
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 270,
+        "y": 813
+      },
+      {
+        "at": 0.664,
+        "x": 1260,
+        "y": 415
+      },
+      {
+        "at": 0.982,
+        "x": 1395,
+        "y": 173
+      },
+      {
+        "at": 1,
+        "x": 1428,
+        "y": 175
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1406,
+          "y": 174
+        }
+      ],
+      "holed": [
+        {
+          "x": 1428,
+          "y": 175
+        }
+      ],
+      "water": [
+        {
+          "x": 200,
+          "y": 120
+        },
+        {
+          "x": 400,
+          "y": 100
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1095,
+          "y": 383
+        },
+        {
+          "x": 1150,
+          "y": 363
+        },
+        {
+          "x": 1340,
+          "y": 210
+        },
+        {
+          "x": 1510,
+          "y": 185
+        }
+      ]
+    },
+    "meta": {
+      "number": 14,
+      "par": 4,
+      "yards": 437,
+      "tourAverage": 4.112,
+      "course": "Torrey Pines (South Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2623f1r168f1r6f3r1f3r159f2r1f6r1f7r161f8r1f3r3f1r155f1r1f1r5f9r170f6r56s1r73s1r35s3r2f9r59s3r5s1r1s2r2s1r34w1r40s1r11f1s4r2f10r54s1r7s1r80s1r3s1r13f1r7f9r20s2r31s2r85s1r7s1r4f1r14f9r9f2r8s2r50s1r68s1r5s1r9f1r1f1r6f1r1f10r7f3r5s2r54s1r68s1r4s2r8f2r7f13r4f1r3f1r13s2r84s1r45f1r1f5r3f12r6f2r6s1r142f1r7f13r2f2r9s1r143f1r6f11r6f3r6s1r135s1r8f2r3f13r14s1r132s1r8f5r1f14r4f1r11s1r140f1r1f2r3f12r6f1r9s1r142f1r4f13r7f1r2f1r125s1r25f14r6f2r2f1r118s2r1s1r16f1r12f14r11f1r100s1r9s1r5s2r15s6r10f16r10f1r8s1r106s2r1s2r15s5r2f1r6f16r6f1r22s2r77s1r22s1r10s3r3s3r3f2r3f17r20s1r8s1r3s1r3s1r95s3r7s4r3s1r8f17r19s1r8s1r104s2r8s5r7f1r2f18r19s2r11s1r98s1r13s2r4f3r2f19r8f1r10s2r129f2r2f22r19s2r1s1r9s2r1s1r102f1r8f3r1f25r18s3r15s1r104f6r2f27r17s3r119f1r5f1r1f27r19s2r126f1r1f23r146f2r3f23r1f1r46s1r3s1r96f2r3f20r1f1r149f1r4f19r7f1r132s1r15f18r35f1r122f19r59s1r95f19r20s3r33s1r2s1r79s1r1s1r16f17r18s5r9s1r78s2r3s1r22s1r19f17r16s4r119s1r9s2r7f17r10f1r1f1r3s4r131s1r7f17r14s4r2s2r111s1r23f19r6f2r5s3r126s3r12f18r7f1r8s1r5s1r10s1r126f15r11s3r115s1r2s1r29f15r9s2r130s1r13f1r8f11r10s1r133s1r25f5r10s2r118s1r6s1r2s1r37f1r7s2r126s1r1s2r3s1r4s1r9f1r25s2r119s1r5s1r21f2r10f1r6f1r1f1r1f1r3s2r2f1r123s1r37f1r4f1r3s3r89s1r1s1r63f2r3f5r4f1r3s2r88s1r28s1r33f4r1f1r5f4r7s3r124f2r5f1r1f1r5f1r7f1r7f1r1f3r3f1r8s3r54s1r69f9r1f2r2f1r1f1r4f2r25s2r55s1r75f11r24f1r1f2r3s3r58s1r44s1r15f1r24f1r1f2r1f1r18f1r3s3r58s1r66s6r11f4r4f1r20s1r1s2r124s2r8s3r5f8r22s2r20s1r43s1r47s2r9s3r13s3r4f6r41s3r41s1r12s1r34s1r9s5r13f1r4s3r19s1r16s1r15s1r1s1r37s2r9s1r39s2r1s1r4s2r7f2r5f2r21s2r1s1r16s1r1s2r6f1r51s1r45s1r4s3r16f5r12s1r2s5r32f2r44s2r4s1r44s3r7f1r10f6r14s3r27s1r7f2r2f1r4s1r5s1r28s1r1s1r2s1r8s1r12s1r16s1r7s2r19f7r49s1r4f1r55s2r1s1r38f2r5f1r8f7r147s2r9f3r9f6r147s2r8f6r9f2r149s2r8f5r126s1r5s2r28s2r89s1r8s2r75s2r89s1r2s1r9s1r164s1r20s2r4s1r166s2r1s1r1s1r2s1r1s1r43"
+    }
+  },
+  "torrey-pines-south:15": {
+    "image": "art-demo/torrey-pines-south/hole-15.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        21.840452,
+        2.625789,
+        230
+      ],
+      "y": [
+        -4.908975,
+        -1.256657,
+        780
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 230,
+        "y": 780
+      },
+      {
+        "at": 0.604,
+        "x": 1150,
+        "y": 380
+      },
+      {
+        "at": 0.983,
+        "x": 1430,
+        "y": 195
+      },
+      {
+        "at": 1,
+        "x": 1440,
+        "y": 190
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1433,
+          "y": 193
+        }
+      ],
+      "holed": [
+        {
+          "x": 1440,
+          "y": 190
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1390,
+          "y": 175
+        },
+        {
+          "x": 1480,
+          "y": 220
+        }
+      ]
+    },
+    "meta": {
+      "number": 15,
+      "par": 4,
+      "yards": 480,
+      "tourAverage": 4.146,
+      "course": "Torrey Pines (South Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2795f1r531f11r157f1r7f11r50w15r5s1r3s1r17s3r23s1r1s1r20s3r12f6r3f9r3s2r9s1r3s1r34w11r7s1r7s1r68s3r5f2r9f8r5s2r11s1r35w1r2w8r35s1r9s2r1s1r12s1r15s1r4s1r2s2r7f4r2f6r7s1r1s3r16s1r2s1r28w1r3w6r19s1r2s1r17s1r4s2r13s1r3s1r14s1r2s1r18f8r3s6r12s1r3s1r40w1r40s1r3s2r6s2r34s1r12f10r24s1r6s1r46s2r30s1r36s1r6s2r11f11r24s1r4s1r34w1r12s1r50s2r16s1r5s2r12f14r55s1r10s2r4s1r51s1r1s1r18s3r9f1r4f11r116s1r30s2r14f14r21s1r78s1r17s1r4s1r20s2r18f13r22s1r5s1r31s3r27s1r10s1r21s1r20s1r8f1r3f1r4f14r21s2r38s2r20s2r18s1r1s1r18s2r1s1r13s1r19f16r1f3r16s1r11s2r25s3r88f1r1f3r5f14r36s2r93s1r5s1r14f3r4f16r24s1r8s1r53s1r27s1r17s2r21f1r2f18r115s1r20s2r13f2r4f1r1f17r23s1r12s1r120f19r24s1r92s1r12s1r3s1r20f20r135s2r15f24r132s5r19f19r1f2r1f3r126s2r7f1r4f2r5f21r5f3r16s1r1s1r79s1r22s1r4s1r9f3r8f20r111s1r19s1r1s3r17f23r25s1r105s3r1s1r15f23r1f2r1f1r2f2r18s1r1s1r4s1r101s2r15f21r4f8r18s1r27s1r2s1r4s4r69s2r12f21r37s1r18s1r5s1r3s6r2s1r25s1r39s3r2f4r5f20r34s1r8s4r22s1r33s1r22s1r14s3r11f20r36s1r6s1r3s2r3s2r2s1r9s5r3s1r3s1r61s3r11f20r44s1r3s1r5s2r13s5r4s1r54s1r7s2r2f2r9f20r38s2r17s1r1s1r10s5r10s1r46s4r3s1r7f1r1f25r65s2r6s1r6s1r11s1r44s1r1s4r11f21r9f1r31s1r16s3r8s1r5s3r63s2r2f2r7f21r41s1r2s1r21s1r5s2r3s3r50s2r10s2r11f19r45s1r27s1r6s1r3s2r10s3r45s2r9f20r48s1r2s1r29s1r1s4r52s9r6f23r52s1r30s1r1s2r1s1r8s2r34s2r9s3r2f4r3f17r3f2r51s1r18s1r15s1r41s1r6s1r11f6r1f15r2f1r4f1r46s1r43s1r45f1r5f5r2f2r6f8r4f4r1f1r75s1r14s2r47f1r32f7r40s1r2s1r43s3r32s1r14f2r6f6r3f1r12f5r90s3r35s2r14f2r2f8r3f2r70s1r35s1r32s2r3s4r15f7r81s2r70s2r18f1r1f1r2f1r81s2r57s1r9s3r12f1r8f2r83s2r3s1r57s1r3s4r2f1r18f1r35s1r112s2r13f4r123s1r32s2r14f7r22f1r46s1r98f8r150s2r2f4r10f8r73s1r31s1r42s2r3f2r5f1r7f7r11s1r50s1r73s1r12s1r18f2r3f1r1f1r5f2r19s1r25s1r82s1r32f1r13s1r118s1r7s1r12s3r1f4r29s1r20s1r1s2r23s1r108f1r15s3r25s3r27s1r9s1r16s1r41s2r14f5r154s2r10s2r2f9r25s1r33s1r71s1r17s3r10s1r3f11r21s1r31s1r94s2r5s2r8f11r23s1r126s1r14f10r34s2r33s1r100f3r30s1r3s2r38s1r65s1r3s1r15s2r1f1r43s1r3s3r36s2r5s1r60s1r15s3r6f1r2f1r43s2r100s1r16s1r10f3r40s1r3s3r94s2r122s2r129s2r174s2r22s1r154s2r118"
+    }
+  },
+  "torrey-pines-south:16": {
+    "image": "art-demo/torrey-pines-south/hole-16.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        2.257427,
+        4.162996,
+        400
+      ],
+      "y": [
+        24.139568,
+        -3.334802,
+        845
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 400,
+        "y": 845
+      },
+      {
+        "at": 0.965,
+        "x": 1345,
+        "y": 223
+      },
+      {
+        "at": 1,
+        "x": 1345,
+        "y": 208
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1345,
+          "y": 218
+        }
+      ],
+      "holed": [
+        {
+          "x": 1345,
+          "y": 208
+        }
+      ],
+      "water": [
+        {
+          "x": 200,
+          "y": 163
+        },
+        {
+          "x": 100,
+          "y": 250
+        },
+        {
+          "x": 450,
+          "y": 120
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1190,
+          "y": 233
+        },
+        {
+          "x": 1230,
+          "y": 193
+        },
+        {
+          "x": 1450,
+          "y": 243
+        }
+      ]
+    },
+    "meta": {
+      "number": 16,
+      "par": 3,
+      "yards": 227,
+      "tourAverage": 3.027,
+      "course": "Torrey Pines (South Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2599f1r174f7r172f12r2f3r161f1r1f10r169f8r1f2r153f3r10f13r3f5r53w24r73s4r2f5r1f9r4s3r52w22r70s3r1f1r1s5r1f1r1f13r1f1s5r1f1r49w17r3s1r8s1r49s1r11s4r1f1r2s4f2r1f12r1f2r1s4r1f1r21s1r27w11r18s1r47s1r10s7r1f2r6f1r1f15r1s5r50w6r68s1r14s6r2s3r1s2r2f12r1f1r1s7f2r48w2r86f1r2s3r3s7f2r2f11r1s4r1f1r131f1r2f1r2f4r1s4r2s4r4f13r2s4r28s1r31s1r1s1r60s1r16f2r3s8r1f9r1f3r1f2s7r1f1r12s1r92s1r14s1r13f2r3f4r1s6r1f3r1f11r3s3r3f2r51s1r84f1r5f1r7f16r4f2r15s1r100s1r2s1r33f16r6f4r1s4r23s3r76s3r1s1r15s1r24f21r3s3r4f1r102s1r6s2r9s1r21f22r4s2r93s1r15s1r3s2r3s1r21f1r9f22r2s2r127f1r3f15r5f22r2s2r15s1r91s1r7s2r5f2r1f2r1f18r4f23r1s2r93s1r15s2r6s2r2f1r3f7r4f8r2f26r2s2r18s1r102f14r3f5r6f24r2s2r18s1r22w2r70s1r4s1r1f3r7f15r4f20r1f1r4s1r18s4r80s1r13s1r7f1r3f1r5f8r6f22r5s5r15s4r2s1r77s1r3s2r20f1r6f8r4f23r1f3r1s3r3f1r13s3r96f2r10f2r1f5r1f4r5f20r8s2r5f4r7s1r1s4r23s1r88f3r1f1r1f1r1f1r2f23r6s4r4f7r1f1r4s2r21s1r70f1r8f1r8f5r7f23r3f3r2s3r5f6r9s2r76s1r14f1r6f1r6f1r8f1r8f24r5s2r5f4r1f2r9s2r91f2r6f1r9f4r10f23r5s3r21s2r72s1r19f2r14f2r3f3r9f2r1f10r2f3r7s3r138f1r12f1r1f1r4f2r4f2r7s3r5f3r90s1r9s1r5f4r18f2r1f1r2f2r16f2r2f1r8s4r3f6r2f1r86s2r12f2r1f2r2f2r23f12r1f1r7f2r5s4r3f6r98s1r6f1r1f1r1f1r2f3r18f1r1f9r14f1r4s5r2f1r114f8r1f2r10f1r1f1r1f1r1f6r3f2r2f3r1f1r3f1r4s6r36s1r41s1r9s2r20f1r10f6r1f1r1f1r1f2r1f1r4f8r2f1r2f1r1f3r11s4r40s1r73f1r1f1r14f2r13f4r1f1r1f2r1f1r14s3r113f1r4f4r3f3r2f1r4f1r14f5r8f1r7s3r117f5r3f2r8f1r2f1r32s4r103s2r7f2r1f1r1f1r1f1r11f1r4f1r2f1r11f1r7f4r8s4r111f2r2f1r5f1r13f1r1f3r2f1r16f5r2f2r3s4r96s1r20f1r18f1r1f1r14f8r4f3r4s4r13f1r80s2r14s1r12f1r28f13r1f2r4s4r9f1r102s1r6f1r5f2r15f1r8f16r5s4r8f3r79s1r22s2r6f1r2f1r26f15r7s3r9f2r2f2r99s1r11f1r23f16r7s4r11f2r2f1r33s1r39s1r59f16r8s5r17f1r109f1r23f13r7s4r1s3r104s1r21f1r11f1r15f7r8s5r6s1r101s1r17f1r5f2r6f5r3f2r9f4r8s3r135f3r1f4r4f8r18s3r6s1r126f15r3f6r2f3r11s4r6s2r123f19r23s3r133f18r21s4r79s1r20f3r27f21r7s2r1s1r10s2r99f1r5f1r25f21r13s1r8s3r96s2f1r34f19r19s6r97f1r8f5r26f10r18s1r2s8r61s1r40f1r2f3r1f7r25f3r1f2r17s1r1s8r89s1r13f3r1f16r7s1r17f2r14s1r3s8r6s2r39s1r1s1r15s1r36f2r2f22r5s2r20s1r2s4r3s5r1s1r8s2r2s2r33s1r22s1r26s1r10f2r1f20r1f3r1f2r2s2r13s1r1s16r16s2r31s1r52s1r6f1r1f2r2f23r2f2r1f2r1s3r10s1r1s5r10f1r47s1r59f30r10s5r3s3r128f28r12s7r67s1r14s1r17s1r19s1r14f19r1f3r13s5r106s1r28f2r4f10r1f2r2f1r16s2r108s1r2s2r34f7r1f3r17s1r33s1r48s1r27s5r37f2r2f2r18s2r27s1r52s4r25s1r1s2r1s1r37f2r1f1r18s3r44s2r35s1r1s1r27s1r1s1r6s1r2s2r48s4r81s1r1s2r23"
+    }
+  },
+  "torrey-pines-south:17": {
+    "image": "art-demo/torrey-pines-south/hole-17.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -11.632161,
+        2.527735,
+        300
+      ],
+      "y": [
+        5.552451,
+        -1.393987,
+        775
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 300,
+        "y": 775
+      },
+      {
+        "at": 0.655,
+        "x": 930,
+        "y": 420
+      },
+      {
+        "at": 0.982,
+        "x": 1380,
+        "y": 185
+      },
+      {
+        "at": 1,
+        "x": 1380,
+        "y": 178
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1380,
+          "y": 183
+        }
+      ],
+      "holed": [
+        {
+          "x": 1380,
+          "y": 178
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1210,
+          "y": 425
+        },
+        {
+          "x": 1300,
+          "y": 225
+        },
+        {
+          "x": 1460,
+          "y": 230
+        }
+      ]
+    },
+    "meta": {
+      "number": 17,
+      "par": 4,
+      "yards": 443,
+      "tourAverage": 4.078,
+      "course": "Torrey Pines (South Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2697f3r92f11r68f3r1f2r2f1r81f9r12f2r1f1r64f1r91f1r8f2r2f3r155f5r2f13r2f5r65f1r72f13r1f30r96s1r1s1r29f17r1f2r2f15r3f14r94f1r27f16r13f2r10f14r117s2r12f7r2s8r2f2r1f1r1s4r8f3r2f1r1f2r124f1r1f12r5s6r3f1r2s9r4f9r118f2r3f1r1f1r1f2r2f11r8f3r13f10r112s3r5f4r2f1r1f5r1f34r1f3r1f3r121f16r2f30r1f3r11f1r114f51r12f1r41f1r54s2r8f13r2f34r1f4r1f3r8f1r97s1r7f16r1f31r1f9r1f1r9f3r101f17r1f40r1f2r8f1r107f13r2f47r109f3r3f10r1f48r2f2r57s1r50f13r1f37r2f3r1f8r7s2r98f54r1f12r7s3r49s1r49f12r2f33r5f1r7f4r18s1r78f1r10f14r2f33r1f8r2f2r24s1r73f1r13f2r2f10r2f49r2f2r27s5r48s1r24f1r4f1r1f51r2f5r2f1r4f4r28s2r10s1r64f49r10f1r1f1r1f1r7f2r1f1r26s1r3s1r5s1r2s2r53f3r1f9r1f39r5s4r10f2r3f2r1f1r2f1r25s1r66f1r1f50r4s7r9f1r6f1r40s1r48f2r3f3r1f8r1f41r4s7r7f3r4f1r83f1r2f2r1f6r1f3r1f51r2s10r4f4r1f1r2f1r87f1r2f5r1f50r2f2r4s9r2f5r81s2r13f6r5f46r4f1r3f2r5f6r85s1r10f3r1f5r6f1r1f3r1f39r1f3r1f2r1f12r4f1r84f1r10f2r1f5r3f4r2f41r5f1r3f7r4f1r99f1r1f1r1f8r1f44r2f1r1f11r92s1r14f54r1f4r1f11r88s1r16f6r2f47r1f2r1f11r3f1r77s1r24f55r1f7r1f8r2f1r98f2r1f65r1f4r2f1r1f1r97f1r1f3r1f52r1f12r1f5r20s1r80f69r3f2r22s1r58s1r3s3r2f1r10f54r1f15r3f2r58s1r25s4r13f52r2f14r32s1r24s1r32s3r13f53r2f14r1f1r1f1r3f2r1f1r98f49r2f18r2f1r1f1r4f1r2f2r1f1r73s1r17f4r1f49r1f3r1f6r7f1r9f1r94f2r2f40r2f3r1f7r21f1r1f1r1f1r14s1r53s3r22f4r1f37r1f6r1f5r4f1r116f40r1f1r1f9r125f2r1f1r1f33r1f5r1f1r1f4r126f3r2f28r2f12r121f1r4f1r2f2r1f1r1f27r4f1r2f6r113s2r3s1r1s1r6f1r1f6r1f14r1f11r1f2r1f1r2f6r116s5r7f4r4f1r1f1r1f1r1f16r6f1r1f8r106s1r11s2r9f2r10f3r5f8r1f1r9f6r110s1r8s4r7f14r7f1r1f1r5f1r1f1r6f5r122s4r7f18r1f2r1f1r141s5r7f3r2f13r1f4r115s1r24s4r9f5r4f6r4f1r143s4r9f5r7f1r2f1r1f1r2f2r6s1r128s1r4s6r7f3r9f1r5f1r144s5r8f4r2f7r13s1r137s2r10f17r3f1r2f1r107s2r47f15r1f2r1f1r26s1r88s1r42f13r17s1r28s2r86s1r32f6r2f1r4f1r42s2r71s1r18s1r28f1r1f1r146s1r29f1r147s1r353s1r79s1r176s3r1s1r67s1r106s3r65s1r108s1r1s2r92"
+    }
+  },
+  "torrey-pines-south:18": {
+    "image": "art-demo/torrey-pines-south/hole-18.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -5.524253,
+        2.571879,
+        90
+      ],
+      "y": [
+        -0.118833,
+        -1.015928,
+        812
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 90,
+        "y": 812
+      },
+      {
+        "at": 0.509,
+        "x": 930,
+        "y": 520
+      },
+      {
+        "at": 0.9,
+        "x": 1280,
+        "y": 380
+      },
+      {
+        "at": 0.985,
+        "x": 1520,
+        "y": 238
+      },
+      {
+        "at": 1,
+        "x": 1520,
+        "y": 240
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1520,
+          "y": 239
+        }
+      ],
+      "holed": [
+        {
+          "x": 1520,
+          "y": 240
+        }
+      ],
+      "water": [
+        {
+          "x": 1410,
+          "y": 298
+        },
+        {
+          "x": 1360,
+          "y": 300
+        },
+        {
+          "x": 400,
+          "y": 150
+        }
+      ],
+      "bunker": [
+        {
+          "x": 740,
+          "y": 488
+        },
+        {
+          "x": 1040,
+          "y": 378
+        },
+        {
+          "x": 1175,
+          "y": 438
+        },
+        {
+          "x": 1510,
+          "y": 215
+        },
+        {
+          "x": 1665,
+          "y": 255
+        }
+      ]
+    },
+    "meta": {
+      "number": 18,
+      "par": 5,
+      "yards": 570,
+      "tourAverage": 4.616,
+      "course": "Torrey Pines (South Course)",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r3332f1r5f1r226w70r1w1r33f2r43f2r23w71r37f2r18s7r42w70r54s4r17f1r6s1r24w68r38f3r1f1r5f1r4s4r4f6r1f2r2f1r1s3r7s1r24w59r4w1r7s1r9f1r1f4r34s4r1f15r1s3r32w45r2w9r35f3r23f8r5f11r2s4r30w39r9w6r40f3r1f1r8f1r18f2r5f5r4s4r3f1r30w10r2w15r2w6r63f3r7f1r4w10r3f2r1f8r1s5r41w2r3w14r6w2r35f1r30f2r9w15r1f11r6f1r44w3r2w8r7w2r35f2r20f1r11f1r2w19r2f5r1f5r3f3r53w5r3w1r3w3r20f3r11f1r21f6r1f1r3f1r3w15r3f9r1f3r2f3r44w2r4w3r10w1r3w4r16f3r1f14r26f3r3f1r2w12r2f16r2f3r96f13r23f5r11w3r3f16r3f3r4f1r2s1r80f1r9f1r1f6r22f9r1f2r10f9r1f1r5f1r70f4r18f1r15f8r2f1r3f1r10f5r1f2r1f25r25f1r32s1r19f2r39f5r6f1r1f1r1f2r2f4r2f28r3f1r84f10r26f1r22f17r1f9r100f1r1f1r34f1r6s4r2f25r71w2r27f7r20f4r4f3r5s5r1f27r126f1r2f7r4f1r1f2r5f28r10s2r91f1r6f2r21f3r1f1r2f30r1f6r10s2r91s1r33f25r1f1r4f8r10s2r105f1r5f2r13f22r9f1r7f4r67w2r50f7r8f21r2s5r11f1r3s1r44f1r10f2r4s1r61f29r2s4r1f1r15s2r59f5r52s1r1f34r7f1r15s2r60f8r5f1r34s1r12f31r5f1r16s2r30s2r27f9r7f1r1f5r15f1r1f5r2f1r8s3r3f32r1f5r57s1r14f8r2f1r14f1r1f1r13f1r1f7r1f5r3s5r1f3r1f29r1f6r18s2r12s5r21f3r2f1r12f3r31s1r10f6r1s6r1f3r1f30r2f5r3f1r13f1r8f1r1s1r31f5r12f1r26s1r1s1r17f3r8f44r7s1r5f1r4f1r6s1r34f1r63f4r4f39r1f3r2f1r2s2r1s1r8f1r106f40r1f5r2f1r9s1r2s1r95f1r21f36r5f1r3f1r5s2r102f5r16f1r1f33r8f1r6s2r102f2r4f5r9f2r1f27r5f4r9f2r1s2r105f3r2f2r3f39r6f2r12s3r108f3r3f5r1f33r9f1r10s2r4s1r91s2r16f39r23f1r94s1r14f44r22f1r64s1r3s1r45f40r10s3r9f1r10s1r53s2r3s1r45f37r111s3r17f1r7f26r2f8r94s1r40f25r3f9r4f2r37s2r2s2r86f3r2f14r6f2r1f4r1f2r1f4r107s4r15f1r2f1r4f6r1f26r5f2r137f5r1f12r7f5r1f5r2f2r106s3r21f2r1f1r9f9r1f1r2f1r4f4r2f2r75s1r13s2r1s1r1s1r17s3r17f1r5f1r1f2r3f4r6f5r8f4r1f1r1f1r89s1r1s5r15s4r14f10r1f1r3f10r1f2r2f2r2f1r2f3r3f2r92s1r3s1r1s1r15s3r14f1r1f3r3f1r1f3r1f9r12f3r106s1r14s3r15f1r2f1r3f6r6f3r111s1r13s1r11s1r18f1r3f3r5f3r2f2r8f1r16s1r100s1r2s1r30f9r2f1r1f1r16f2r141f1r4f7r137s2r26f4r4f2r91s1r72f3r5f1r1f2r24s1r138f11r4s1r99s1r42s1r6f1r9f7r1f1r7s1r23s7r4s1r115f1r7f9r38s1r12s1r108f2r5f1r1f5r24s2r34s1r102f2r8f3r1f1r12s1r3s6r140f3r5f2r17s5r145f4r9f1r10s3r151f5r2f1r2f2r5s1r3s1r154s2r11s2r2s1r159s7r1s7r167s1r8s1r162"
     }
   }
 }
