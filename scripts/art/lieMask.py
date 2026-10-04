@@ -18,6 +18,9 @@ from PIL import Image, ImageDraw
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 MANIFEST = os.path.join(ROOT, "src", "ui", "illustratedArt.generated.json")
 CELL = 10
+# Where the scene's horizon sits, per course: above it only greens count (La Quinta's mountains
+# read as sand). Torrey's greens and bunkers sit high in the frame, with only sea and sky above.
+HORIZON = {"torrey-pines-south": 125}
 
 
 def label(pixels):
@@ -41,7 +44,7 @@ def label(pixels):
     return "r"
 
 
-def build(path, framed=False):
+def build(path, framed=False, horizon=200):
     im = Image.open(path).convert("RGB")
     w, h = im.size
     cols, rows = w // CELL, h // CELL
@@ -57,7 +60,7 @@ def build(path, framed=False):
             cell = [px[x + i, y + j] for j in range(0, CELL, 2) for i in range(0, CELL, 2)]
             l = label(cell)
             # Above the horizon only the greens on the skyline count: mountains read as sand or water.
-            if framed and y < 200 and l != "f":
+            if framed and y < horizon and l != "f":
                 l = "r"
             labels.append(l)
     # Trees reflected in a lake read as land: a cell mostly surrounded by water is water.
@@ -130,7 +133,7 @@ def main():
     for key, entry in manifest.items():
         if not key.startswith(course + ":"):
             continue
-        im, cols, rows, labels = build(os.path.join(ROOT, "public", entry["image"].split("?")[0]), bool(entry.get("meta", {}).get("framed")))
+        im, cols, rows, labels = build(os.path.join(ROOT, "public", entry["image"].split("?")[0]), bool(entry.get("meta", {}).get("framed")), HORIZON.get(course, 200))
         entry["mask"] = {"cell": CELL, "cols": cols, "rows": rows, "rle": rle(labels)}
         if preview:
             over = im.copy()
