@@ -8,6 +8,7 @@ import { clamp } from "../engine";
 import { overall } from "./development";
 import { pointsList, rankMap } from "./points";
 import type { SeasonGoal, World, WorldPlayer } from "./types";
+import { addReputation } from "./agency";
 
 export const GOALS_TO_AGREE = 2;
 const AUTO_PICK_WEEK = 4;
@@ -107,7 +108,7 @@ export function settleGoals(world: World): string[] {
       if (g.done) {
         met++;
         c.happiness = clamp(c.happiness + 4 + g.difficulty * 2, 0, 100);
-        world.agency.reputation = clamp(world.agency.reputation + g.difficulty * 1.5, 0, 100);
+        addReputation(world.agency, g.difficulty * 1.5);
       } else c.happiness = clamp(c.happiness - 5, 0, 100);
     }
     lines.push(`${wp.player.name} met ${met} of his ${c.goals.length} season goals.`);

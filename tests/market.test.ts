@@ -148,7 +148,7 @@ describe("overheads", () => {
   it("an agency with no clients still pays its bills", () => {
     const world = createWorld({ seed: 5, scenario: "rookie" });
     for (const id of [...world.clientIds]) {
-      world.players[id]!.client = null;
+      delete world.players[id]!.client;
     }
     world.clientIds = [];
     const bank = world.agency.bank;

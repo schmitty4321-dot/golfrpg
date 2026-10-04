@@ -309,9 +309,10 @@ export function reputationFor(position: number, madeCut: boolean, tier: string):
 }
 
 export function addReputation(agency: Agency, amount: number): void {
-  // Harder to gain near the top.
-  const gain = amount > 0 ? hqTier(agency).reputationGain : 1;
-  agency.reputation = clamp(agency.reputation + amount * gain * (1 - agency.reputation / 120), 0, 100);
+  // Much harder to gain near the top: the same win is worth about a quarter as much at 70 as at 20,
+  // and very little in the 90s. Losses hit at full weight.
+  const gain = amount > 0 ? hqTier(agency).reputationGain * Math.max(0, 1 - agency.reputation / 105) ** 1.2 : 1;
+  agency.reputation = clamp(agency.reputation + amount * gain, 0, 100);
 }
 
 /**
@@ -324,6 +325,8 @@ export function agencySeasonEnd(world: World, rng: Rng): string[] {
   for (const wp of [...clients(world)]) {
     if (wp.client!.contract.untilSeason <= world.season) {
       departures.push(wp.player.name);
+      // Clients walking out is noticed.
+      addReputation(world.agency, -1.5);
       // He goes to the winter market, where the rivals bid for him (rivals.ts).
       releaseClient(world, wp.player.id);
     }
@@ -331,7 +334,7 @@ export function agencySeasonEnd(world: World, rng: Rng): string[] {
   // Rivals circle unhappy clients; the recruitment board reports who came free.
   for (const line of [...rivalPoaching(world, rng), ...shortlistAlerts(world), ...trophiesSeasonEnd(world)]) world.news.unshift(line);
   brandSeasonEnd(world);
-  // Reputation fades a little each winter unless results keep it up.
-  world.agency.reputation = clamp(world.agency.reputation * 0.95 + clients(world).length * 0.5, 0, 100);
+  // Reputation fades each winter unless results keep it up: a full roster alone holds it in the 30s.
+  world.agency.reputation = clamp(world.agency.reputation * 0.92 + clients(world).length * 0.3, 0, 100);
   return departures;
 }

@@ -10,6 +10,7 @@ import { clamp } from "../engine";
 import { afterPracticeRound } from "./practice";
 import { travelDays } from "./team";
 import type { Region, World, WorldPlayer } from "./types";
+import { addReputation } from "./agency";
 
 export type DayActivity = "rest" | "range" | "gym" | "practice" | "sponsor" | "media";
 
@@ -85,7 +86,7 @@ export function applyPlan(world: World, wp: WorldPlayer, plan: DayActivity[]): n
   }
   const media = count(plan, "media");
   if (media) {
-    world.agency.reputation = clamp(world.agency.reputation + media * 0.15, 0, 100);
+    addReputation(world.agency, media * 0.15);
     c.followers = Math.round(followers(world, wp) * (1 + 0.02 * media));
     const t = wp.player.traits ?? [];
     mood += media * (t.includes("media-darling") ? 1 : t.includes("hothead") || t.includes("anonymous-grinder") ? -2 : -0.5);
