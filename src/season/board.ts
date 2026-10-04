@@ -84,10 +84,12 @@ export function settleBoard(world: World, ledger: AgencyLedger): string | null {
     addReputation(world.agency, 2);
     verdict = `The owners are delighted: every target met. A $${Math.round(bonus / 1000)}k bonus goes into the bank.`;
   } else if (board.losses >= 3) {
+    // Not a gift: the money goes on the credit line, with interest, and word gets around.
     world.agency.bank += BAILOUT;
+    world.agency.loan = (world.agency.loan ?? 0) + BAILOUT;
     world.agency.reputation = Math.max(0, world.agency.reputation - 8);
     board.losses = 1;
-    verdict = `Three losing seasons: the owners bail the agency out with $${BAILOUT / 1e6}M, and word gets around. Turn a profit, or else.`;
+    verdict = `Three losing seasons: the owners lend the agency $${BAILOUT / 1e6}M to keep the doors open (it goes on the credit line), and word gets around. Turn a profit, or else.`;
   } else if (board.losses === 2) {
     verdict = "Two losing seasons running. The owners want a profit next season.";
   } else {

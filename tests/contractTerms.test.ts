@@ -105,5 +105,6 @@ describe("the owners", () => {
     const bank = w.agency.bank;
     expect(settleBoard(w, losing)).toMatch(/bail/);
     expect(w.agency.bank).toBe(bank + BAILOUT);
+    expect(w.agency.loan).toBe(BAILOUT);
   });
 });
