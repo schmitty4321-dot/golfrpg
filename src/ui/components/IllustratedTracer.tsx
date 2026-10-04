@@ -28,7 +28,7 @@ export function IllustratedTracer({ trace, step, courseName }: { trace: HoleTrac
     <section className="illustrated-replay" aria-label={`Illustrated replay of ${courseName}, hole ${trace.layout.real?.hole ?? 1}`}>
       <div className="illustrated-stage">
         <img src={`${import.meta.env.BASE_URL}${art.image}`} alt={`Elevated illustrated view of ${courseName} Hole ${trace.layout.real?.hole ?? 1}`} />
-        <div className="illustrated-hole-card">
+        {!art.meta?.framed && <div className="illustrated-hole-card">
           <span>Hole {trace.layout.real?.hole ?? 1}</span>
           <strong>Playing line</strong>
           <p>Follow the mapped corridor from the tee through the landing area to the guarded green.</p>
@@ -37,7 +37,7 @@ export function IllustratedTracer({ trace, step, courseName }: { trace: HoleTrac
             <div><dt>{trace.layout.par}</dt><dd>Par</dd></div>
             <div><dt>{trace.score || "—"}</dt><dd>Score</dd></div>
           </dl>
-        </div>
+        </div>}
         <svg className="illustrated-arcs" viewBox={`0 0 ${art.width} ${art.height}`} aria-hidden>
           {revealed.map(({ shot, start, end }, index) => {
             const color = SHOT_COLORS[(shot.stroke - 1) % SHOT_COLORS.length]!;

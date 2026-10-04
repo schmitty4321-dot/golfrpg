@@ -22,6 +22,10 @@ export interface ArtEntry {
     tourAverage?: number;
     difficulty?: number;
     course?: string;
+    /** The hole's name, when the course names its holes. */
+    name?: string;
+    /** The artwork carries its own title and hole card, so the replay doesn't add another. */
+    framed?: boolean;
   };
 }
 
