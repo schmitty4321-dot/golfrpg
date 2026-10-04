@@ -457,8 +457,9 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
         ? `${wp.player.name} spent the week practising at ${courseById(world, tripTo.get(id)!).name}.`
         : describeClientWeek(world, id, plan.choices.get(id) ?? null, fields, rec);
   }
-  // No agency exists during the silent warm-up season, so nothing to pay.
-  if (world.clientIds.length > 0) {
+  // No agency exists during the silent warm-up season (season 0), so nothing to pay; after
+  // that the bills come every week, clients or not.
+  if (world.season >= 1) {
     scoutingWeek(world);
     scoutTripsWeek(world);
     const office = hqTier(world.agency).office;

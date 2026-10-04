@@ -143,3 +143,17 @@ describe("recruitment board and rivals", () => {
     expect(world.players[id]!.agent).not.toBeNull();
   });
 });
+
+describe("overheads", () => {
+  it("an agency with no clients still pays its bills", () => {
+    const world = createWorld({ seed: 5, scenario: "rookie" });
+    for (const id of [...world.clientIds]) {
+      world.players[id]!.client = null;
+    }
+    world.clientIds = [];
+    const bank = world.agency.bank;
+    playWeek(world);
+    expect(world.agency.bank).toBeLessThan(bank);
+    expect(world.agency.ledger.office).toBeGreaterThan(0);
+  });
+});
