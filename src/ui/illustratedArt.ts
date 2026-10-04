@@ -222,9 +222,14 @@ function suits(t: Terrain, j: number, lie: Lie): boolean {
   const g = t.toGrass[j]!;
   // A ball in the rough or the trees never sits on the edge of a lake.
   const wet = () => [j - t.cols, j + t.cols, j - 1, j + 1].some((n) => t.kind[n] === 3 || t.kind[n] === 2);
+  // Well inside a patch of its own kind (all eight neighbours match), so the ball isn't on an edge.
+  const deep = () => {
+    for (const dy of [-1, 0, 1]) for (const dx of [-1, 0, 1]) if (t.kind[j + dy * t.cols + dx] !== k) return false;
+    return true;
+  };
   switch (lie) {
     case "fairway":
-      return k === 1;
+      return k === 1 && deep();
     case "rough":
       return k === 0 && g >= 1 && g <= 2 && !wet();
     case "trees":
@@ -233,14 +238,15 @@ function suits(t: Terrain, j: number, lie: Lie): boolean {
       return k === 0 && g >= 6 && g <= 14;
     case "bunker":
       // In the sand, not on its lip: most of the neighbouring cells are sand too.
-      return k === 2 && g <= 4 && [j - t.cols, j + t.cols, j - 1, j + 1].filter((n) => t.kind[n] === 2).length >= 3;
+      return k === 2 && g <= 4 && deep();
     case "water":
-      return k === 3;
+      return k === 3 && deep();
     default:
       return false;
   }
 }
 
+const KIND_OF: Partial<Record<Lie, number>> = { fairway: 1, bunker: 2, water: 3 };
 const TERRAIN_LIES = new Set<Lie>(["fairway", "rough", "trees", "ob", "bunker", "water"]);
 /** How far (in cells) a ball is moved to find its terrain before the replay gives up and leaves it be (water anywhere in the picture will do). */
 const SEARCH = 32;
@@ -249,8 +255,8 @@ const WATER_SEARCH = 90;
 /** The nearest point to `from` on the terrain a lie needs, or null when there's none close by. */
 export function placeOnTerrain(art: ArtEntry, from: Pt, lie: Lie): Pt | null {
   const found = searchTerrain(art, from, lie);
-  // No sand deep enough nearby: any sand will do before giving up on a bunker.
-  if (!found && lie === "bunker") return searchTerrain(art, from, lie, true);
+  // Nothing deep enough nearby: the edge of the right terrain will do before giving up.
+  if (!found && (lie === "bunker" || lie === "fairway" || lie === "water")) return searchTerrain(art, from, lie, true);
   return found;
 }
 
@@ -270,7 +276,8 @@ function searchTerrain(art: ArtEntry, from: Pt, lie: Lie, anySand = false): Pt |
         const y = cy + dy;
         if (x < 0 || y < 0 || x >= t.cols || y >= t.rows) continue;
         const j = y * t.cols + x;
-        if (!(anySand ? t.kind[j] === 2 : suits(t, j, lie))) continue;
+        // The looser pass still wants sand that borders the grass (a beach or a desert wash isn't a bunker).
+        if (!(anySand ? t.kind[j] === KIND_OF[lie] && (lie !== "bunker" || t.toGrass[j]! <= 2) : suits(t, j, lie))) continue;
         const d = Math.hypot(dx, dy);
         if (!best || d < best.d) best = { j, d };
       }
@@ -307,7 +314,11 @@ export function illustratedShotPaths(art: ArtEntry, shots: Shot[], layout?: Hole
     // On the green with a painted flag: by the distance left to the hole.
     const flag = art.targets?.holed?.[0];
     const green = layout && flag && shot.kind !== "penalty" && shot.lie === "green" ? onGreen(art, flag, shot, layout, start) : null;
-    const end = green ?? onTerrain ?? offCourse ?? (targets?.length ? nearest(targets, projectedEnd) : projectedEnd);
+    // A hand-placed spot only stands in when it's near where the ball went: a fairway bunker the
+    // painting doesn't show goes to the edge of the fairway, not to a greenside bunker 250 yards on.
+    const handNear = targets?.filter((p) => handFirst || Math.hypot(p.x - projectedEnd.x, p.y - projectedEnd.y) < 260) ?? [];
+    const edge = !onTerrain && !handNear.length && shot.lie === "bunker" ? placeOnTerrain(art, projectedEnd, "rough") : null;
+    const end = green ?? onTerrain ?? offCourse ?? edge ?? (handNear.length ? nearest(handNear, projectedEnd) : projectedEnd);
     previousEnd = end;
     return { shot, start, end };
   });
