@@ -19,7 +19,7 @@ import {
   type TickerItem,
 } from "../../engine";
 import { useHoleMap } from "../holeMaps";
-import { HoleDrawing, LIE_WORDS } from "./ShotTracer";
+import { HoleDrawing, ShotSequence } from "./ShotTracer";
 import { hasIllustratedTracerArt, IllustratedTracer } from "./IllustratedTracer";
 import { toPar } from "../format";
 import { LiveScorecard } from "./LiveScorecard";
@@ -198,15 +198,7 @@ export function HoleByHole({ t, who = t.controlledId, name, onChange, onRoundDon
               <p style={{ marginTop: 0 }}>
                 <strong>{step >= played.trace.shots.length ? played.trace.result : "…"}</strong>
               </p>
-              <ol className="shot-list">
-                {played.trace.shots.map((s, i) => (
-                  <li key={i} className={i < step ? (i === step - 1 ? "current" : "") : "pending"}>
-                    {(s.kind === "penalty" || !s.text.startsWith(s.club)) && <span className="muted small">{s.kind === "penalty" ? "Penalty" : s.club}</span>}
-                    <span>{i < step ? s.text : "…"}</span>
-                    {i < step && s.kind !== "penalty" && s.lie !== "holed" && <span className="muted small">Lies: {LIE_WORDS[s.lie]}</span>}
-                  </li>
-                ))}
-              </ol>
+              <ShotSequence trace={played.trace} step={step} />
               <div className="btn-row hbh-actions">
                 {step < played.trace.shots.length && <button className="btn" onClick={() => setStep(played.trace.shots.length)}>Show all shots</button>}
                 {cur ? (

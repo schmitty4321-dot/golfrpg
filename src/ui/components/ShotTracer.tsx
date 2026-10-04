@@ -30,6 +30,41 @@ export function scoreClass(score: number, par: number): string {
   return d <= -2 ? "sc sc-eagle" : d === -1 ? "sc sc-birdie" : d === 1 ? "sc sc-bogey" : d >= 2 ? "sc sc-double" : "sc";
 }
 
+const SHOT_SYMBOL: Record<Shot["kind"], string> = {
+  tee: "↗",
+  approach: "◎",
+  layup: "◇",
+  recovery: "↪",
+  chip: "⌁",
+  bunker: "◒",
+  putt: "●",
+  penalty: "+1",
+};
+
+/** A compact broadcast-style sequence used by every replay, including courses without bespoke hole art. */
+export function ShotSequence({ trace, step }: { trace: HoleTrace; step: number }) {
+  return (
+    <div className="shot-sequence" aria-label="Shot-by-shot play">
+      {trace.shots.map((shot, index) => {
+        const revealed = index < step;
+        const current = index === step - 1;
+        return (
+          <article key={index} className={`shot-sequence-card${revealed ? " is-revealed" : " is-pending"}${current ? " is-current" : ""}`}>
+            <div className={`shot-sequence-symbol shot-${shot.kind}`}>{revealed ? SHOT_SYMBOL[shot.kind] : index + 1}</div>
+            <div className="shot-sequence-copy">
+              <div className="shot-sequence-meta">
+                <strong>{shot.kind === "penalty" ? "Penalty" : shot.club}</strong>
+                {revealed && shot.kind !== "penalty" && shot.lie !== "holed" ? <span>{LIE_WORDS[shot.lie]}</span> : null}
+              </div>
+              <p>{revealed ? shot.text : "Waiting for the shot…"}</p>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
 /** Replays a player's holes shot by shot on a drawing of each hole. */
 export function ShotTracer({ result, row, round: startRound, hole: startHole, onClose }: Props) {
   const [round, setRound] = useState(startRound);
@@ -137,15 +172,7 @@ export function ShotTracer({ result, row, round: startRound, hole: startHole, on
             <p style={{ marginTop: 0 }}>
               <strong>{step >= trace.shots.length ? trace.result : "…"}</strong>
             </p>
-            <ol className="shot-list">
-              {trace.shots.map((s, i) => (
-                <li key={i} className={i < step ? (i === step - 1 ? "current" : "") : "pending"}>
-                  {(s.kind === "penalty" || !s.text.startsWith(s.club)) && <span className="muted small">{s.kind === "penalty" ? "Penalty" : s.club}</span>}
-                  <span>{i < step ? s.text : "…"}</span>
-                  {i < step && s.kind !== "penalty" && s.lie !== "holed" && <span className="muted small">Lies: {LIE_WORDS[s.lie]}</span>}
-                </li>
-              ))}
-            </ol>
+            <ShotSequence trace={trace} step={step} />
             <div className="btn-row">
               <button className="btn btn-small" onClick={() => setPlaying(!playing)}>{playing ? "Pause" : "Play"}</button>
               <button className="btn btn-small" onClick={() => { setPlaying(false); setStep(Math.min(trace.shots.length, step + 1)); }}>Next shot</button>
