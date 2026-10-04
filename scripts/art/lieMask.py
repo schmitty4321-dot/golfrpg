@@ -129,7 +129,7 @@ def main():
     for key, entry in manifest.items():
         if not key.startswith(course + ":"):
             continue
-        im, cols, rows, labels = build(os.path.join(ROOT, "public", entry["image"]), bool(entry.get("meta", {}).get("framed")))
+        im, cols, rows, labels = build(os.path.join(ROOT, "public", entry["image"].split("?")[0]), bool(entry.get("meta", {}).get("framed")))
         entry["mask"] = {"cell": CELL, "cols": cols, "rows": rows, "rle": rle(labels)}
         if preview:
             over = im.copy()
