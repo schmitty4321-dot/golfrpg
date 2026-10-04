@@ -79,7 +79,7 @@ export function DevelopmentTab({ world, game, wp, potential, known }: { world: W
   const expected = earningsAtLevel(now);
   const changes = Object.entries(seasonChange(wp)).filter(([, d]) => d !== 0) as [AttributeKey, number][];
   const set = (f: (w: World) => void) => game.act(f);
-  const peakLevel = (p: Projection) => p.levels[p.levels.length - 1]?.level ?? now;
+  const peakLevel = (p: Projection) => Math.max(now, ...p.levels.map((l) => l.level));
 
   return (
     <>
@@ -99,6 +99,17 @@ export function DevelopmentTab({ world, game, wp, potential, known }: { world: W
       </section>
 
       <GrowthChart world={world} wp={wp} current={current} best={best} basic={basic} />
+      {(m.devReports?.length || m.breakthroughs?.length) ? (
+        <section className="panel">
+          <div className="panel-head"><h2>Development history</h2><span className="muted small">Season by season, and the moments that changed him</span></div>
+          <ul className="ws-lines">
+            {[...(m.devReports ?? [])].reverse().map((r) => (
+              <li key={r.season}>Season {r.season}: {r.from.toFixed(1)} → <strong>{r.to.toFixed(1)}</strong> <span className={r.to >= r.from ? "good-text" : "bad-text"}>({signed(r.to - r.from, 1)})</span>{r.milestones.length ? ` · ${r.milestones.join(", ")}` : ""}</li>
+            ))}
+            {(m.breakthroughs ?? []).length > 0 && <li>Breakthroughs: {(m.breakthroughs ?? []).map((b) => ({ "first-top5": "first Sunday in contention", "first-win": "first win", "major-contention": "contended at a major", "major-win": "major champion" } as Record<string, string>)[b] ?? b).join(", ")}</li>}
+          </ul>
+        </section>
+      ) : null}
 
       <div className="player-stat-sections">
         <section className="panel">
@@ -216,7 +227,7 @@ function GrowthChart({ world, wp, current, best, basic }: { world: World; wp: Wo
   const history = [...past.filter((p) => p.season < world.season), now];
   const ahead = (p: Projection) => [now, ...p.levels.map((l) => ({ season: l.season + 1, level: l.level }))];
   const lines = { current: ahead(current), best: ahead(best), basic: ahead(basic) };
-  const all = [...history, ...lines.best, ...lines.basic].map((p) => p.level).concat(current.ceiling);
+  const all = [...history, ...lines.best, ...lines.basic].map((p) => p.level).concat(current.ceiling, ...current.levels.map((l) => l.low), ...current.levels.map((l) => l.high));
   const lo = Math.floor(Math.min(...all) - 0.5);
   const hi = Math.ceil(Math.max(...all, 12) + 0.5);
   const seasons = [...history, ...lines.best].map((p) => p.season);
@@ -247,13 +258,14 @@ function GrowthChart({ world, wp, current, best, basic }: { world: World; wp: Wo
         {Array.from({ length: s1 - s0 + 1 }, (_, i) => s0 + i).map((s) => (
           <text key={s} x={x(s)} y={H - 8} textAnchor="middle" className="chart-axis">S{s}</text>
         ))}
+        <path d={`${[now, ...current.levels.map((l) => ({ season: l.season + 1, level: l.high }))].map((p, i) => `${i ? "L" : "M"}${x(p.season).toFixed(1)},${y(p.level).toFixed(1)}`).join("")}${[...current.levels].reverse().map((l) => `L${x(l.season + 1).toFixed(1)},${y(l.low).toFixed(1)}`).join("")}Z`} className="dev-band" />
         <path d={path(lines.basic)} className="dev-line dev-basic" />
         <path d={path(lines.best)} className="dev-line dev-best" />
         <path d={path(lines.current)} className="dev-line dev-current" />
         <path d={path(history)} className="dev-line dev-history" />
         {history.map((p) => <circle key={p.season} cx={x(p.season)} cy={y(p.level)} r="3.5" className="dev-dot" />)}
       </svg>
-      <p className="muted small chart-note">The dashed line at 12 is a tour-average player. Projections assume about 25 events a season and stop at his peak age.</p>
+      <p className="muted small chart-note">The dashed line at 12 is a tour-average player. Projections assume about 25 events a season and run two seasons past his peak age. The shaded band is the likely range on this plan: narrower with better coaches.</p>
     </section>
   );
 }

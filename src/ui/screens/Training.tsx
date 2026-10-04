@@ -121,7 +121,7 @@ export function Training({ world, game, clientId }: { world: World; game: Game; 
 
         <div className="stack">
           <section className="panel">
-            <div className="panel-head"><h2>His ceiling</h2></div>
+            <div className="panel-head"><h2>His ceiling</h2>{(m.fatigue ?? 0) > 0 && <span className={`small ${(m.fatigue ?? 0) > 60 ? "bad-text" : "muted"}`} title="Training load and events build it; rest weeks clear it. Past 60 he grows slower and gets hurt more.">Fatigue {Math.round(m.fatigue ?? 0)}{(m.fatigue ?? 0) > 60 ? " · burning out" : ""}</span>}</div>
             <p style={{ marginTop: 0 }}>
               <Stars value={ceiling} /> <span className="secondary">according to his coaches</span>
             </p>

@@ -10,6 +10,7 @@ import { mixSeed } from "./entries";
 import { has, injuryLength, injuryRisk, returnFromInjury } from "./traits";
 import type { Coach, CoachRole, Injury, RebuildArea, World, WorldPlayer } from "./types";
 import type { AttributeKey } from "../engine";
+import { burnoutInjury, fatigueWeek } from "./progression";
 
 export const COACH_ROLES: CoachRole[] = ["swing", "shortGame", "putting", "mental", "fitness"];
 
@@ -228,13 +229,14 @@ export function endOfWeek(world: World, competed: Set<string>, rng: Rng, boosts:
         wp.injury = null;
         if (isClient) world.news.unshift(`${wp.player.name} is fit again.`);
       }
-    } else if (rng.chance(injuryChance(wp, played, INTENSITY[plan.intensity].injury, quality.fitness ?? 4) * (boosts.get(wp.player.id)?.injury ?? 1))) {
+    } else if (rng.chance(injuryChance(wp, played, INTENSITY[plan.intensity].injury, quality.fitness ?? 4) * (boosts.get(wp.player.id)?.injury ?? 1) * burnoutInjury(wp.client?.fatigue))) {
       wp.injury = rollInjury(world, wp, rng);
     }
 
     const mentored = mentor && isClient && wp.player.age < 25 && !has(wp, "mentor");
     const boost = boosts.get(wp.player.id);
-    const changes = developWeek(wp, { plan, coachQuality: quality, competed: played, mentored, managed: isClient, ...(isClient ? { facility: centerTier(world).growth } : {}), ...(boost ? { boost } : {}) }, rng);
+    const burnout = isClient ? fatigueWeek(wp, played) : 1;
+    const changes = developWeek(wp, { plan, coachQuality: quality, competed: played, mentored, managed: isClient, ...(isClient ? { facility: centerTier(world).growth, burnout } : {}), ...(boost ? { boost } : {}) }, rng);
     masteryWeek(wp, played, plan.focus);
     if (isClient) {
       wp.player.condition = clamp(wp.player.condition + INTENSITY[plan.intensity].condition, 0, 100);

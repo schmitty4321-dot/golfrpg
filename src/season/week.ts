@@ -52,6 +52,7 @@ import type { RoundCallAnswer } from "./roundCalls";
 import { takeSnapshot, type WeekSnapshot } from "./weekSummary";
 import { prizeCut } from "./contractTerms";
 import { setObjectives } from "./board";
+import { checkBreakthrough, pressureGrowth } from "./progression";
 
 /** What a client does this week. "auto" lets him pick his own schedule. */
 export type ClientChoice =
@@ -344,8 +345,11 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
       recordFamiliarity(wp, f.event.courseId, r.rounds.length, r.position, r.madeCut);
       playedIds.add(r.player.id);
 
+      // Contending hardens the mind, for everyone.
+      if (r.madeCut) pressureGrowth(wp, r.position, f.event.tier);
       if (wp.client) {
         const m = wp.client;
+        if (r.madeCut) checkBreakthrough(world, wp, r.position, f.event.tier);
         const caddie = caddiePay(world, wp, r.earnings, caddieShare(r.position, r.madeCut));
         const prizeBefore = m.finances.prizeMoney;
         m.finances.prizeMoney += r.earnings;

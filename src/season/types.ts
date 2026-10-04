@@ -239,6 +239,12 @@ export interface ClientManagement {
   /** His caddie (id in World.caddies) and how many weeks they've worked together. */
   caddieId?: string;
   caddieWeeks?: number;
+  /** Career breakthroughs already had (see progression.ts). */
+  breakthroughs?: string[];
+  /** 0-100: built by training load and events, cleared by rest; past 60 he grows slower and gets hurt more. */
+  fatigue?: number;
+  /** The last few seasons' development, with milestones. */
+  devReports?: import("./progression").DevelopmentReport[];
   /** How he plays the calls you don't make at events (older saves: "steady"). */
   roundPlan?: RoundPlan;
   /** How he flies between events (the agency jet, when you have one, beats all of these). */

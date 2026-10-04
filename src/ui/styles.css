@@ -257,6 +257,7 @@ th.num, td.num { text-align: right; }
 .ticker { margin: 8px 0 0; }
 tr.mine td { font-weight: 600; }
 .client-strip { display: grid; gap: 8px; }
+.dev-band { fill: var(--accent); opacity: 0.12; stroke: none; }
 .investment-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
 .investment-card { display: grid; gap: 6px; align-content: start; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
 .investment-card.owned { border-color: var(--accent); background: var(--accent-soft); }

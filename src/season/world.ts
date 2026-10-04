@@ -49,6 +49,7 @@ import { generateCaddies } from "./team";
 import { ensureGoals, settleGoals } from "./goals";
 import { investmentsSeasonEnd } from "./investments";
 import { setObjectives, settleBoard } from "./board";
+import { bloomsAndBusts, developmentReports } from "./progression";
 
 /** How your first client's career starts. */
 export type Scenario = "agency" | "rookie" | "journeyman" | "grinder" | "veteran";
@@ -620,7 +621,10 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   // Retired alumni send the odd prospect from home.
   if (world.clientIds.length > 0) alumniReferrals(world, createRng(mixSeed(world.seed, season, 2101)));
 
+  // Each client's season of development, before the winter changes anything.
+  developmentReports(world);
   for (const wp of Object.values(world.players)) {
+    if (wp.client) wp.client.fatigue = 0;
     const c = wp.career;
     c.seasonPoints = 0;
     c.seasonEarnings = 0;
@@ -639,6 +643,8 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   const expiringStaff = staffSeasonEnd(world);
   // Coaches cure a demon or two over the winter; the odd veteran's stroke goes.
   seasonEndTraits(world, rng);
+  // A few young players' ceilings move: late bloomers and busts.
+  bloomsAndBusts(world, rng);
   // The winter: ten weeks of practice with no events, then a new season's baseline.
   offseason(world, OFFSEASON_WEEKS, rng);
   for (const wp of Object.values(world.players)) wp.development.seasonStart = { ...wp.player.attributes };

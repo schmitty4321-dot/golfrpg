@@ -48,3 +48,4 @@ export * from "./weekSummary";
 export * from "./contractTerms";
 export * from "./investments";
 export * from "./board";
+export * from "./progression";

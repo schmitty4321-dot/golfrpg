@@ -154,8 +154,8 @@ export function plans(world: World, id: string): Record<"current" | "basic" | "b
 }
 
 export interface Projection {
-  /** His level at the end of each coming season, up to his peak (at most 8). */
-  levels: { season: number; age: number; level: number }[];
+  /** His level at the end of each coming season, up to his peak and two seasons past it (at most 10), with a likely range. */
+  levels: { season: number; age: number; level: number; low: number; high: number }[];
   /** The ceiling his coaches see (the projection can't pass it). */
   ceiling: number;
 }
@@ -169,8 +169,11 @@ export function projectDevelopment(world: World, id: string, plan: DevPlan, runs
   const start = world.players[id]!;
   const ceiling = abilityView(world, id).potential;
   const facility = centerTier(world).growth;
-  const seasons = clamp(effectivePeak(start) - start.player.age + 1, 1, 8);
+  // Two seasons past his peak too, so the plan's effect on his decline shows.
+  const seasons = clamp(effectivePeak(start) - start.player.age + 3, 2, 10);
   const sums = Array<number>(seasons).fill(0);
+  const mins = Array<number>(seasons).fill(Infinity);
+  const maxs = Array<number>(seasons).fill(-Infinity);
   for (let run = 0; run < runs; run++) {
     const wp: WorldPlayer = structuredClone(start);
     wp.development.potential = ceiling;
@@ -185,7 +188,10 @@ export function projectDevelopment(world: World, id: string, plan: DevPlan, runs
       }
       for (let wk = 0; wk < 10; wk++) developWeek(wp, { plan: { focus: plan.focus, intensity: plan.intensity }, coachQuality: plan.coachQuality, competed: false, managed: true, winter: plan.winter, facility }, rng);
       wp.player.age++;
-      sums[s]! += trueLevel(wp);
+      const lv = trueLevel(wp);
+      sums[s]! += lv;
+      mins[s] = Math.min(mins[s]!, lv);
+      maxs[s] = Math.max(maxs[s]!, lv);
     }
   }
   // Skills tick over a whole point at a time, so measure the progress building underneath too.
@@ -193,7 +199,19 @@ export function projectDevelopment(world: World, id: string, plan: DevPlan, runs
   const now = overall(start.player);
   return {
     ceiling,
-    levels: sums.map((sum, s) => ({ season: world.season + s, age: start.player.age + s + 1, level: Math.min(Math.max(ceiling, now), now + sum / runs - from) })),
+    levels: sums.map((sum, s) => {
+      const cap = Math.max(ceiling, now);
+      // The range widens with each season, and with how little his coaches can see.
+      const unsure = ((20 - abilityView(world, id).coachQuality) * 0.04 + 0.1) * Math.sqrt(s + 1);
+      const level = Math.min(cap, now + sum / runs - from);
+      return {
+        season: world.season + s,
+        age: start.player.age + s + 1,
+        level,
+        low: Math.min(level, now + mins[s]! - from) - unsure,
+        high: Math.max(level, Math.min(cap + 0.5, now + maxs[s]! - from)) + unsure * 0.6,
+      };
+    }),
   };
 }
 

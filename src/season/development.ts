@@ -198,6 +198,8 @@ export interface DevelopmentInputs {
   winter?: WinterProgram;
   /** The agency's Performance Center: added to a client's budget. */
   facility?: number;
+  /** Burnout slows growth (1: fresh, down to 0.5). */
+  burnout?: number;
 }
 
 /** The coach quality a computer player works with, by standing. */
@@ -284,6 +286,7 @@ export function developWeek(wp: WorldPlayer, inputs: DevelopmentInputs, rng: Rng
     // Range days are already in a client's budget; gym days still speed up the body.
     if (inputs.boost && delta > 0 && (body || !inputs.managed)) delta *= body ? inputs.boost.fitness : inputs.boost.training;
     if (injured) delta *= 0.3;
+    if (delta > 0 && inputs.burnout !== undefined) delta *= inputs.burnout;
     if (delta > 0) delta *= (mastered.get(key) ?? 1) * MASTERY_CENTRE;
 
     // Ageing: power goes first, then the short putts; fitness work slows it.
