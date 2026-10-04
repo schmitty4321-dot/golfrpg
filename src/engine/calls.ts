@@ -39,8 +39,6 @@ export interface HoleCall {
   board?: "look" | "blind";
   /** A par 5 lay-up: as close as he can, or his favourite full-wedge yardage. */
   layup?: "close" | "wedge";
-  /** Just off the green: flop it, bump it, or putt it. */
-  around?: "flop" | "bump" | "putt";
   /** He and his caddie disagree: back him, or back the caddie. */
   trust?: "player" | "caddie";
 }
@@ -49,7 +47,7 @@ export interface HoleCall {
 export const STANDING_KINDS: CallKind[] = ["putt", "rain", "board"];
 
 /** Which questions win when a hole raises more than a few (situations first, then the big shots). */
-const PRIORITY: CallKind[] = ["temper", "board", "putt", "carry", "second", "tee", "wind", "approach", "trouble", "layup", "around", "firm", "rain", "trust"];
+const PRIORITY: CallKind[] = ["temper", "board", "putt", "carry", "second", "tee", "wind", "approach", "trouble", "layup", "firm", "rain", "trust"];
 
 /** The few questions worth asking on one hole (at most `n`), in priority order. */
 export function topDecisions(list: Decision[], n = 3): Decision[] {
@@ -199,17 +197,6 @@ export function decisionsFor(hole: Hole, course: Course, player: Player, s: Hole
       ],
     });
   }
-  if (hole.par === 4 && hole.bunkers >= 2 && hole.hazard < 0.3 && hole.yards >= 430) {
-    out.push({
-      kind: "around",
-      question: "If he misses the green: what's his go-to?",
-      options: [
-        { value: "flop", label: "Flop it", blurb: "High and soft, close or a disaster." },
-        { value: "bump", label: "Bump and run", blurb: "Low and simple." },
-        { value: "putt", label: "Putt it", blurb: "Hard to make a mess; hard to hole." },
-      ],
-    });
-  }
   // He and the caddie see a hole differently now and then.
   if ((hole.number * 7 + s.round * 3) % 11 === 0) {
     out.push({
@@ -318,9 +305,6 @@ export function callEffect(call: HoleCall | null | undefined, hole: Hole, player
   if (call.board === "blind") shift({ mean: 0.005 - d("focus") * 0.003, sd: 0.97, blowup: 0.95 });
   if (call.layup === "close") shift({ mean: -0.01 - d("pitching") * 0.004, sd: 1.05, blowup: 1.1 });
   if (call.layup === "wedge") shift({ mean: -0.005 - d("wedges") * 0.004, sd: 0.95, blowup: 0.9 });
-  if (call.around === "flop") shift({ mean: -0.02 - (d("creativity") + d("pitching")) * 0.004, sd: 1.1, blowup: 1.15 });
-  if (call.around === "bump") shift({ mean: -0.005 - d("chipping") * 0.005, sd: 0.97, blowup: 0.95 });
-  if (call.around === "putt") shift({ mean: 0.01 - d("lagPutting") * 0.004, sd: 0.93, blowup: 0.85 });
   if (call.trust === "player") shift({ mean: 0.01 - (d("courseManagement") + d("greenReading")) * 0.003, sd: 1.02, blowup: 1 });
   if (call.trust === "caddie") shift({ mean: -0.01, sd: 0.97, blowup: 0.95 });
   // A stubborn player ignores a quarter of your calls and commits harder to the rest.
