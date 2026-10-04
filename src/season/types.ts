@@ -358,6 +358,10 @@ export interface AgencyLedger {
   winBonuses?: number;
   /** Weekly retainers clients paid under their contracts. */
   retainers?: number;
+  /** Winter returns less running costs of the agency's investments (see investments.ts). */
+  investments?: number;
+  /** Capital put into investments (less sales): an asset, not a cost. */
+  invested?: number;
 }
 
 export interface Agency {
@@ -387,6 +391,8 @@ export interface Agency {
   /** People the agency could hire, and who it has (one per role). */
   staffMarket?: AgencyStaffer[];
   staffHired?: Partial<Record<StaffRole, string>>;
+  /** Foundations, an invitational, brand stakes, a course (see investments.ts). */
+  investments?: import("./investments").Investment[];
   /** Each hire's contract, by role (older saves: written when first needed). */
   staffContracts?: Partial<Record<StaffRole, StaffContract>>;
   /** Players on the recruitment board, by id. */

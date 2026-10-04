@@ -5,6 +5,7 @@ import type { Game } from "../useGame";
 import { StaffPortrait, StaffRoleIcon } from "../components/StaffPortrait";
 import { BrandMark } from "../components/BrandMark";
 import { AgencyBuilding } from "../components/AgencyBuilding";
+import { INVESTMENTS, SALE_SHARE, buyInvestment, investBlock, sellInvestment, type InvestmentKind } from "../../season";
 
 /** The agency as a business: its Performance Center and the development deals it is funding. */
 export function Headquarters({ world, game }: { world: World; game: Game }) {
@@ -14,6 +15,7 @@ export function Headquarters({ world, game }: { world: World; game: Game }) {
       <StaffPanel world={world} game={game} />
       <div className="grid-2">
         <BrandsPanel world={world} game={game} />
+        <InvestmentsPanel world={world} game={game} />
         <EventsPanel world={world} game={game} />
       </div>
       <div className="grid-2">
@@ -239,6 +241,46 @@ function HiredStaffer({ world, game, role }: { world: World; game: Game; role: S
         </div>
       </div>
     </article>
+  );
+}
+
+function InvestmentsPanel({ world, game }: { world: World; game: Game }) {
+  const owned = world.agency.investments ?? [];
+  const m = (n: number) => (Math.abs(n) >= 1e6 ? `$${(n / 1e6).toFixed(1)}M` : `$${Math.round(n / 1000)}k`);
+  return (
+    <section className="panel">
+      <div className="panel-head"><h2>Investments</h2><span className="muted small">Put a good year's money to work: each pays (or costs) something every winter</span></div>
+      <div className="investment-grid">
+        {(Object.keys(INVESTMENTS) as InvestmentKind[]).map((k) => {
+          const d = INVESTMENTS[k];
+          const mine = owned.find((i) => i.kind === k);
+          const block = mine ? null : investBlock(world, k);
+          return (
+            <article key={k} className={`investment-card${mine ? " owned" : ""}`}>
+              <strong>{d.label}</strong>
+              <span className="secondary small">{d.blurb}</span>
+              <span className="small">
+                {m(d.cost)} to start
+                {d.upkeep ? ` · ${m(d.upkeep)} a year to run` : ""}
+                {d.returnRange[1] > 0 ? ` · returns ${Math.round(d.returnRange[0] * 100)}–${Math.round(d.returnRange[1] * 100)}% a year` : ""}
+                {d.reputationPerSeason ? ` · +reputation` : ""}
+              </span>
+              {mine ? (
+                <div className="btn-row" style={{ alignItems: "center" }}>
+                  <span className="small">Since season {mine.since}{mine.last !== undefined ? <> · last winter <b className={mine.last < 0 ? "bad-text" : "good-text"}>{mine.last < 0 ? "−" : "+"}{m(Math.abs(mine.last))}</b></> : null}</span>
+                  <button className="btn btn-small" onClick={() => confirm(`Sell for ${m(mine.stake * SALE_SHARE)}?`) && game.act((w) => sellInvestment(w, k))}>Sell</button>
+                </div>
+              ) : (
+                <div className="btn-row" style={{ alignItems: "center" }}>
+                  <button className="btn btn-small btn-primary" disabled={!!block} onClick={() => game.act((w) => buyInvestment(w, k))}>Invest</button>
+                  {block && <span className="muted small">{block}</span>}
+                </div>
+              )}
+            </article>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 

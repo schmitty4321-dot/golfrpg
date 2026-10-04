@@ -70,3 +70,23 @@ describe("retainers", () => {
     expect(w.agency.bank - bank).toBe(income - costs);
   });
 });
+
+describe("investments", () => {
+  it("cost a lump to start, pay out every winter, and sell for most of the stake", async () => {
+    const { buyInvestment, finishSeason, investBlock, sellInvestment, INVESTMENTS, SALE_SHARE, seasonWeeks } = await import("../src/season");
+    const w = createWorld({ seed: 25, scenario: "agency" });
+    w.agency.reputation = 70;
+    w.agency.bank = 20_000_000;
+    expect(investBlock(w, "course")).toBeNull();
+    buyInvestment(w, "course");
+    expect(w.agency.bank).toBe(20_000_000 - INVESTMENTS.course.cost);
+    expect(investBlock(w, "course")).toMatch(/already/);
+    while (w.week <= seasonWeeks(w)) playWeek(w);
+    finishSeason(w);
+    const inv = w.agency.investments!.find((i) => i.kind === "course")!;
+    expect(inv.last).toBeGreaterThan(0);
+    const bank = w.agency.bank;
+    sellInvestment(w, "course");
+    expect(w.agency.bank).toBe(bank + INVESTMENTS.course.cost * SALE_SHARE);
+  });
+});

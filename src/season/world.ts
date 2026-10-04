@@ -47,6 +47,7 @@ import { ensureTraits, seasonEndTraits } from "./traits";
 import { ensureFamiliarity, fadeFamiliarity, familiarityWith } from "./familiarity";
 import { generateCaddies } from "./team";
 import { ensureGoals, settleGoals } from "./goals";
+import { investmentsSeasonEnd } from "./investments";
 
 /** How your first client's career starts. */
 export type Scenario = "agency" | "rookie" | "journeyman" | "grinder" | "veteran";
@@ -593,6 +594,8 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
     const r = c.pointsRank ?? 999;
     addReputation(world.agency, r <= 10 ? 8 : r <= 30 ? 5 : r <= FULL_CARD ? 2.5 : r <= CONDITIONAL_CARD ? 1 : 0);
   }
+  // The agency's investments pay out (or cost) for the season before the books close.
+  investmentsSeasonEnd(world);
   const ledger = { ...world.agency.ledger };
   // The winter's course setup: next season's courses play to their real averages again.
   const courseSetup = nextCourseSetup(world);
