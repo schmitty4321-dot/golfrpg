@@ -15,6 +15,8 @@ import {
   type AgencyLedger,
   type World,
   clientBooks,
+  boardOf,
+  objectiveProgress,
 } from "../../season";
 import { money } from "../format";
 import type { Game } from "../useGame";
@@ -67,6 +69,7 @@ export function Finances({ world, game }: { world: World; game: Game }) {
         </section>
         <ForecastPanel world={world} />
       </div>
+      <OwnersPanel world={world} />
       <ClientBooks world={world} />
 
       <PastSeasons world={world} />
@@ -84,6 +87,26 @@ export function Finances({ world, game }: { world: World; game: Game }) {
         <ClientMoney world={world} />
       </>}
     </main>
+  );
+}
+
+/** The owners' targets for this season, how each stands, and what they said last winter. */
+function OwnersPanel({ world }: { world: World }) {
+  const board = boardOf(world);
+  if (!board) return null;
+  return (
+    <section className="panel">
+      <div className="panel-head"><h2>The owners' targets</h2><span className="muted small">Meet them all for a bonus; lose money three seasons running and they step in</span></div>
+      <ul className="ws-lines">
+        {board.objectives.map((o) => {
+          const p = objectiveProgress(world, o);
+          const now = o.kind === "profit" ? cash(p.now) : o.kind === "clientRank" ? (p.now >= 999 ? "no client ranked" : `best is #${p.now}`) : `${p.now}`;
+          return <li key={o.kind} className={p.met ? "good-text" : ""}>{p.met ? "✓ " : ""}{o.label} <span className="muted">(now {now})</span></li>;
+        })}
+      </ul>
+      {board.losses > 0 && <p className="bad-text small">Losing seasons in a row: {board.losses}.</p>}
+      {board.verdict && <p className="secondary small" style={{ marginBottom: 0 }}>Last winter: {board.verdict}</p>}
+    </section>
   );
 }
 

@@ -48,6 +48,7 @@ import { ensureFamiliarity, fadeFamiliarity, familiarityWith } from "./familiari
 import { generateCaddies } from "./team";
 import { ensureGoals, settleGoals } from "./goals";
 import { investmentsSeasonEnd } from "./investments";
+import { setObjectives, settleBoard } from "./board";
 
 /** How your first client's career starts. */
 export type Scenario = "agency" | "rookie" | "journeyman" | "grinder" | "veteran";
@@ -292,6 +293,7 @@ export function createWorld(opts: CreateWorldOptions): World {
   ensureGoals(world);
   // Every world has a Ryder Cup record, as a loaded save does.
   ensureRyderCup(world);
+  setObjectives(world);
   return world;
 }
 
@@ -597,6 +599,9 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   // The agency's investments pay out (or cost) for the season before the books close.
   investmentsSeasonEnd(world);
   const ledger = { ...world.agency.ledger };
+  // The owners judge the season on its closing books.
+  const verdict = settleBoard(world, ledger);
+  if (verdict) world.news.unshift(verdict);
   // The winter's course setup: next season's courses play to their real averages again.
   const courseSetup = nextCourseSetup(world);
   for (const wp of Object.values(world.players)) expireSponsors(world, wp);
@@ -654,6 +659,7 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   ensureFamiliarity(world);
   ensureGoals(world);
   for (const x of expiringStaff) staffContractDecision(world, x.role);
+  setObjectives(world);
   return summary;
 }
 

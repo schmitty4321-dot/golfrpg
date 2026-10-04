@@ -391,6 +391,8 @@ export interface Agency {
   /** People the agency could hire, and who it has (one per role). */
   staffMarket?: AgencyStaffer[];
   staffHired?: Partial<Record<StaffRole, string>>;
+  /** The owners' targets for the season and their patience (see board.ts). */
+  board?: import("./board").BoardState;
   /** Foundations, an invitational, brand stakes, a course (see investments.ts). */
   investments?: import("./investments").Investment[];
   /** Each hire's contract, by role (older saves: written when first needed). */

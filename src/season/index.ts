@@ -47,3 +47,4 @@ export * from "./roundCalls";
 export * from "./weekSummary";
 export * from "./contractTerms";
 export * from "./investments";
+export * from "./board";

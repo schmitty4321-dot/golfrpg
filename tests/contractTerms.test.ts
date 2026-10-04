@@ -90,3 +90,20 @@ describe("investments", () => {
     expect(w.agency.bank).toBe(bank + INVESTMENTS.course.cost * SALE_SHARE);
   });
 });
+
+describe("the owners", () => {
+  it("set targets, pay a bonus for all of them, warn after two losing seasons and bail out after three", async () => {
+    const { setObjectives, settleBoard, BAILOUT } = await import("../src/season");
+    const w = createWorld({ seed: 26, scenario: "agency" });
+    expect(w.agency.board!.objectives).toHaveLength(3);
+    const losing = { ...w.agency.ledger, prizeCommission: 0, office: 1_000_000 };
+    settleBoard(w, losing);
+    setObjectives(w);
+    w.agency.board!.season = w.season;
+    expect(settleBoard(w, losing)).toMatch(/Two losing seasons/);
+    setObjectives(w);
+    const bank = w.agency.bank;
+    expect(settleBoard(w, losing)).toMatch(/bail/);
+    expect(w.agency.bank).toBe(bank + BAILOUT);
+  });
+});
