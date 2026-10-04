@@ -51,6 +51,7 @@ import { DEV_PROMOTION_WINS } from "./calendar";
 import type { RoundCallAnswer } from "./roundCalls";
 import { takeSnapshot, type WeekSnapshot } from "./weekSummary";
 import { prizeCut } from "./contractTerms";
+import { setObjectives } from "./board";
 
 /** What a client does this week. "auto" lets him pick his own schedule. */
 export type ClientChoice =
@@ -237,6 +238,8 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
   if (world.week > seasonWeeks(world)) throw new Error("the season is over; call finishSeason first");
   ensureTraits(world);
   ensureGoals(world);
+  // Older saves (and a new season) get the owners' targets.
+  if (world.season >= 1 && world.agency.board?.season !== world.season) setObjectives(world);
   // Where everyone stood, for the week in review (only when you have clients to review).
   const before = world.clientIds.length ? takeSnapshot(world) : undefined;
   // Anything left in the inbox takes its default choice.
