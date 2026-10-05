@@ -1318,3 +1318,6 @@ select, input[type="text"], input[type="number"] {
 .overall-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-secondary, var(--muted)); }
 .overall-ratings strong { font-size: 30px; line-height: 1; font-weight: 800; }
 .overall-cur { color: var(--accent); }
+.illustrated-hole-meaning { display: block; margin-top: 2px; font-family: Georgia, Cambria, serif; font-size: 14px; color: #e0c25b; }
+.illustrated-hole-note { margin: 0; padding: 10px 14px 12px; font-size: 13px; line-height: 1.45; color: #e5eadf; }
+.illustrated-hole-note strong { color: #fff; }

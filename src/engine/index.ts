@@ -1,5 +1,6 @@
 export * from "./attributes";
 export * from "./courses";
+export * from "./holeNotes";
 export * from "./courseGen";
 export * from "./players";
 export * from "./purse";

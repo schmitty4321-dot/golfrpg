@@ -1,4 +1,4 @@
-import type { HoleTrace, Pt, Shot } from "../../engine";
+import { holeNote, type HoleTrace, type Pt, type Shot } from "../../engine";
 import { artForTrace, illustratedShotPaths } from "../illustratedArt";
 
 const SHOT_COLORS = ["#ffd84f", "#53d8ff", "#ff6d63", "#f7f4df", "#d59cff", "#ffad4a"];
@@ -23,6 +23,7 @@ export function IllustratedTracer({ trace, step, courseName }: { trace: HoleTrac
   if (!art) return null;
   const revealed = illustratedShotPaths(art, trace.shots.slice(0, step), trace.layout);
   const finalShot = revealed[revealed.length - 1]?.shot;
+  const note = trace.layout.real ? holeNote(trace.layout.real.courseId, trace.layout.real.hole) : undefined;
 
   return (
     <section className="illustrated-replay" aria-label={`Illustrated replay of ${courseName}, hole ${trace.layout.real?.hole ?? 1}`}>
@@ -31,8 +32,9 @@ export function IllustratedTracer({ trace, step, courseName }: { trace: HoleTrac
         <img src={`${import.meta.env.BASE_URL}${art.image}`} alt={`Elevated illustrated view of ${courseName} Hole ${trace.layout.real?.hole ?? 1}`} />
         {!art.meta?.framed && <div className="illustrated-hole-card">
           <span>Hole {trace.layout.real?.hole ?? 1}</span>
-          <strong>Playing line</strong>
-          <p>Follow the mapped corridor from the tee through the landing area to the guarded green.</p>
+          <strong>{note?.name ?? "Playing line"}</strong>
+          {note?.meaning && <em className="illustrated-hole-meaning">{note.meaning}</em>}
+          {!note && <p>Follow the mapped corridor from the tee through the landing area to the guarded green.</p>}
           <dl>
             <div><dt>{trace.layout.yards}</dt><dd>Yards</dd></div>
             <div><dt>{trace.layout.par}</dt><dd>Par</dd></div>
@@ -68,6 +70,10 @@ export function IllustratedTracer({ trace, step, courseName }: { trace: HoleTrac
         </svg>
         {finalShot !== undefined ? <div className="illustrated-live-caption">{finalShot.text}</div> : null}
       </div>
+      {/* The hole's story sits under the painting, where it never covers the shots. */}
+      {note && (
+        <p className="illustrated-hole-note"><strong>{note.name}</strong>{note.meaning ? ` (${note.meaning})` : ""}: {note.description}</p>
+      )}
     </section>
   );
 }

@@ -28,7 +28,7 @@ import type { LiveEvent, World } from "../../season";
 import type { Game, LiveWeek } from "../useGame";
 import { toPar } from "../format";
 import { useHoleMap } from "../holeMaps";
-import { HoleDrawing, LIE_WORDS } from "./ShotTracer";
+import { HoleDrawing, ShotSequence } from "./ShotTracer";
 import { hasIllustratedTracerArt, IllustratedTracer } from "./IllustratedTracer";
 import { PLAN_LABELS, RoundPlanPicker, setRoundPlan, tickerLine } from "./WeekTempo";
 import { RoundCalls } from "./RoundCalls";
@@ -189,15 +189,7 @@ export function MomentsView({ world, game, lw }: { world: World; game: Game; lw:
             <TraceDrawing trace={replay.trace} step={step} courseName={replay.courseName} />
             <div>
               <LiveScorecard course={replay.course} scores={replay.scores} current={replay.index} activeNineOnly />
-              <ol className="shot-list moment-shot-list">
-                {replay.trace.shots.map((s, i) => (
-                  <li key={i} className={i < step ? (i === step - 1 ? "current" : "") : "pending"}>
-                    {(s.kind === "penalty" || !s.text.startsWith(s.club)) && <span className="shot-type muted small">{s.kind === "penalty" ? "Penalty" : s.club}</span>}
-                    <span>{i < step ? s.text : "…"}</span>
-                    {i < step && s.kind !== "penalty" && s.lie !== "holed" && <span className="muted small">Lies: {LIE_WORDS[s.lie]}</span>}
-                  </li>
-                ))}
-              </ol>
+              <ShotSequence trace={replay.trace} step={step} />
               <div className="btn-row">
                 {step < replay.trace.shots.length && <button className="btn" onClick={() => setStep(replay.trace.shots.length)}>Show all shots</button>}
                 <button className="btn btn-primary" onClick={() => { setReplay(null); advance(); }}>Play on</button>
