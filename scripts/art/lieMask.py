@@ -20,10 +20,12 @@ MANIFEST = os.path.join(ROOT, "src", "ui", "illustratedArt.generated.json")
 CELL = 10
 # Where the scene's horizon sits, per course: above it only greens count (La Quinta's mountains
 # read as sand). Torrey's greens and bunkers sit high in the frame, with only sea and sky above.
-HORIZON = {"torrey-pines-south": 125, "tpc-scottsdale": 160}
+HORIZON = {"torrey-pines-south": 125, "tpc-scottsdale": 160, "pebble-beach": 90}
 # Courses whose paintings show a wide band of mown rough (dark, smooth grass) between fairway and desert:
 # it gets its own label (g), so a ball in the rough sits on it and one in the desert goes past it.
 MOWN_ROUGH = {"tpc-scottsdale"}
+# Courses whose paintings run the real sea up to the horizon: water at the top is ocean, not sky.
+SEA_TO_HORIZON = {"pebble-beach"}
 
 
 def label(pixels, mown_rough=False):
@@ -50,7 +52,7 @@ def label(pixels, mown_rough=False):
     return "r"
 
 
-def build(path, framed=False, horizon=200, mown_rough=False):
+def build(path, framed=False, horizon=200, mown_rough=False, sea=False):
     im = Image.open(path).convert("RGB")
     w, h = im.size
     cols, rows = w // CELL, h // CELL
@@ -102,7 +104,7 @@ def build(path, framed=False, horizon=200, mown_rough=False):
         if edge_ok and len(patch) < 120:
             for i in patch:
                 labels[i] = "w"
-    if framed:
+    if framed and not sea:
         # Sky and distant hills read as water: drop any water joined to the top of the scene.
         top = 125 // CELL + 1
         stack = [(top, cx) for cx in range(cols) if labels[top * cols + cx] == "w"]
@@ -139,7 +141,7 @@ def main():
     for key, entry in manifest.items():
         if not key.startswith(course + ":"):
             continue
-        im, cols, rows, labels = build(os.path.join(ROOT, "public", entry["image"].split("?")[0]), bool(entry.get("meta", {}).get("framed")), HORIZON.get(course, 200), course in MOWN_ROUGH)
+        im, cols, rows, labels = build(os.path.join(ROOT, "public", entry["image"].split("?")[0]), bool(entry.get("meta", {}).get("framed")), HORIZON.get(course, 200), course in MOWN_ROUGH, course in SEA_TO_HORIZON)
         entry["mask"] = {"cell": CELL, "cols": cols, "rows": rows, "rle": rle(labels)}
         if preview:
             over = im.copy()
