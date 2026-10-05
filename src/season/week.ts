@@ -1,4 +1,5 @@
 import { payBrands, recordClientWin, updateFollowers } from "./showcase";
+import { brandGoalsWeek, noteBoldHeld, noteBrandResult, noteRyderTeam } from "./brandGoals";
 import { scoutTripsWeek } from "./scoutTrips";
 import { checkChallenge } from "./challenges";
 import { trackBestRanks } from "./legacy";
@@ -45,7 +46,7 @@ import {
   traitMood,
   weeklyTraitEvents,
 } from "./traits";
-import { homeRegion } from "../engine";
+import { NATIONS, homeRegion } from "../engine";
 import { absWeek, type EventRecord, type TourEvent, type World } from "./types";
 import { DEV_PROMOTION_WINS } from "./calendar";
 import type { RoundCallAnswer } from "./roundCalls";
@@ -376,8 +377,12 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
         if (r.position === 1 && f.event.tier !== "dev") recordClientWin(world, wp, f.event.name, f.event.tier === "major");
         eventOf.set(wp.player.id, f.event);
         report.clients[wp.player.id] = { summary: "", record, result };
+        const claimed = wp.client.boldClaim !== undefined;
         const eaten = settleBoldClaim(wp, record);
         if (eaten) world.news.unshift(eaten);
+        else if (claimed && wp.client.boldClaim === undefined) noteBoldHeld(world);
+        const nation = NATIONS[wp.player.nationality];
+        noteBrandResult(world, wp, f.event.courseId, courseById(world, f.event.courseId).info?.country ?? "USA", r.holes, r.position, nation ? [nation.code, nation.key] : [wp.player.nationality]);
       }
     }
 
@@ -491,6 +496,7 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
     payCenter(world);
     payStaff(world);
     payBrands(world);
+    brandGoalsWeek(world);
     payInterest(world);
     recordBank(world);
   }
@@ -509,6 +515,7 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
   if (world.clientIds.length > 0) {
     const records = new Map(world.clientIds.map((id) => [id, report.clients[id]?.record ?? null]));
     const pressed = weeklyPress(world, records, new Set(ryder ? Object.keys(ryder.names) : []));
+    if (ryder) noteRyderTeam(world, Object.keys(ryder.names));
     const messages = weeklyRivalMessages(world, report, createRng(mixSeed(world.seed, world.season, world.week, 1803)), MAX_DECISIONS_PER_WEEK - pressed);
     weeklyDilemmas(world, records, createRng(mixSeed(world.seed, world.season, world.week, 1802)), MAX_DECISIONS_PER_WEEK - pressed - messages);
   }

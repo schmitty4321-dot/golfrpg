@@ -153,7 +153,7 @@ function RunwayPanel({ world }: { world: World }) {
 function IncomeExpensePanel({ world }: { world: World }) {
   const l = world.agency.ledger;
   const values = [
-    ["Prize income", l.prizeCommission, "♛"], ["Sponsors", l.endorsementCommission + (l.brands ?? 0), "◆"],
+    ["Prize income", l.prizeCommission, "♛"], ["Sponsors", l.endorsementCommission + (l.brands ?? 0) + (l.brandBonuses ?? 0), "◆"],
     ["Headquarters", -l.office, "▥"], ["Staff", -(l.staff ?? 0), "●"], ["Scouts", -l.scouts, "◉"],
     ["Facilities", -(l.facility ?? 0), "⚒"], ["Development", -(l.development ?? 0), "↗"], ["Interest", -(l.interest ?? 0), "%"],
   ] as const;
@@ -199,6 +199,7 @@ function LedgerTable({ l }: { l: AgencyLedger }) {
     ["Investments (returns less running costs)", l.investments ?? 0, false],
     ["Buyouts and release clauses", l.buyouts ?? 0, false],
     ["Brand partnerships", l.brands ?? 0, false],
+    ["Brand goal bonuses", l.brandBonuses ?? 0, false],
     ["Agency events", l.events ?? 0, false],
     ["Office and headquarters", -l.office, true],
     ["Agency staff", -(l.staff ?? 0), false],

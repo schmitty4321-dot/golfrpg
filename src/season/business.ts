@@ -213,7 +213,7 @@ export function recordBank(world: World): void {
 // ------------------------------------------------------------------ the books
 
 export const agencyIncome = (l: AgencyLedger): number =>
-  l.prizeCommission + l.endorsementCommission + (l.winBonuses ?? 0) + (l.retainers ?? 0) + (l.brands ?? 0) + (l.buyouts ?? 0) + Math.max(0, l.events ?? 0) + Math.max(0, l.investments ?? 0);
+  l.prizeCommission + l.endorsementCommission + (l.winBonuses ?? 0) + (l.retainers ?? 0) + (l.brands ?? 0) + (l.brandBonuses ?? 0) + (l.buyouts ?? 0) + Math.max(0, l.events ?? 0) + Math.max(0, l.investments ?? 0);
 export const agencyCosts = (l: AgencyLedger): number =>
   l.office + l.scouts + (l.development ?? 0) + (l.facility ?? 0) + (l.interest ?? 0) + (l.staff ?? 0) + (l.clientCare ?? 0) + (l.support ?? 0) + (l.signingBonuses ?? 0) + Math.max(0, -(l.events ?? 0)) + Math.max(0, -(l.investments ?? 0));
 

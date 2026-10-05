@@ -1,5 +1,8 @@
 import { useState } from "react";
-import { CENTER_TIERS, HQ_TIERS, AGENCY_EVENTS, STAFF_LABELS, STAFF_ROLES, brandOffers, buildCenter, eventBlock, eventTakings, followers, holdEvent, signBrand, centerBlock, dealClients, hireStaffer, hiredStaffer, hqBlock, fireStaffer, buyoutCost, contractFee, staffContract, termDiscount, STAFF_TERMS, rosterLimit, staffMarket, staffWages, upgradeHq, type AgencyEventKind, type StaffRole, type World } from "../../season";
+import {
+  brandGoalProgress,
+  guaranteed,
+  maxPayout, CENTER_TIERS, HQ_TIERS, AGENCY_EVENTS, STAFF_LABELS, STAFF_ROLES, brandOffers, buildCenter, eventBlock, eventTakings, followers, holdEvent, signBrand, centerBlock, dealClients, hireStaffer, hiredStaffer, hqBlock, fireStaffer, buyoutCost, contractFee, staffContract, termDiscount, STAFF_TERMS, rosterLimit, staffMarket, staffWages, upgradeHq, type AgencyEventKind, type StaffRole, type World } from "../../season";
 import { money } from "../format";
 import type { Game } from "../useGame";
 import { StaffPortrait, StaffRoleIcon } from "../components/StaffPortrait";
@@ -290,24 +293,44 @@ function BrandsPanel({ world, game }: { world: World; game: Game }) {
   return (
     <section className="panel">
       <div className="panel-head"><h2>Brand partnerships</h2><span className="muted small">Agency-wide deals: a yearly fee, and better offers for your clients</span></div>
-      {deals.length > 0 && <div className="brand-deal-grid">{deals.map((b) => <BrandCard key={b.id} deal={b} active />)}</div>}
+      {deals.length > 0 && <div className="brand-deal-grid">{deals.map((b) => <BrandCard key={b.id} world={world} deal={b} active />)}</div>}
       <div className="pp-label" style={{ marginTop: 10 }}>On offer this season</div>
       {offers.length === 0 ? (
         <p className="empty">{world.agency.reputation < 15 ? "Brands start calling at reputation 15." : "No more offers this season."}</p>
       ) : (
-        <div className="brand-deal-grid">{offers.map((b) => <BrandCard key={b.id} deal={b} onSign={() => game.act((w) => signBrand(w, b.id))} />)}</div>
+        <div className="brand-deal-grid">{offers.map((b) => <BrandCard key={b.id} world={world} deal={b} onSign={() => game.act((w) => signBrand(w, b.id))} />)}</div>
       )}
     </section>
   );
 }
 
-function BrandCard({ deal, active = false, onSign }: { deal: ReturnType<typeof brandOffers>[number]; active?: boolean; onSign?: () => void }) {
+function BrandCard({ world, deal, active = false, onSign }: { world: World; deal: ReturnType<typeof brandOffers>[number]; active?: boolean; onSign?: () => void }) {
+  const progress = active ? brandGoalProgress(world, deal) : null;
+  const fmt = (n: number, unit?: string) => (unit === "money" ? money(n) : unit === "pct" ? `${n}%` : unit === "yards" ? `${n} yds` : `${n}`);
+  // How far along a goal is: for a rank, how close the best so far is to the target rank.
+  const share = (g: { now: number; target: number; unit: string; met: boolean }) =>
+    g.met ? 100 : g.unit === "rank" ? (g.now ? Math.round(Math.min(1, g.target / g.now) * 100) : 0) : Math.max(0, Math.min(100, Math.round((g.now / g.target) * 100)));
   return (
     <article className={`brand-deal-card${active ? " active" : ""}`}>
       <img className="brand-campaign-art" src={`/art/sponsors/${deal.category}.webp`} alt="" />
       <BrandMark name={deal.brand} category={deal.category} />
       <div className="brand-deal-name"><strong>{deal.brand}</strong><span>{deal.category}</span></div>
-      <div className="brand-deal-terms"><span><b>{money(deal.annual)}</b><small>per season</small></span><span><b>+{Math.round(deal.lift * 100)}%</b><small>client offers</small></span><span><b>S{deal.untilSeason}</b><small>{active ? "contract ends" : "term"}</small></span></div>
+      <div className="brand-deal-terms">{deal.goals ? <span><b>{money(guaranteed(deal))}</b><small>guaranteed · up to {money(maxPayout(deal))}</small></span> : <span><b>{money(deal.annual)}</b><small>per season</small></span>}<span><b>+{Math.round(deal.lift * 100)}%</b><small>client offers</small></span><span><b>S{deal.untilSeason}</b><small>{active ? "contract ends" : "term"}</small></span></div>
+      {deal.goals && (
+        <ul className="brand-goals">
+          {(progress ?? deal.goals.map((g) => ({ ...g, now: 0, met: false, unit: "count" }))).map((g) => (
+            <li key={g.id} className={g.met ? "met" : undefined}>
+              <span className="brand-goal-label">{g.met ? "✓ " : ""}{g.label}</span>
+              <span className="brand-goal-pay">{money(g.share * deal.annual)}</span>
+              {progress && <span className="meter"><span style={{ width: `${share(g)}%` }} /></span>}
+              {progress && !g.met && (g.unit === "rank"
+                ? <span className="muted small">{g.now ? `Best so far: #${g.now}` : "Not ranked yet"}</span>
+                : g.target > 1 && <span className="muted small">{fmt(g.now, g.unit)} of {fmt(g.target, g.unit)}</span>)}
+            </li>
+          ))}
+        </ul>
+      )}
+      {deal.renewal && !active && <span className="small good-text">They're back: last time you met their goals.</span>}
       {onSign && <button className="btn btn-primary" onClick={onSign}>Sign partnership</button>}
       {active && <span className="brand-active-label">Active partner</span>}
     </article>

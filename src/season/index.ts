@@ -49,3 +49,4 @@ export * from "./contractTerms";
 export * from "./investments";
 export * from "./board";
 export * from "./progression";
+export * from "./brandGoals";

@@ -357,6 +357,8 @@ export interface AgencyLedger {
   staff?: number;
   /** Brand partnership fees received. */
   brands?: number;
+  /** Brand partnership goal bonuses, paid at season end. */
+  brandBonuses?: number;
   /** Agency events: takings less costs. */
   events?: number;
   /** Buyout fees from rivals who poached a client. */
@@ -427,6 +429,10 @@ export interface Agency {
   /** Players a rival's scout also found on one of your trips: player id to the rival. */
   contested?: Record<string, string>;
   brandOffers?: BrandDeal[];
+  /** This season's counts for brand goals the stats don't keep. */
+  brandTally?: import("./brandGoals").BrandTally;
+  /** Each brand's last verdict: the share of its goals the agency met. */
+  brandHistory?: Record<string, number>;
   /** Agency events held, by season. */
   eventsHeld?: Record<number, AgencyEventKind[]>;
   /** Your clients' wins and titles, and the agency's awards. */
@@ -659,6 +665,10 @@ export interface BrandDeal {
   /** Extra value on this category's sponsorship offers to your clients. */
   lift: number;
   untilSeason: number;
+  /** Goals for this season's bonuses (older deals: none, the whole fee is paid by the week). See brandGoals.ts. */
+  goals?: import("./brandGoals").BrandGoal[];
+  /** A renewal from a brand whose goals were met last time. */
+  renewal?: boolean;
 }
 
 export type AgencyEventKind = "clinic" | "proAm" | "exhibition";

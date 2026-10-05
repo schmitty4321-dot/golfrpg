@@ -9,12 +9,17 @@ import { mixSeed } from "./entries";
 import { pointsList, rankMap } from "./points";
 import { BRANDS } from "./sponsors";
 import type { AgencyEventKind, BrandDeal, SponsorCategory, Trophy, World, WorldPlayer } from "./types";
+import { RENEW_AT, RENEW_RAISE, SNUB_BELOW, brandMood, goalsFor, guaranteed } from "./brandGoals";
 
 // ------------------------------------------------------------------ brand partnerships
 
 /** This season's partnership offers: more and bigger as the agency's name and roster grow. */
 export function brandOffers(world: World): BrandDeal[] {
-  if (world.agency.brandOffers) return world.agency.brandOffers;
+  if (world.agency.brandOffers) {
+    // Offers made before brands had goals get them.
+    for (const o of world.agency.brandOffers) o.goals ??= goalsFor(world, o.category);
+    return world.agency.brandOffers;
+  }
   const rng = createRng(mixSeed(world.seed, world.season, 811));
   const taken = new Set((world.agency.brands ?? []).map((b) => b.category));
   const open = (Object.keys(BRANDS) as SponsorCategory[]).filter((c) => !taken.has(c));
@@ -23,13 +28,19 @@ export function brandOffers(world: World): BrandDeal[] {
   for (let i = 0; i < n; i++) {
     const category = open.splice(rng.int(0, open.length - 1), 1)[0]!;
     const scale = (world.agency.reputation / 50) * (0.6 + Math.min(4, world.clientIds.length) * 0.2) * (0.8 + rng.next() * 0.4);
+    // A brand whose goals were mostly met comes back first, and pays more; one left disappointed doesn't call.
+    const pleased = BRANDS[category].find((b) => (brandMood(world, b) ?? 0) >= RENEW_AT);
+    const willing = BRANDS[category].filter((b) => (brandMood(world, b) ?? 1) >= SNUB_BELOW);
+    const brand = pleased ?? rng.pick(willing.length ? willing : BRANDS[category]);
     offers.push({
       id: `b${world.season}-${category}`,
-      brand: rng.pick(BRANDS[category]),
+      brand,
       category,
-      annual: Math.round((100_000 + 400_000 * scale) / 10_000) * 10_000,
+      annual: Math.round(((100_000 + 400_000 * scale) * (pleased ? RENEW_RAISE : 1)) / 10_000) * 10_000,
       lift: Math.round((0.05 + rng.next() * 0.1) * 100) / 100,
       untilSeason: world.season + rng.int(1, 2),
+      goals: goalsFor(world, category),
+      ...(pleased ? { renewal: true } : {}),
     });
   }
   return (world.agency.brandOffers = offers);
@@ -46,7 +57,8 @@ export function signBrand(world: World, id: string): void {
 
 /** The week's partnership fees. */
 export function payBrands(world: World): void {
-  const weekly = (world.agency.brands ?? []).reduce((s, b) => s + b.annual / 41, 0);
+  // The guaranteed part of each fee by the week; goal bonuses come at season end (brandGoals.ts).
+  const weekly = (world.agency.brands ?? []).reduce((s, b) => s + guaranteed(b) / 41, 0);
   if (!weekly) return;
   const pay = Math.round(weekly);
   world.agency.bank += pay;

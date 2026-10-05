@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createRng } from "../src/engine";
 import {
+  guaranteed,
   BRANDS,
   brandLift,
   brandOffers,
@@ -36,7 +37,8 @@ describe("brand partnerships", () => {
     expect(brandLift(world, deal.category)).toBeCloseTo(1 + deal.lift, 5);
     expect(brandOffers(world).some((o) => o.category === deal.category)).toBe(false);
     playWeek(world);
-    expect(world.agency.ledger.brands).toBe(Math.round(deal.annual / 41));
+    // The guaranteed share comes by the week; goal bonuses come at season end.
+    expect(world.agency.ledger.brands).toBe(Math.round(guaranteed(deal) / 41));
   });
 });
 

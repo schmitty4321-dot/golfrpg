@@ -48,6 +48,7 @@ import { ensureFamiliarity, fadeFamiliarity, familiarityWith } from "./familiari
 import { generateCaddies } from "./team";
 import { ensureGoals, settleGoals } from "./goals";
 import { investmentsSeasonEnd } from "./investments";
+import { settleBrandGoals } from "./brandGoals";
 import { setObjectives, settleBoard } from "./board";
 import { bloomsAndBusts, developmentReports, settleTargets } from "./progression";
 
@@ -597,7 +598,8 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
     const r = c.pointsRank ?? 999;
     addReputation(world.agency, r <= 10 ? 8 : r <= 30 ? 5 : r <= FULL_CARD ? 2.5 : r <= CONDITIONAL_CARD ? 1 : 0);
   }
-  // The agency's investments pay out (or cost) for the season before the books close.
+  // Brand partners pay their goal bonuses, then the investments pay out (or cost), before the books close.
+  settleBrandGoals(world);
   investmentsSeasonEnd(world);
   const ledger = { ...world.agency.ledger };
   // The owners judge the season on its closing books.
