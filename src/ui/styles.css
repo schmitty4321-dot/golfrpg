@@ -845,6 +845,15 @@ select, input[type="text"], input[type="number"] {
 .trait-card.rarity-uncommon { border-left-color: var(--r-uncommon); }
 .trait-card.rarity-rare { border-left-color: var(--r-rare); }
 .trait-card.rarity-legendary { border-left-color: var(--r-legendary); }
+.trait-card.with-icon { grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: 12px; }
+.trait-card-body { display: grid; gap: 4px; min-width: 0; }
+.trait-icon { display: inline-grid; place-items: center; flex-shrink: 0; border-radius: 50%; color: #fff; border: 2px solid var(--r-common); box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.25), 0 1px 3px rgba(0, 0, 0, 0.2); }
+.trait-icon.pol-positive { background: linear-gradient(160deg, #2f8a5a, #1b5a3a); }
+.trait-icon.pol-negative { background: linear-gradient(160deg, #b34a3f, #7c2a22); }
+.trait-icon.pol-mixed { background: linear-gradient(160deg, #c48a2a, #8a5b12); }
+.trait-icon.rim-uncommon { border-color: var(--r-uncommon); }
+.trait-icon.rim-rare { border-color: var(--r-rare); }
+.trait-icon.rim-legendary { border-color: #e3bd57; box-shadow: inset 0 0 0 2px rgba(255, 236, 170, 0.45), 0 0 8px rgba(227, 189, 87, 0.6); }
 .trait-card-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; }
 .trait-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
 .trait-tag.rarity-common { color: var(--r-common); }
