@@ -14,6 +14,7 @@ import { finaleWeek, lastRegularWeek } from "./calendar";
 import { asSetUp } from "./courseSetup";
 import { pointsList, rankMap } from "./points";
 import type { EventTier, TourEvent, TourStatus, World, WorldPlayer } from "./types";
+import { titleEvent } from "./investments";
 
 /** Spots kept back in regular events for Monday qualifiers. */
 export const MONDAY_SPOTS = 4;
@@ -348,6 +349,8 @@ export function sponsorPicks(world: World, event: TourEvent, pool: string[], spo
   const rng = createRng(mixSeed(world.seed, world.season, world.week, 43, Number(event.id.replace(/\D/g, "")) || 1));
   const none = pool.map((id) => world.players[id]!).filter((wp) => wp.career.status === "none");
   const out: string[] = [];
+  // The agency's title event invites its clients first.
+  if (event.id === titleEvent(world)) for (const wp of none) if (out.length < spots && world.clientIds.includes(wp.player.id)) out.push(wp.player.id);
   for (const wp of none) {
     if (out.length >= spots) break;
     if (world.clientIds.includes(wp.player.id) && rng.chance(sponsorChance(world))) out.push(wp.player.id);

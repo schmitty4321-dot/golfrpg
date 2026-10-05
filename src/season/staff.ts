@@ -12,6 +12,7 @@ import type { Coach, CoachRole, Injury, RebuildArea, World, WorldPlayer } from "
 import type { AttributeKey } from "../engine";
 import { activeTargets, burnoutInjury, fatigueWeek, peakView, type PeakView } from "./progression";
 import { hasSkill } from "./staffSkills";
+import { owns } from "./investments";
 
 export const COACH_ROLES: CoachRole[] = ["swing", "shortGame", "putting", "mental", "fitness"];
 
@@ -236,7 +237,8 @@ export function endOfWeek(world: World, competed: Set<string>, rng: Rng, boosts:
 
     const mentored = mentor && isClient && wp.player.age < 25 && !has(wp, "mentor");
     const boost = boosts.get(wp.player.id);
-    const burnout = isClient ? fatigueWeek(wp, played) : 1;
+    // The agency's resort is a training base: clients carry the load 10% better.
+    const burnout = isClient ? fatigueWeek(wp, played, owns(world, "resort") ? 0.9 : 1) : 1;
     const targets = isClient ? activeTargets(world, wp) : [];
     const changes = developWeek(wp, { plan, coachQuality: quality, competed: played, mentored, managed: isClient, ...(isClient ? { facility: centerTier(world).growth + (hasSkill(world, "stats-guru") ? 0.03 : 0), burnout } : {}), ...(targets.length ? { targets } : {}), ...(boost ? { boost } : {}) }, rng);
     masteryWeek(wp, played, plan.focus);

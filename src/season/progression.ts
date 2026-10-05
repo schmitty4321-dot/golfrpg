@@ -60,14 +60,14 @@ const LOAD: Record<string, number> = { light: 1, normal: 3, heavy: 6 };
 export const BURNOUT_FROM = 60;
 
 /** A client's week of work builds fatigue (a rest week clears a lot of it). Returns the growth multiplier. */
-export function fatigueWeek(wp: WorldPlayer, played: boolean): number {
+export function fatigueWeek(wp: WorldPlayer, played: boolean, relief = 1): number {
   const c = wp.client;
   if (!c) return 1;
   // A full schedule on normal training stays clear of burnout; heavy work and few rest weeks don't.
   const load = played ? LOAD[c.training.intensity]! + 3 : LOAD[c.training.intensity]! - 10;
   // Fit players carry more before it bites.
   const carry = 1 - (wp.player.attributes.stamina - 12) * 0.03;
-  c.fatigue = clamp((c.fatigue ?? 0) + (load > 0 ? load * carry : load), 0, 100);
+  c.fatigue = clamp((c.fatigue ?? 0) + (load > 0 ? load * carry * relief : load), 0, 100);
   return burnoutFactor(c.fatigue);
 }
 

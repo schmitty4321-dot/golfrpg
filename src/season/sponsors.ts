@@ -5,6 +5,7 @@ import { rankMap } from "./points";
 import { absWeek, type SponsorCategory, type SponsorOffer, type World, type WorldPlayer } from "./types";
 import { bonusMultiplier, offerChanceMultiplier, sponsorValueMultiplier } from "./traits";
 import { hasSkill } from "./staffSkills";
+import { owns } from "./investments";
 
 export const BRANDS: Record<SponsorCategory, string[]> = {
   equipment: ["Talon Golf", "Kinetic Clubs", "Forged Theory", "Arcline", "Vantage Irons", "Northstar Golfworks", "TrueLine Putters", "Apex Forge", "Caddis Golf Lab"],
@@ -46,6 +47,8 @@ function marketingSkills(world: World, wp: WorldPlayer, category: SponsorCategor
   if (hasSkill(world, "category-expert") && (category === "equipment" || category === "apparel")) x *= 1.25;
   if (hasSkill(world, "underdog-seller") && (rankMap(world).get(wp.player.id) ?? 999) > 100) x *= 1.3;
   if (hasSkill(world, "global-reach") && wp.player.nationality !== "USA") x *= 1.2;
+  // The agency's fitting studio makes its clients' equipment worth more to the brands.
+  if (category === "equipment" && owns(world, "fitting")) x *= 1.05;
   return x;
 }
 

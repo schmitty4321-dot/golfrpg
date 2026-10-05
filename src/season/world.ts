@@ -47,7 +47,7 @@ import { ensureTraits, seasonEndTraits } from "./traits";
 import { ensureFamiliarity, fadeFamiliarity, familiarityWith } from "./familiarity";
 import { generateCaddies } from "./team";
 import { ensureGoals, settleGoals } from "./goals";
-import { investmentsSeasonEnd } from "./investments";
+import { academyIntake, investmentsSeasonEnd, mediaSeasonEnd } from "./investments";
 import { settleBrandGoals } from "./brandGoals";
 import { setObjectives, settleBoard } from "./board";
 import { bloomsAndBusts, developmentReports, settleTargets } from "./progression";
@@ -554,6 +554,10 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
     const p = generateAmateur(rng, `s${season}a${i + 1}`, rng.pick([16, 17, 17, 18, 18, 19]), usedNames, generation);
     world.players[p.id] = makeAmateur(p, rng);
   }
+  // The agency's academy may turn up a junior of its own; its podcast grows clients' followers.
+  let academyN = 0;
+  academyIntake(world, rng, (age) => makeAmateur(generateAmateur(rng, `s${season}ac${++academyN}`, age, usedNames, generation), rng));
+  mediaSeasonEnd(world);
 
   // Seasons off the main tour pile up; a card resets the count.
   for (const wp of Object.values(world.players)) {

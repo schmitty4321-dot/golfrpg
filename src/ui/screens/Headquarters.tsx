@@ -292,6 +292,7 @@ function InvestmentsPanel({ world, game }: { world: World; game: Game }) {
             <article key={k} className={`investment-card${mine ? " owned" : ""}`}>
               <strong>{d.label}</strong>
               <span className="secondary small">{d.blurb}</span>
+              {mine?.eventId && <span className="small">Your event: <b>{world.schedule.find((e) => e.id === mine.eventId)?.name ?? "—"}</b></span>}
               <span className="small">
                 {m(d.cost)} to start
                 {d.upkeep ? ` · ${m(d.upkeep)} a year to run` : ""}

@@ -315,6 +315,8 @@ export interface WorldPlayer {
   rebuild: SwingRebuild | null;
   /** A rival agency, or null for a free agent. Your clients use `client` instead. */
   agent: Representation | null;
+  /** Came through the agency's junior academy (rivals leave him alone while he's an amateur). */
+  academy?: boolean;
   /** A breakout or slump season, drawn each winter (strokes gained a round). */
   seasonForm?: { season: number; sg: number };
   /** Present only for your agency's clients. */

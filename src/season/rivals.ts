@@ -170,6 +170,8 @@ export function winterRoster(world: World): Map<string, number> {
 export function rivalBids(world: World, id: string, roster: Map<string, number> = winterRoster(world)): RivalBid[] {
   const wp = world.players[id];
   if (!wp || wp.client) return [];
+  // Your academy's juniors are yours to approach first.
+  if (wp.academy && wp.career.status === "amateur") return [];
   const worth = playerWorth(wp);
   const needed = expectedReputation(world, id);
   const out: RivalBid[] = [];
