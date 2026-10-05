@@ -37,6 +37,7 @@ import { FamiliarityPanel } from "./Familiarity";
 import { money, plural, signed, TIER_LABELS, toPar } from "../format";
 import type { Game } from "../useGame";
 import { ArchetypePill } from "./Archetype";
+import { TendencyBadge } from "./TendencyIcon";
 
 export function chanceWords(p: number): string {
   if (p < 0.1) return "Very unlikely";
@@ -152,7 +153,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
               <div>
                 <div className="pp-label">Tendencies</div>
                 <div className="pp-chips">
-                  {describeTendencies(tendencies(wp.player)).map((t) => <span key={t.label} className="pp-chip" title={`${t.label}: ${t.detail}`}>{t.value}</span>)}
+                  {describeTendencies(tendencies(wp.player)).map((t) => <span key={t.label} className="pp-chip tendency-chip" title={`${t.label}: ${t.detail}`}><TendencyBadge label={t.label} value={t.value} size={20} />{t.value}</span>)}
                 </div>
               </div>
             )}

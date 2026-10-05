@@ -1,4 +1,5 @@
 import { describeTendencies, tendencies, type Player } from "../../engine";
+import { TendencyBadge } from "./TendencyIcon";
 
 /** How a player misses, shapes and flies the ball, plays holes and putts. */
 export function TendenciesPanel({ player }: { player: Player }) {
@@ -7,9 +8,12 @@ export function TendenciesPanel({ player }: { player: Player }) {
     <div className="tendencies">
       {rows.map((r) => (
         <div key={r.label} className="tendency">
-          <span className="stat-label">{r.label}</span>
-          <strong>{r.value}</strong>
-          <span className="secondary small">{r.detail}</span>
+          <TendencyBadge label={r.label} value={r.value} />
+          <div className="tendency-copy">
+            <span className="stat-label">{r.label}</span>
+            <strong>{r.value}</strong>
+            <span className="secondary small">{r.detail}</span>
+          </div>
         </div>
       ))}
     </div>

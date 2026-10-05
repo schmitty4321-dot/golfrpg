@@ -455,8 +455,11 @@ select, input[type="text"], input[type="number"] {
 .sc-button { background: none; border: 0; padding: 0; cursor: pointer; font: inherit; color: inherit; }
 .stats-table td { padding: 4px 8px; }
 .leaders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; margin-top: 14px; }
-.tendencies { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px 20px; }
-.tendency { display: grid; gap: 2px; }
+.tendencies { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px 20px; }
+.tendency { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 9px; align-items: start; }
+.tendency-copy { display: grid; gap: 2px; min-width: 0; }
+.tendency-symbol { display: inline-flex; flex: none; filter: drop-shadow(0 1px 1px rgba(9, 32, 24, .2)); }
+.tendency-chip { display: inline-flex; align-items: center; gap: 4px; padding-left: 2px; }
 
 /* ---------- course ---------- */
 .course-photo { margin: -16px -16px 14px; position: relative; }
