@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createRng } from "../src/engine";
 import {
+  BRAND_ART,
   guaranteed,
   BRANDS,
   brandLift,
@@ -18,10 +19,11 @@ import {
 } from "../src/season";
 
 describe("brand partnerships", () => {
-  it("has a 50-brand catalog spanning every partnership category", () => {
-    expect(Object.values(BRANDS).flat()).toHaveLength(50);
-    expect(Object.values(BRANDS).every((brands) => brands.length >= 8)).toBe(true);
-    expect(new Set(Object.values(BRANDS).flat()).size).toBe(50);
+  it("has a 60-brand catalog spanning every partnership category, each with its banner", () => {
+    expect(Object.values(BRANDS).flat()).toHaveLength(60);
+    expect(Object.values(BRANDS).every((brands) => brands.length === 10)).toBe(true);
+    expect(new Set(Object.values(BRANDS).flat()).size).toBe(60);
+    for (const b of Object.values(BRANDS).flat()) expect(BRAND_ART[b]?.banner).toMatch(/^art\/sponsors\/banners\//);
   });
 
   it("come with reputation, pay weekly and lift their category", () => {
