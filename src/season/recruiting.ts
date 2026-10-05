@@ -1,0 +1,393 @@
+/**
+ * Recruiting amateurs, college-football style. Each week the agency has a
+ * budget of hours to spend on prospects: watching film and going to their
+ * events sharpens your read of them (never to an exact number), calls, visits
+ * and pitches build their interest in you. Interest makes a "yes" likelier,
+ * a prospect near turning pro names the three agencies he's considering, and
+ * on signing day (the season's end) he commits to his favourite. Pipelines
+ * from schools and states you've signed from, relationships with college
+ * coaches and the academy give a head start; some prospects have
+ * dealbreakers, and each season's class is ranked against the rivals'.
+ */
+import { ATTRIBUTE_GROUPS, clamp, createRng, type AttributeKey } from "../engine";
+import { addReputation, clients, marketRate, rosterLimit, signClient, RIVAL_AGENCIES } from "./agency";
+import { PRO_AGE, amateurRanking } from "./amateurs";
+import { mixSeed } from "./entries";
+import { stafferQuality } from "./market";
+import { rankMap } from "./points";
+import { schoolOf } from "./schools";
+import { scoutedAttribute } from "./scouting";
+import { absWeek, type World, type WorldPlayer } from "./types";
+
+// ---------------------------------------------------------------- the weekly budget
+
+/** Hours a week: more with a bigger headquarters and a better agent. */
+export const weeklyHours = (world: World): number => Math.round(30 + (world.agency.hq ?? 0) * 5 + stafferQuality(world, "agent") * 0.5);
+
+export interface RecruitingState {
+  absWeek: number;
+  hoursUsed: number;
+  showcaseSeason?: number;
+  /** Visits and signings with each college's coach (a relationship). */
+  coaches?: Record<string, number>;
+  /** Clients signed from each school and home state (pipelines). */
+  pipelines?: { schools: Record<string, number>; states: Record<string, number> };
+  /** Prospects signed in each season (your recruiting class). */
+  classes?: Record<number, string[]>;
+  /** Last season's class rankings: agency and score, best first. */
+  lastRanking?: { season: number; rows: { agency: string; score: number; signed: number }[] };
+}
+
+export interface Prospect {
+  interest: number;
+  /** Absolute weeks of the last call and pitch (once a week each). */
+  called?: number;
+  pitched?: number;
+  /** The season of his visit (once a season). */
+  visited?: number;
+  /** Talked to him enough to know what he cares about. */
+  known?: boolean;
+}
+
+export const recruitingOf = (world: World): RecruitingState => {
+  const now = absWeek(world.season, world.week);
+  const r = (world.agency.recruiting ??= { absWeek: now, hoursUsed: 0 });
+  if (r.absWeek !== now) {
+    r.absWeek = now;
+    r.hoursUsed = 0;
+  }
+  return r;
+};
+export const hoursLeft = (world: World): number => Math.max(0, weeklyHours(world) - recruitingOf(world).hoursUsed);
+
+// ---------------------------------------------------------------- who and what
+
+const idHash = (id: string) => {
+  let h = 0;
+  for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return h;
+};
+const rngFor = (world: World, id: string, salt: number) => createRng(mixSeed(world.seed, idHash(id), salt));
+
+/** The prospects worth recruiting: the amateurs, best ranked first. */
+export const prospects = (world: World): string[] => amateurRanking(world).filter((id) => !world.players[id]?.client);
+
+/** Stars by the public amateur ranking. */
+export function stars(world: World, id: string): number {
+  const i = amateurRanking(world).indexOf(id);
+  if (i < 0) return 1;
+  return i < 5 ? 5 : i < 20 ? 4 : i < 45 ? 3 : i < 70 ? 2 : 1;
+}
+
+// ---------------------------------------------------------------- selling points
+
+export type SellingPoint = "reputation" | "development" | "sponsors" | "stars" | "headquarters";
+export const SELLING_POINTS: Record<SellingPoint, string> = {
+  reputation: "The agency's name",
+  development: "Player development",
+  sponsors: "Sponsor deals",
+  stars: "Star clients",
+  headquarters: "Facilities",
+};
+export type Grade = "A" | "B" | "C" | "D" | "F";
+const GRADE_POINTS: Record<Grade, number> = { A: 6, B: 4, C: 2, D: 0, F: -2 };
+
+/** How the agency grades on each thing prospects care about. */
+export function grades(world: World): Record<SellingPoint, Grade> {
+  const rep = world.agency.reputation;
+  const ranks = rankMap(world);
+  const best = Math.min(999, ...clients(world).map((wp) => ranks.get(wp.player.id) ?? 999));
+  const brands = (world.agency.brands ?? []).length + clients(world).reduce((s, wp) => s + wp.client!.sponsors.length, 0) / 3;
+  const tier = (n: number): Grade => (["D", "C", "B", "A"] as Grade[])[clamp(n, 0, 3)]!;
+  return {
+    reputation: rep >= 75 ? "A" : rep >= 60 ? "B" : rep >= 45 ? "C" : rep >= 30 ? "D" : "F",
+    development: tier(world.agency.center ?? 0),
+    sponsors: brands >= 4 ? "A" : brands >= 2.5 ? "B" : brands >= 1 ? "C" : brands > 0 ? "D" : "F",
+    stars: best <= 10 ? "A" : best <= 30 ? "B" : best <= 75 ? "C" : best <= 150 ? "D" : "F",
+    headquarters: tier(world.agency.hq ?? 0),
+  };
+}
+
+/** The two things a prospect cares about most (fixed by who he is). */
+export function priorities(world: World, id: string): SellingPoint[] {
+  const all = Object.keys(SELLING_POINTS) as SellingPoint[];
+  const rng = rngFor(world, id, 5101);
+  const first = all.splice(rng.int(0, all.length - 1), 1)[0]!;
+  return [first, all[rng.int(0, all.length - 1)]!];
+}
+
+// ---------------------------------------------------------------- dealbreakers
+
+export type Dealbreaker = "top10" | "center" | "rep50";
+export const DEALBREAKERS: Record<Dealbreaker, string> = {
+  top10: "Only an agency with a client in the world top 10",
+  center: "Only an agency with a Performance Center",
+  rep50: "Only an agency with a reputation of 50 or more",
+};
+/** About one prospect in five won't consider an agency without something. */
+export function dealbreaker(world: World, id: string): Dealbreaker | null {
+  const rng = rngFor(world, id, 5102);
+  if (!rng.chance(0.2)) return null;
+  return rng.pick(["top10", "center", "rep50"] as const);
+}
+export function dealbreakerMet(world: World, d: Dealbreaker | null): boolean {
+  if (!d) return true;
+  if (d === "rep50") return world.agency.reputation >= 50;
+  if (d === "center") return (world.agency.center ?? 0) >= 1;
+  const ranks = rankMap(world);
+  return clients(world).some((wp) => (ranks.get(wp.player.id) ?? 999) <= 10);
+}
+
+// ---------------------------------------------------------------- interest
+
+/** Your head start with a prospect: pipelines from his school and state, his coach, the academy. */
+export function headStart(world: World, wp: WorldPlayer): { total: number; notes: string[] } {
+  const r = recruitingOf(world);
+  const s = schoolOf(world, wp);
+  const notes: string[] = [];
+  let total = 0;
+  if (s?.kind === "college" || s?.kind === "high") {
+    const school = s.kind === "college" ? r.pipelines?.schools[s.name] ?? 0 : 0;
+    const state = s.state ? r.pipelines?.states[s.state] ?? 0 : 0;
+    if (school) { total += Math.min(15, 5 * school); notes.push(`Pipeline from ${s.kind === "college" ? s.name : ""}`.trim()); }
+    if (state) { total += Math.min(10, 3 * state); notes.push(`Pipeline in ${s.state}`); }
+    const coach = s.kind === "college" ? r.coaches?.[s.name] ?? 0 : 0;
+    if (coach) { total += Math.min(10, 2 * coach); notes.push(`Good relations with the ${s.kind === "college" ? s.name : ""} coach`); }
+  }
+  if (wp.academy) { total += 30; notes.push("Came through your academy"); }
+  return { total, notes };
+}
+
+export function prospectOf(world: World, id: string): Prospect {
+  const all = (world.agency.prospects ??= {});
+  if (!all[id]) all[id] = { interest: clamp(10 + headStart(world, world.players[id]!).total, 0, 100) };
+  return all[id]!;
+}
+/** Interest without creating a record (for lists). */
+export const interestIn = (world: World, id: string): number =>
+  world.agency.prospects?.[id]?.interest ?? clamp(10 + headStart(world, world.players[id]!).total, 0, 100);
+
+/** Interest as signing odds: score points for acceptChance (only for prospects you've worked on). */
+export function interestBonus(world: World, id: string): number {
+  const p = world.agency.prospects?.[id];
+  if (!p) return 0;
+  return (p.interest - 40) * 0.12 - (dealbreakerMet(world, dealbreaker(world, id)) ? 0 : 8);
+}
+
+// ---------------------------------------------------------------- his list of agencies
+
+/** The agencies he's considering, best first, with how keen he is on each (rivals by their name and a little luck). */
+export function agencyList(world: World, id: string): { agency: string; interest: number; you: boolean }[] {
+  const rng = rngFor(world, id, 5103 + world.season);
+  const rivals = (world.rivals?.map((r) => ({ name: r.name, rep: r.reputation })) ?? RIVAL_AGENCIES.map((name) => ({ name, rep: 50 })));
+  const rows = rivals.map((r) => ({ agency: r.name, interest: Math.round(clamp(r.rep * 0.6 + rng.normal(10, 12), 0, 95)), you: false }));
+  const mine = dealbreakerMet(world, dealbreaker(world, id)) ? interestIn(world, id) : Math.min(interestIn(world, id), 30);
+  rows.push({ agency: world.agency.name, interest: Math.round(mine), you: true });
+  return rows.sort((a, b) => b.interest - a.interest || (a.you ? -1 : 1));
+}
+
+/** In his final amateur season he narrows it to three. */
+export const narrowing = (wp: WorldPlayer): boolean => wp.career.status === "amateur" && wp.player.age + 1 >= PRO_AGE;
+export const topThree = (world: World, id: string) => agencyList(world, id).slice(0, 3);
+
+/** Why you can't sign him (his list doesn't include you), or null. */
+export function recruitBlock(world: World, id: string): string | null {
+  const wp = world.players[id];
+  if (!wp || !narrowing(wp) || !world.agency.prospects?.[id]) return null;
+  const top = topThree(world, id);
+  if (top.some((t) => t.you)) return null;
+  return `He's narrowed his list to ${top.map((t) => t.agency).join(", ")}.`;
+}
+
+// ---------------------------------------------------------------- spending hours
+
+export type RecruitAction = "film" | "event" | "call" | "visit" | "pitch";
+export const ACTIONS: Record<RecruitAction, { label: string; hours: number; blurb: string }> = {
+  film: { label: "Watch film", hours: 2, blurb: "A sharper read of his game." },
+  event: { label: "Attend an event", hours: 8, blurb: "A much sharper read, and he notices you came." },
+  call: { label: "Call the family", hours: 3, blurb: "Builds interest; tells you what he cares about. Once a week." },
+  visit: { label: "Visit", hours: 10, blurb: "A big jump in interest. Once a season." },
+  pitch: { label: "Pitch the agency", hours: 5, blurb: "Sell what he cares about: better grades, more interest. Once a week." },
+};
+
+/** Your best scout makes every look count for more. */
+const lookQuality = (world: World) => {
+  const best = Math.max(0, ...world.agency.hiredScouts.map((sid) => world.agency.scouts.find((s) => s.id === sid)?.quality ?? 0));
+  return 0.85 + best / 40;
+};
+
+/** Never a perfect read of a prospect: ranges always. */
+export const MAX_READ = 0.95;
+function sharpen(world: World, id: string, by: number): void {
+  const k = world.agency.knowledge[id];
+  world.agency.knowledge[id] = { accuracy: Math.min(MAX_READ, (k?.accuracy ?? 0) + by * lookQuality(world)), reports: (k?.reports ?? 0) + 1, absWeek: absWeek(world.season, world.week) };
+}
+
+/** Why an action can't be taken now, or null. */
+export function actionBlock(world: World, id: string, action: RecruitAction): string | null {
+  if (hoursLeft(world) < ACTIONS[action].hours) return "Not enough hours left this week.";
+  const p = world.agency.prospects?.[id];
+  const now = absWeek(world.season, world.week);
+  if (action === "call" && p?.called === now) return "You've called this week.";
+  if (action === "pitch" && p?.pitched === now) return "You've pitched this week.";
+  if (action === "visit" && p?.visited === world.season) return "You've visited this season.";
+  return null;
+}
+
+export function recruit(world: World, id: string, action: RecruitAction): string {
+  const block = actionBlock(world, id, action);
+  if (block) throw new Error(block);
+  const wp = world.players[id]!;
+  const p = prospectOf(world, id);
+  const now = absWeek(world.season, world.week);
+  recruitingOf(world).hoursUsed += ACTIONS[action].hours;
+  const add = (n: number) => (p.interest = clamp(p.interest + n, 0, dealbreakerMet(world, dealbreaker(world, id)) ? 100 : 35));
+  switch (action) {
+    case "film":
+      sharpen(world, id, 0.1);
+      return `You watch film of ${wp.player.name}.`;
+    case "event":
+      sharpen(world, id, 0.28);
+      add(3);
+      return `You watch ${wp.player.name} play; he saw you there.`;
+    case "call":
+      p.called = now;
+      p.known = true;
+      add(4);
+      return `You call ${wp.player.name}'s family.`;
+    case "visit": {
+      p.visited = world.season;
+      p.known = true;
+      const s = schoolOf(world, wp);
+      if (s?.kind === "college") {
+        const c = (recruitingOf(world).coaches ??= {});
+        c[s.name] = (c[s.name] ?? 0) + 1;
+      }
+      add(12);
+      return `You visit ${wp.player.name}.`;
+    }
+    case "pitch": {
+      p.pitched = now;
+      const g = grades(world);
+      const pts = priorities(world, id).reduce((s, k) => s + GRADE_POINTS[g[k]], 0) / 2;
+      add(2 + pts + (wp.academy ? 3 : 0));
+      return `You pitch the agency to ${wp.player.name}.`;
+    }
+  }
+}
+
+/** A junior showcase: once a season, a first look at every high-school prospect. */
+export const SHOWCASE_HOURS = 10;
+export function showcaseBlock(world: World): string | null {
+  if (recruitingOf(world).showcaseSeason === world.season) return "Already held this season.";
+  if (hoursLeft(world) < SHOWCASE_HOURS) return "Not enough hours left this week.";
+  return null;
+}
+export function holdShowcase(world: World): number {
+  const block = showcaseBlock(world);
+  if (block) throw new Error(block);
+  const r = recruitingOf(world);
+  r.showcaseSeason = world.season;
+  r.hoursUsed += SHOWCASE_HOURS;
+  let n = 0;
+  for (const id of prospects(world)) {
+    if (schoolOf(world, world.players[id]!)?.kind !== "high") continue;
+    const k = world.agency.knowledge[id];
+    if ((k?.accuracy ?? 0) < 0.35) {
+      world.agency.knowledge[id] = { accuracy: 0.35, reports: (k?.reports ?? 0) + 1, absWeek: absWeek(world.season, world.week) };
+      n++;
+    }
+  }
+  return n;
+}
+
+// ---------------------------------------------------------------- the card: what you know
+
+export const readOf = (world: World, id: string): number => world.agency.knowledge[id]?.accuracy ?? 0;
+export const READ_TIERS = { skills: 0.2, ceiling: 0.45, details: 0.6 } as const;
+
+/** A skill group as a range (never exact for a prospect). */
+export function groupRange(world: World, id: string, group: keyof typeof ATTRIBUTE_GROUPS): { low: number; high: number } | null {
+  const keys = ATTRIBUTE_GROUPS[group] as readonly AttributeKey[];
+  const vals = keys.map((k) => scoutedAttribute(world, id, k)).filter((v): v is NonNullable<typeof v> => !!v);
+  if (!vals.length) return null;
+  const low = vals.reduce((s, v) => s + v.low, 0) / vals.length;
+  const high = vals.reduce((s, v) => s + v.high, 0) / vals.length;
+  const pad = high - low < 1 ? 0.5 : 0;
+  return { low: Math.round((low - pad) * 2) / 2, high: Math.round((high + pad) * 2) / 2 };
+}
+
+/** His ceiling as an overall range, narrower with a better read. */
+export function ceilingRange(world: World, id: string): { low: number; high: number } | null {
+  const read = readOf(world, id);
+  if (read < READ_TIERS.ceiling) return null;
+  const wp = world.players[id]!;
+  const spread = Math.max(0.5, (1 - read) * 4);
+  const lean = (rngFor(world, id, 5104).next() * 2 - 1) * spread * 0.5;
+  const mid = wp.development.potential + lean;
+  return { low: Math.round((mid - spread) * 2) / 2, high: Math.round((mid + spread) * 2) / 2 };
+}
+
+/** A gem (better than his ranking) or a bust (worse), once you know him well enough. */
+export function gemOrBust(world: World, id: string): "gem" | "bust" | null {
+  if (readOf(world, id) < READ_TIERS.ceiling) return null;
+  const i = amateurRanking(world).indexOf(id);
+  const expected = i < 10 ? 14.5 : i < 30 ? 13.3 : 12.3;
+  const d = world.players[id]!.development.potential - expected;
+  return d >= 1 ? "gem" : d <= -1 ? "bust" : null;
+}
+
+// ---------------------------------------------------------------- signing, signing day and the class
+
+/** Called when a client is signed: pipelines, coach relations and the class. */
+export function noteSigning(world: World, wp: WorldPlayer): void {
+  const s = wp.school;
+  if (!s && wp.career.status !== "amateur") return;
+  const r = recruitingOf(world);
+  const pipes = (r.pipelines ??= { schools: {}, states: {} });
+  if (s?.kind === "college") {
+    pipes.schools[s.name] = (pipes.schools[s.name] ?? 0) + 1;
+    (r.coaches ??= {})[s.name] = (r.coaches[s.name] ?? 0) + 2;
+  }
+  if (s && s.kind !== "national" && s.state) pipes.states[s.state] = (pipes.states[s.state] ?? 0) + 1;
+  if (wp.career.status === "amateur") ((r.classes ??= {})[world.season] ??= []).push(wp.player.id);
+}
+
+/**
+ * Signing day, at the season's end: a prospect you've worked on who's
+ * turning pro commits to the top agency on his list. Yours: he signs at his
+ * going rate for two seasons (if there's room). A rival's: he joins them.
+ */
+export function signingDay(world: World, wp: WorldPlayer): string | null {
+  if (!world.agency.prospects?.[wp.player.id] || wp.client) return null;
+  const top = agencyList(world, wp.player.id)[0]!;
+  if (top.you) {
+    // A full roster can't take him: he goes to the winter market instead.
+    if (world.clientIds.length >= rosterLimit(world.agency.reputation, world.agency.hq)) return `Signing day: ${wp.player.name} wanted ${world.agency.name}, but your roster is full.`;
+    signClient(world, wp.player.id, { commission: marketRate(wp), years: 2 });
+    return `Signing day: ${wp.player.name} commits to ${world.agency.name}!`;
+  }
+  wp.agent = { agency: top.agency, untilSeason: world.season + 2, commission: 0.1 };
+  return `Signing day: ${wp.player.name} commits to ${top.agency}.`;
+}
+
+/** Season end: rank the class (yours by the prospects you signed, the rivals' by the new pros they landed). */
+export function rankClasses(world: World, newPros: string[]): void {
+  const r = recruitingOf(world);
+  const score = (ids: string[]) => ids.reduce((s, id) => s + Math.max(1, Math.round((world.players[id]?.development.potential ?? 11) - 10)), 0);
+  const mine = [...new Set(r.classes?.[world.season] ?? [])];
+  const byRival = new Map<string, string[]>();
+  for (const id of newPros) {
+    const a = world.players[id]?.agent?.agency;
+    if (a) byRival.set(a, [...(byRival.get(a) ?? []), id]);
+  }
+  const rows = [{ agency: world.agency.name, score: score(mine), signed: mine.length }, ...[...byRival].map(([agency, ids]) => ({ agency, score: score(ids), signed: ids.length }))].sort((a, b) => b.score - a.score);
+  r.lastRanking = { season: world.season, rows };
+  const place = rows.findIndex((x) => x.agency === world.agency.name);
+  if (mine.length && place === 0) {
+    addReputation(world.agency, 3);
+    world.news.unshift(`${world.agency.name} lands the season's top recruiting class.`);
+  } else if (mine.length && place <= 2) addReputation(world.agency, 1.5);
+  // Interest cools over the winter.
+  for (const p of Object.values(world.agency.prospects ?? {})) p.interest = Math.round(p.interest * 0.8);
+}

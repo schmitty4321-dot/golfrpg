@@ -15,6 +15,7 @@ import { commissionWeight, decisionSensitivity, extensionBias, heldOutPenalty, o
 import { cleanExtras, extrasAppeal, type DealExtras } from "./contractTerms";
 import { overall } from "./development";
 import { hasSkill } from "./staffSkills";
+import { interestBonus, noteSigning, recruitBlock } from "./recruiting";
 
 export const RIVAL_AGENCIES = [
   "Apex Sports Management",
@@ -167,6 +168,8 @@ export function approachBlock(world: World, id: string): string | null {
   }
   const until = world.agency.cooldowns[id];
   if (until !== undefined && until > absWeek(world.season, world.week)) return "He turned you down recently. Give it a few weeks.";
+  const narrowed = recruitBlock(world, id);
+  if (narrowed) return narrowed;
   if (world.clientIds.length >= rosterLimit(world.agency.reputation, world.agency.hq)) {
     return `Your agency can manage ${rosterLimit(world.agency.reputation, world.agency.hq)} clients at its reputation. Grow it, or move to a bigger headquarters, to take on more.`;
   }
@@ -183,6 +186,8 @@ export function acceptChance(world: World, id: string, offer: Offer): number {
   score += recruitingBonus(world);
   score += negotiationBonus(world, "agent");
   score += signingSkills(world, wp, offer);
+  // A prospect you've recruited: his interest in you counts.
+  score += interestBonus(world, id);
   // Ambitious players want a big-name agency; young ones like security, veterans like flexibility.
   score -= Math.max(0, a.ambition - 12) * 1.5;
   score += wp.player.age <= 25 ? (offer.years - 1) * 3 : wp.player.age >= 36 ? (1 - offer.years) * 2 : 0;
@@ -290,6 +295,7 @@ export function signClient(world: World, id: string, offer: Offer): void {
   const wp = world.players[id]!;
   // A player still on a rival's books in his final season joins you when that deal ends; we simplify and let him move now.
   wp.agent = null;
+  noteSigning(world, wp);
   wp.client = newManagement(world.season, offer.commission, offer.years);
   const extras = cleanExtras(offer.extras);
   if (extras) wp.client.contract.extras = extras;

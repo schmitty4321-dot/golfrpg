@@ -401,6 +401,10 @@ export interface Agency {
   cooldowns: Record<string, number>;
   /** The absolute week of the agency's last signing offer (one a week). */
   offerWeek?: number;
+  /** Recruiting: this week's hours, pipelines, coach relations, classes (see recruiting.ts). */
+  recruiting?: import("./recruiting").RecruitingState;
+  /** Prospects you've worked on: their interest in you. */
+  prospects?: Record<string, import("./recruiting").Prospect>;
   /** The agency's private jet: leased by the week, or owned. */
   jet?: "lease" | "own" | null;
   /** The agency's Performance Center tier (0 = none). */

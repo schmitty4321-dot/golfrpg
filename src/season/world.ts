@@ -51,6 +51,7 @@ import { academyIntake, investmentsSeasonEnd, mediaSeasonEnd } from "./investmen
 import { settleBrandGoals } from "./brandGoals";
 import { setObjectives, settleBoard } from "./board";
 import { bloomsAndBusts, developmentReports, settleTargets } from "./progression";
+import { rankClasses, signingDay } from "./recruiting";
 
 /** How your first client's career starts. */
 export type Scenario = "agency" | "rookie" | "journeyman" | "grinder" | "veteran";
@@ -540,10 +541,15 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   const amRanking = amateurRanking(world);
   const champ = amRanking[0] ? world.players[amRanking[0]] : undefined;
   if (champ) seasonRec.amateurChampion = { playerId: champ.player.id, name: champ.player.name };
+  const newPros: string[] = [];
   amRanking.forEach((id, i) => {
     const wp = world.players[id]!;
     const ready = wp.player.age + 1 >= PRO_AGE || (!wp.client && wp.player.age + 1 >= 20 && i < 10 && rng.chance(0.5));
     if (ready && !(wp.client && wp.player.age + 1 < PRO_AGE)) {
+      // Signing day: a prospect you've recruited commits to the top of his list.
+      const committed = signingDay(world, wp);
+      if (committed) world.news.unshift(committed);
+      newPros.push(id);
       wp.career.status = "none";
       if (i < 10) world.news.unshift(`Top amateur ${wp.player.name} turns professional.`);
     }
@@ -618,6 +624,8 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   rivalRelationshipsSeasonEnd(world);
   // The rivals' winter: reputations, the market for every free player, deals and winter plans.
   for (const line of rivalSeasonEnd(world).slice(0, 8).reverse()) world.news.unshift(line);
+  // The season's recruiting classes, once the rivals have landed theirs.
+  rankClasses(world, newPros);
   const summary: SeasonSummary | null = world.clientIds.length || clientSummaries.length
     ? { ...seasonHeadlines(world), clients: clientSummaries, agency: { reputationBefore: repBefore, reputationAfter: world.agency.reputation, ledger, departures }, courseSetup }
     : null;
