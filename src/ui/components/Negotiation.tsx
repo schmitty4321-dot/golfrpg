@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { MAX_ROUNDS, marketRate, RELEASE_CLAUSE_STEPS, RETAINER_STEPS, SIGNING_BONUS_STEPS, STRUCTURE_LABELS, WIN_BONUS_STEPS, cleanExtras, describeTerms, warmth, type CommissionStructure, type PromiseKind, type World } from "../../season";
+import { MAX_ROUNDS, interestedAgencies, marketRate, negotiationFor, offerBlock, RELEASE_CLAUSE_STEPS, RETAINER_STEPS, SIGNING_BONUS_STEPS, STRUCTURE_LABELS, WIN_BONUS_STEPS, cleanExtras, describeTerms, warmth, type CommissionStructure, type PromiseKind, type World } from "../../season";
 import type { Game } from "../useGame";
 import { PromisePicker } from "./Promises";
 import { PlayerName } from "./PlayerLink";
 
 /** The negotiation table, for the talks going on (or just finished) with this player. */
 export function NegotiationTable({ world, game, playerId, onClose }: { world: World; game: Game; playerId: string; onClose: () => void }) {
-  const n = world.negotiation;
+  const n = negotiationFor(world, playerId);
   const wp = world.players[playerId];
   const start = n?.counter ?? [...(n?.lines ?? [])].reverse().find((l) => l.terms)?.terms;
   const current = wp?.client?.contract.commission ?? 0.1;
@@ -25,10 +25,23 @@ export function NegotiationTable({ world, game, playerId, onClose }: { world: Wo
   const extras = cleanExtras({ structure, ...(majors !== "same" ? { majorCommission: majors / 100 } : {}), winBonus, signingBonus: signing, releaseClause: clause, retainer });
   const terms = { commission: commission / 100, years, promises, ...(extras ? { extras } : {}) };
   const k = (n: number) => (n === 0 ? "None" : n >= 1e6 ? `$${(n / 1e6).toFixed(1)}M` : `$${n / 1000}k`);
+  const blocked = n ? offerBlock(world, n) : null;
+  const rivals = n?.kind === "sign" ? interestedAgencies(world, playerId) : [];
+  // Signing talks stay open over the weeks: closing the table only puts them aside.
   const finish = () => {
     game.act((w) => {
-      if (w.negotiation?.status === "open") game.lib.abandonNegotiation(w);
-      delete w.negotiation;
+      if (n?.kind === "sign") game.lib.clearTalks(w, playerId);
+      else {
+        if (w.negotiation?.status === "open") game.lib.abandonNegotiation(w);
+        delete w.negotiation;
+      }
+    });
+    onClose();
+  };
+  const withdraw = () => {
+    game.act((w) => {
+      game.lib.abandonNegotiation(w, playerId);
+      game.lib.clearTalks(w, playerId);
     });
     onClose();
   };
@@ -53,11 +66,13 @@ export function NegotiationTable({ world, game, playerId, onClose }: { world: Wo
               </li>
             ))}
           </ul>
-          {open ? (
+          {open && n.pending && <p className="secondary" style={{ marginTop: 0 }}>He's thinking over your offer. Players usually take two to four weeks over a first offer, a week or two after that.</p>}
+          {rivals.length > 0 && <p className="small" style={{ marginTop: 0 }}>Also talking to him: <strong>{rivals.join(", ")}</strong>. Their terms are private.</p>}
+          {open && !n.pending ? (
             <>
               {n.counter && (
                 <div className="btn-row" style={{ alignItems: "center" }}>
-                  <button className="btn btn-primary" onClick={() => game.act((w) => game.lib.acceptCounter(w))}>Accept his terms</button>
+                  <button className="btn btn-primary" onClick={() => game.act((w) => game.lib.acceptCounter(w, playerId))}>Accept his terms</button>
                   <span className="small muted">{describeTerms(n.counter)}</span>
                 </div>
               )}
@@ -114,11 +129,18 @@ export function NegotiationTable({ world, game, playerId, onClose }: { world: Wo
               </details>
               <PromisePicker wp={wp} value={promises} onChange={setPromises} />
               <div className="btn-row" style={{ marginTop: 10 }}>
-                <button className="btn btn-primary" onClick={() => game.act((w) => game.lib.makeOffer(w, terms))}>Make this offer</button>
-                <button className="btn" onClick={finish}>Leave the table</button>
+                <button className="btn btn-primary" disabled={!!blocked} onClick={() => game.act((w) => game.lib.makeOffer(w, terms, playerId))}>Make this offer</button>
+                {n.kind === "sign" ? <button className="btn" onClick={withdraw}>Walk away</button> : <button className="btn" onClick={finish}>Leave the table</button>}
+                {n.kind === "sign" && <button className="btn" onClick={finish}>Close</button>}
               </div>
+              {blocked && <p className="small muted" style={{ margin: "6px 0 0" }}>{blocked}</p>}
               <p className="muted small" style={{ marginBottom: 0 }}>Each offer that falls short costs patience (a lowball costs double). He counters with the smallest change that would get it done; accept it, or try something else.</p>
             </>
+          ) : open ? (
+            <div className="btn-row">
+              <button className="btn btn-primary" onClick={finish}>Close</button>
+              <button className="btn" onClick={withdraw}>Withdraw the offer</button>
+            </div>
           ) : (
             <div className="btn-row">
               <button className="btn btn-primary" onClick={finish}>{n.status === "agreed" ? "Done" : "Close"}</button>

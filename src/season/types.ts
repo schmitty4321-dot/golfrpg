@@ -315,6 +315,8 @@ export interface WorldPlayer {
   rebuild: SwingRebuild | null;
   /** A rival agency, or null for a free agent. Your clients use `client` instead. */
   agent: Representation | null;
+  /** An amateur's school: a college, or high school and his home state (see schools.ts). */
+  school?: import("./schools").School;
   /** Came through the agency's junior academy (rivals leave him alone while he's an amateur). */
   academy?: boolean;
   /** A breakout or slump season, drawn each winter (strokes gained a round). */
@@ -395,6 +397,8 @@ export interface Agency {
   ledger: AgencyLedger;
   /** Player id → absolute week before which he won't hear another offer. */
   cooldowns: Record<string, number>;
+  /** The absolute week of the agency's last signing offer (one a week). */
+  offerWeek?: number;
   /** The agency's private jet: leased by the week, or owned. */
   jet?: "lease" | "own" | null;
   /** The agency's Performance Center tier (0 = none). */
@@ -612,6 +616,8 @@ export interface World {
   rivalries?: import("./rivalries").Rivalry[];
   /** Talks going on (or just finished) at the negotiation table (see negotiation.ts). */
   negotiation?: import("./negotiation").Negotiation;
+  /** Signing talks, by player: they run over weeks, while he thinks your offers over. */
+  talks?: Record<string, import("./negotiation").Negotiation>;
   /** Decisions waiting in the inbox, and the last few answered (see inbox.ts). */
   inbox?: import("./inbox").Decision[];
   /** The rival agencies (older saves get them on load). */

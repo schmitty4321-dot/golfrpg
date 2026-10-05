@@ -48,6 +48,8 @@ export function chanceWords(p: number): string {
 /** Everything your agency knows about a player, and the offer form. */
 export function PlayerProfile({ world, game, id, onClose }: { world: World; game: Game; id: string; onClose: () => void }) {
   const wp = world.players[id];
+  // The negotiation table opens when you make an offer or look at the talks.
+  const [talking, setTalking] = useState(false);
   const [commission, setCommission] = useState(10);
   const [years, setYears] = useState(2);
   const [promises, setPromises] = useState<PromiseKind[]>([]);
@@ -106,6 +108,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
               <h1 id="profile-title">{wp.player.name}</h1>
               <div className="pp-meta">
                 {wp.player.age} · {nationInfo(wp.player.nationality).name} · {STATUS_LABELS[wp.career.status]}
+                {game.lib.schoolLabel(world, wp) && <> · {game.lib.schoolLabel(world, wp)}</>}
                 <br />
                 {wp.client ? "Your client" : wp.agent ? `${wp.agent.agency} (until end of season ${wp.agent.untilSeason})${wp.agent.deal ? " · development deal" : ""}` : "Free agent"}
                 {!wp.client && (
@@ -246,26 +249,29 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
                       // Your offer opens the talks at the negotiation table.
                       game.act((w) => {
                         msg = game.lib.startNegotiation(w, id, "sign") ?? "";
-                        if (!msg) game.lib.makeOffer(w, { commission: offer.commission, years: offer.years, promises });
+                        const n = game.lib.negotiationFor(w, id);
+                        // A new round of talks opens with your offer, if this week's is still to make.
+                        if (!msg && n && n.round === 0 && !game.lib.offerBlock(w, n)) game.lib.makeOffer(w, { commission: offer.commission, years: offer.years, promises }, id);
                       });
                       setResult(msg || null);
+                      if (!msg) setTalking(true);
                     }}
                   >
-                    Open talks
+                    {world.talks?.[id]?.status === "open" ? "View talks" : "Make an offer"}
                   </button>
                 </div>
                 <PromisePicker wp={wp} value={promises} onChange={setPromises} />
                 {bid && (
                   <p className="small" style={{ marginBottom: 0 }}>
-                    <strong>{bid.agency}</strong> {wp.career.status === "amateur" ? "will bid when he turns pro" : "are bidding too"}: {Math.round(bid.commission * 100)}% for {bid.years} season{bid.years === 1 ? "" : "s"}. Their name and their commission count against yours.
+                    {wp.career.status === "amateur" ? "Interested for when he turns pro" : "Also talking to him"}: <strong>{game.lib.interestedAgencies(world, id).join(", ")}</strong>. Their terms are private.
                   </p>
                 )}
-                <p className="muted small">Players weigh your reputation against their standing, the commission, the length, and their own ambition. Turn-downs mean a four-week wait.</p>
+                <p className="muted small">You can make one offer a week. Players usually take two to four weeks to decide; they weigh your reputation against their standing, the commission, the length, and their own ambition. Turn-downs mean a four-week wait.</p>
               </>
             )}
           </section>
         )}
-        <NegotiationTable world={world} game={game} playerId={id} onClose={() => setResult(null)} />
+        {talking && <NegotiationTable world={world} game={game} playerId={id} onClose={() => { setTalking(false); setResult(null); }} />}
         {result && (
           <p className={wp.client ? "good-text" : ""} style={{ margin: 0 }} role="status">
             <strong>{result}</strong>

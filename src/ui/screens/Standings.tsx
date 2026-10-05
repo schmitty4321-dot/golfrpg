@@ -1,5 +1,5 @@
 import { Fragment, useState } from "react";
-import { CONDITIONAL_CARD, DEV_EXEMPT_THROUGH, DEV_FINALS_POINTS, DEV_GRADUATES, DEV_PROMOTION_WINS, FULL_CARD, PRO_AGE, amateurRanking, devPointsList, pointsList, worldRanking, STATUS_LABELS, type World } from "../../season";
+import { CONDITIONAL_CARD, DEV_EXEMPT_THROUGH, DEV_FINALS_POINTS, DEV_GRADUATES, DEV_PROMOTION_WINS, FULL_CARD, PRO_AGE, amateurRanking, devPointsList, schoolLabel, pointsList, worldRanking, STATUS_LABELS, type World } from "../../season";
 import { money } from "../format";
 import { Nation } from "../components/Flag";
 import { PlayerName } from "../components/PlayerLink";
@@ -171,7 +171,7 @@ function AmateurTable({ world }: { world: World }) {
         College and amateur golf. The season's No. 1 is invited to the next season's majors. Amateurs turn pro by {PRO_AGE}; scout them early.
       </p>
       <table>
-        <thead><tr><th>#</th><th>Player</th><th className="num">Age</th><th>From</th><th>Represented</th></tr></thead>
+        <thead><tr><th>#</th><th>Player</th><th className="num">Age</th><th>From</th><th>School</th><th>Represented</th></tr></thead>
         <tbody>
           {list.map((id, i) => {
             const wp = world.players[id]!;
@@ -181,6 +181,7 @@ function AmateurTable({ world }: { world: World }) {
                 <td><PlayerName id={id}>{wp.player.name}</PlayerName></td>
                 <td className="num">{wp.player.age}</td>
                 <td><Nation nationality={wp.player.nationality} /></td>
+                <td className="small">{schoolLabel(world, wp) ?? ""}</td>
                 <td className="small">{wp.client ? "Your client" : "Free"}</td>
               </tr>
             );

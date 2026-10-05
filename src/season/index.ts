@@ -51,3 +51,4 @@ export * from "./board";
 export * from "./progression";
 export * from "./brandGoals";
 export * from "./staffSkills";
+export * from "./schools";
