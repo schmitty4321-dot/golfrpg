@@ -1332,3 +1332,24 @@ select, input[type="text"], input[type="number"] {
 .skill-medals .skill-locked { opacity: 0.55; font-weight: 500; }
 .skill-medals .skill-locked img { filter: grayscale(1); }
 .brand-deal-card > .small { grid-column: 1 / -1; }
+
+/* ---------- current sponsorships ---------- */
+.sponsor-head { align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+.sponsor-totals { display: flex; gap: 22px; padding: 10px 16px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+.sponsor-totals div { display: grid; }
+.sponsor-totals strong { font-size: 22px; line-height: 1.1; }
+.sponsor-totals span { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.sponsor-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 14px; }
+.sponsor-card { border: 1px solid color-mix(in srgb, #c9a54a 55%, var(--border)); border-radius: 12px; overflow: hidden; background: var(--surface); }
+.sponsor-banner { display: block; width: 100%; aspect-ratio: 580 / 128; object-fit: cover; }
+.sponsor-card-body { display: grid; grid-template-columns: 64px 1fr auto; gap: 12px; align-items: center; padding: 12px; }
+.sponsor-card-who { display: grid; gap: 4px; min-width: 0; }
+.sponsor-card-who strong { font-family: Georgia, Cambria, serif; font-size: 18px; }
+.sponsor-tag { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; border: 1px solid var(--border); border-radius: 999px; padding: 1px 8px; margin-left: 4px; }
+.sponsor-active { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #fff; background: var(--accent); border-radius: 999px; padding: 2px 8px; margin-left: 4px; }
+.sponsor-card-terms { display: flex; gap: 14px; text-align: right; }
+.sponsor-card-terms div, .sponsor-bonuses div { display: grid; }
+.sponsor-card-terms small, .sponsor-bonuses small { font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.sponsor-bonuses { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px 12px; padding: 10px 12px 12px; border-top: 1px solid var(--border); }
+.sponsor-bonuses .pp-label { grid-column: 1 / -1; }
+@media (max-width: 560px) { .sponsor-card-grid { grid-template-columns: 1fr; } .sponsor-card-body { grid-template-columns: 48px 1fr; } .sponsor-card-terms { grid-column: 1 / -1; text-align: left; } }

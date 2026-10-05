@@ -204,6 +204,8 @@ export interface Sponsorship {
   majorBonus: number;
   /** Last season (inclusive) the deal runs. */
   untilSeason: number;
+  /** Win and major bonuses this deal has paid so far. */
+  earned?: number;
 }
 
 export interface SponsorOffer extends Sponsorship {

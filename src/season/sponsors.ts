@@ -8,12 +8,76 @@ import { hasSkill } from "./staffSkills";
 import { owns } from "./investments";
 
 export const BRANDS: Record<SponsorCategory, string[]> = {
-  equipment: ["Talon Golf", "Kinetic Clubs", "Forged Theory", "Arcline", "Vantage Irons", "Northstar Golfworks", "TrueLine Putters", "Apex Forge", "Caddis Golf Lab"],
-  apparel: ["Northcourse", "Linksmith", "Grayson & Pike", "Fescue Athletic", "Hollow Oak", "Sunday Standard", "Turnberry Thread", "Range & Row", "Evergreen Sport"],
-  watch: ["Meridian Watches", "Calloway & Sons", "Stellan", "Horologe Nine", "Crown & Caddie", "Tempo House", "Alder Chronograph", "Westhaven Time"],
-  financial: ["Harbor Trust", "Crestline Bank", "Ironbridge Wealth", "Summit Capital", "Fairway Mutual", "Oakmont Private Bank", "Pinnacle Partners", "Blue Heron Credit"],
-  automotive: ["Veloce Motors", "Granite Trucks", "Aurora EV", "Bayshore Autos", "Halcyon Motors", "Ridgeline Automotive", "Cobalt Electric", "Sterling Road"],
-  beverage: ["Clearwater Springs", "Ridgeback Coffee", "Tidal Sports Drink", "Orchard Tea", "Citrus Nine", "Blue Flag Hydration", "Turnhouse Coffee", "Green Jacket Tonic"],
+  equipment: ["Arcline", "Talon Golf", "Kinetic", "Northcourse", "Linksmith", "Hollow Oak", "Meridian", "Graystone", "Forge & Field", "Apex Union"],
+  apparel: ["Sunday Standard", "Turnberry Thread", "Fairway & Co.", "Pinecrest", "Eleven Under", "Greenroom Golf", "Clubhouse Cloth", "Heritage Links", "North & Needle", "Caddie Row"],
+  watch: ["Alder Chronograph", "Meridian Time", "Greenline", "Pin & Crown", "Sunday Watch Co.", "Heritage Hour", "Tourborne", "Links Standard", "Fairway Timeworks", "Longitude"],
+  financial: ["Blue Heron Credit", "Caddie Capital", "Green Ledger", "First Fairway Bank", "Summit Wealth", "Harbor & Pine", "Long Game Financial", "Flagstone", "Turn House", "Pinnacle Trust"],
+  automotive: ["Sterling Road", "Apex Motorworks", "Northline", "Fairway GT", "Redline Touring", "Crest Motors", "Long Drive Auto", "Meridian Performance", "Oak & Steel", "Grand Tour"],
+  beverage: ["Citrus Nine", "Back Nine Brewing", "Turnhouse Coffee", "Fairway Reserve", "Sunday Soda Co.", "Pin High Spirits", "Clubhouse Tonic", "Links Lager", "The 19th Pour", "Coastal Caddie"],
+};
+
+/** Each brand's banner and tagline (public/art/sponsors/banners). */
+export const BRAND_ART: Record<string, { banner: string; tagline: string }> = {
+  "Arcline": { banner: "art/sponsors/banners/equipment/01-arcline.webp", tagline: "Built for the next shot" },
+  "Talon Golf": { banner: "art/sponsors/banners/equipment/02-talon-golf.webp", tagline: "Command every lie" },
+  "Kinetic": { banner: "art/sponsors/banners/equipment/03-kinetic.webp", tagline: "Speed shaped precisely" },
+  "Northcourse": { banner: "art/sponsors/banners/equipment/04-northcourse.webp", tagline: "Engineered for control" },
+  "Linksmith": { banner: "art/sponsors/banners/equipment/05-linksmith.webp", tagline: "Forged for the fairway" },
+  "Hollow Oak": { banner: "art/sponsors/banners/equipment/06-hollow-oak.webp", tagline: "Tradition meets distance" },
+  "Meridian": { banner: "art/sponsors/banners/equipment/07-meridian.webp", tagline: "Find your line" },
+  "Graystone": { banner: "art/sponsors/banners/equipment/08-graystone.webp", tagline: "Pure strike technology" },
+  "Forge & Field": { banner: "art/sponsors/banners/equipment/09-forge-field.webp", tagline: "Made to compete" },
+  "Apex Union": { banner: "art/sponsors/banners/equipment/10-apex-union.webp", tagline: "Performance at every level" },
+  "Sunday Standard": { banner: "art/sponsors/banners/apparel/01-sunday-standard.webp", tagline: "Play well dressed" },
+  "Turnberry Thread": { banner: "art/sponsors/banners/apparel/02-turnberry-thread.webp", tagline: "Made for the final round" },
+  "Fairway & Co.": { banner: "art/sponsors/banners/apparel/03-fairway-co.webp", tagline: "Quiet confidence" },
+  "Pinecrest": { banner: "art/sponsors/banners/apparel/04-pinecrest.webp", tagline: "Course to clubhouse" },
+  "Eleven Under": { banner: "art/sponsors/banners/apparel/05-eleven-under.webp", tagline: "Modern tour essentials" },
+  "Greenroom Golf": { banner: "art/sponsors/banners/apparel/06-greenroom-golf.webp", tagline: "Ready when the cameras roll" },
+  "Clubhouse Cloth": { banner: "art/sponsors/banners/apparel/07-clubhouse-cloth.webp", tagline: "Tailored for the game" },
+  "Heritage Links": { banner: "art/sponsors/banners/apparel/08-heritage-links.webp", tagline: "Tradition in every stitch" },
+  "North & Needle": { banner: "art/sponsors/banners/apparel/09-north-needle.webp", tagline: "Refined performance" },
+  "Caddie Row": { banner: "art/sponsors/banners/apparel/10-caddie-row.webp", tagline: "The uniform of golf" },
+  "Alder Chronograph": { banner: "art/sponsors/banners/watch/01-alder-chronograph.webp", tagline: "A higher measure" },
+  "Meridian Time": { banner: "art/sponsors/banners/watch/02-meridian-time.webp", tagline: "Every moment matters" },
+  "Greenline": { banner: "art/sponsors/banners/watch/03-greenline.webp", tagline: "Precision under pressure" },
+  "Pin & Crown": { banner: "art/sponsors/banners/watch/04-pin-crown.webp", tagline: "Time for greatness" },
+  "Sunday Watch Co.": { banner: "art/sponsors/banners/watch/05-sunday-watch-co.webp", tagline: "Made for the moment" },
+  "Heritage Hour": { banner: "art/sponsors/banners/watch/06-heritage-hour.webp", tagline: "Built beyond seasons" },
+  "Tourborne": { banner: "art/sponsors/banners/watch/07-tourborne.webp", tagline: "Tested on tour" },
+  "Links Standard": { banner: "art/sponsors/banners/watch/08-links-standard.webp", tagline: "Exact by tradition" },
+  "Fairway Timeworks": { banner: "art/sponsors/banners/watch/09-fairway-timeworks.webp", tagline: "Measure the pursuit" },
+  "Longitude": { banner: "art/sponsors/banners/watch/10-longitude.webp", tagline: "Performance in motion" },
+  "Blue Heron Credit": { banner: "art/sponsors/banners/financial/01-blue-heron-credit.webp", tagline: "Backing the long game" },
+  "Caddie Capital": { banner: "art/sponsors/banners/financial/02-caddie-capital.webp", tagline: "Guidance that compounds" },
+  "Green Ledger": { banner: "art/sponsors/banners/financial/03-green-ledger.webp", tagline: "Built on sound decisions" },
+  "First Fairway Bank": { banner: "art/sponsors/banners/financial/04-first-fairway-bank.webp", tagline: "Your future in play" },
+  "Summit Wealth": { banner: "art/sponsors/banners/financial/05-summit-wealth.webp", tagline: "Climb with confidence" },
+  "Harbor & Pine": { banner: "art/sponsors/banners/financial/06-harbor-pine.webp", tagline: "A steady hand for growth" },
+  "Long Game Financial": { banner: "art/sponsors/banners/financial/07-long-game-financial.webp", tagline: "Plan beyond the season" },
+  "Flagstone": { banner: "art/sponsors/banners/financial/08-flagstone.webp", tagline: "A foundation for progress" },
+  "Turn House": { banner: "art/sponsors/banners/financial/09-turn-house.webp", tagline: "Capital for opportunity" },
+  "Pinnacle Trust": { banner: "art/sponsors/banners/financial/10-pinnacle-trust.webp", tagline: "Performance preserved" },
+  "Sterling Road": { banner: "art/sponsors/banners/automotive/01-sterling-road.webp", tagline: "For a higher drive" },
+  "Apex Motorworks": { banner: "art/sponsors/banners/automotive/02-apex-motorworks.webp", tagline: "Performance unleashed" },
+  "Northline": { banner: "art/sponsors/banners/automotive/03-northline.webp", tagline: "Own the road ahead" },
+  "Fairway GT": { banner: "art/sponsors/banners/automotive/04-fairway-gt.webp", tagline: "Touring without compromise" },
+  "Redline Touring": { banner: "art/sponsors/banners/automotive/05-redline-touring.webp", tagline: "Built for the chase" },
+  "Crest Motors": { banner: "art/sponsors/banners/automotive/06-crest-motors.webp", tagline: "Arrive above the rest" },
+  "Long Drive Auto": { banner: "art/sponsors/banners/automotive/07-long-drive-auto.webp", tagline: "Distance in every detail" },
+  "Meridian Performance": { banner: "art/sponsors/banners/automotive/08-meridian-performance.webp", tagline: "Engineered to move" },
+  "Oak & Steel": { banner: "art/sponsors/banners/automotive/09-oak-steel.webp", tagline: "Strength with refinement" },
+  "Grand Tour": { banner: "art/sponsors/banners/automotive/10-grand-tour.webp", tagline: "The road is yours" },
+  "Citrus Nine": { banner: "art/sponsors/banners/beverage/01-citrus-nine.webp", tagline: "Brighten the back nine" },
+  "Back Nine Brewing": { banner: "art/sponsors/banners/beverage/02-back-nine-brewing.webp", tagline: "Made for the turn" },
+  "Turnhouse Coffee": { banner: "art/sponsors/banners/beverage/03-turnhouse-coffee.webp", tagline: "Start the round right" },
+  "Fairway Reserve": { banner: "art/sponsors/banners/beverage/04-fairway-reserve.webp", tagline: "Pour something memorable" },
+  "Sunday Soda Co.": { banner: "art/sponsors/banners/beverage/05-sunday-soda-co.webp", tagline: "Raise your game" },
+  "Pin High Spirits": { banner: "art/sponsors/banners/beverage/06-pin-high-spirits.webp", tagline: "Celebrate the approach" },
+  "Clubhouse Tonic": { banner: "art/sponsors/banners/beverage/07-clubhouse-tonic.webp", tagline: "Refresh the tradition" },
+  "Links Lager": { banner: "art/sponsors/banners/beverage/08-links-lager.webp", tagline: "Brewed for golf" },
+  "The 19th Pour": { banner: "art/sponsors/banners/beverage/09-the-19th-pour.webp", tagline: "Where every round finishes" },
+  "Coastal Caddie": { banner: "art/sponsors/banners/beverage/10-coastal-caddie.webp", tagline: "A taste of the tour" },
 };
 /** Annual value range at the very top of the game, by category. */
 const TOP_VALUE: Record<SponsorCategory, number> = {
@@ -135,7 +199,14 @@ function lapseOffer(world: World, wp: WorldPlayer, o: SponsorOffer, rng: Rng): v
 /** Win and major bonuses owed for a result. */
 export function sponsorBonus(wp: WorldPlayer, position: number, major: boolean): number {
   if (!wp.client || position !== 1) return 0;
-  return wp.client.sponsors.reduce((s, x) => s + x.winBonus + (major ? x.majorBonus : 0), 0);
+  let total = 0;
+  // Each deal keeps a tally of what it has paid, for the sponsorship cards.
+  for (const x of wp.client.sponsors) {
+    const paid = x.winBonus + (major ? x.majorBonus : 0);
+    x.earned = (x.earned ?? 0) + paid;
+    total += paid;
+  }
+  return total;
 }
 
 /** Deals that have run their course end at the season's close. */

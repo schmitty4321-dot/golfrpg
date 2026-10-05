@@ -2,7 +2,8 @@ import { Fragment, useState } from "react";
 import { NegotiationTable } from "../components/Negotiation";
 import { PromisePicker } from "../components/Promises";
 import type { PromiseKind } from "../../season";
-import { STATUS_LABELS, pointsList, rankMap, rosterLimit, type World } from "../../season";
+import { BRAND_ART, STATUS_LABELS, pointsList, rankMap, rosterLimit, type World } from "../../season";
+import { Portrait } from "../components/Portrait";
 import { Nation } from "../components/Flag";
 import { PlayerName } from "../components/PlayerLink";
 import { TraitChips } from "../components/Traits";
@@ -113,29 +114,7 @@ export function Agency({ world, game }: { world: World; game: Game }) {
         )}
       </section>
 
-      <section className="panel">
-        <div className="panel-head"><h2>Current sponsorships</h2></div>
-        {world.clientIds.every((id) => world.players[id]!.client!.sponsors.length === 0) ? (
-          <p className="empty">None yet.</p>
-        ) : (
-          <table>
-            <thead><tr><th>Client</th><th>Sponsor</th><th>Type</th><th className="num">Per season</th><th>Runs to</th></tr></thead>
-            <tbody>
-              {world.clientIds.flatMap((id) =>
-                world.players[id]!.client!.sponsors.map((s) => (
-                  <tr key={s.id}>
-                    <td><PlayerName id={id}>{world.players[id]!.player.name}</PlayerName></td>
-                    <td>{s.sponsor}</td>
-                    <td>{CATEGORY_LABELS[s.category]}</td>
-                    <td className="num">{money(s.annualValue)}</td>
-                    <td>End of S{s.untilSeason}</td>
-                  </tr>
-                )),
-              )}
-            </tbody>
-          </table>
-        )}
-      </section>
+      <CurrentSponsorships world={world} />
     </main>
   );
 }
@@ -178,5 +157,60 @@ function ExtendForm({ world, game, id }: { world: World; game: Game; id: string 
       <span className="small muted">(Runs from the end of this season: new end is season {world.season + years}.)</span>
       <PromisePicker wp={world.players[id]!} value={promises} onChange={setPromises} />
     </div>
+  );
+}
+
+/** Every client's active deals as banner cards, with the season's totals on top. */
+function CurrentSponsorships({ world }: { world: World }) {
+  const deals = world.clientIds.flatMap((id) => world.players[id]!.client!.sponsors.map((s) => ({ id, s })));
+  const annual = deals.reduce((t, d) => t + d.s.annualValue, 0);
+  const earned = deals.reduce((t, d) => t + (d.s.earned ?? 0), 0);
+  return (
+    <section className="panel">
+      <div className="panel-head sponsor-head">
+        <div>
+          <h2>Current sponsorships</h2>
+          <span className="muted small">{deals.length} active partnership{deals.length === 1 ? "" : "s"} driving your season</span>
+        </div>
+        <div className="sponsor-totals">
+          <div><strong>{deals.length}</strong><span>Active deals</span></div>
+          <div><strong>{money(annual)}</strong><span>Annual value</span></div>
+          <div><strong>{money(earned)}</strong><span>Bonuses earned</span></div>
+        </div>
+      </div>
+      {deals.length === 0 ? (
+        <p className="empty">None yet.</p>
+      ) : (
+        <div className="sponsor-card-grid">
+          {deals.map(({ id, s }) => {
+            const wp = world.players[id]!;
+            const art = BRAND_ART[s.sponsor];
+            const wins = (wp.career.stats?.season === world.season ? wp.career.stats.wins : 0);
+            return (
+              <article className="sponsor-card" key={s.id}>
+                {art ? <img className="sponsor-banner" src={`${import.meta.env.BASE_URL}${art.banner}`} alt={`${s.sponsor}: ${art.tagline}`} /> : <img className="sponsor-banner" src={`/art/sponsors/${s.category}.webp`} alt="" />}
+                <div className="sponsor-card-body">
+                  <Portrait player={wp.player} size={64} />
+                  <div className="sponsor-card-who">
+                    <div><strong>{s.sponsor}</strong> <span className="sponsor-tag">{CATEGORY_LABELS[s.category]}</span> <span className="sponsor-active">Active</span></div>
+                    <PlayerName id={id}>{wp.player.name}</PlayerName>
+                  </div>
+                  <div className="sponsor-card-terms">
+                    <div><b>{money(s.annualValue)}</b><small>Annual payment</small></div>
+                    <div><b>End of S{s.untilSeason}</b><small>Contract end</small></div>
+                  </div>
+                </div>
+                <div className="sponsor-bonuses">
+                  <span className="pp-label">Bonuses</span>
+                  <div><b>{money(s.winBonus)}</b><small>a win · {wins} this season</small></div>
+                  <div><b>{money(s.majorBonus)}</b><small>extra for a major</small></div>
+                  <div><b>{money(s.earned ?? 0)}</b><small>earned so far</small></div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
+    </section>
   );
 }

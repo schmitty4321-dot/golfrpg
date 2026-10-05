@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  BRAND_ART,
   LOYAL_SEASONS,
   STAFF_SKILLS,
   loyaltySkill,
@@ -346,7 +347,7 @@ function BrandCard({ world, deal, active = false, onSign }: { world: World; deal
     g.met ? 100 : g.unit === "rank" ? (g.now ? Math.round(Math.min(1, g.target / g.now) * 100) : 0) : Math.max(0, Math.min(100, Math.round((g.now / g.target) * 100)));
   return (
     <article className={`brand-deal-card${active ? " active" : ""}`}>
-      <img className="brand-campaign-art" src={`/art/sponsors/${deal.category}.webp`} alt="" />
+      <img className="brand-campaign-art" src={BRAND_ART[deal.brand] ? `${import.meta.env.BASE_URL}${BRAND_ART[deal.brand]!.banner}` : `/art/sponsors/${deal.category}.webp`} alt="" />
       <BrandMark name={deal.brand} category={deal.category} />
       <div className="brand-deal-name"><strong>{deal.brand}</strong><span>{deal.category}</span></div>
       <div className="brand-deal-terms">{deal.goals ? <span><b>{money(guaranteed(deal))}</b><small>guaranteed · up to {money(maxPayout(deal))}</small></span> : <span><b>{money(deal.annual)}</b><small>per season</small></span>}<span><b>+{Math.round(deal.lift * 100)}%</b><small>client offers</small></span><span><b>S{deal.untilSeason}</b><small>{active ? "contract ends" : "term"}</small></span></div>
