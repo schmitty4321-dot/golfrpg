@@ -85,31 +85,39 @@ export function Agency({ world, game }: { world: World; game: Game }) {
         {world.clientIds.every((id) => world.players[id]!.client!.offers.length === 0) ? (
           <p className="empty">No offers right now. They arrive at the start of a season and after strong weeks.</p>
         ) : (
-          <div className="table-wrap">
-            <table>
-              <thead><tr><th>Client</th><th>Sponsor</th><th>Type</th><th className="num">Per season</th><th className="num">Win bonus</th><th className="num">Major bonus</th><th>Runs to</th><th /></tr></thead>
-              <tbody>
-                {world.clientIds.flatMap((id) =>
-                  world.players[id]!.client!.offers.map((o) => (
-                    <tr key={o.id}>
-                      <td><PlayerName id={id}>{world.players[id]!.player.name}</PlayerName></td>
-                      <td>{o.sponsor}</td>
-                      <td>{CATEGORY_LABELS[o.category]}</td>
-                      <td className="num">{money(o.annualValue)}</td>
-                      <td className="num">{money(o.winBonus)}</td>
-                      <td className="num">{money(o.majorBonus)}</td>
-                      <td>End of S{o.untilSeason}</td>
-                      <td>
-                        <div className="btn-row">
-                          <button className="btn btn-small btn-primary" onClick={() => game.act((w) => game.lib.acceptSponsor(w, id, o.id))}>Accept</button>
-                          <button className="btn btn-small" onClick={() => game.act((w) => game.lib.declineSponsor(w, id, o.id))}>Decline</button>
-                        </div>
-                      </td>
-                    </tr>
-                  )),
-                )}
-              </tbody>
-            </table>
+          <div className="sponsor-card-grid">
+            {world.clientIds.flatMap((id) =>
+              world.players[id]!.client!.offers.map((o) => {
+                const wp = world.players[id]!;
+                const art = BRAND_ART[o.sponsor];
+                const weeksLeft = o.expiresAbsWeek - (world.season * 52 + world.week);
+                return (
+                  <article className="sponsor-card sponsor-offer" key={o.id}>
+                    <img className="sponsor-banner" src={art ? `${import.meta.env.BASE_URL}${art.banner}` : `/art/sponsors/${o.category}.webp`} alt={art ? `${o.sponsor}: ${art.tagline}` : ""} />
+                    <div className="sponsor-card-body">
+                      <Portrait player={wp.player} size={64} />
+                      <div className="sponsor-card-who">
+                        <div><strong>{o.sponsor}</strong> <span className="sponsor-tag">{CATEGORY_LABELS[o.category]}</span> <span className="sponsor-offer-tag">Offer</span></div>
+                        <PlayerName id={id}>{wp.player.name}</PlayerName>
+                      </div>
+                      <div className="sponsor-card-terms">
+                        <div><b>{money(o.annualValue)}</b><small>Per season</small></div>
+                        <div><b>End of S{o.untilSeason}</b><small>Runs to</small></div>
+                      </div>
+                    </div>
+                    <div className="sponsor-bonuses">
+                      <div><b>{money(o.winBonus)}</b><small>a win</small></div>
+                      <div><b>{money(o.majorBonus)}</b><small>extra for a major</small></div>
+                      <div><b>{weeksLeft <= 0 ? "This week" : `${weeksLeft} week${weeksLeft === 1 ? "" : "s"}`}</b><small>to decide</small></div>
+                    </div>
+                    <div className="btn-row sponsor-offer-actions">
+                      <button className="btn btn-small btn-primary" onClick={() => game.act((w) => game.lib.acceptSponsor(w, id, o.id))}>Accept</button>
+                      <button className="btn btn-small" onClick={() => game.act((w) => game.lib.declineSponsor(w, id, o.id))}>Decline</button>
+                    </div>
+                  </article>
+                );
+              }),
+            )}
           </div>
         )}
       </section>

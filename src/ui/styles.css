@@ -1378,3 +1378,6 @@ select, input[type="text"], input[type="number"] {
 .recruit-classes .me b { color: var(--accent); }
 @media (max-width: 560px) { .prospect-head { grid-template-columns: 56px 1fr; } .prospect-interest { grid-column: 1 / -1; text-align: left; } }
 .recruit-label { display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+
+.sponsor-offer-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #6b4d00; background: #f2d98a; border-radius: 999px; padding: 2px 8px; margin-left: 4px; }
+.sponsor-offer-actions { padding: 0 12px 12px; }
