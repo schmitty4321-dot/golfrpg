@@ -20,7 +20,7 @@ MANIFEST = os.path.join(ROOT, "src", "ui", "illustratedArt.generated.json")
 CELL = 10
 # Where the scene's horizon sits, per course: above it only greens count (La Quinta's mountains
 # read as sand). Torrey's greens and bunkers sit high in the frame, with only sea and sky above.
-HORIZON = {"torrey-pines-south": 125, "tpc-scottsdale": 160, "pebble-beach": 90, "riviera": 90}
+HORIZON = {"torrey-pines-south": 125, "tpc-scottsdale": 160, "pebble-beach": 90, "riviera": 90, "pga-national-champion": 110}
 # Courses whose paintings show a wide band of mown rough (dark, smooth grass) between fairway and desert:
 # it gets its own label (g), so a ball in the rough sits on it and one in the desert goes past it.
 MOWN_ROUGH = {"tpc-scottsdale"}
@@ -28,6 +28,8 @@ MOWN_ROUGH = {"tpc-scottsdale"}
 SEA_TO_HORIZON = {"pebble-beach"}
 # Courses whose greens are painted a yellower, sun-washed poa: mown grass starts at a lower hue.
 GRASS_HUE = {"riviera": 0.14}
+# Courses whose backgrounds have pale specks (paths, roofs) that read as sand: sand patches smaller than this many cells are dropped.
+SAND_MIN = {"pga-national-champion": 7}
 
 
 def label(pixels, mown_rough=False, grass_hue=0.16):
@@ -54,7 +56,7 @@ def label(pixels, mown_rough=False, grass_hue=0.16):
     return "r"
 
 
-def build(path, framed=False, horizon=200, mown_rough=False, sea=False, grass_hue=0.16):
+def build(path, framed=False, horizon=200, mown_rough=False, sea=False, grass_hue=0.16, sand_min=0):
     im = Image.open(path).convert("RGB")
     w, h = im.size
     cols, rows = w // CELL, h // CELL
@@ -120,6 +122,26 @@ def build(path, framed=False, horizon=200, mown_rough=False, sea=False, grass_hu
                 ny, nx = cy + dy, cx + dx
                 if 0 <= ny < rows and 0 <= nx < cols and labels[ny * cols + nx] == "w":
                     stack.append((ny, nx))
+    if sand_min:
+        seen = set()
+        for start in range(len(labels)):
+            if labels[start] != "s" or start in seen:
+                continue
+            patch, stack = [], [start]
+            seen.add(start)
+            while stack:
+                i = stack.pop()
+                patch.append(i)
+                cy, cx = divmod(i, cols)
+                for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                    ny, nx = cy + dy, cx + dx
+                    j = ny * cols + nx
+                    if 0 <= ny < rows and 0 <= nx < cols and j not in seen and labels[j] == "s":
+                        seen.add(j)
+                        stack.append(j)
+            if len(patch) < sand_min:
+                for i in patch:
+                    labels[i] = "r"
     return im, cols, rows, labels
 
 
@@ -143,7 +165,7 @@ def main():
     for key, entry in manifest.items():
         if not key.startswith(course + ":"):
             continue
-        im, cols, rows, labels = build(os.path.join(ROOT, "public", entry["image"].split("?")[0]), bool(entry.get("meta", {}).get("framed")), HORIZON.get(course, 200), course in MOWN_ROUGH, course in SEA_TO_HORIZON, GRASS_HUE.get(course, 0.16))
+        im, cols, rows, labels = build(os.path.join(ROOT, "public", entry["image"].split("?")[0]), bool(entry.get("meta", {}).get("framed")), HORIZON.get(course, 200), course in MOWN_ROUGH, course in SEA_TO_HORIZON, GRASS_HUE.get(course, 0.16), SAND_MIN.get(course, 0))
         entry["mask"] = {"cell": CELL, "cols": cols, "rows": rows, "rle": rle(labels)}
         if preview:
             over = im.copy()

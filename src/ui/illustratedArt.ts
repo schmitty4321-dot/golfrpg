@@ -342,7 +342,9 @@ export function illustratedShotPaths(art: ArtEntry, shots: Shot[], layout?: Hole
     const green = layout && flag && shot.kind !== "penalty" && shot.lie === "green" ? onGreen(art, flag, shot, layout, start) : null;
     // A hand-placed spot only stands in when it's near where the ball went: a fairway bunker the
     // painting doesn't show goes to the edge of the fairway, not to a greenside bunker 250 yards on.
-    const handNear = targets?.filter((p) => handFirst || Math.hypot(p.x - projectedEnd.x, p.y - projectedEnd.y) < 260) ?? [];
+    // A greenside bunker shows in one of the green's painted bunkers, even when the painting has none on that side.
+    const greenside = shot.lie === "bunker" && !!flag && Math.hypot(projectedEnd.x - flag.x, projectedEnd.y - flag.y) < 250;
+    const handNear = targets?.filter((p) => handFirst || Math.hypot(p.x - projectedEnd.x, p.y - projectedEnd.y) < 260 || (greenside && Math.hypot(p.x - flag!.x, p.y - flag!.y) < 600)) ?? [];
     const edge = !onTerrain && !handNear.length && shot.lie === "bunker" ? placeOnTerrain(art, projectedEnd, "rough") : null;
     const end = green ?? onTerrain ?? offCourse ?? edge ?? (handNear.length ? nearest(handNear, projectedEnd) : projectedEnd);
     previousEnd = end;
