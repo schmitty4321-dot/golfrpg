@@ -63,6 +63,8 @@ export function App() {
   const demo = import.meta.env.DEV ? new URLSearchParams(window.location.search).get("demo") : null;
   if (demo === "waialae-tracer") return <WaialaeTracerPreview />;
   if (demo === "art-calibrator") return <IllustrationCalibrator />;
+  // The new-career screen even when a career is saved (to review its layout).
+  if (demo === "new-game") return <NewGame game={game} />;
 
   const go: Go = (t, id) => {
     setTab(t);

@@ -41,10 +41,10 @@ export function NewGame({ game }: { game: Game }) {
           ))}
         </div>
         <div className="panel-head" style={{ marginTop: 16 }}><h2>Or take on a challenge</h2><span className="muted small">A twist, a goal and a deadline</span></div>
-        <img className="challenge-art-board" src="/art/new-game/challenge-board.webp" alt="Illustrated scenes representing the eight career challenges and two realism modes" />
         <div className="scenario-grid">
           {CHALLENGES.map((c) => (
             <button key={c.id} className="scenario" aria-pressed={challenge === c.id} onClick={() => setChallenge(challenge === c.id ? null : c.id)}>
+              <BoardTile id={c.id} />
               <strong>{c.title}</strong>
               <span className="secondary small">{c.blurb}</span>
               <span className="small">{c.goal}</span>
@@ -56,6 +56,7 @@ export function NewGame({ game }: { game: Game }) {
         <div className="scenario-grid">
           {(Object.keys(STYLES) as WorldStyle[]).map((k) => (
             <button key={k} className="scenario" aria-pressed={style === k} onClick={() => setStyle(k)}>
+              <BoardTile id={k} />
               <strong>{STYLES[k].label}</strong>
               <span className="secondary small">{STYLES[k].blurb}</span>
             </button>
@@ -99,4 +100,46 @@ function hash(s: string): number {
   let h = 0;
   for (const ch of s) h = (Math.imul(h, 31) + ch.charCodeAt(0)) >>> 0;
   return h;
+}
+
+/**
+ * Each challenge's (and realism mode's) scene, cut from the one illustrated board
+ * (1600 x 900) by its frame, so the whole scene shows above its own description.
+ */
+const BOARD = { w: 1600, h: 900 };
+// Down to the bottom of each scene's round badge, which sits on its frame.
+const ROWS = [[13, 347], [358, 643], [656, 888]] as const;
+const COLS = [[13, 387], [412, 786], [812, 1186], [1212, 1586]] as const;
+// The realism scenes are panoramas: the part around each one's badge, shaped like the others.
+const WIDE = [[255, 547], [1049, 1341]] as const;
+const TILE_AT: Record<string, [x0: number, y0: number, x1: number, y1: number]> = {
+  bankrupt: [COLS[0][0], ROWS[0][0], COLS[0][1], ROWS[0][1]],
+  journeyman: [COLS[1][0], ROWS[0][0], COLS[1][1], ROWS[0][1]],
+  "amateur-hunter": [COLS[2][0], ROWS[0][0], COLS[2][1], ROWS[0][1]],
+  "ryder-factory": [COLS[3][0], ROWS[0][0], COLS[3][1], ROWS[0][1]],
+  boutique: [COLS[0][0], ROWS[1][0], COLS[0][1], ROWS[1][1]],
+  comeback: [COLS[1][0], ROWS[1][0], COLS[1][1], ROWS[1][1]],
+  "rival-takedown": [COLS[2][0], ROWS[1][0], COLS[2][1], ROWS[1][1]],
+  dynasty: [COLS[3][0], ROWS[1][0], COLS[3][1], ROWS[1][1]],
+  realistic: [WIDE[0][0], ROWS[2][0], WIDE[0][1], ROWS[2][1]],
+  lively: [WIDE[1][0], ROWS[2][0], WIDE[1][1], ROWS[2][1]],
+};
+
+function BoardTile({ id }: { id: string }) {
+  const at = TILE_AT[id];
+  if (!at) return null;
+  const [x0, y0, x1, y1] = at;
+  const w = x1 - x0;
+  const h = y1 - y0;
+  return (
+    <span
+      className="challenge-tile"
+      aria-hidden
+      style={{
+        aspectRatio: `${w} / ${h}`,
+        backgroundSize: `${(BOARD.w / w) * 100}% ${(BOARD.h / h) * 100}%`,
+        backgroundPosition: `${(x0 / (BOARD.w - w)) * 100}% ${(y0 / (BOARD.h - h)) * 100}%`,
+      }}
+    />
+  );
 }
