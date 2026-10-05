@@ -448,7 +448,9 @@ export function signingDay(world: World, wp: WorldPlayer): string | null {
 /** Season end: rank the class (yours by the prospects you signed, the rivals' by the new pros they landed). */
 export function rankClasses(world: World, newPros: string[]): void {
   const r = recruitingOf(world);
-  const score = (ids: string[]) => ids.reduce((s, id) => s + Math.max(1, Math.round((world.players[id]?.development.potential ?? 11) - 10)), 0);
+  // A class is as good as its best three: quality, not volume (rivals land many new pros in the winter market).
+  const score = (ids: string[]) =>
+    ids.map((id) => Math.max(1, Math.round(((world.players[id]?.development.potential ?? 11) - 10) * 2) / 2)).sort((a, b) => b - a).slice(0, 3).reduce((s, x) => s + x, 0);
   const mine = [...new Set(r.classes?.[world.season] ?? [])];
   const byRival = new Map<string, string[]>();
   for (const id of newPros) {
