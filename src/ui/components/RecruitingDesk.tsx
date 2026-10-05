@@ -26,6 +26,8 @@ import {
   readOf,
   recruit,
   recruitingOf,
+  rivalInterest,
+  rivalMoves,
   schoolLabel,
   showcaseBlock,
   stars,
@@ -73,7 +75,7 @@ export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
       {note && <p className="small good-text">{note}</p>}
       <div className="table-wrap">
         <table>
-          <thead><tr><th>Stars</th><th>Prospect</th><th className="num">Age</th><th>School</th><th>Your read</th><th>Interest</th><th>His list</th><th /></tr></thead>
+          <thead><tr><th>Stars</th><th>Prospect</th><th className="num">Age</th><th>School</th><th>Your read</th><th>Interest</th><th>Most interested rival</th><th>His list</th><th /></tr></thead>
           <tbody>
             {list.map((id) => {
               const wp = world.players[id]!;
@@ -88,6 +90,7 @@ export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
                   <td className="small">{schoolLabel(world, wp)}</td>
                   <td className="small">{readWords(readOf(world, id))}</td>
                   <td style={{ minWidth: 110 }}><span className="meter"><span style={{ width: `${interest}%` }} /></span><span className="small muted">{Math.round(interest)}</span></td>
+                  <td className="small">{(() => { const [a, v] = Object.entries(rivalInterest(world, id)).sort((x, y) => y[1] - x[1])[0] ?? []; return a ? <>{a} <span className="muted">({Math.round(v!)})</span></> : "—"; })()}</td>
                   <td className="small">{pos ? (pos <= 3 ? <span className="good-text">You're #{pos}</span> : <span className="bad-text">Not in his top 3</span>) : narrowing(wp) ? "Deciding this season" : "—"}</td>
                   <td><button className="btn btn-small" onClick={() => setOpen(open === id ? null : id)}>{open === id ? "Close" : "Card"}</button></td>
                 </tr>
@@ -186,6 +189,16 @@ export function ProspectCard({ world, game, id }: { world: World; game: Game; id
               <span className="recruit-label">His top three</span>
               <ol className="ws-lines">{list.map((a) => <li key={a.agency} className={a.you ? "good-text" : undefined}>{a.agency}{a.you ? " (you)" : ""}</li>)}</ol>
             </>
+          )}
+          <span className="recruit-label">Who else is after him</span>
+          <ul className="prospect-ranges">
+            {Object.entries(rivalInterest(world, id)).sort((x, y) => y[1] - x[1]).slice(0, 4).map(([a, v]) => (
+              <li key={a}><span>{a}</span><span className="range-bar"><span style={{ left: 0, width: `${v}%`, background: "var(--muted)" }} /></span><b>{Math.round(v)}</b></li>
+            ))}
+            <li className="good-text"><span>You</span><span className="range-bar"><span style={{ left: 0, width: `${interest}%` }} /></span><b>{Math.round(interest)}</b></li>
+          </ul>
+          {rivalMoves(world, id).length > 0 && (
+            <p className="small muted">Latest: {rivalMoves(world, id).slice(0, 3).map((m) => `${m.agency} ${m.text} (week ${m.absWeek - world.season * 52})`).join(" · ")}</p>
           )}
           {narrowing(wp) && <p className="small">He turns pro at the end of this season and commits on signing day to the top of his list.</p>}
         </section>

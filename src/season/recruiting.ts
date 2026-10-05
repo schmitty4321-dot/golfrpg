@@ -34,8 +34,16 @@ export interface RecruitingState {
   pipelines?: { schools: Record<string, number>; states: Record<string, number> };
   /** Prospects signed in each season (your recruiting class). */
   classes?: Record<number, string[]>;
+  /** The rivals' recruiting, by prospect. */
+  rivals?: Record<string, RivalRecruiting>;
   /** Last season's class rankings: agency and score, best first. */
   lastRanking?: { season: number; rows: { agency: string; score: number; signed: number }[] };
+}
+
+/** What the rival agencies are doing with each prospect: their interest, and their latest moves. */
+export interface RivalRecruiting {
+  interest: Record<string, number>;
+  moves: { agency: string; text: string; absWeek: number }[];
 }
 
 export interface Prospect {
@@ -178,9 +186,8 @@ export function interestBonus(world: World, id: string): number {
 
 /** The agencies he's considering, best first, with how keen he is on each (rivals by their name and a little luck). */
 export function agencyList(world: World, id: string): { agency: string; interest: number; you: boolean }[] {
-  const rng = rngFor(world, id, 5103 + world.season);
-  const rivals = (world.rivals?.map((r) => ({ name: r.name, rep: r.reputation })) ?? RIVAL_AGENCIES.map((name) => ({ name, rep: 50 })));
-  const rows = rivals.map((r) => ({ agency: r.name, interest: Math.round(clamp(r.rep * 0.6 + rng.normal(10, 12), 0, 95)), you: false }));
+  const theirs = rivalInterest(world, id);
+  const rows = Object.entries(theirs).map(([agency, v]) => ({ agency, interest: Math.round(v), you: false }));
   const mine = dealbreakerMet(world, dealbreaker(world, id)) ? interestIn(world, id) : Math.min(interestIn(world, id), 30);
   rows.push({ agency: world.agency.name, interest: Math.round(mine), you: true });
   return rows.sort((a, b) => b.interest - a.interest || (a.you ? -1 : 1));
@@ -388,6 +395,64 @@ export function rankClasses(world: World, newPros: string[]): void {
     addReputation(world.agency, 3);
     world.news.unshift(`${world.agency.name} lands the season's top recruiting class.`);
   } else if (mine.length && place <= 2) addReputation(world.agency, 1.5);
-  // Interest cools over the winter.
+  // Interest cools over the winter, yours and the rivals'; pros leave the board.
   for (const p of Object.values(world.agency.prospects ?? {})) p.interest = Math.round(p.interest * 0.8);
+  for (const [id, rec] of Object.entries(r.rivals ?? {})) {
+    if (world.players[id]?.career.status !== "amateur") delete r.rivals![id];
+    else for (const a of Object.keys(rec.interest)) rec.interest[a] = Math.round(rec.interest[a]! * 0.8);
+  }
+}
+
+// ---------------------------------------------------------------- the rivals recruit too
+
+const rivalList = (world: World) => world.rivals?.map((r) => ({ name: r.name, rep: r.reputation, style: r.style })) ?? RIVAL_AGENCIES.map((name) => ({ name, rep: 50, style: "volume" as const }));
+
+/** Each rival's interest in a prospect: where it stands, starting from their name and a little luck. */
+export function rivalInterest(world: World, id: string): Record<string, number> {
+  const stored = recruitingOf(world).rivals?.[id];
+  if (stored) return stored.interest;
+  const rng = rngFor(world, id, 5103);
+  return Object.fromEntries(rivalList(world).map((r) => [r.name, Math.round(clamp(r.rep * 0.35 + rng.normal(5, 8), 0, 60))]));
+}
+
+/** The rivals' latest moves on a prospect, newest first. */
+export const rivalMoves = (world: World, id: string) => recruitingOf(world).rivals?.[id]?.moves ?? [];
+
+/**
+ * Weekly: every rival agency works its own prospects. The big names chase the
+ * five-star players, developers the high ceilings, the rest whoever is left;
+ * each makes a few calls a week and the odd visit. Their moves on prospects
+ * you're working on make the news.
+ */
+export function rivalRecruitingWeek(world: World): string[] {
+  // The amateur ranking once for the week (it sorts every player).
+  const ranking = amateurRanking(world);
+  const pool = ranking.filter((id) => !world.players[id]?.client).slice(0, 60);
+  if (!pool.length) return [];
+  const starsOf = new Map(ranking.map((id, i) => [id, i < 5 ? 5 : i < 20 ? 4 : i < 45 ? 3 : i < 70 ? 2 : 1]));
+  const now = absWeek(world.season, world.week);
+  const rng = createRng(mixSeed(world.seed, world.season, world.week, 5105));
+  const r = recruitingOf(world);
+  const all = (r.rivals ??= {});
+  const news: string[] = [];
+  for (const rival of rivalList(world)) {
+    const picks = 2 + Math.round(rival.rep / 30);
+    // Who they want: stars for the big names and star hunters, ceilings for developers, anyone for the rest.
+    const want = (id: string) => {
+      const st = starsOf.get(id) ?? 1;
+      const fit = rival.style === "starHunter" || rival.rep >= 65 ? st : rival.style === "developer" ? world.players[id]!.development.potential - 9 : 6 - Math.abs(st - 3);
+      return Math.max(0.1, fit) * (0.6 + rng.next() * 0.8);
+    };
+    const scored = pool.map((id) => ({ id, w: want(id) })).sort((a, b) => b.w - a.w);
+    const chosen = scored.slice(0, picks).map((x) => x.id);
+    for (const id of chosen) {
+      const rec = (all[id] ??= { interest: { ...rivalInterest(world, id) }, moves: [] });
+      const visit = rng.chance(0.15);
+      rec.interest[rival.name] = clamp((rec.interest[rival.name] ?? 0) + (visit ? 10 : 3 + rng.next() * 4), 0, 100);
+      rec.moves.unshift({ agency: rival.name, text: visit ? "visited him" : "called his family", absWeek: now });
+      rec.moves.length = Math.min(rec.moves.length, 6);
+      if (world.agency.prospects?.[id] && (visit || rng.chance(0.25)) && news.length < 2) news.push(`${rival.name} ${visit ? "visit" : "call"} ${world.players[id]!.player.name}, one of your prospects.`);
+    }
+  }
+  return news;
 }

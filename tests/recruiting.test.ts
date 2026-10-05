@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MAX_READ, PRO_AGE, agencyList, createWorld, dealbreaker, groupRange, hoursLeft, interestIn, prospects, readOf, recruit, recruitBlock, signingDay, weeklyHours } from "../src/season";
+import { rivalInterest, rivalMoves, rivalRecruitingWeek, MAX_READ, PRO_AGE, agencyList, createWorld, dealbreaker, groupRange, hoursLeft, interestIn, prospects, readOf, recruit, recruitBlock, signingDay, weeklyHours } from "../src/season";
 
 describe("recruiting", () => {
   it("spends a weekly budget of hours, refilled each week", () => {
@@ -41,4 +41,15 @@ describe("recruiting", () => {
     expect(msg).toMatch(/commits to|roster is full/);
     if (/commits to/.test(msg!)) expect(wp.client).toBeDefined();
   });
+
+  it("the rival agencies work the prospects every week", () => {
+    const w = createWorld({ seed: 104, scenario: "agency" });
+    const top = prospects(w)[0]!;
+    const before = Object.values(rivalInterest(w, top)).reduce((a, b) => a + b, 0);
+    for (let i = 0; i < 8; i++) { rivalRecruitingWeek(w); w.week += 1; }
+    const after = Object.values(rivalInterest(w, top)).reduce((a, b) => a + b, 0);
+    expect(after).toBeGreaterThan(before);
+    expect(rivalMoves(w, top).length).toBeGreaterThan(0);
+  });
 });
+
