@@ -13,6 +13,7 @@ import {
   competingBid,
   knownTraits,
   approachBlock,
+  GOLF_SKILLS,
   attributePotential,
   ceilingStars,
   potentialEstimate,
@@ -185,6 +186,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
                 </p>
               ) : (
                 <>
+                  <OverallRatings current={GOLF_SKILLS.reduce((t, k) => t + view(k).value, 0) / GOLF_SKILLS.length} potential={potential} />
                   <StatBoxes view={view} />
                   {!hidden && <p className="muted small">A more accurate report (60%+) would reveal his ceiling, how far each skill can grow, his work ethic and other hidden traits.</p>}
                   {potential !== null && <p className="muted small" style={{ marginBottom: 0 }}>Potential is an estimate from his overall ceiling{wp.client ? ", judged by his coaches" : ", judged by your scouts"}.</p>}
@@ -444,5 +446,16 @@ function PlayerResults({ wp, season, liveEvent }: { wp: WorldPlayer; season: num
         </div>
       )}
     </section>
+  );
+}
+
+/** His overall level now and the ceiling it can grow to (the average golf skill, 1-20), above the skill boxes. */
+function OverallRatings({ current, potential }: { current: number; potential: number | null }) {
+  return (
+    <div className="overall-ratings">
+      <div><span className="overall-label">Overall current</span><strong className="overall-cur">{current.toFixed(1)}</strong></div>
+      {potential !== null && <div><span className="overall-label">Overall potential</span><strong className="overall-pot pot-text">{Math.max(current, potential).toFixed(1)}</strong></div>}
+      <span className="muted small">Tour average is 12; a top-20 player is about 14.5.</span>
+    </div>
   );
 }
