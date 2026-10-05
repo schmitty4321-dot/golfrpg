@@ -19,6 +19,7 @@ import {
   type Team,
   type World,
 } from "../../season";
+import { PlayerName } from "../components/PlayerLink";
 
 const teamName = (t: Team) => (t === "USA" ? "United States" : "Europe");
 
@@ -29,7 +30,7 @@ function MatchLine({ m, names, mine, sideNames }: { m: MatchResult; names: (id: 
       {ids.map((id, i) => (
         <span key={id}>
           {i > 0 && " / "}
-          {mine(id) ? <mark>{names(id)}</mark> : names(id)}
+          {mine(id) ? <mark><PlayerName id={id}>{names(id)}</PlayerName></mark> : <PlayerName id={id}>{names(id)}</PlayerName>}
         </span>
       ))}
     </span>
@@ -123,7 +124,7 @@ function StandingsTable({ world, team, cupSeason, mine }: { world: World; team: 
                 return (
                   <tr key={r.id} className={mine(r.id) ? "row-current" : undefined} style={pos === AUTOMATIC ? { borderBottom: "2px solid var(--accent)" } : undefined}>
                     <td className="num">{pos}</td>
-                    <td>{r.name}{pos <= AUTOMATIC ? <span className="badge badge-accent" style={{ marginLeft: 6 }}>In</span> : null}</td>
+                    <td><PlayerName id={r.id}>{r.name}</PlayerName>{pos <= AUTOMATIC ? <span className="badge badge-accent" style={{ marginLeft: 6 }}>In</span> : null}</td>
                     <td className="num">{Math.round(r.points).toLocaleString("en-US")}</td>
                     <td className="num">{r.events}</td>
                     <td className="num">{r.rank ? `#${r.rank}` : "—"}</td>
@@ -136,7 +137,7 @@ function StandingsTable({ world, team, cupSeason, mine }: { world: World; team: 
       )}
       {picks.length > 0 && (
         <p className="small" style={{ marginBottom: 0 }}>
-          <strong>Captain's picks if the team were named today:</strong> {picks.map((id) => world.players[id]?.player.name ?? id).join(", ")}.
+          <strong>Captain's picks if the team were named today:</strong> {picks.map((id, i) => <span key={id}>{i ? ", " : ""}<PlayerName id={id}>{world.players[id]?.player.name ?? id}</PlayerName></span>)}.
         </p>
       )}
     </section>
@@ -177,7 +178,7 @@ function RyderResult({ r, world, mine, compact }: { r: RyderCupResult; world: Wo
                 const rec = playerRecord(r, id);
                 return (
                   <li key={id}>
-                    {mine(id) ? <mark>{names(id)}</mark> : names(id)} <span className="muted">{r.teams[t].picks.includes(id) ? "(pick) " : ""}{rec.w}-{rec.l}-{rec.h}</span>
+                    {mine(id) ? <mark><PlayerName id={id}>{names(id)}</PlayerName></mark> : <PlayerName id={id}>{names(id)}</PlayerName>} <span className="muted">{r.teams[t].picks.includes(id) ? "(pick) " : ""}{rec.w}-{rec.l}-{rec.h}</span>
                   </li>
                 );
               })}
@@ -220,7 +221,7 @@ export function MatchPlayScreen({ world }: { world: World }) {
   }
   const b = lb.bracket;
   const names = (id: string) => lb.names[id] ?? world.players[id]?.player.name ?? id;
-  const label = (id: string) => `${names(id)}${b.seeds[id] && b.seeds[id] < 9999 ? ` (${b.seeds[id]})` : ""}`;
+  const label = (id: string) => <><PlayerName id={id}>{names(id)}</PlayerName>{b.seeds[id] && b.seeds[id] < 9999 ? ` (${b.seeds[id]})` : ""}</>;
   const cell = (m: MatchResult, id: string | undefined, k: 0 | 1) =>
     id ? (
       <div key={k} className={`${m.winner === (k === 0 ? "a" : "b") ? "mp-win" : ""}${mine(id) ? " mp-mine" : ""}`}>{label(id)}</div>

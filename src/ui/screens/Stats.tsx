@@ -1,9 +1,8 @@
 import { useMemo, useState } from "react";
 import { feetInches } from "../../engine";
 import { statsRows, type SeasonStats, type World } from "../../season";
-import { PlayerProfile } from "../components/PlayerProfile";
+import { PlayerName } from "../components/PlayerLink";
 import { money } from "../format";
-import type { Game } from "../useGame";
 import { Nation } from "../components/Flag";
 
 type Group = "results" | "sg" | "tee" | "approach" | "around" | "putting" | "scoring";
@@ -85,7 +84,7 @@ const GROUPS: { id: Group | "all"; label: string }[] = [
   { id: "all", label: "All" },
 ];
 
-export function Stats({ world, game }: { world: World; game: Game }) {
+export function Stats({ world }: { world: World }) {
   const [which, setWhich] = useState<"this" | "last">("this");
   const [group, setGroup] = useState<Group | "all">("results");
   const [sort, setSort] = useState<{ key: string; dir: "asc" | "desc" }>({ key: "scoring", dir: "asc" });
@@ -93,7 +92,6 @@ export function Stats({ world, game }: { world: World; game: Game }) {
   const [clientsOnly, setClientsOnly] = useState(false);
   const [search, setSearch] = useState("");
   const [show, setShow] = useState(100);
-  const [profile, setProfile] = useState<string | null>(null);
 
   const all = useMemo(() => statsRows(world, which), [world, which]);
   // Like the tour's stats pages: to be ranked, a player needs a fair share of the rounds.
@@ -183,7 +181,7 @@ export function Stats({ world, game }: { world: World; game: Game }) {
                     <tr key={r.id} className={world.clientIds.includes(r.id) ? "me" : ""}>
                       <td className="num muted">{i + 1}</td>
                       <td className="nowrap">
-                        <button className="linkish" onClick={() => setProfile(r.id)}>{wp.player.name}</button> <Nation nationality={wp.player.nationality} />
+                        <PlayerName id={r.id}>{wp.player.name}</PlayerName> <Nation nationality={wp.player.nationality} />
                       </td>
                       {columns.map((c) => {
                         const v = c.value(r.stats);
@@ -201,7 +199,6 @@ export function Stats({ world, game }: { world: World; game: Game }) {
           Strokes gained are per round against the field that week. Shot stats come from the same replays as the round stats and shot tracer. Developmental tour events aren't counted.
         </p>
       </section>
-      {profile && <PlayerProfile world={world} game={game} id={profile} onClose={() => setProfile(null)} />}
     </main>
   );
 }

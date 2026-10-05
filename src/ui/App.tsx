@@ -139,7 +139,7 @@ export function App() {
       ) : tab === "standings" ? (
         <Standings world={world} />
       ) : tab === "stats" ? (
-        <Stats world={world} game={game} />
+        <Stats world={world} />
       ) : tab === "calendar" ? (
         <Calendar world={world} game={game} go={go} />
       ) : tab === "schedule" ? (

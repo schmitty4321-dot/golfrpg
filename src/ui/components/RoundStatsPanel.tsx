@@ -1,6 +1,7 @@
 import { Fragment, useMemo, useState } from "react";
 import { STAT_DEFS, eventStats, feetInches, rankStats, type PlayerEventResult, type RoundStats, type StatDef, type TournamentResult } from "../../engine";
 import { ordinal } from "../../season";
+import { PlayerName } from "./PlayerLink";
 
 /** A field average in the stat's own unit, without the "(x/y)" counts. */
 function formatAverage(def: StatDef, v: number): string {
@@ -95,7 +96,7 @@ export function RoundLeaders({ result, field, clientIds }: { result: TournamentR
           <ol style={{ margin: 0, paddingLeft: 18 }} className="small">
             {list.map((x) => (
               <li key={x.id} className={clientIds.includes(x.id) ? "good-text" : ""}>
-                {name(x.id)} <span className="secondary">{def.format(x.v, x.s)}</span>
+                <PlayerName id={x.id}>{name(x.id)}</PlayerName> <span className="secondary">{def.format(x.v, x.s)}</span>
               </li>
             ))}
           </ol>

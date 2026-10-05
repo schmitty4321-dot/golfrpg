@@ -2,6 +2,7 @@ import { Fragment, useState } from "react";
 import { CONDITIONAL_CARD, DEV_EXEMPT_THROUGH, DEV_FINALS_POINTS, DEV_GRADUATES, DEV_PROMOTION_WINS, FULL_CARD, PRO_AGE, amateurRanking, devPointsList, pointsList, worldRanking, STATUS_LABELS, type World } from "../../season";
 import { money } from "../format";
 import { Nation } from "../components/Flag";
+import { PlayerName } from "../components/PlayerLink";
 
 type View = "points" | "dev" | "amateurs" | "world" | "money";
 
@@ -52,7 +53,7 @@ function PointsTable({ world }: { world: World }) {
                 {i === CONDITIONAL_CARD && <tr className="divider"><td colSpan={7}>Conditional status line</td></tr>}
                 <tr className={world.clientIds.includes(id) ? "me" : ""}>
                   <td>{i + 1}</td>
-                  <td>{wp.player.name} <Nation nationality={wp.player.nationality} /></td>
+                  <td><PlayerName id={id}>{wp.player.name}</PlayerName> <Nation nationality={wp.player.nationality} /></td>
                   <td className="secondary small">{STATUS_LABELS[wp.career.status]}</td>
                   <td className="num">{wp.career.seasonEvents}</td>
                   <td className="num">{wp.career.seasonWins || ""}</td>
@@ -81,7 +82,7 @@ function WorldTable({ world }: { world: World }) {
             return (
               <tr key={r.id} className={world.clientIds.includes(r.id) ? "me" : ""}>
                 <td>{i + 1}</td>
-                <td>{wp.player.name} <Nation nationality={wp.player.nationality} /></td>
+                <td><PlayerName id={r.id}>{wp.player.name}</PlayerName> <Nation nationality={wp.player.nationality} /></td>
                 <td>{wp.player.age}</td>
                 <td className="num">{r.average.toFixed(2)}</td>
                 <td className="num">{r.events}</td>
@@ -108,7 +109,7 @@ function MoneyTable({ world }: { world: World }) {
           {rows.map((wp, i) => (
             <tr key={wp.player.id} className={world.clientIds.includes(wp.player.id) ? "me" : ""}>
               <td>{i + 1}</td>
-              <td>{wp.player.name}</td>
+              <td><PlayerName id={wp.player.id}>{wp.player.name}</PlayerName></td>
               <td className="num">{wp.career.seasonEvents}</td>
               <td className="num">{wp.career.seasonWins || ""}</td>
               <td className="num">{money(wp.career.seasonEarnings)}</td>
@@ -132,7 +133,7 @@ function DevTable({ world }: { world: World }) {
         {finals.length > 0 && <> The Finals (weeks {finals[0]!.week}–{finals[finals.length - 1]!.week}) pay {DEV_FINALS_POINTS} points to the winner; the last two are for the top {finals[2]?.fieldSize ?? 100} and top {finals[3]?.fieldSize ?? 60}.</>}
         {" "}Everyone else can try Q-School.
       </p>
-      {promoted.length > 0 && <p className="good-text small">Promoted this season: {promoted.map((wp) => wp.player.name).join(", ")}.</p>}
+      {promoted.length > 0 && <p className="good-text small">Promoted this season: {promoted.map((wp, i) => <Fragment key={wp.player.id}>{i ? ", " : ""}<PlayerName id={wp.player.id}>{wp.player.name}</PlayerName></Fragment>)}.</p>}
       <table>
         <thead><tr><th>#</th><th>Player</th><th className="num">Age</th><th className="num">Wins</th><th className="num">Points</th><th className="num">Earnings</th></tr></thead>
         <tbody>
@@ -145,7 +146,7 @@ function DevTable({ world }: { world: World }) {
                 <tr className={world.clientIds.includes(id) ? "me" : ""}>
                   <td>{i + 1}</td>
                   <td>
-                    {wp.player.name} <Nation nationality={wp.player.nationality} />
+                    <PlayerName id={id}>{wp.player.name}</PlayerName> <Nation nationality={wp.player.nationality} />
                     {wp.career.promotedSeason === world.season && <span className="badge" style={{ marginLeft: 6 }}>Promoted</span>}
                     {(wp.career.devExemptThrough ?? 0) >= world.season && <span className="muted small"> · exempt</span>}
                   </td>
@@ -177,7 +178,7 @@ function AmateurTable({ world }: { world: World }) {
             return (
               <tr key={id} className={world.clientIds.includes(id) ? "me" : ""}>
                 <td>{i + 1}</td>
-                <td>{wp.player.name}</td>
+                <td><PlayerName id={id}>{wp.player.name}</PlayerName></td>
                 <td className="num">{wp.player.age}</td>
                 <td><Nation nationality={wp.player.nationality} /></td>
                 <td className="small">{wp.client ? "Your client" : "Free"}</td>

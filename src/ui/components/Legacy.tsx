@@ -1,4 +1,5 @@
 import { alumni, eras, legacyScore, type World } from "../../season";
+import { PlayerName } from "./PlayerLink";
 
 const STATUS = { elsewhere: "Still playing", retired: "Retired", coaching: "Coaching (on your coach market)" } as const;
 
@@ -24,7 +25,7 @@ export function LegacyPanel({ world }: { world: World }) {
               <div key={a.id} className="achievement unlocked">
                 <div className="achievement-icon" aria-hidden>🏆</div>
                 <div>
-                  <strong>{a.name}</strong>
+                  <strong><PlayerName id={a.id}>{a.name}</PlayerName></strong>
                   <div className="small">{a.wins} win{a.wins === 1 ? "" : "s"}{a.majors ? `, ${a.majors} major${a.majors === 1 ? "" : "s"}` : ""} with you</div>
                   <div className="small muted">Seasons {a.signed}-{a.left} · best world ranking #{a.bestRank}</div>
                 </div>
@@ -52,7 +53,7 @@ export function LegacyPanel({ world }: { world: World }) {
             <tbody>
               {[...list].reverse().map((a) => (
                 <tr key={a.id}>
-                  <td>{a.name}{a.hallOfFame ? " 🏆" : ""}</td>
+                  <td><PlayerName id={a.id}>{a.name}</PlayerName>{a.hallOfFame ? " 🏆" : ""}</td>
                   <td className="num">{a.signed}-{a.left}</td>
                   <td className="num">{a.wins}</td>
                   <td className="num">{a.majors}</td>

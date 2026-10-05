@@ -6,6 +6,7 @@ import { SgChart } from "./SgChart";
 import { ShotTracer } from "./ShotTracer";
 import { Nation } from "./Flag";
 import { ArchetypeBadge } from "./Archetype";
+import { PlayerName } from "./PlayerLink";
 
 interface Props {
   result: TournamentResult;
@@ -75,7 +76,7 @@ function Row({ r, me, tag, arch, onClick }: { r: PlayerEventResult; me: boolean;
     <tr className={`clickable${me ? " me" : ""}`} onClick={onClick}>
       <td>{r.positionLabel}</td>
       <td>
-        {arch && <ArchetypeBadge id={arch} size={18} />} {r.player.name} <Nation nationality={r.player.nationality} />
+        {arch && <ArchetypeBadge id={arch} size={18} />} <PlayerName id={r.player.id}>{r.player.name}</PlayerName> <Nation nationality={r.player.nationality} />
         {tag && <span className={`fam-tag${tag === "Debut" ? " fam-debut" : ""}`}>{tag}</span>}
       </td>
       <td className={`num ${r.toPar < 0 ? "good-text" : r.toPar > 0 ? "bad-text" : ""}`}>{toPar(r.toPar)}</td>
@@ -93,7 +94,7 @@ function Detail({ r, result }: { r: PlayerEventResult; result: TournamentResult 
     {watch && <ShotTracer result={result} row={r} round={watch.round} hole={watch.hole} onClose={() => setWatch(null)} />}
     <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", padding: "8px 0" }}>
       <div>
-        <h3 style={{ marginBottom: 8 }}>Scorecard · {r.player.name}</h3>
+        <h3 style={{ marginBottom: 8 }}>Scorecard · <PlayerName id={r.player.id}>{r.player.name}</PlayerName></h3>
         <Scorecard course={result.course} rounds={r.holes} onPick={(round, hole) => setWatch({ round, hole })} />
         <button className="btn btn-small btn-primary" style={{ marginTop: 8 }} onClick={() => setWatch({ round: r.holes.length - 1, hole: 0 })}>
           Watch his {r.holes.length === 4 ? "final" : "last"} round

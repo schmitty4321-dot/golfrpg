@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { sgExtremes, weekSummary, type ClientWeek, type WeekReport, type World } from "../../season";
 import { money, signed, toPar } from "../format";
+import { PlayerName } from "./PlayerLink";
 
 const SG_WORDS = { offTheTee: "off the tee", approach: "approach play", aroundTheGreen: "around the green", putting: "putting" } as const;
 const HOLE_WORDS: Record<number, string> = { [-3]: "albatross", [-2]: "eagle", [-1]: "birdie", 0: "par", 1: "bogey", 2: "double bogey" };
@@ -32,7 +33,7 @@ function ClientCard({ c }: { c: ClientWeek }) {
     <article className="ws-client">
       <div className="ws-client-head">
         <div>
-          <strong>{c.name}</strong>
+          <strong><PlayerName id={c.id}>{c.name}</PlayerName></strong>
           <span className="secondary small">{c.eventName}</span>
         </div>
         <span className={`ws-finish${c.madeCut ? "" : " mc"}`}>{c.madeCut ? c.label : "MC"} <small>{toPar(c.toPar)}</small></span>

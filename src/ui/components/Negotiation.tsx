@@ -2,6 +2,7 @@ import { useState } from "react";
 import { MAX_ROUNDS, marketRate, RELEASE_CLAUSE_STEPS, RETAINER_STEPS, SIGNING_BONUS_STEPS, STRUCTURE_LABELS, WIN_BONUS_STEPS, cleanExtras, describeTerms, warmth, type CommissionStructure, type PromiseKind, type World } from "../../season";
 import type { Game } from "../useGame";
 import { PromisePicker } from "./Promises";
+import { PlayerName } from "./PlayerLink";
 
 /** The negotiation table, for the talks going on (or just finished) with this player. */
 export function NegotiationTable({ world, game, playerId, onClose }: { world: World; game: Game; playerId: string; onClose: () => void }) {
@@ -36,7 +37,7 @@ export function NegotiationTable({ world, game, playerId, onClose }: { world: Wo
       <div className="player-page-inner" style={{ maxWidth: 760 }}>
         <section className="panel">
           <div className="panel-head">
-            <h2 id="neg-title">{n.kind === "sign" ? "Signing" : "Extending"} {wp.player.name}</h2>
+            <h2 id="neg-title">{n.kind === "sign" ? "Signing" : "Extending"} <PlayerName id={playerId}>{wp.player.name}</PlayerName></h2>
             <span className="small">
               Round {Math.min(n.round + (open ? 1 : 0), MAX_ROUNDS)} of {MAX_ROUNDS} · Patience{" "}
               <span aria-label={`${Math.max(0, n.patience)} of ${n.patienceMax}`}>

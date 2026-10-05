@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { RecordEntry, World } from "../../season";
 import { money, toPar } from "../format";
 import { Nation } from "../components/Flag";
+import { PlayerName } from "../components/PlayerLink";
 
 type View = "seasons" | "majors" | "records" | "hall";
 
@@ -44,11 +45,11 @@ function Seasons({ world }: { world: World }) {
           {seasons.map((s) => (
             <tr key={s.season}>
               <td>{s.season === 0 ? "0 (before you)" : s.season}</td>
-              <td>{s.pointsChampion ? `${s.pointsChampion.name} (${s.pointsChampion.wins} wins)` : "–"}</td>
-              <td>{s.moneyLeader ? `${s.moneyLeader.name}, ${money(s.moneyLeader.earnings)}` : "–"}</td>
-              <td>{s.devChampion?.name ?? "–"}</td>
-              <td>{s.amateurChampion?.name ?? "–"}</td>
-              <td>{s.qSchool[0] ? `${s.qSchool[0].name} (${toPar(s.qSchool[0].toPar)})` : "–"}</td>
+              <td>{s.pointsChampion ? <><PlayerName id={s.pointsChampion.playerId}>{s.pointsChampion.name}</PlayerName> ({s.pointsChampion.wins} wins)</> : "–"}</td>
+              <td>{s.moneyLeader ? <><PlayerName id={s.moneyLeader.playerId}>{s.moneyLeader.name}</PlayerName>, {money(s.moneyLeader.earnings)}</> : "–"}</td>
+              <td>{s.devChampion ? <PlayerName id={s.devChampion.playerId}>{s.devChampion.name}</PlayerName> : "–"}</td>
+              <td>{s.amateurChampion ? <PlayerName id={s.amateurChampion.playerId}>{s.amateurChampion.name}</PlayerName> : "–"}</td>
+              <td>{s.qSchool[0] ? <><PlayerName id={s.qSchool[0].playerId}>{s.qSchool[0].name}</PlayerName> ({toPar(s.qSchool[0].toPar)})</> : "–"}</td>
               <td className="num" title={s.graduates.map((g) => `${g.name} (${g.via === "dev" ? "dev tour" : "Q-School"})`).join(", ")}>{s.graduates.length}</td>
             </tr>
           ))}
@@ -73,7 +74,7 @@ function Majors({ world }: { world: World }) {
               {majors.map((m, k) => {
                 // The k-th major of that season, so older calendars line up too.
                 const w = s.winners.filter((x) => x.tier === "major")[k];
-                return <td key={m.id} className={w && world.clientIds.includes(w.playerId) ? "good-text" : ""}>{w ? `${w.name} (${toPar(w.toPar)})` : "–"}</td>;
+                return <td key={m.id} className={w && world.clientIds.includes(w.playerId) ? "good-text" : ""}>{w ? <><PlayerName id={w.playerId}>{w.name}</PlayerName> ({toPar(w.toPar)})</> : "–"}</td>;
               })}
             </tr>
           ))}
@@ -102,7 +103,7 @@ function RecordBook({ world }: { world: World }) {
           <tr key={label}>
             <td>{label}</td>
             <td><strong>{e ? fmt(e.value) : "–"}</strong></td>
-            <td>{e?.name ?? "–"}</td>
+            <td>{e ? <PlayerName id={e.playerId}>{e.name}</PlayerName> : "–"}</td>
             <td className="secondary">{e?.event ?? ""}</td>
             <td className="num">{e?.season ?? ""}</td>
           </tr>
@@ -131,7 +132,7 @@ function Hall({ world }: { world: World }) {
             <thead><tr><th>Player</th><th className="num">Wins</th><th className="num">Majors</th><th className="num">Titles</th><th className="num">Inducted</th></tr></thead>
             <tbody>
               {hof.map((h) => (
-                <tr key={h.playerId}><td>{h.name} <Nation nationality={h.nationality} /></td><td className="num">{h.wins}</td><td className="num">{h.majors}</td><td className="num">{h.pointsTitles}</td><td className="num">S{h.inducted}</td></tr>
+                <tr key={h.playerId}><td><PlayerName id={h.playerId}>{h.name}</PlayerName> <Nation nationality={h.nationality} /></td><td className="num">{h.wins}</td><td className="num">{h.majors}</td><td className="num">{h.pointsTitles}</td><td className="num">S{h.inducted}</td></tr>
               ))}
             </tbody>
           </table>
@@ -144,7 +145,7 @@ function Hall({ world }: { world: World }) {
           <tbody>
             {contenders.map(({ wp }) => (
               <tr key={wp.player.id} className={world.clientIds.includes(wp.player.id) ? "me" : ""}>
-                <td>{wp.player.name}</td><td className="num">{wp.player.age}</td><td className="num">{wp.career.careerWins}</td><td className="num">{wp.career.careerMajors}</td>
+                <td><PlayerName id={wp.player.id}>{wp.player.name}</PlayerName></td><td className="num">{wp.player.age}</td><td className="num">{wp.career.careerWins}</td><td className="num">{wp.career.careerMajors}</td>
               </tr>
             ))}
           </tbody>

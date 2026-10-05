@@ -23,7 +23,7 @@ import {
   type Trophy,
   type World,
 } from "../../season";
-import { PlayerProfile } from "../components/PlayerProfile";
+import { PlayerName } from "../components/PlayerLink";
 import { Stars } from "../components/Stars";
 import { money } from "../format";
 import type { Game } from "../useGame";
@@ -32,11 +32,12 @@ import { Portrait } from "../components/Portrait";
 const crest = (name: string) => ({
   "Apex Sports Management": "★", "Fairway Global": "◎", "Links & Co.": "♜", "Pinnacle Talent": "♠", "Clubhouse Partners": "♛", "Eagle Rock Agency": "◆",
 }[name] ?? "FM");
+/** World rank → player id, to link the agency table's best players (it keeps only name and rank). */
+const rankIds = (world: World) => new Map([...rankMap(world)].map(([id, rank]) => [rank, id]));
 const styleIcon = (id: string) => id === "stars" ? "★" : id === "developer" ? "♠" : id === "boutique" ? "◆" : "♟";
 
 /** The recruitment board: players you're tracking, where they stand, and whether you can sign them. */
 export function Recruiting({ world, game }: { world: World; game: Game }) {
-  const [profile, setProfile] = useState<string | null>(null);
   const ranks = rankMap(world);
   const board = (world.agency.shortlist ?? []).map((id) => world.players[id]).filter((wp) => wp && !wp.client);
   return (
@@ -61,7 +62,7 @@ export function Recruiting({ world, game }: { world: World; game: Game }) {
                   const chance = block ? 0 : acceptChance(world, id, { commission: 0.1, years: 2 });
                   return (
                     <tr key={id}>
-                      <td><button className="linkish" onClick={() => setProfile(id)}>{wp!.player.name}</button></td>
+                      <td><PlayerName id={id}>{wp!.player.name}</PlayerName></td>
                       <td className="num">{wp!.player.age}</td>
                       <td>{STATUS_LABELS[wp!.career.status]}</td>
                       <td className="num">{ranks.get(id) ? `#${ranks.get(id)}` : "—"}</td>
@@ -79,7 +80,6 @@ export function Recruiting({ world, game }: { world: World; game: Game }) {
         )}
         <p className="muted small" style={{ marginBottom: 0 }}>At each season's end the board tells you who became a free agent and whose deal is about to run out.</p>
       </section>
-      {profile && <PlayerProfile world={world} game={game} id={profile} onClose={() => setProfile(null)} />}
     </main>
   );
 }
@@ -87,6 +87,7 @@ export function Recruiting({ world, game }: { world: World; game: Game }) {
 /** The agency league: every agency's players and results this season, and which of your clients rivals are circling. */
 export function Rivals({ world }: { world: World }) {
   const rows = agencyTable(world);
+  const byRank = rankIds(world);
   const watched = world.clientIds.map((id) => world.players[id]!).filter((wp) => poachRisk(wp) !== "none");
   return (
     <main className="rivals-page">
@@ -105,7 +106,7 @@ export function Rivals({ world }: { world: World }) {
                   <td className="num">{r.wins}</td>
                   <td className="num">{r.majors}</td>
                   <td className="num">{money(r.earnings)}</td>
-                  <td>{r.best ? <div className="league-person"><Portrait player={{ id: `league-best-${r.best.name}`, nationality: "USA", age: 29 }} size={34} title={r.best.name} /><span>{r.best.name} (#{r.best.rank})</span></div> : "—"}</td>
+                  <td>{r.best ? <div className="league-person"><Portrait player={{ id: `league-best-${r.best.name}`, nationality: "USA", age: 29 }} size={34} title={r.best.name} /><span><PlayerName id={byRank.get(r.best.rank) ?? ""}>{r.best.name}</PlayerName> (#{r.best.rank})</span></div> : "—"}</td>
                 </tr>
               ))}
             </tbody>
@@ -126,7 +127,7 @@ export function Rivals({ world }: { world: World }) {
               const rivalStyle = rivalSummaries(world).find((r) => r.rival.name === rival)?.style;
               const intensity = poachRisk(wp) === "threat" ? 5 : 3;
               return <div className="circling-row" key={wp.player.id}>
-                <div className="league-person"><Portrait player={wp.player} size={36} title={wp.player.name} /><strong>{wp.player.name}</strong></div>
+                <div className="league-person"><Portrait player={wp.player} size={36} title={wp.player.name} /><strong><PlayerName id={wp.player.id}>{wp.player.name}</PlayerName></strong></div>
                 <span className={`relationship ${wp.client!.happiness >= 65 ? "friendly" : wp.client!.happiness < 35 ? "hostile" : "neutral"}`}>{wp.client!.happiness >= 65 ? "☺ Happy" : wp.client!.happiness < 35 ? "☹ Unhappy" : "● Neutral"} ({Math.round(wp.client!.happiness)})</span>
                 <div className="circling-agency"><span className="agency-crest mini">{crest(rival)}</span>{rival}</div>
                 <div className="circling-style"><span>{styleIcon(rivalSummaries(world).find((r) => r.rival.name === rival)?.rival.style ?? "stars")}</span>{rivalStyle?.label ?? "Star hunter"}</div>
@@ -145,6 +146,7 @@ export function Rivals({ world }: { world: World }) {
 /** Who the rivals are, how they work, and what they did last winter. */
 function RivalAgencies({ world }: { world: World }) {
   const rows = rivalSummaries(world).sort((a, b) => b.rival.reputation - a.rival.reputation);
+  const byRank = rankIds(world);
   const [open, setOpen] = useState<string | null>(null);
   return (
     <section className="panel">
@@ -166,7 +168,7 @@ function RivalAgencies({ world }: { world: World }) {
                   )}
                   <span>{style.coach > 0 ? `Coaching +${style.coach}` : style.coach < 0 ? `Budget coaching ${style.coach}` : "Average coaching"}</span>
                 </div>
-                {best && <div className="rival-best"><Portrait player={{ id: `rival-best-${best.name}`, nationality: "USA", age: 29 }} size={34} title={best.name} /><span>Best player: <strong>{best.name}</strong> (#{best.rank})</span></div>}
+                {best && <div className="rival-best"><Portrait player={{ id: `rival-best-${best.name}`, nationality: "USA", age: 29 }} size={34} title={best.name} /><span>Best player: <strong><PlayerName id={byRank.get(best.rank) ?? ""}>{best.name}</PlayerName></strong> (#{best.rank})</span></div>}
               </article>
             )})}
       </div>

@@ -33,9 +33,11 @@ import { hasIllustratedTracerArt, IllustratedTracer } from "./IllustratedTracer"
 import { PLAN_LABELS, RoundPlanPicker, setRoundPlan, tickerLine } from "./WeekTempo";
 import { RoundCalls } from "./RoundCalls";
 import { LiveScorecard } from "./LiveScorecard";
+import { PlayerName } from "./PlayerLink";
 
 /** A moment you've answered: the hole, played out in the tracer. */
 interface Replay {
+  id: string;
   name: string;
   round: number;
   index: number;
@@ -163,7 +165,7 @@ export function MomentsView({ world, game, lw }: { world: World; game: Game; lw:
     if (score !== null) {
       const windMph = t.weather[m.round - 1]!.windMph[wave];
       const trace = traceHole({ course, hole, score, player, windMph, seed: traceSeed(t.config.name, player.id, m.round - 1, m.index), call, round: m.round - 1 });
-      setReplay({ name: player.name, round: m.round, index: m.index, trace, courseName: course.name, scores: [...roundScores(t, m.id, m.round)], course });
+      setReplay({ id: player.id, name: player.name, round: m.round, index: m.index, trace, courseName: course.name, scores: [...roundScores(t, m.id, m.round)], course });
       setStep(0);
       setMoment(null);
     } else {
@@ -199,7 +201,7 @@ export function MomentsView({ world, game, lw }: { world: World; game: Game; lw:
       {replay && (
         <section className="panel moment-card">
           <div className="panel-head">
-            <h2>{replay.name}: hole {replay.index + 1}, round {replay.round}</h2>
+            <h2><PlayerName id={replay.id}>{replay.name}</PlayerName>: hole {replay.index + 1}, round {replay.round}</h2>
             <strong>{step >= replay.trace.shots.length ? replay.trace.result : "…"}</strong>
           </div>
           <div className="moment-body">
@@ -269,7 +271,7 @@ function TournamentUpdate({ events }: { events: LiveEvent[] }) {
         const row = (r: (typeof rows)[number]) => (
           <tr key={r.player.id} className={mine.has(r.player.id) ? "me" : ""}>
             <td className="num">{r.positionLabel}</td>
-            <td>{r.player.name}</td>
+            <td><PlayerName id={r.player.id}>{r.player.name}</PlayerName></td>
             <td className="num">{toPar(r.toPar)}</td>
             <td className="num">{r.today ?? "–"}</td>
             <td className="num">{r.positionLabel === "MC" ? <span className="muted">–</span> : move(r.movement)}</td>
@@ -280,7 +282,7 @@ function TournamentUpdate({ events }: { events: LiveEvent[] }) {
             <div className="panel-head">
               <h2>{e.event.name}: after round {round}</h2>
               <span className="secondary small">
-                {leader.player.name} leads at {toPar(leader.toPar)}
+                <PlayerName id={leader.player.id}>{leader.player.name}</PlayerName> leads at {toPar(leader.toPar)}
                 {cut !== null ? ` · cut ${toPar(cut)}` : ""}
               </span>
             </div>
@@ -295,7 +297,7 @@ function TournamentUpdate({ events }: { events: LiveEvent[] }) {
                   : `${r.positionLabel} at ${toPar(r.toPar)}, ${back === 0 ? (r.position === 1 ? "leading" : "tied for the lead") : `${back} back`}${r.today !== null ? `, shot ${r.today} today` : ""}`;
                 return (
                   <li key={id}>
-                    <strong>{r.player.name}</strong> <span className="secondary">{status}</span> {!out && move(r.movement)}
+                    <strong><PlayerName id={id}>{r.player.name}</PlayerName></strong> <span className="secondary">{status}</span> {!out && move(r.movement)}
                   </li>
                 );
               })}
@@ -353,7 +355,7 @@ function ClientStrip({ world, game, events, editable }: { world: World; game: Ga
           return (
             <div key={`${e.event.id}-${id}`} className="client-strip-row">
               <div>
-                <strong>{name}</strong>
+                <strong><PlayerName id={id}>{name}</PlayerName></strong>
                 {events.length > 1 && <span className="muted small"> · {e.event.name}</span>}
                 <div className="secondary small">{where}</div>
               </div>
@@ -419,7 +421,7 @@ function MomentCard({ world, t, eventName, m, calls, setCalls, odds, onPlay, onP
       <div className="panel-head">
         <div>
           <span className="badge">{stakeWords(m.situation, m.playoff)}</span>
-          <h2 style={{ marginTop: 6 }}>{name}: {m.playoff ? "playoff on the 18th" : `round ${m.round}, hole ${m.index + 1}`}</h2>
+          <h2 style={{ marginTop: 6 }}><PlayerName id={m.id}>{name}</PlayerName>: {m.playoff ? "playoff on the 18th" : `round ${m.round}, hole ${m.index + 1}`}</h2>
           <span className="secondary small">
             {eventName ? `${eventName} · ` : ""}Par {hole.par} · {hole.yards} yds
           </span>

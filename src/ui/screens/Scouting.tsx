@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { ScoutTripsPanel } from "../components/ScoutTrips";
 import { EYE_LABELS, REPORTS_PER_WEEK, STATUS_LABELS, approachBlock, knownTraits, pointsList, queueScouting, rankMap, scoutEye, weeklyScoutCost, type TourStatus, type World, knownArchetype } from "../../season";
-import { PlayerProfile } from "../components/PlayerProfile";
+import { PlayerName, useOpenPlayer } from "../components/PlayerLink";
 import { Stars } from "../components/Stars";
 import { TraitChips } from "../components/Traits";
 import { TRAITS } from "../../engine";
@@ -14,7 +14,7 @@ import { Portrait } from "../components/Portrait";
 type Filter = "all" | "approachable" | "free";
 
 export function Scouting({ world, game }: { world: World; game: Game }) {
-  const [profile, setProfile] = useState<string | null>(null);
+  const openPlayer = useOpenPlayer();
   const [filter, setFilter] = useState<Filter>("approachable");
   const [status, setStatus] = useState<TourStatus | "any">("any");
   const [maxAge, setMaxAge] = useState(50);
@@ -104,7 +104,7 @@ export function Scouting({ world, game }: { world: World; game: Game }) {
                 const queued = a.scoutingQueue.includes(id);
                 return (
                   <tr key={id}>
-                    <td>{(() => { const arch = knownArchetype(world, id); return arch ? <ArchetypeBadge id={arch} size={18} /> : null; })()} <button className="linkish" onClick={() => setProfile(id)}>{wp.player.name}</button> <Nation nationality={wp.player.nationality} /></td>
+                    <td>{(() => { const arch = knownArchetype(world, id); return arch ? <ArchetypeBadge id={arch} size={18} /> : null; })()} <PlayerName id={id}>{wp.player.name}</PlayerName> <Nation nationality={wp.player.nationality} /></td>
                     <td className="num">{wp.player.age}</td>
                     <td className="secondary small">{STATUS_LABELS[wp.career.status]}</td>
                     <td className="num">{ranks.get(id) ?? "—"}</td>
@@ -115,7 +115,7 @@ export function Scouting({ world, game }: { world: World; game: Game }) {
                     <td>
                       <div className="btn-row">
                         <button className="btn btn-small" disabled={queued} onClick={() => game.act((w) => queueScouting(w, id))}>{queued ? "Queued" : "Scout"}</button>
-                        <button className="btn btn-small" onClick={() => setProfile(id)}>View</button>
+                        <button className="btn btn-small" onClick={() => openPlayer?.(id)}>View</button>
                       </div>
                     </td>
                   </tr>
@@ -129,10 +129,9 @@ export function Scouting({ world, game }: { world: World; game: Game }) {
       <section className="panel scouting-queue-panel">
         <div className="panel-head"><h2>Scouting queue</h2><span className="muted small">{a.scoutingQueue.length} waiting</span></div>
         {a.hiredScouts.length === 0 && <p className="bad-text small">No scouts hired: nobody is working through this queue.</p>}
-        {a.scoutingQueue.length === 0 ? <div className="queue-empty"><span>＋</span><strong>Nothing queued</strong><p>Pick a player from the reports and press Scout.</p></div> : <div className="queue-paper-list">{a.scoutingQueue.map((id) => <article key={id}><span className="queue-pin">●</span><Portrait player={world.players[id]!.player} size={42} title={world.players[id]!.player.name} /><div><strong>{world.players[id]?.player.name ?? "Retired player"}</strong><small>Waiting for a report</small></div><button className="linkish small" onClick={() => game.act((w) => (w.agency.scoutingQueue = w.agency.scoutingQueue.filter((x) => x !== id)))}>×</button></article>)}</div>}
+        {a.scoutingQueue.length === 0 ? <div className="queue-empty"><span>＋</span><strong>Nothing queued</strong><p>Pick a player from the reports and press Scout.</p></div> : <div className="queue-paper-list">{a.scoutingQueue.map((id) => <article key={id}><span className="queue-pin">●</span><Portrait player={world.players[id]!.player} size={42} title={world.players[id]!.player.name} /><div><strong><PlayerName id={id}>{world.players[id]?.player.name ?? "Retired player"}</PlayerName></strong><small>Waiting for a report</small></div><button className="linkish small" onClick={() => game.act((w) => (w.agency.scoutingQueue = w.agency.scoutingQueue.filter((x) => x !== id)))}>×</button></article>)}</div>}
       </section>
       </div>
-      {profile && <PlayerProfile world={world} game={game} id={profile} onClose={() => setProfile(null)} />}
     </main>
   );
 }

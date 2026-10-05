@@ -1,5 +1,6 @@
 import { GOALS_TO_AGREE, goalProgress, goalsLocked, type World } from "../../season";
 import type { Game } from "../useGame";
+import { PlayerName } from "./PlayerLink";
 
 const STARS = ["", "★", "★★", "★★★"];
 
@@ -23,7 +24,7 @@ export function GoalsPanel({ world, game }: { world: World; game: Game }) {
           const list = locked ? agreed : (c.goalOffers ?? []);
           return (
             <div key={id} className="goal-client">
-              <strong>{wp.player.name}</strong>
+              <strong><PlayerName id={id}>{wp.player.name}</PlayerName></strong>
               <div className="goal-list">
                 {list.map((g) => {
                   const on = agreed.some((x) => x.id === g.id);

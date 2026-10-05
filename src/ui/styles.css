@@ -1307,9 +1307,10 @@ select, input[type="text"], input[type="number"] {
 @media(max-width:1250px){.scouting-page .scout-card-grid{grid-template-columns:repeat(4,minmax(120px,1fr))}.scouting-page .region-board{grid-template-columns:repeat(3,1fr)}.scouting-workbench{grid-template-columns:1fr}.scouting-reports-grid{grid-template-columns:1fr}}
 @media(max-width:700px){.scouting-page .region-board{grid-template-columns:1fr}.scouting-page .scout-card-grid{grid-template-columns:repeat(2,1fr)}.scouting-page .region-tile{min-height:180px}.expedition-map{height:220px}}
 
-.brand-goals { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 6px; }
-.brand-goals li { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; font-size: 12px; }
-.brand-goals li .meter, .brand-goals li .muted { grid-column: 1 / -1; }
+.brand-goals { grid-column: 1 / -1; list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 6px; }
+.brand-goals li { display: grid; grid-template-columns: 34px 1fr auto; gap: 2px 8px; align-items: center; font-size: 12px; }
+.brand-goals li .meter, .brand-goals li .muted { grid-column: 2 / -1; }
+.brand-goal-icon { width: 34px; height: 34px; grid-row: span 3; align-self: start; }
 .brand-goals li.met .brand-goal-label { color: var(--accent); font-weight: 600; }
 .brand-goal-pay { font-weight: 700; white-space: nowrap; }
 
@@ -1324,3 +1325,10 @@ select, input[type="text"], input[type="number"] {
 /* A player's name that opens his page: looks like the text around it until you point at it. */
 .player-link { background: none; border: 0; padding: 0; margin: 0; font: inherit; color: inherit; text-align: inherit; cursor: pointer; }
 .player-link:hover, .player-link:focus-visible { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+
+.skill-medals { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 10px; }
+.skill-medals li { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; cursor: help; }
+.skill-medals img { width: 28px; height: 28px; }
+.skill-medals .skill-locked { opacity: 0.55; font-weight: 500; }
+.skill-medals .skill-locked img { filter: grayscale(1); }
+.brand-deal-card > .small { grid-column: 1 / -1; }

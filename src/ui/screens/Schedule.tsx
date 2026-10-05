@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { eventsInWeek, finaleWeek, isRyderCupSeason, lastRegularWeek, ryderCupWeek, seasonWeeks, yearOf, type TourEvent, type World } from "../../season";
 import { TIER_LABELS, millions, toPar } from "../format";
 import type { Go } from "../nav";
 import type { Game } from "../useGame";
 import { TournamentEmblem } from "../components/TournamentLogo";
+import { PlayerName } from "../components/PlayerLink";
 
 type Filter = "all" | "main" | "big" | "dev";
 const FILTERS: [Filter, string][] = [["all", "Everything"], ["main", "Main tour"], ["big", "Majors & signature"], ["dev", "Developmental tour"]];
@@ -41,13 +42,13 @@ export function Schedule({ world, game, go }: { world: World; game: Game; go: Go
   const finale = finaleWeek(world);
   const ryder = isRyderCupSeason(world.season) ? ryderCupWeek(world) : null;
   const all = world.schedule;
-  const winners = new Map<string, { name: string; toPar: number; mine: boolean }>();
-  const mine = new Map<string, string[]>();
+  const winners = new Map<string, { id: string; name: string; toPar: number; mine: boolean }>();
+  const mine = new Map<string, { id: string; text: string }[]>();
   for (const wp of Object.values(world.players)) {
     for (const r of wp.career.results) {
       if (r.season !== world.season) continue;
-      if (r.position === 1) winners.set(r.eventId, { name: wp.player.name, toPar: r.toPar, mine: !!wp.client });
-      if (wp.client) mine.set(r.eventId, [...(mine.get(r.eventId) ?? []), `${wp.player.name.split(" ").slice(-1)[0]} ${r.label}`]);
+      if (r.position === 1) winners.set(r.eventId, { id: wp.player.id, name: wp.player.name, toPar: r.toPar, mine: !!wp.client });
+      if (wp.client) mine.set(r.eventId, [...(mine.get(r.eventId) ?? []), { id: wp.player.id, text: `${wp.player.name.split(" ").slice(-1)[0]} ${r.label}` }]);
     }
   }
   const inSession = new Set(game.state.reports.flatMap((r) => r.results.map((x) => x.event.id)));
@@ -129,8 +130,8 @@ export function Schedule({ world, game, go }: { world: World; game: Game; go: Go
                             </span>
                             {(win || r) && (
                               <span className="small">
-                                {win && <>Winner: <strong className={win.mine ? "good-text" : ""}>{win.name}</strong> ({toPar(win.toPar)})</>}
-                                {r && <span className="schedule-mine">{r.join(" · ")}</span>}
+                                {win && <>Winner: <strong className={win.mine ? "good-text" : ""}><PlayerName id={win.id}>{win.name}</PlayerName></strong> ({toPar(win.toPar)})</>}
+                                {r && <span className="schedule-mine">{r.map((x, i) => <Fragment key={x.id}>{i ? " · " : ""}<PlayerName id={x.id}>{x.text}</PlayerName></Fragment>)}</span>}
                               </span>
                             )}
                           </div>

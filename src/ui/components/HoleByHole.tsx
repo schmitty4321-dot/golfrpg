@@ -23,6 +23,7 @@ import { HoleDrawing, ShotSequence } from "./ShotTracer";
 import { hasIllustratedTracerArt, IllustratedTracer } from "./IllustratedTracer";
 import { toPar } from "../format";
 import { LiveScorecard } from "./LiveScorecard";
+import { PlayerName } from "./PlayerLink";
 
 interface Played {
   index: number;
@@ -147,7 +148,7 @@ export function HoleByHole({ t, who = t.controlledId, name, onChange, onRoundDon
     <section className="panel hbh">
       <div className="panel-head">
         <div>
-          <h2>{name}: round {t.round}, hole by hole</h2>
+          <h2><PlayerName id={who}>{name}</PlayerName>: round {t.round}, hole by hole</h2>
           <span className="secondary small">
             Today {today.length ? toPar(today.reduce((a, b) => a + b, 0) - todayPar) : "E"} thru {today.length}
             {me && ` · ${toPar(me.toPar)} overall · ${tied ? "T" : ""}${myPos}${myPos === 1 ? " (leading)" : ""}`}
@@ -253,7 +254,7 @@ export function HoleByHole({ t, who = t.controlledId, name, onChange, onRoundDon
               {board.slice(0, 8).concat(me && board.indexOf(me) >= 8 ? [me] : []).map((r) => (
                 <tr key={r.player.id} className={r.player.id === who ? "me" : t.controlledIds.includes(r.player.id) ? "mine" : ""}>
                   <td className="num">{board.findIndex((x) => x.toPar === r.toPar) + 1}</td>
-                  <td>{r.player.name}</td>
+                  <td><PlayerName id={r.player.id}>{r.player.name}</PlayerName></td>
                   <td className="num">{toPar(r.toPar)}</td>
                   <td className="num muted small">{r.thru === 18 ? "F" : `thru ${r.thru}`}</td>
                 </tr>

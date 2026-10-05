@@ -4,7 +4,7 @@ import { PromisePicker } from "../components/Promises";
 import type { PromiseKind } from "../../season";
 import { STATUS_LABELS, pointsList, rankMap, rosterLimit, type World } from "../../season";
 import { Nation } from "../components/Flag";
-import { PlayerProfile } from "../components/PlayerProfile";
+import { PlayerName } from "../components/PlayerLink";
 import { TraitChips } from "../components/Traits";
 import { traitsOf } from "../../engine";
 import { money } from "../format";
@@ -22,7 +22,6 @@ function mood(h: number): string {
 }
 
 export function Agency({ world, game }: { world: World; game: Game }) {
-  const [profile, setProfile] = useState<string | null>(null);
   const [extending, setExtending] = useState<string | null>(null);
   const ranks = rankMap(world);
   const pts = pointsList(world);
@@ -51,7 +50,7 @@ export function Agency({ world, game }: { world: World; game: Game }) {
                   return (
                     <Fragment key={id}>
                       <tr>
-                        <td>{wp.player.archetype && <ArchetypeBadge id={wp.player.archetype} size={18} />} <button className="linkish" onClick={() => setProfile(id)}>{wp.player.name}</button> <Nation nationality={wp.player.nationality} /> <span className="muted small">{wp.player.age}</span></td>
+                        <td>{wp.player.archetype && <ArchetypeBadge id={wp.player.archetype} size={18} />} <PlayerName id={id}>{wp.player.name}</PlayerName> <Nation nationality={wp.player.nationality} /> <span className="muted small">{wp.player.age}</span></td>
                         <td className="secondary small" style={{ whiteSpace: "normal", minWidth: 110 }}>{STATUS_LABELS[wp.career.status]}</td>
                         <td className="num">{pts.indexOf(id) >= 0 ? `#${pts.indexOf(id) + 1}` : "—"}</td>
                         <td className="num">#{ranks.get(id) ?? "—"}</td>
@@ -92,7 +91,7 @@ export function Agency({ world, game }: { world: World; game: Game }) {
                 {world.clientIds.flatMap((id) =>
                   world.players[id]!.client!.offers.map((o) => (
                     <tr key={o.id}>
-                      <td>{world.players[id]!.player.name}</td>
+                      <td><PlayerName id={id}>{world.players[id]!.player.name}</PlayerName></td>
                       <td>{o.sponsor}</td>
                       <td>{CATEGORY_LABELS[o.category]}</td>
                       <td className="num">{money(o.annualValue)}</td>
@@ -125,7 +124,7 @@ export function Agency({ world, game }: { world: World; game: Game }) {
               {world.clientIds.flatMap((id) =>
                 world.players[id]!.client!.sponsors.map((s) => (
                   <tr key={s.id}>
-                    <td>{world.players[id]!.player.name}</td>
+                    <td><PlayerName id={id}>{world.players[id]!.player.name}</PlayerName></td>
                     <td>{s.sponsor}</td>
                     <td>{CATEGORY_LABELS[s.category]}</td>
                     <td className="num">{money(s.annualValue)}</td>
@@ -137,8 +136,6 @@ export function Agency({ world, game }: { world: World; game: Game }) {
           </table>
         )}
       </section>
-
-      {profile && <PlayerProfile world={world} game={game} id={profile} onClose={() => setProfile(null)} />}
     </main>
   );
 }

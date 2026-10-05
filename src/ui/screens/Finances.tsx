@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import {
   CREDIT_RATE,
   STATUS_LABELS,
@@ -21,6 +21,7 @@ import {
 import { money } from "../format";
 import type { Game } from "../useGame";
 import { Portrait } from "../components/Portrait";
+import { PlayerName } from "../components/PlayerLink";
 
 const cash = (n: number) => (n < 0 ? `−${money(-n)}` : money(n));
 const short = (v: number) => (v >= 1e6 || v <= -1e6 ? `${(v / 1e6).toFixed(1)}M` : `${Math.round(v / 1e3)}k`);
@@ -123,7 +124,7 @@ function ClientBooks({ world }: { world: World }) {
           <tbody>
             {rows.map((r) => (
               <tr key={r.id}>
-                <td>{r.name}{r.profit < 0 && <span className="badge" style={{ marginLeft: 6 }}>Costing you</span>}</td>
+                <td><PlayerName id={r.id}>{r.name}</PlayerName>{r.profit < 0 && <span className="badge" style={{ marginLeft: 6 }}>Costing you</span>}</td>
                 <td className="num">{cash(r.income)}</td>
                 <td className={`num ${r.costs ? "bad-text" : ""}`}>{r.costs ? cash(-r.costs) : "$0"}</td>
                 <td className={`num ${r.profit < 0 ? "bad-text" : "good-text"}`}><strong>{cash(r.profit)}</strong></td>
@@ -174,7 +175,7 @@ function ClientMoney({ world }: { world: World }) {
         const expenses = f.caddie + f.travel + f.coaching + (f.training ?? 0) + (f.equipment ?? 0);
         const net = f.prizeMoney + f.endorsements - expenses - f.commission;
         return <article className="client-money-card" key={id}>
-          <div className="client-money-person"><Portrait player={wp.player} size={70} title={wp.player.name} /><strong>{wp.player.name}</strong></div>
+          <div className="client-money-person"><Portrait player={wp.player} size={70} title={wp.player.name} /><strong><PlayerName id={id}>{wp.player.name}</PlayerName></strong></div>
           <MoneyStep icon="♛" label="Prize money" value={money(f.prizeMoney)} />
           <b className="money-arrow">+</b><MoneyStep icon="◆" label="Endorsements" value={money(f.endorsements)} />
           <b className="money-arrow">−</b><MoneyStep icon="▤" label="Player expenses" value={money(expenses)} bad />
@@ -328,7 +329,7 @@ function ContractDesk({ world, game }: { world: World; game: Game }) {
                 return (
                   <article className="contract-card" key={wp.player.id}>
                     <div className="contract-portrait"><Portrait player={wp.player} size={118} title={wp.player.name} /><span className={risk ? "risk" : m.happiness >= 65 ? "happy" : "neutral"}>{risk ? "☹" : m.happiness >= 65 ? "☺" : "●"}</span></div>
-                    <strong>{wp.player.name}</strong>
+                    <strong><PlayerName id={wp.player.id}>{wp.player.name}</PlayerName></strong>
                     <div className={`contract-ribbon ${ending ? "ending" : ""}`}>{ending ? "Contract ends this season" : `Contract through season ${m.contract.untilSeason}`}</div>
                     <dl><div><dt>Commission</dt><dd>{Math.round(m.contract.commission * 100)}%</dd></div><div><dt>Mood</dt><dd>{Math.round(m.happiness)}</dd></div><div><dt>Sponsors ending</dt><dd>{sponsorsEnding || "None"}</dd></div></dl>
                       {ending && (
@@ -391,7 +392,7 @@ function PastSeasons({ world }: { world: World }) {
               return (
                 <tr key={s.season}>
                   <td>{s.season}</td>
-                  <td className="small">{s.clients.map((c) => `${c.name} (#${c.pointsRank ?? "–"}, ${STATUS_LABELS[c.statusAfter].toLowerCase()})`).join("; ")}</td>
+                  <td className="small">{s.clients.map((c, i) => <Fragment key={c.id}>{i ? "; " : ""}<PlayerName id={c.id}>{c.name}</PlayerName> (#{c.pointsRank ?? "–"}, {STATUS_LABELS[c.statusAfter].toLowerCase()})</Fragment>)}</td>
                   <td className="num">{money(agencyIncome(l))}</td>
                   <td className="num">{cash(-agencyCosts(l))}</td>
                   <td className={`num ${p >= 0 ? "good-text" : "bad-text"}`}>{cash(p)}</td>

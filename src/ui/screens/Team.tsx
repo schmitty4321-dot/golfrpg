@@ -14,6 +14,7 @@ import {
 } from "../../season";
 import { money } from "../format";
 import { Portrait } from "../components/Portrait";
+import { PlayerName } from "../components/PlayerLink";
 import type { Game } from "../useGame";
 
 /** What a model does, in a few words. */
@@ -80,7 +81,7 @@ export function Team({ world, game, clientId }: { world: World; game: Game; clie
                       {k.id === m.caddieId ? (
                         <span className="muted small">On the bag</span>
                       ) : busy ? (
-                        <span className="muted small">With {world.players[busy]!.player.name}</span>
+                        <span className="muted small">With <PlayerName id={busy}>{world.players[busy]!.player.name}</PlayerName></span>
                       ) : (
                         <button className="btn btn-small" onClick={() => act((w) => game.lib.hireCaddie(w, clientId, k.id))}>Hire</button>
                       )}

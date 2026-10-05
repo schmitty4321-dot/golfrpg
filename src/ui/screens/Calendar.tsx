@@ -1,23 +1,25 @@
+import { Fragment } from "react";
 import { seasonWeeks, eventsInWeek, type World } from "../../season";
 import { TIER_LABELS, millions, toPar } from "../format";
 import type { Go } from "../nav";
 import type { Game } from "../useGame";
 import { TournamentCard, TournamentEmblem } from "../components/TournamentLogo";
+import { PlayerName } from "../components/PlayerLink";
 
 export function Calendar({ world, game, go }: { world: World; game: Game; go: Go }) {
-  const winners = new Map<string, { name: string; toPar: number }>();
+  const winners = new Map<string, { id: string; name: string; toPar: number }>();
   for (const wp of Object.values(world.players)) {
     for (const r of wp.career.results) {
-      if (r.season === world.season && r.position === 1) winners.set(r.eventId, { name: wp.player.name, toPar: r.toPar });
+      if (r.season === world.season && r.position === 1) winners.set(r.eventId, { id: wp.player.id, name: wp.player.name, toPar: r.toPar });
     }
   }
   // Each client's finish per event, e.g. "Rhodes T5".
-  const mine = new Map<string, string[]>();
+  const mine = new Map<string, { id: string; text: string }[]>();
   for (const id of world.clientIds) {
     const wp = world.players[id]!;
     const surname = wp.player.name.split(" ").slice(-1)[0];
     for (const r of wp.career.results.filter((x) => x.season === world.season)) {
-      mine.set(r.eventId, [...(mine.get(r.eventId) ?? []), `${surname} ${r.label}${r.via === "monday" ? " (MQ)" : ""}`]);
+      mine.set(r.eventId, [...(mine.get(r.eventId) ?? []), { id, text: `${surname} ${r.label}${r.via === "monday" ? " (MQ)" : ""}` }]);
     }
   }
   const inSession = new Set(game.state.reports.flatMap((r) => r.results.map((x) => x.event.id)));
@@ -58,8 +60,8 @@ export function Calendar({ world, game, go }: { world: World; game: Game; go: Go
                       <td><span className={`badge${e.tier === "major" ? " badge-major" : ""}`}>{e.devFinals ? `Dev Finals ${e.devFinals}/4` : TIER_LABELS[e.tier]}</span></td>
                       <td className="secondary">{course.name}</td>
                       <td className="num">{millions(e.purse)}</td>
-                      <td>{w ? `${w.name} (${toPar(w.toPar)})` : week < world.week ? "–" : ""}</td>
-                      <td className="small">{r ? r.join(", ") : ""}</td>
+                      <td>{w ? <><PlayerName id={w.id}>{w.name}</PlayerName> ({toPar(w.toPar)})</> : week < world.week ? "–" : ""}</td>
+                      <td className="small">{r ? r.map((x, i) => <Fragment key={x.id}>{i ? ", " : ""}<PlayerName id={x.id}>{x.text}</PlayerName></Fragment>) : ""}</td>
                     </tr>
                   );
                 }),
