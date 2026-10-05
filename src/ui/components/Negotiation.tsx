@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MAX_ROUNDS, interestedAgencies, marketRate, negotiationFor, offerBlock, RELEASE_CLAUSE_STEPS, RETAINER_STEPS, SIGNING_BONUS_STEPS, STRUCTURE_LABELS, WIN_BONUS_STEPS, cleanExtras, describeTerms, warmth, type CommissionStructure, type PromiseKind, type World } from "../../season";
+import { MAX_ROUNDS, commissionGrace, interestedAgencies, marketRate, negotiationFor, offerBlock, RELEASE_CLAUSE_STEPS, RETAINER_STEPS, SIGNING_BONUS_STEPS, STRUCTURE_LABELS, WIN_BONUS_STEPS, cleanExtras, describeTerms, warmth, type CommissionStructure, type PromiseKind, type World } from "../../season";
 import type { Game } from "../useGame";
 import { PromisePicker } from "./Promises";
 import { PlayerName } from "./PlayerLink";
@@ -87,7 +87,7 @@ export function NegotiationTable({ world, game, playerId, onClose }: { world: Wo
                     {[1, 2, 3].map((y) => <option key={y} value={y}>{y} season{y === 1 ? "" : "s"}</option>)}
                   </select>
                 </label>
-                <span className="small muted" title="What players of his standing usually pay: stars less, players without status more">Going rate {Math.round(marketRate(wp) * 100)}%</span>
+                <span className="small muted" title="What players of his standing usually pay: stars less, players without status more">Going rate {Math.round(marketRate(wp) * 100)}%{commissionGrace(world, wp.player.id) > 0 && n.kind === "sign" ? ` (he's keen: up to ${Math.round((marketRate(wp) + commissionGrace(world, wp.player.id)) * 1000) / 10}% for you)` : ""}</span>
                 <span className="small">Your read: <strong>{warmth(world, n, terms)}</strong></span>
               </div>
               <details className="deal-extras">

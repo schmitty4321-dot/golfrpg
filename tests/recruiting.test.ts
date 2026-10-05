@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { publicRead, acceptChance, hoursFor, proProspects, rivalInterest, rivalMoves, rivalRecruitingWeek, MAX_READ, PRO_AGE, agencyList, createWorld, dealbreaker, groupRange, hoursLeft, interestIn, prospects, readOf, recruit, recruitBlock, signingDay, weeklyHours } from "../src/season";
+import { commissionGrace, firstCall, marketRate, publicRead, acceptChance, hoursFor, proProspects, rivalInterest, rivalMoves, rivalRecruitingWeek, MAX_READ, PRO_AGE, agencyList, createWorld, dealbreaker, groupRange, hoursLeft, interestIn, prospects, readOf, recruit, recruitBlock, signingDay, weeklyHours } from "../src/season";
 
 describe("recruiting", () => {
   it("spends a weekly budget of hours, refilled each week", () => {
@@ -69,5 +69,31 @@ describe("recruiting", () => {
     w.agency.prospects![pro]!.interest = 90;
     expect(acceptChance(w, pro, offer)).toBeGreaterThan(cold);
   });
-});
 
+  it("a keen pro whose deal is up takes your call first, and will pay a little over his going rate", () => {
+    const w = createWorld({ seed: 105, scenario: "agency" });
+    w.agency.reputation = 50;
+    const pro = proProspects(w, 120).slice(40).find((id) => w.players[id]!.agent && w.players[id]!.agent!.untilSeason <= w.season && dealbreaker(w, id) === null)!;
+    const wp = w.players[pro]!;
+    recruit(w, pro, "stats");
+    w.agency.prospects![pro]!.interest = 59;
+    expect(firstCall(w, pro)).toBe(false);
+    const before = acceptChance(w, pro, { commission: 0.1, years: 2 });
+    w.agency.prospects![pro]!.interest = 60;
+    expect(firstCall(w, pro)).toBe(true);
+    // His agency and the rival bids stop counting: far more than one point of interest is worth.
+    expect(acceptChance(w, pro, { commission: 0.1, years: 2 })).toBeGreaterThan(before + 0.05);
+    // Not while he has seasons left on his deal.
+    wp.agent!.untilSeason = w.season + 1;
+    expect(firstCall(w, pro)).toBe(false);
+    wp.agent!.untilSeason = w.season;
+    // Keen: two points over his going rate cost nothing; cooler, they do.
+    const rate = marketRate(wp);
+    w.agency.prospects![pro]!.interest = 50;
+    expect(commissionGrace(w, pro)).toBe(0);
+    expect(acceptChance(w, pro, { commission: rate + 0.02, years: 2 })).toBeLessThan(acceptChance(w, pro, { commission: rate, years: 2 }));
+    w.agency.prospects![pro]!.interest = 80;
+    expect(commissionGrace(w, pro)).toBeCloseTo(0.02);
+    expect(acceptChance(w, pro, { commission: rate + 0.02, years: 2 })).toBeCloseTo(acceptChance(w, pro, { commission: rate, years: 2 }), 6);
+  });
+});

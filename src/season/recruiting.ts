@@ -200,6 +200,32 @@ export function interestBonus(world: World, id: string): number {
   return (p.interest - 40) * 0.12 - (dealbreakerMet(world, dealbreaker(world, id)) ? 0 : 8);
 }
 
+/** The interest at which a pro you've worked on takes your call first. */
+export const FIRST_CALL = 60;
+
+/**
+ * First call: a pro this keen on you, whose deal is up (or who has no agent),
+ * hears you out before the winter market, so rival bids and his current
+ * agency don't count against you.
+ */
+export function firstCall(world: World, id: string): boolean {
+  const wp = world.players[id];
+  const p = world.agency.prospects?.[id];
+  if (!wp || wp.client || !p || wp.career.status === "amateur") return false;
+  if (wp.agent && wp.agent.untilSeason > world.season) return false;
+  return p.interest >= FIRST_CALL && dealbreakerMet(world, dealbreaker(world, id));
+}
+
+/**
+ * How far over his going rate a keen pro will go without it costing you:
+ * nothing at interest 50, two points of commission at 75 and above.
+ */
+export function commissionGrace(world: World, id: string): number {
+  const p = world.agency.prospects?.[id];
+  if (!p || !isPro(world, id) || !dealbreakerMet(world, dealbreaker(world, id))) return 0;
+  return Math.round(clamp((p.interest - 50) / 25, 0, 1) * 0.02 * 1000) / 1000;
+}
+
 // ---------------------------------------------------------------- his list of agencies
 
 /** The agencies he's considering, best first, with how keen he is on each (rivals by their name and a little luck). */

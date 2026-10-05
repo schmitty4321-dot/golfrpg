@@ -27,6 +27,10 @@ import {
   actionsFor,
   hoursFor,
   isPro,
+  commissionGrace,
+  firstCall,
+  FIRST_CALL,
+  marketRate,
   rankMap,
   readOf,
   recruit,
@@ -97,7 +101,7 @@ export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
               return (
                 <tr key={id} className={open === id ? "row-current" : undefined}>
                   <td><Stars value={stars(world, id)} /></td>
-                  <td><PlayerName id={id}>{wp.player.name}</PlayerName>{wp.academy ? <span className="sponsor-tag">Academy</span> : null}</td>
+                  <td><PlayerName id={id}>{wp.player.name}</PlayerName>{wp.academy ? <span className="sponsor-tag">Academy</span> : null}{firstCall(world, id) ? <span className="sponsor-tag" title="His deal is up and he's keen on you: he'll hear you out before the other agencies bid">First call</span> : null}</td>
                   <td className="num">{wp.player.age}</td>
                   <td className="small">{tab === "pro" ? <>#{ranks.get(id)} · {wp.agent && wp.agent.untilSeason > world.season ? `${wp.agent.agency} to S${wp.agent.untilSeason}` : wp.agent ? `${wp.agent.agency}, final season` : "Free agent"}</> : schoolLabel(world, wp)}</td>
                   <td className="small">{readWords(readOf(world, id))}</td>
@@ -213,6 +217,9 @@ export function ProspectCard({ world, game, id }: { world: World; game: Game; id
           {rivalMoves(world, id).length > 0 && (
             <p className="small muted">Latest: {rivalMoves(world, id).slice(0, 3).map((m) => `${m.agency} ${m.text} (week ${m.absWeek - world.season * 52})`).join(" · ")}</p>
           )}
+          {pro && firstCall(world, id) && <p className="small"><strong>First call.</strong> His deal is up and he's keen on you: he'll hear your offer before the winter market, so rival bids{wp.agent ? ` and ${wp.agent.agency}` : ""} don't count against you.</p>}
+          {pro && !firstCall(world, id) && <p className="small muted">At interest {FIRST_CALL}, he takes your call first when his deal is up: rival bids won't count against you.</p>}
+          {pro && commissionGrace(world, id) > 0 && <p className="small">He's keen enough to pay up to {Math.round((marketRate(wp) + commissionGrace(world, id)) * 1000) / 10}% (his going rate is {Math.round(marketRate(wp) * 1000) / 10}%) without it hurting your chances, or his mood once he's signed.</p>}
           {pro && <p className="small">Interest counts when you make him an offer{wp.agent && wp.agent.untilSeason > world.season ? `, which you can from his final season with ${wp.agent.agency}` : ""}. His tour numbers are public, so you start with a read of him.</p>}
           {narrowing(wp) && <p className="small">He turns pro at the end of this season and commits on signing day to the top of his list.</p>}
         </section>

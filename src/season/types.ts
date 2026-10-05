@@ -223,6 +223,8 @@ export interface ClientContract {
   untilSeason: number;
   /** Ladder or star structure, a majors rate, win bonuses, a release clause (see contractTerms.ts). */
   extras?: import("./contractTerms").DealExtras;
+  /** Commission over his going rate he agreed to because he was keen on you: it doesn't rankle. */
+  keenGrace?: number;
 }
 
 /** Everything the agency manages for one client. */
