@@ -22,6 +22,7 @@ import {
   type HoleTrace,
   type LiveTournament,
   type Moment,
+  type Course,
 } from "../../engine";
 import type { LiveEvent, World } from "../../season";
 import type { Game, LiveWeek } from "../useGame";
@@ -31,6 +32,7 @@ import { HoleDrawing, LIE_WORDS } from "./ShotTracer";
 import { hasIllustratedTracerArt, IllustratedTracer } from "./IllustratedTracer";
 import { PLAN_LABELS, RoundPlanPicker, setRoundPlan, tickerLine } from "./WeekTempo";
 import { RoundCalls } from "./RoundCalls";
+import { LiveScorecard } from "./LiveScorecard";
 
 /** A moment you've answered: the hole, played out in the tracer. */
 interface Replay {
@@ -39,6 +41,16 @@ interface Replay {
   index: number;
   trace: HoleTrace;
   courseName: string;
+  /** His card for the round so far, hole by hole, and the course to draw it against. */
+  scores: number[];
+  course: Course;
+}
+
+/** A client's hole scores in a round: the round in progress, or a finished one. */
+function roundScores(t: LiveTournament, id: string, round: number): number[] {
+  const live = t.live[id];
+  if (live && t.round === round) return live.holes;
+  return t.entries.find((e) => e.player.id === id)?.holes[round - 1] ?? [];
 }
 
 const eventDone = (t: LiveTournament) => t.round >= 4 && !inRound(t) && !pendingPlayoff(t).length;
@@ -134,7 +146,7 @@ export function MomentsView({ world, game, lw }: { world: World; game: Game; lw:
     if (score !== null) {
       const windMph = t.weather[m.round - 1]!.windMph[wave];
       const trace = traceHole({ course, hole, score, player, windMph, seed: traceSeed(t.config.name, player.id, m.round - 1, m.index), call, round: m.round - 1 });
-      setReplay({ name: player.name, round: m.round, index: m.index, trace, courseName: course.name });
+      setReplay({ name: player.name, round: m.round, index: m.index, trace, courseName: course.name, scores: [...roundScores(t, m.id, m.round)], course });
       setStep(0);
       setMoment(null);
     } else {
@@ -176,6 +188,7 @@ export function MomentsView({ world, game, lw }: { world: World; game: Game; lw:
           <div className="moment-body">
             <TraceDrawing trace={replay.trace} step={step} courseName={replay.courseName} />
             <div>
+              <LiveScorecard course={replay.course} scores={replay.scores} current={replay.index} activeNineOnly />
               <ol className="shot-list moment-shot-list">
                 {replay.trace.shots.map((s, i) => (
                   <li key={i} className={i < step ? (i === step - 1 ? "current" : "") : "pending"}>
@@ -400,6 +413,7 @@ function MomentCard({ world, t, eventName, m, calls, setCalls, odds, onPlay, onP
       <div className="moment-body">
         <TraceDrawing trace={preview} step={0} courseName={course.name} />
         <div>
+          {!m.playoff && <LiveScorecard course={course} scores={roundScores(t, m.id, m.round)} current={m.index} activeNineOnly />}
           {m.decisions.map((d) => {
             const chosen = calls[d.kind];
             return (
