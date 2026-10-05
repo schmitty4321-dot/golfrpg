@@ -4,6 +4,7 @@ import { clamp, type Rng } from "../engine";
 import { rankMap } from "./points";
 import { absWeek, type SponsorCategory, type SponsorOffer, type World, type WorldPlayer } from "./types";
 import { bonusMultiplier, offerChanceMultiplier, sponsorValueMultiplier } from "./traits";
+import { hasSkill } from "./staffSkills";
 
 export const BRANDS: Record<SponsorCategory, string[]> = {
   equipment: ["Talon Golf", "Kinetic Clubs", "Forged Theory", "Arcline", "Vantage Irons", "Northstar Golfworks", "TrueLine Putters", "Apex Forge", "Caddis Golf Lab"],
@@ -39,6 +40,15 @@ export function marketability(world: World, wp: WorldPlayer): number {
   return clamp(rankScore * youth * market * agency + recentWins * 0.08 + (wp.client?.buzz ?? 0), 0.02, 1.4);
 }
 
+/** What the marketing lead's skills add to an offer: their category, the underdog, the overseas client. */
+function marketingSkills(world: World, wp: WorldPlayer, category: SponsorCategory): number {
+  let x = 1;
+  if (hasSkill(world, "category-expert") && (category === "equipment" || category === "apparel")) x *= 1.25;
+  if (hasSkill(world, "underdog-seller") && (rankMap(world).get(wp.player.id) ?? 999) > 100) x *= 1.3;
+  if (hasSkill(world, "global-reach") && wp.player.nationality !== "USA") x *= 1.2;
+  return x;
+}
+
 /** Tries to generate a new offer for a client; at most one per category at a time. */
 export function maybeOffer(world: World, wp: WorldPlayer, rng: Rng, chance: number): SponsorOffer | null {
   const c = wp.client;
@@ -50,7 +60,7 @@ export function maybeOffer(world: World, wp: WorldPlayer, rng: Rng, chance: numb
   const category = rng.pick(open);
   const m = marketability(world, wp);
   const scale = Math.min(1, m);
-  const annualValue = Math.round((TOP_VALUE[category] * scale * scale * (0.7 + rng.next() * 0.6) * sponsorValueMultiplier(world, wp, category) * sponsorBoost(world) * brandLift(world, category) * followerLift(world, wp)) / 5_000) * 5_000;
+  const annualValue = Math.round((TOP_VALUE[category] * scale * scale * (0.7 + rng.next() * 0.6) * sponsorValueMultiplier(world, wp, category) * sponsorBoost(world) * brandLift(world, category) * followerLift(world, wp) * marketingSkills(world, wp, category)) / 5_000) * 5_000;
   if (annualValue < 20_000) return null;
   const offer: SponsorOffer = {
     id: `sp${world.season}-${world.week}-${wp.player.id}-${category}`,
@@ -60,7 +70,7 @@ export function maybeOffer(world: World, wp: WorldPlayer, rng: Rng, chance: numb
     winBonus: Math.round((annualValue * 0.1 * bonusMultiplier(wp)) / 1_000) * 1_000,
     majorBonus: Math.round((annualValue * 0.3 * bonusMultiplier(wp)) / 1_000) * 1_000,
     untilSeason: world.season + rng.int(0, 2),
-    expiresAbsWeek: absWeek(world.season, world.week) + 3,
+    expiresAbsWeek: absWeek(world.season, world.week) + 3 + (hasSkill(world, "never-lapse") ? 3 : 0),
   };
   c.offers.push(offer);
   world.news.unshift(`${offer.sponsor} offers ${wp.player.name} a ${category} deal worth $${annualValue.toLocaleString("en-US")} a season.`);
@@ -94,7 +104,7 @@ export function sponsorWeek(world: World, wp: WorldPlayer, rng: Rng, goodWeek: b
   for (const o of c.offers.filter((x) => x.expiresAbsWeek < now)) lapseOffer(world, wp, o, rng);
   c.offers = c.offers.filter((o) => o.expiresAbsWeek >= now);
   const pay = c.sponsors.reduce((s, x) => s + x.annualValue / seasonWeeks, 0);
-  maybeOffer(world, wp, rng, Math.min(0.95, (goodWeek ? 0.5 : world.week === 1 ? 0.8 : 0.05) * offerChanceMultiplier(wp) + extraChance));
+  maybeOffer(world, wp, rng, Math.min(0.95, (goodWeek ? 0.5 : world.week === 1 ? 0.8 : 0.05) * offerChanceMultiplier(wp) * (hasSkill(world, "deal-flow") ? 1.3 : 1) + extraChance));
   return Math.round(pay);
 }
 

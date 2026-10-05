@@ -11,6 +11,7 @@ import { has, injuryLength, injuryRisk, returnFromInjury } from "./traits";
 import type { Coach, CoachRole, Injury, RebuildArea, World, WorldPlayer } from "./types";
 import type { AttributeKey } from "../engine";
 import { activeTargets, burnoutInjury, fatigueWeek, peakView, type PeakView } from "./progression";
+import { hasSkill } from "./staffSkills";
 
 export const COACH_ROLES: CoachRole[] = ["swing", "shortGame", "putting", "mental", "fitness"];
 
@@ -151,7 +152,7 @@ function progressRebuild(world: World, wp: WorldPlayer, rng: Rng): void {
   delete wp.player.sgAdjust;
   const area = REBUILDS[done ?? "swing"];
   const coachQ = world.coaches.find((c) => c.id === wp.client?.staff[area.coach])?.quality ?? 4;
-  if (rng.chance(rebuildSuccessChance(coachQ, wp.player.attributes.coachability))) {
+  if (rng.chance(Math.min(0.95, rebuildSuccessChance(coachQ, wp.player.attributes.coachability) + (hasSkill(world, "rebuild-planner") ? 0.1 : 0)))) {
     // The whole swing lifts the ceiling most; a short game or putting change, less.
     wp.development.potential = Math.min(19, wp.development.potential + (done === "swing" || !done ? 1 : 0.5));
     const pool = [...area.skills];
@@ -229,7 +230,7 @@ export function endOfWeek(world: World, competed: Set<string>, rng: Rng, boosts:
         wp.injury = null;
         if (isClient) world.news.unshift(`${wp.player.name} is fit again.`);
       }
-    } else if (rng.chance(injuryChance(wp, played, INTENSITY[plan.intensity].injury, quality.fitness ?? 4) * (boosts.get(wp.player.id)?.injury ?? 1) * burnoutInjury(wp.client?.fatigue))) {
+    } else if (rng.chance(injuryChance(wp, played, INTENSITY[plan.intensity].injury, quality.fitness ?? 4) * (boosts.get(wp.player.id)?.injury ?? 1) * burnoutInjury(wp.client?.fatigue) * (isClient && hasSkill(world, "injury-watch") ? 0.8 : 1))) {
       wp.injury = rollInjury(world, wp, rng);
     }
 
@@ -237,7 +238,7 @@ export function endOfWeek(world: World, competed: Set<string>, rng: Rng, boosts:
     const boost = boosts.get(wp.player.id);
     const burnout = isClient ? fatigueWeek(wp, played) : 1;
     const targets = isClient ? activeTargets(world, wp) : [];
-    const changes = developWeek(wp, { plan, coachQuality: quality, competed: played, mentored, managed: isClient, ...(isClient ? { facility: centerTier(world).growth, burnout } : {}), ...(targets.length ? { targets } : {}), ...(boost ? { boost } : {}) }, rng);
+    const changes = developWeek(wp, { plan, coachQuality: quality, competed: played, mentored, managed: isClient, ...(isClient ? { facility: centerTier(world).growth + (hasSkill(world, "stats-guru") ? 0.03 : 0), burnout } : {}), ...(targets.length ? { targets } : {}), ...(boost ? { boost } : {}) }, rng);
     masteryWeek(wp, played, plan.focus);
     if (isClient) {
       wp.player.condition = clamp(wp.player.condition + INTENSITY[plan.intensity].condition, 0, 100);
@@ -302,7 +303,7 @@ export function offseason(world: World, weeks: number, rng: Rng): void {
 export function abilityView(world: World, clientId: string): { current: number; potential: number; coachQuality: number } {
   const wp = world.players[clientId]!;
   // An agency analyst reads a ceiling as well as a coach of his quality would.
-  const coachQuality = Math.max(4, analystQuality(world), ...Object.values(staffQuality(world, clientId)));
+  const coachQuality = Math.min(20, Math.max(4, analystQuality(world), ...Object.values(staffQuality(world, clientId))) + (hasSkill(world, "ceiling-reader") ? 3 : 0));
   const estimate = potentialEstimate(wp, coachQuality, createRng(mixSeed(world.seed, world.season, 77)));
   const current = overall(wp.player);
   return { current, potential: Math.max(current, estimate), coachQuality };
@@ -312,5 +313,5 @@ export function abilityView(world: World, clientId: string): { current: number; 
 export function clientPeakView(world: World, clientId: string): PeakView {
   const wp = world.players[clientId]!;
   const watched = Math.max(0, world.season - (wp.client?.contract.signedSeason ?? world.season));
-  return peakView(wp, abilityView(world, clientId).coachQuality, watched, world.seed);
+  return peakView(wp, abilityView(world, clientId).coachQuality, watched + (hasSkill(world, "peak-predictor") ? 2 : 0), world.seed);
 }

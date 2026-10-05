@@ -12,6 +12,7 @@ import { absWeek, type World } from "./types";
 import type { WeekReport } from "./week";
 import { ensureRivals } from "./rivals";
 import { amateurRanking } from "./amateurs";
+import { hasSkill } from "./staffSkills";
 
 export type Voice = "smug" | "fast" | "polished" | "fatherly" | "brash" | "warm";
 
@@ -189,5 +190,7 @@ export function boardSigningMessages(world: World, signed: { agency: string; nam
 
 /** Relationships drift back towards neutral over a winter. */
 export function rivalRelationshipsSeasonEnd(world: World): void {
-  for (const r of ensureRivals(world)) if (r.relationship) r.relationship = Math.round(clamp(r.relationship * 0.85, -100, 100));
+  // Bad blood fades each winter; a diplomat makes it fade faster.
+  const diplomat = hasSkill(world, "rival-diplomat");
+  for (const r of ensureRivals(world)) if (r.relationship) r.relationship = Math.round(clamp(r.relationship * (diplomat && r.relationship < 0 ? 0.6 : 0.85), -100, 100));
 }

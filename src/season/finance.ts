@@ -11,6 +11,7 @@ import { COACH_ROLES, abilityView, clientPeakView, coachFee, staffQuality } from
 import { GOLF_SKILLS, developWeek, overall } from "./development";
 import { effectivePeak } from "./traits";
 import type { CoachRole, Intensity, TrainingFocus, WinterProgram, World, WorldPlayer } from "./types";
+import { hasSkill } from "./staffSkills";
 
 /** Each coach he employs takes this share of his prize money, on top of the retainer. */
 export const COACH_PRIZE_SHARE = 0.01;
@@ -206,7 +207,7 @@ export function projectDevelopment(world: World, id: string, plan: DevPlan, runs
     levels: sums.map((sum, s) => {
       const cap = Math.max(ceiling, now);
       // The range widens with each season, and with how little his coaches can see.
-      const unsure = ((20 - abilityView(world, id).coachQuality) * 0.04 + 0.1) * Math.sqrt(s + 1);
+      const unsure = ((20 - abilityView(world, id).coachQuality) * 0.04 + 0.1) * Math.sqrt(s + 1) * (hasSkill(world, "projection-modeller") ? 0.6 : 1);
       const level = Math.min(cap, now + sum / runs - from);
       return {
         season: world.season + s,

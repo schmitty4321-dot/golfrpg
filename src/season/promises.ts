@@ -10,6 +10,7 @@ import { clamp } from "../engine";
 import { staffQuality } from "./staff";
 import { absWeek, type CoachRole, type World, type WorldPlayer } from "./types";
 import { nextRyderCupSeason, ryderCupWeek, yearOf } from "./ryderCup";
+import { hasSkill } from "./staffSkills";
 
 export type PromiseKind = "camp" | "noOpposite" | "majors" | "eliteCoach" | "maxEvents" | "ryderCup";
 
@@ -91,7 +92,7 @@ function settle(world: World, wp: WorldPlayer, p: ClientPromise, kept: boolean, 
     bump(world, "promisesKept");
     return;
   }
-  m.trust = clamp(trustOf(wp) - 20, 0, 100);
+  m.trust = clamp(trustOf(wp) - (hasSkill(world, "promise-keeper") ? 10 : 20), 0, 100);
   m.happiness = clamp(m.happiness - 10, 0, 100);
   world.news.unshift(`Promise broken: ${label}, for ${wp.player.name} (${why}). He won't forget it.`);
   // Word gets round the stable.

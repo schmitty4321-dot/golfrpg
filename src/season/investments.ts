@@ -8,6 +8,7 @@ import { createRng } from "../engine";
 import { addReputation } from "./agency";
 import { mixSeed } from "./entries";
 import type { World } from "./types";
+import { hasSkill } from "./staffSkills";
 
 export type InvestmentKind = "foundation" | "invitational" | "brandStake" | "course";
 
@@ -68,7 +69,8 @@ export function sellInvestment(world: World, kind: InvestmentKind): number {
   const list = investmentsOf(world);
   const inv = list.find((i) => i.kind === kind);
   if (!inv) return 0;
-  const back = Math.round(inv.stake * SALE_SHARE);
+  // Investment counsel gets a better price.
+  const back = Math.round(inv.stake * (hasSkill(world, "investment-counsel") ? 0.85 : SALE_SHARE));
   world.agency.bank += back;
   world.agency.ledger.invested = (world.agency.ledger.invested ?? 0) - back;
   world.agency.investments = list.filter((i) => i !== inv);
@@ -82,7 +84,7 @@ export function investmentsSeasonEnd(world: World): void {
     const d = INVESTMENTS[inv.kind];
     const rng = createRng(mixSeed(world.seed, world.season, 2401, inv.kind.length * 7 + inv.since));
     const [lo, hi] = d.returnRange;
-    const result = Math.round(inv.stake * (lo + rng.next() * (hi - lo)) - d.upkeep);
+    const result = Math.round(inv.stake * (lo + rng.next() * (hi - lo) + (hasSkill(world, "investment-counsel") ? 0.01 : 0)) - d.upkeep);
     inv.last = result;
     world.agency.bank += result;
     world.agency.ledger.investments = (world.agency.ledger.investments ?? 0) + result;

@@ -13,6 +13,7 @@ import { mixSeed } from "./entries";
 import { masteries } from "./mastery";
 import { effectivePeak } from "./traits";
 import type { World, WorldPlayer } from "./types";
+import { hasSkill } from "./staffSkills";
 
 // ---------------------------------------------------------------- breakthroughs
 
@@ -87,9 +88,11 @@ export function bloomsAndBusts(world: World, rng: Rng): void {
     if (wp.player.age > 29 || !rng.chance(0.12)) continue;
     const a = wp.player.attributes;
     let lean = (a.professionalism - 12) * 0.05 + (a.coachability - 12) * 0.03;
-    if (wp.client) lean += 0.1;
+    if (wp.client) lean += 0.1 + (hasSkill(world, "hidden-gem") ? 0.15 : 0);
     if ((wp.injury?.totalWeeks ?? 0) >= 6) lean -= 0.3;
-    const shift = clamp(rng.normal(lean, 0.45), -0.8, 0.8);
+    let shift = clamp(rng.normal(lean, 0.45), -0.8, 0.8);
+    // A bust detector catches it early: a client's ceiling falls only half as far.
+    if (wp.client && shift < 0 && hasSkill(world, "bust-detector")) shift /= 2;
     if (Math.abs(shift) < 0.2) continue;
     const before = wp.development.potential;
     wp.development.potential = clamp(before + shift, overall(wp.player), MAX_POTENTIAL + 2);

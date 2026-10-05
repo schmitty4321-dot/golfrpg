@@ -1,5 +1,11 @@
 import { useState } from "react";
 import {
+  LOYAL_SEASONS,
+  STAFF_SKILLS,
+  loyaltySkill,
+  skillCount,
+  skillsOf,
+  type AgencyStaffer,
   brandGoalProgress,
   guaranteed,
   maxPayout, CENTER_TIERS, HQ_TIERS, AGENCY_EVENTS, STAFF_LABELS, STAFF_ROLES, brandOffers, buildCenter, eventBlock, eventTakings, followers, holdEvent, signBrand, centerBlock, dealClients, hireStaffer, hiredStaffer, hqBlock, fireStaffer, buyoutCost, contractFee, staffContract, termDiscount, STAFF_TERMS, rosterLimit, staffMarket, staffWages, upgradeHq, type AgencyEventKind, type StaffRole, type World } from "../../season";
@@ -145,6 +151,28 @@ function HqPanel({ world, game }: { world: World; game: Game }) {
 
 const staffSpecialty = (quality: number) => quality >= 18 ? "Elite operator" : quality >= 15 ? "Proven closer" : quality >= 11 ? "Reliable" : quality >= 8 ? "Developing" : "Entry level";
 
+/** A staffer's skills as medallions; for your own hire, the one three seasons of loyalty will bring. */
+function SkillMedals({ world, staffer, loyalty = false }: { world: World; staffer: AgencyStaffer; loyalty?: boolean }) {
+  const skills = skillsOf(world, staffer);
+  const next = loyalty && skills.length === skillCount(staffer.quality) ? loyaltySkill(world, staffer) : undefined;
+  return (
+    <ul className="skill-medals">
+      {skills.map((k) => (
+        <li key={k} title={`${STAFF_SKILLS[k]!.label}: ${STAFF_SKILLS[k]!.blurb}`}>
+          <img src={`/art/staff-skills/${k}.webp`} alt="" />
+          <span>{STAFF_SKILLS[k]!.label}</span>
+        </li>
+      ))}
+      {next && (
+        <li className="skill-locked" title={`After ${LOYAL_SEASONS} seasons with you: ${STAFF_SKILLS[next]!.label}. ${STAFF_SKILLS[next]!.blurb}`}>
+          <img src={`/art/staff-skills/${next}.webp`} alt="" />
+          <span>{STAFF_SKILLS[next]!.label} · after {LOYAL_SEASONS} seasons</span>
+        </li>
+      )}
+    </ul>
+  );
+}
+
 function StaffPanel({ world, game }: { world: World; game: Game }) {
   const market = staffMarket(world);
   const [role, setRole] = useState<StaffRole>("agent");
@@ -197,6 +225,7 @@ function StaffPanel({ world, game }: { world: World; game: Game }) {
                   <strong>{candidate.name}</strong>
                   <span className="staff-rating">{candidate.quality}<small>/20</small></span>
                   <span className="staff-quality">{staffSpecialty(candidate.quality)}</span>
+                  <SkillMedals world={world} staffer={candidate} />
                   <span className="secondary small">{money(contractFee(candidate, years))}/week for {years} year{years === 1 ? "" : "s"}</span>
                 </div>
                 <button className="btn btn-primary" onClick={() => game.act((w) => hireStaffer(w, candidate.id, years))}>Hire</button>
@@ -233,6 +262,7 @@ function HiredStaffer({ world, game, role }: { world: World; game: Game; role: S
           <span className="staff-rating">{s.quality}<small>/20</small></span>
         </div>
         <span className="staff-quality">{staffSpecialty(s.quality)}</span>
+        <SkillMedals world={world} staffer={s} loyalty />
         <div className="staff-hired-facts">
           <div><span className="muted small">Loyalty</span><b title="A year for every full season with you: +1 rating each year, and a discount when they re-sign">{"★".repeat(loyalty)}{"☆".repeat(5 - loyalty)}</b><span className="secondary small">{c.seasonsServed} season{c.seasonsServed === 1 ? "" : "s"} with you</span></div>
           <div><span className="muted small">Contract</span><b>Through season {c.untilSeason}</b><span className="secondary small">{left <= 0 ? "Final season" : `${left} more season${left === 1 ? "" : "s"} after this`}</span></div>
@@ -304,6 +334,9 @@ function BrandsPanel({ world, game }: { world: World; game: Game }) {
   );
 }
 
+/** Goals that stand in for another (when the roster or season rules it out) share its medallion. */
+const GOAL_ICON: Record<string, string> = { "ap-points": "fi-top30", "wa-cuts": "wa-timeless" };
+
 function BrandCard({ world, deal, active = false, onSign }: { world: World; deal: ReturnType<typeof brandOffers>[number]; active?: boolean; onSign?: () => void }) {
   const progress = active ? brandGoalProgress(world, deal) : null;
   const fmt = (n: number, unit?: string) => (unit === "money" ? money(n) : unit === "pct" ? `${n}%` : unit === "yards" ? `${n} yds` : `${n}`);
@@ -320,6 +353,7 @@ function BrandCard({ world, deal, active = false, onSign }: { world: World; deal
         <ul className="brand-goals">
           {(progress ?? deal.goals.map((g) => ({ ...g, now: 0, met: false, unit: "count" }))).map((g) => (
             <li key={g.id} className={g.met ? "met" : undefined}>
+              <img className="brand-goal-icon" src={`/art/goals/${GOAL_ICON[g.id] ?? g.id}.webp`} alt="" />
               <span className="brand-goal-label">{g.met ? "✓ " : ""}{g.label}</span>
               <span className="brand-goal-pay">{money(g.share * deal.annual)}</span>
               {progress && <span className="meter"><span style={{ width: `${share(g)}%` }} /></span>}

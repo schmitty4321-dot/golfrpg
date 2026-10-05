@@ -12,6 +12,7 @@ import { overall } from "./development";
 import { rankMap } from "./points";
 import type { AgencyStaffer, StaffContract, StaffRole, World, WorldPlayer } from "./types";
 import { seasonWeeks } from "./calendar";
+import { hasSkill } from "./staffSkills";
 
 // ------------------------------------------------------------------ staff
 
@@ -114,7 +115,8 @@ export function contractWeeksLeft(world: World, c: StaffContract): number {
 /** What it costs to fire whoever holds a role. */
 export function buyoutCost(world: World, role: StaffRole): number {
   const c = staffContract(world, role);
-  return c ? Math.round((contractWeeksLeft(world, c) * c.weeklyFee * BUYOUT_SHARE) / 100) * 100 : 0;
+  // An exit negotiator gets people out of their contracts for less.
+  return c ? Math.round((contractWeeksLeft(world, c) * c.weeklyFee * BUYOUT_SHARE * (hasSkill(world, "exit-negotiator") ? 0.6 : 1)) / 100) * 100 : 0;
 }
 
 /** Fires a staffer: their buyout is paid now, and the role opens up. */
@@ -181,7 +183,7 @@ export const negotiationBonus = (world: World, role: "agent" | "lawyer"): number
 };
 
 /** Marketing makes sponsorship offers bigger. */
-export const sponsorBoost = (world: World): number => 1 + stafferQuality(world, "marketing") / 80;
+export const sponsorBoost = (world: World): number => (1 + stafferQuality(world, "marketing") / 80) * (hasSkill(world, "brand-builder") ? 1.15 : 1);
 
 // ------------------------------------------------------------------ recruitment board
 
@@ -274,7 +276,7 @@ export function rivalPoaching(world: World, rng: Rng): string[] {
     }
     if (m.contract.untilSeason <= world.season || m.happiness >= (trustOf(wp) < 40 ? 50 : 40)) continue;
     const rival = likeliestSuitor(world, wp.player.id, rng);
-    if (!rng.chance(0.35 * bidPressure(world, rival))) continue;
+    if (!rng.chance(0.35 * bidPressure(world, rival) * (hasSkill(world, "ironclad") ? 0.5 : 1))) continue;
     if (m.happiness < 30 && rng.chance(0.5)) {
       const buyout = Math.round((earningsAtLevel(overall(wp.player)) * m.contract.commission) / 2);
       world.agency.bank += buyout;

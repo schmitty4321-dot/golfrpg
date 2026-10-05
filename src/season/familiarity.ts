@@ -12,9 +12,12 @@ export const familiarityWith = (wp: WorldPlayer, courseId: string): number => wp
 export const hasPlayed = (wp: WorldPlayer, courseId: string): boolean => wp.career.familiarity?.[courseId] !== undefined;
 
 /** After an event: every round he played there, and how well he finished, add to it. */
-export function recordFamiliarity(wp: WorldPlayer, courseId: string, rounds: number, position: number, madeCut: boolean): void {
+export function recordFamiliarity(wp: WorldPlayer, courseId: string, rounds: number, position: number, madeCut: boolean, pace = 1): void {
   const fam = (wp.career.familiarity ??= {});
-  fam[courseId] = familiarityAfter(fam[courseId] ?? 0, rounds, position, madeCut, hasTrait(wp.player, "course-horse"));
+  const before = fam[courseId] ?? 0;
+  const after = familiarityAfter(before, rounds, position, madeCut, hasTrait(wp.player, "course-horse"));
+  // An analyst who knows the courses (course fit) speeds the learning up.
+  fam[courseId] = after > before ? before + (after - before) * pace : after;
 }
 
 /** Season end: courses he didn't play this season fade a little. */

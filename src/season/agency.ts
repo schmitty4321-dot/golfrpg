@@ -14,6 +14,7 @@ import { competingBid, planRivalWinters, rivalMarket } from "./rivals";
 import { commissionWeight, decisionSensitivity, extensionBias, heldOutPenalty, onSigned, recruitingBonus } from "./traits";
 import { cleanExtras, extrasAppeal, type DealExtras } from "./contractTerms";
 import { overall } from "./development";
+import { hasSkill } from "./staffSkills";
 
 export const RIVAL_AGENCIES = [
   "Apex Sports Management",
@@ -177,9 +178,11 @@ export function acceptChance(world: World, id: string, offer: Offer): number {
   const wp = world.players[id]!;
   const a = wp.player.attributes;
   let score = world.agency.reputation - expectedReputation(world, id);
-  score += (marketRate(wp) - offer.commission) * 100 * 3 * commissionWeight(wp); // each point under his going rate helps
+  // A hard bargainer gets half a point more out of everyone.
+  score += (marketRate(wp) + (hasSkill(world, "hard-bargainer") ? 0.005 : 0) - offer.commission) * 100 * 3 * commissionWeight(wp); // each point under his going rate helps
   score += recruitingBonus(world);
   score += negotiationBonus(world, "agent");
+  score += signingSkills(world, wp, offer);
   // Ambitious players want a big-name agency; young ones like security, veterans like flexibility.
   score -= Math.max(0, a.ambition - 12) * 1.5;
   score += wp.player.age <= 25 ? (offer.years - 1) * 3 : wp.player.age >= 36 ? (1 - offer.years) * 2 : 0;
@@ -187,7 +190,7 @@ export function acceptChance(world: World, id: string, offer: Offer): number {
   if (wp.agent) score -= 6;
   // A rival bidding for a free player: its name and commission count against yours.
   const bid = competingBid(world, id);
-  if (bid) score -= competitionPenalty(world, wp, bid);
+  if (bid) score -= competitionPenalty(world, wp, bid) * (hasSkill(world, "bidding-war") ? 0.6 : 1);
   // What you promise him, and a head start if one of your old players sent him.
   score += promiseAppeal(wp, rankMap(world).get(id) ?? 999, offer.promises);
   score += extrasAppeal(wp, rankMap(world).get(id) ?? 999, offer.extras, offer.commission);
@@ -225,8 +228,39 @@ export function offerRepresentation(world: World, id: string, offer: Offer): Off
 }
 
 /** A signing bonus: the agency pays it out. */
-function payBonus(world: World, amount: number | undefined): void {
-  if (!amount) return;
+/** Staff skills that help a player say yes (each worth a few points of the 0-centred score). */
+function signingSkills(world: World, wp: WorldPlayer, offer: Offer): number {
+  let s = 0;
+  if (hasSkill(world, "closer")) s += 1.5;
+  if (hasSkill(world, "amateur-whisperer") && (wp.career.status === "amateur" || wp.career.status === "none")) s += 3;
+  if (hasSkill(world, "poacher") && wp.agent) s += 3;
+  if (hasSkill(world, "international") && wp.player.nationality !== "USA") s += 3;
+  if (hasSkill(world, "dev-tour-scout") && (wp.career.devExemptThrough ?? 0) >= world.season) s += 3;
+  return s + termSkills(world, offer);
+}
+
+/** Lawyer skills that count whether he's signing or renewing. */
+function termSkills(world: World, offer: Offer): number {
+  let s = 0;
+  if (hasSkill(world, "long-term-locker") && offer.years >= 3) s += 2;
+  if (hasSkill(world, "structure-expert") && offer.extras?.structure && offer.extras.structure !== "flat") s += 2;
+  if (hasSkill(world, "retainer-writer") && offer.extras?.retainer) s += 2;
+  return s;
+}
+
+/** Staff skills that help a client stay. */
+function extensionSkills(world: World, wp: WorldPlayer, offer: Offer): number {
+  let s = termSkills(world, offer);
+  if (hasSkill(world, "renewal-specialist")) s += 2;
+  // A dispute settler talks round an unhappy client.
+  if (hasSkill(world, "dispute-settler") && wp.client && wp.client.happiness < 50) s += (50 - wp.client.happiness) * 0.15;
+  return s;
+}
+
+function payBonus(world: World, given: number | undefined): void {
+  if (!given) return;
+  // The bonus negotiator gets the same deal done for a quarter less.
+  const amount = Math.round(given * (hasSkill(world, "bonus-negotiator") ? 0.75 : 1));
   world.agency.bank -= amount;
   world.agency.ledger.signingBonuses = (world.agency.ledger.signingBonuses ?? 0) + amount;
 }
@@ -307,6 +341,7 @@ export function extendChance(world: World, id: string, offer: Offer): number {
     Math.max(0, expectedReputation(world, id) - world.agency.reputation) * 0.5 +
     extensionBias(world, wp) +
     negotiationBonus(world, "lawyer") +
+    extensionSkills(world, wp, offer) +
     // Promises kept build trust; broken ones make him wary of new ones.
     (trustOf(wp) - START_TRUST) * 0.25 +
     promiseAppeal(wp, rankMap(world).get(id) ?? 999, offer.promises) * (trustOf(wp) / START_TRUST) +
@@ -387,6 +422,8 @@ export function agencySeasonEnd(world: World, rng: Rng): string[] {
   // Rivals circle unhappy clients; the recruitment board reports who came free.
   for (const line of [...rivalPoaching(world, rng), ...shortlistAlerts(world), ...trophiesSeasonEnd(world)]) world.news.unshift(line);
   brandSeasonEnd(world);
+  // A retention specialist keeps clients sweet over the winter.
+  if (hasSkill(world, "retention")) for (const wp of clients(world)) wp.client!.happiness = clamp(wp.client!.happiness + 5, 0, 100);
   // Reputation fades each winter unless results keep it up: a full roster alone holds it in the 30s.
   world.agency.reputation = clamp(world.agency.reputation * 0.92 + clients(world).length * 0.3, 0, 100);
   return departures;

@@ -1,6 +1,7 @@
 import { ALL_ATTRIBUTES, clamp, createRng, type ArchetypeId, type AttributeKey } from "../engine";
 import { mixSeed } from "./entries";
 import { absWeek, type Scout, type World } from "./types";
+import { hasSkill } from "./staffSkills";
 
 const FIRST = ["Walt", "Rosa", "Des", "Marty", "Yuki", "Ingrid", "Bo", "Carmen", "Olly", "Freddie", "Priya", "Sven"];
 const LAST = ["Hollis", "Okafor", "Brennan", "Lukas", "Sato", "Varga", "Dunmore", "Reyes", "Whitlow", "Ahn", "Nakamura", "Pell"];
@@ -42,7 +43,7 @@ export function queueScouting(world: World, playerId: string): void {
 }
 
 export const weeklyScoutCost = (world: World): number =>
-  world.agency.hiredScouts.reduce((s, id) => s + (world.agency.scouts.find((x) => x.id === id)?.weeklyFee ?? 0), 0);
+  Math.round(world.agency.hiredScouts.reduce((s, id) => s + (world.agency.scouts.find((x) => x.id === id)?.weeklyFee ?? 0), 0) * (hasSkill(world, "scouting-reports") ? 0.5 : 1));
 
 /** Weekly: each hired scout files reports on the next players in the queue. */
 export function scoutingWeek(world: World): string[] {

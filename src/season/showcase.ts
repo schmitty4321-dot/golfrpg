@@ -10,6 +10,7 @@ import { pointsList, rankMap } from "./points";
 import { BRANDS } from "./sponsors";
 import type { AgencyEventKind, BrandDeal, SponsorCategory, Trophy, World, WorldPlayer } from "./types";
 import { RENEW_AT, RENEW_RAISE, SNUB_BELOW, brandMood, goalsFor, guaranteed } from "./brandGoals";
+import { hasSkill } from "./staffSkills";
 
 // ------------------------------------------------------------------ brand partnerships
 
@@ -101,6 +102,10 @@ export function headliner(world: World): WorldPlayer | null {
 
 /** What an event would take in. */
 export function eventTakings(world: World, kind: AgencyEventKind): number {
+  return Math.round(baseTakings(world, kind) * (hasSkill(world, "event-promoter") ? 1.2 : 1));
+}
+
+function baseTakings(world: World, kind: AgencyEventKind): number {
   const n = world.clientIds.length;
   if (kind === "clinic") return 40_000 + 20_000 * n;
   if (kind === "proAm") return 150_000 + 60_000 * n + world.agency.reputation * 2_000;
@@ -153,8 +158,10 @@ export function followers(world: World, wp: WorldPlayer): number {
 export function updateFollowers(world: World, wp: WorldPlayer, result: { position: number; madeCut: boolean } | null, mediaDays: number): void {
   if (!wp.client) return;
   let f = followers(world, wp) * 0.996;
-  if (result?.position === 1) f *= 1.12;
-  else if (result?.madeCut && result.position <= 10) f *= 1.03;
+  // Social buzz makes a good week count for a quarter more.
+  const buzz = hasSkill(world, "social-buzz") ? 1.25 : 1;
+  if (result?.position === 1) f *= 1 + 0.12 * buzz;
+  else if (result?.madeCut && result.position <= 10) f *= 1 + 0.03 * buzz;
   else if (result?.madeCut) f *= 1.005;
   f *= 1 + 0.02 * mediaDays;
   wp.client.followers = Math.round(f);

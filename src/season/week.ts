@@ -54,6 +54,7 @@ import { takeSnapshot, type WeekSnapshot } from "./weekSummary";
 import { prizeCut } from "./contractTerms";
 import { setObjectives } from "./board";
 import { checkBreakthrough, pressureGrowth } from "./progression";
+import { hasSkill } from "./staffSkills";
 
 /** What a client does this week. "auto" lets him pick his own schedule. */
 export type ClientChoice =
@@ -343,7 +344,7 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
       c.lastRegion = f.event.region;
       const pc = choices[wp.player.id];
       if (wp.client && pc?.kind === "enter" && pc.eventId === f.event.id) for (let n = practice.get(wp.player.id) ?? 0; n > 0; n--) takePracticeRound(wp, f.event.courseId);
-      recordFamiliarity(wp, f.event.courseId, r.rounds.length, r.position, r.madeCut);
+      recordFamiliarity(wp, f.event.courseId, r.rounds.length, r.position, r.madeCut, wp.client && hasSkill(world, "course-fit") ? 1.5 : 1);
       playedIds.add(r.player.id);
 
       if (wp.client) {
@@ -363,7 +364,7 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
         world.agency.bank += commission;
         world.agency.ledger.prizeCommission += commission;
         // A win bonus in his contract: paid to the agency on top of the commission.
-        const winBonus = r.position === 1 && f.event.tier !== "dev" ? m.contract.extras?.winBonus ?? 0 : 0;
+        const winBonus = Math.round((r.position === 1 && f.event.tier !== "dev" ? m.contract.extras?.winBonus ?? 0 : 0) * (hasSkill(world, "bonus-negotiator") ? 1.25 : 1));
         if (winBonus) {
           world.agency.bank += winBonus;
           world.agency.ledger.winBonuses = (world.agency.ledger.winBonuses ?? 0) + winBonus;
@@ -378,7 +379,7 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
         eventOf.set(wp.player.id, f.event);
         report.clients[wp.player.id] = { summary: "", record, result };
         const claimed = wp.client.boldClaim !== undefined;
-        const eaten = settleBoldClaim(wp, record);
+        const eaten = settleBoldClaim(wp, record, hasSkill(world, "media-trainer") ? 30 : 20, hasSkill(world, "crisis-manager") ? 0.5 : 1);
         if (eaten) world.news.unshift(eaten);
         else if (claimed && wp.client.boldClaim === undefined) noteBoldHeld(world);
         const nation = NATIONS[wp.player.nationality];
@@ -483,8 +484,10 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
   if (world.season >= 1) {
     scoutingWeek(world);
     scoutTripsWeek(world);
-    const office = hqTier(world.agency).office;
-    const costs = office + weeklyScoutCost(world);
+    // A tax planner trims the running costs.
+    const trim = hasSkill(world, "tax-planner") ? 0.95 : 1;
+    const office = Math.round(hqTier(world.agency).office * trim);
+    const costs = office + Math.round(weeklyScoutCost(world) * trim);
     world.agency.bank -= costs;
     world.agency.ledger.office += office;
     world.agency.ledger.scouts += costs - office;

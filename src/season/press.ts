@@ -128,15 +128,15 @@ export function weeklyPress(world: World, records: Map<string, EventRecord | nul
  * A bold claim, checked against his next start: a missed cut or a finish
  * outside the top 20 and he eats his words. Returns the news line, if any.
  */
-export function settleBoldClaim(wp: WorldPlayer, record: EventRecord | null): string | null {
+export function settleBoldClaim(wp: WorldPlayer, record: EventRecord | null, holdsWithin = 20, damage = 1): string | null {
   const m = wp.client;
   if (!m || m.boldClaim === undefined || !record || record.tier === "dev") return null;
   // Only a start after the claim counts.
   if (absWeek(record.season, record.week) < m.boldClaim) return null;
   delete m.boldClaim;
-  if (record.madeCut && record.position <= 20) return null;
-  m.followers = Math.round((m.followers ?? 0) * 0.98);
-  m.buzz = Math.max(-0.3, (m.buzz ?? 0) - 0.05);
+  if (record.madeCut && record.position <= holdsWithin) return null;
+  m.followers = Math.round((m.followers ?? 0) * (1 - 0.02 * damage));
+  m.buzz = Math.max(-0.3, (m.buzz ?? 0) - 0.05 * damage);
   wp.player.form = Math.max(-1, wp.player.form - 0.1);
   return `${wp.player.name} eats his words: ${record.madeCut ? `only ${record.label}` : "a missed cut"} at ${record.eventName} after all that talk.`;
 }
