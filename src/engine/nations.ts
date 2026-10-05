@@ -67,6 +67,8 @@ export const NATION_LIST: readonly Nation[] = [
   { key: "Puerto Rico", region: "NA", name: "Puerto Rico", code: "PUR", weight: 1, look: "latin", grass: ["bermuda"], first: ["Javier", "Gabriel", "Luis"], last: ["Rivera", "Colón", "Negrón"] },
   { key: "Venezuela", region: null, name: "Venezuela", code: "VEN", weight: 1, look: "latin", grass: ["bermuda"], first: ["Jesús", "Ricardo", "Alejandro"], last: ["Guzmán", "Salcedo", "Briceño"] },
   { key: "Chinese Taipei", region: "ASIA", name: "Chinese Taipei", code: "TPE", weight: 1, look: "eastAsia", grass: ["bermuda"], first: ["Chih-wei", "Kuan-lin", "Yu-ting"], last: ["Lin", "Tsai", "Hsu"] },
+  // Not on the 2026 membership list: a rare Indian pro, about one on a tour of 260.
+  { key: "India", region: "ASIA", name: "India", code: "IND", weight: 1, look: "southAsia", grass: ["bermuda"], first: ["Arjun", "Rohan", "Karan", "Vikram", "Aditya", "Rahul", "Dev"], last: ["Sharma", "Kapoor", "Mehta", "Iyer", "Reddy", "Malhotra", "Gill"] },
   // Not on the 2026 membership list, kept so older saves and hand-made databases still work.
   { key: "Spain", region: "EU", name: "Spain", code: "ESP", weight: 0, look: "latin", grass: ["bermuda", "bentgrass"], first: ["Álvaro", "Pablo", "Sergio", "Iker", "Mateo"], last: ["Ferrer", "Salazar", "Ortega", "Villanueva", "Castaño"] },
 ];

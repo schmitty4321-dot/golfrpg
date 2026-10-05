@@ -220,6 +220,13 @@ const FLAGS: Record<string, () => ReactNode> = {
       <circle cx="5.8" cy="10" r="2" fill="#fcd116" />
     </>
   ),
+  IND: () => (
+    <>
+      {hStripes(["#ff9933", "#fff", "#138808"])}
+      <circle cx="15" cy="10" r="2.6" fill="none" stroke="#000080" strokeWidth="0.6" />
+      <circle cx="15" cy="10" r="0.6" fill="#000080" />
+    </>
+  ),
   PUR: () => (
     <>
       {hStripes(["#ed0000", "#fff", "#ed0000", "#fff", "#ed0000"])}

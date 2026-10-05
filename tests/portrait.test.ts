@@ -20,6 +20,7 @@ describe("player pictures", () => {
     for (let i = 0; i < 300; i++) {
       for (const [nationality, asian] of [["Japan", true], ["Korea", true], ["Philippines", true], ["USA", false], ["Sweden", false]] as const) {
         for (const age of [21, 25, 33, 38, 45, 50]) {
+          expect(PORTRAIT_POOLS.indian[ageBand(age)]).toContain(golferPortraitIndex({ id: `p${i}`, nationality: "India", age }));
           expect(pool(asian, age)).toContain(golferPortraitIndex({ id: `p${i}`, nationality, age }));
         }
       }
@@ -60,14 +61,15 @@ describe("player pictures", () => {
 });
 
 describe("nationalities", () => {
-  it("follows the 2026 tour's mix: about two-thirds American, 28 other countries and territories", () => {
+  it("follows the 2026 tour's mix: about two-thirds American, 28 other countries and territories, plus a rare Indian", () => {
     const counts = new Map<string, number>();
     for (let i = 0; i < 20000; i++) {
       const n = nationFromRoll(i / 20000).key;
       counts.set(n, (counts.get(n) ?? 0) + 1);
     }
-    expect(counts.get("USA")! / 20000).toBeCloseTo(174 / 260, 2);
-    expect([...counts.keys()].filter((k) => k !== "USA").length).toBe(28);
+    expect(counts.get("USA")! / 20000).toBeCloseTo(174 / 261, 2);
+    expect([...counts.keys()].filter((k) => k !== "USA").length).toBe(29);
+    expect(counts.get("India")! / 20000).toBeLessThan(0.01);
     expect(counts.get("England")!).toBeGreaterThan(counts.get("Canada")!);
     expect(counts.has("Spain")).toBe(false);
   });

@@ -140,7 +140,13 @@ export const ageBand = (age: number): AgeBand => (age <= 29 ? "young" : age <= 4
  * The male portraits sorted by how they look: Asian or not, and how old. 1-199 were sorted by eye;
  * 201-400 come tagged (public/people/portraits-201-400.json: 18-24, 25-40, 45-65; East or Southeast Asian or not).
  */
-export const PORTRAIT_POOLS: Record<"asian" | "other", Record<AgeBand, readonly number[]>> = {
+export const PORTRAIT_POOLS: Record<"asian" | "indian" | "other", Record<AgeBand, readonly number[]>> = {
+  // Indian players: the Indian faces of the tagged set (they appear among "other" faces too).
+  indian: {
+    young: [202, 212, 222, 232, 242],
+    mid: [252, 262, 272, 282, 292, 302, 312, 322, 332, 342],
+    older: [352, 362, 372, 382, 392],
+  },
   asian: {
     young: [
       5, 13, 16, 28, 31, 38, 44, 49, 105, 133, 136, 161, 201, 211, 221, 231, 241,
@@ -176,9 +182,10 @@ export const PORTRAIT_POOLS: Record<"asian" | "other", Record<AgeBand, readonly 
   },
 };
 
-/** A portrait that fits him: Asian faces for players from Asia, and one his age. Stable while he stays in the same age band. */
+/** A portrait that fits him: Indian faces for Indian players, Asian faces for the rest of Asia, and one his age. Stable while he stays in the same age band. */
 export function golferPortraitIndex(player: PortraitPlayer): number {
-  const pools = PORTRAIT_POOLS[NATIONS[player.nationality]?.region === "ASIA" ? "asian" : "other"];
+  const nation = NATIONS[player.nationality];
+  const pools = PORTRAIT_POOLS[nation?.key === "India" ? "indian" : nation?.region === "ASIA" ? "asian" : "other"];
   const pool = pools[ageBand(player.age)];
   return pool[portraitSeed(player.id) % pool.length]!;
 }
