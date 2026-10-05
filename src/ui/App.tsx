@@ -28,6 +28,7 @@ import type { ClientChoices } from "../season";
 import { useGame } from "./useGame";
 import { WaialaeTracerPreview } from "./screens/WaialaeTracerPreview";
 import { IllustrationCalibrator } from "./screens/IllustrationCalibrator";
+import { PlayerLinkProvider } from "./components/PlayerLink";
 
 type Theme = "system" | "light" | "dark";
 
@@ -103,7 +104,7 @@ export function App() {
         };
 
   return (
-    <>
+    <PlayerLinkProvider world={world} game={game}>
       {!world && <header className="topbar">
         <div className="brand">
           <span className="brand-mark" aria-hidden>
@@ -189,6 +190,6 @@ export function App() {
           <div><span className="spinner" aria-hidden />{busy}</div>
         </div>
       )}
-    </>
+    </PlayerLinkProvider>
   );
 }
