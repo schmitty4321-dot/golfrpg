@@ -23,6 +23,11 @@ import {
   narrowing,
   priorities,
   prospects,
+  proProspects,
+  actionsFor,
+  hoursFor,
+  isPro,
+  rankMap,
   readOf,
   recruit,
   recruitingOf,
@@ -50,16 +55,19 @@ export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
   const [open, setOpen] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
+  const [tab, setTab] = useState<"amateur" | "pro">("amateur");
   const total = weeklyHours(world);
   const left = hoursLeft(world);
   const g = grades(world);
-  const list = prospects(world).slice(0, showAll ? 120 : 30);
+  const pool = tab === "pro" ? proProspects(world, 120) : prospects(world);
+  const list = pool.slice(0, showAll ? 120 : 30);
+  const ranks = rankMap(world);
   const ranking = recruitingOf(world).lastRanking;
   const showcase = showcaseBlock(world);
   return (
     <section className="panel">
       <div className="panel-head">
-        <div><h2>Recruiting desk</h2><span className="muted small">Amateurs: scout them, build their interest, and win them on signing day (the season's end)</span></div>
+        <div><h2>Recruiting desk</h2><span className="muted small">One budget of hours for amateurs and pros: scout them and build their interest. Amateurs choose on signing day; pros weigh it when you make an offer.</span></div>
         <div className="recruit-hours"><strong>{left}</strong><span>of {total} hours left this week</span></div>
       </div>
       <div className="meter" style={{ marginBottom: 12 }}><span style={{ width: `${Math.round((left / total) * 100)}%` }} /></div>
@@ -73,9 +81,13 @@ export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
         </button>
       </div>
       {note && <p className="small good-text">{note}</p>}
+      <div className="tabs" role="tablist" style={{ marginBottom: 8 }}>
+        <button role="tab" aria-selected={tab === "amateur"} onClick={() => { setTab("amateur"); setOpen(null); }}>Amateurs</button>
+        <button role="tab" aria-selected={tab === "pro"} onClick={() => { setTab("pro"); setOpen(null); }}>Pros</button>
+      </div>
       <div className="table-wrap">
         <table>
-          <thead><tr><th>Stars</th><th>Prospect</th><th className="num">Age</th><th>School</th><th>Your read</th><th>Interest</th><th>Most interested rival</th><th>His list</th><th /></tr></thead>
+          <thead><tr><th>Stars</th><th>{tab === "pro" ? "Player" : "Prospect"}</th><th className="num">Age</th><th>{tab === "pro" ? "World · contract" : "School"}</th><th>Your read</th><th>Interest</th><th>Most interested rival</th><th>His list</th><th /></tr></thead>
           <tbody>
             {list.map((id) => {
               const wp = world.players[id]!;
@@ -87,7 +99,7 @@ export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
                   <td><Stars value={stars(world, id)} /></td>
                   <td><PlayerName id={id}>{wp.player.name}</PlayerName>{wp.academy ? <span className="sponsor-tag">Academy</span> : null}</td>
                   <td className="num">{wp.player.age}</td>
-                  <td className="small">{schoolLabel(world, wp)}</td>
+                  <td className="small">{tab === "pro" ? <>#{ranks.get(id)} · {wp.agent && wp.agent.untilSeason > world.season ? `${wp.agent.agency} to S${wp.agent.untilSeason}` : wp.agent ? `${wp.agent.agency}, final season` : "Free agent"}</> : schoolLabel(world, wp)}</td>
                   <td className="small">{readWords(readOf(world, id))}</td>
                   <td style={{ minWidth: 110 }}><span className="meter"><span style={{ width: `${interest}%` }} /></span><span className="small muted">{Math.round(interest)}</span></td>
                   <td className="small">{(() => { const [a, v] = Object.entries(rivalInterest(world, id)).sort((x, y) => y[1] - x[1])[0] ?? []; return a ? <>{a} <span className="muted">({Math.round(v!)})</span></> : "—"; })()}</td>
@@ -99,7 +111,7 @@ export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
           </tbody>
         </table>
       </div>
-      {!showAll && prospects(world).length > 30 && <button className="btn btn-small" style={{ marginTop: 8 }} onClick={() => setShowAll(true)}>Show all {prospects(world).length} prospects</button>}
+      {!showAll && pool.length > 30 && <button className="btn btn-small" style={{ marginTop: 8 }} onClick={() => setShowAll(true)}>Show all {pool.length}</button>}
       {open && world.players[open] && <ProspectCard world={world} game={game} id={open} />}
       {ranking && (
         <div style={{ marginTop: 14 }}>
@@ -130,13 +142,14 @@ export function ProspectCard({ world, game, id }: { world: World; game: Game; id
   const list = narrowing(wp) ? agencyList(world, id).slice(0, 3) : null;
   const groups = (Object.keys(GROUP_LABELS) as (keyof typeof GROUP_LABELS)[]).filter((k) => k !== "physical");
   const act = (a: RecruitAction) => game.act((w) => setMsg(recruit(w, id, a)));
+  const pro = isPro(world, id);
   return (
     <article className="prospect-card">
       <header className="prospect-head">
         <Portrait player={wp.player} size={84} />
         <div>
           <h3 style={{ margin: 0 }}>{wp.player.name} <Stars value={stars(world, id)} /></h3>
-          <div className="secondary small">{wp.player.age} · {nationInfo(wp.player.nationality).name} · {schoolLabel(world, wp)}</div>
+          <div className="secondary small">{wp.player.age} · {nationInfo(wp.player.nationality).name} · {pro ? `World #${rankMap(world).get(id) ?? "—"} · ${wp.agent ? `with ${wp.agent.agency} to S${wp.agent.untilSeason}` : "free agent"}` : schoolLabel(world, wp)}</div>
           <div className="small">Your read: <b>{readWords(read)}</b>{gb && <span className={`gem-tag ${gb}`}>{gb === "gem" ? "Hidden gem" : "Possible bust"}</span>}</div>
         </div>
         <div className="prospect-interest">
@@ -181,7 +194,7 @@ export function ProspectCard({ world, game, id }: { world: World; game: Game; id
               {db ? <p className={`small ${dealbreakerMet(world, db) ? "good-text" : "bad-text"}`}>Dealbreaker: {DEALBREAKERS[db]}{dealbreakerMet(world, db) ? " (you qualify)" : " (you don't)"}</p> : <p className="small muted">No dealbreakers.</p>}
             </>
           ) : (
-            <p className="muted small">Call or visit to find out what he cares about.</p>
+            <p className="muted small">{pro ? "Talk to his caddie and coach, or take him to dinner," : "Call or visit"} to find out what he cares about.</p>
           )}
           {head.notes.length > 0 && <p className="small good-text">Head start: {head.notes.join(" · ")}</p>}
           {list && mine && (
@@ -200,16 +213,17 @@ export function ProspectCard({ world, game, id }: { world: World; game: Game; id
           {rivalMoves(world, id).length > 0 && (
             <p className="small muted">Latest: {rivalMoves(world, id).slice(0, 3).map((m) => `${m.agency} ${m.text} (week ${m.absWeek - world.season * 52})`).join(" · ")}</p>
           )}
+          {pro && <p className="small">Interest counts when you make him an offer{wp.agent && wp.agent.untilSeason > world.season ? `, which you can from his final season with ${wp.agent.agency}` : ""}. His tour numbers are public, so you start with a read of him.</p>}
           {narrowing(wp) && <p className="small">He turns pro at the end of this season and commits on signing day to the top of his list.</p>}
         </section>
       </div>
 
       <div className="btn-row" style={{ flexWrap: "wrap", marginTop: 10 }}>
-        {(Object.keys(ACTIONS) as RecruitAction[]).map((a) => {
+        {actionsFor(world, id).map((a) => {
           const block = actionBlock(world, id, a);
           return (
             <button key={a} className="btn btn-small" disabled={!!block} title={block ?? ACTIONS[a].blurb} onClick={() => act(a)}>
-              {ACTIONS[a].label} · {ACTIONS[a].hours}h
+              {ACTIONS[a].label} · {hoursFor(world, id, a)}h
             </button>
           );
         })}

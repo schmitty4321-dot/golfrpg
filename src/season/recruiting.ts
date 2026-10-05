@@ -55,6 +55,8 @@ export interface Prospect {
   visited?: number;
   /** Talked to him enough to know what he cares about. */
   known?: boolean;
+  /** The season you talked to a pro's caddie and coach. */
+  teamSeason?: number;
 }
 
 export const recruitingOf = (world: World): RecruitingState => {
@@ -80,8 +82,24 @@ const rngFor = (world: World, id: string, salt: number) => createRng(mixSeed(wor
 /** The prospects worth recruiting: the amateurs, best ranked first. */
 export const prospects = (world: World): string[] => amateurRanking(world).filter((id) => !world.players[id]?.client);
 
-/** Stars by the public amateur ranking. */
+/** Pros worth recruiting: the best ranked players you don't represent (under contract elsewhere or not). */
+export function proProspects(world: World, n = 60): string[] {
+  const ranks = rankMap(world);
+  return Object.values(world.players)
+    .filter((wp) => !wp.client && wp.career.status !== "amateur" && ranks.has(wp.player.id))
+    .sort((a, b) => ranks.get(a.player.id)! - ranks.get(b.player.id)!)
+    .slice(0, n)
+    .map((wp) => wp.player.id);
+}
+
+export const isPro = (world: World, id: string): boolean => world.players[id]?.career.status !== "amateur";
+
+/** Stars: an amateur by the amateur ranking, a pro by the world ranking. */
 export function stars(world: World, id: string): number {
+  if (isPro(world, id)) {
+    const r = rankMap(world).get(id) ?? 999;
+    return r <= 10 ? 5 : r <= 30 ? 4 : r <= 75 ? 3 : r <= 150 ? 2 : 1;
+  }
   const i = amateurRanking(world).indexOf(id);
   if (i < 0) return 1;
   return i < 5 ? 5 : i < 20 ? 4 : i < 45 ? 3 : i < 70 ? 2 : 1;
@@ -208,14 +226,28 @@ export function recruitBlock(world: World, id: string): string | null {
 
 // ---------------------------------------------------------------- spending hours
 
-export type RecruitAction = "film" | "event" | "call" | "visit" | "pitch";
+/**
+ * Amateurs and pros are worked differently: an amateur is scouted on film and
+ * at junior events and won through his family; a pro's numbers are already
+ * public, so the work is in his stats, a round on tour, his camp and his team.
+ */
+export type RecruitAction = "film" | "event" | "call" | "visit" | "pitch" | "stats" | "walk" | "camp" | "dinner" | "team";
 export const ACTIONS: Record<RecruitAction, { label: string; hours: number; blurb: string }> = {
   film: { label: "Watch film", hours: 2, blurb: "A sharper read of his game." },
   event: { label: "Attend an event", hours: 8, blurb: "A much sharper read, and he notices you came." },
   call: { label: "Call the family", hours: 3, blurb: "Builds interest; tells you what he cares about. Once a week." },
   visit: { label: "Visit", hours: 10, blurb: "A big jump in interest. Once a season." },
   pitch: { label: "Pitch the agency", hours: 5, blurb: "Sell what he cares about: better grades, more interest. Once a week." },
+  stats: { label: "Study his stats", hours: 1, blurb: "His numbers are public: a quick, small sharpening of your read." },
+  walk: { label: "Walk a round with him", hours: 6, blurb: "Watch him up close on tour: a sharper read, and a little interest." },
+  camp: { label: "Call his camp", hours: 3, blurb: "Keeps you in his thoughts. Once a week." },
+  dinner: { label: "Dinner at a tour stop", hours: 8, blurb: "A big jump in interest. Once a season." },
+  team: { label: "Talk to his caddie and coach", hours: 4, blurb: "Learn what he cares about and any dealbreaker, and get a word in. Once a season." },
 };
+export const AMATEUR_ACTIONS: RecruitAction[] = ["film", "event", "call", "visit", "pitch"];
+export const PRO_ACTIONS: RecruitAction[] = ["stats", "walk", "camp", "dinner", "team", "pitch"];
+export const actionsFor = (world: World, id: string): RecruitAction[] => (isPro(world, id) ? PRO_ACTIONS : AMATEUR_ACTIONS);
+export const hoursFor = (_world: World, _id: string, action: RecruitAction): number => ACTIONS[action].hours;
 
 /** Your best scout makes every look count for more. */
 const lookQuality = (world: World) => {
@@ -227,17 +259,19 @@ const lookQuality = (world: World) => {
 export const MAX_READ = 0.95;
 function sharpen(world: World, id: string, by: number): void {
   const k = world.agency.knowledge[id];
-  world.agency.knowledge[id] = { accuracy: Math.min(MAX_READ, (k?.accuracy ?? 0) + by * lookQuality(world)), reports: (k?.reports ?? 0) + 1, absWeek: absWeek(world.season, world.week) };
+  world.agency.knowledge[id] = { accuracy: Math.min(MAX_READ, readOf(world, id) + by * lookQuality(world)), reports: (k?.reports ?? 0) + 1, absWeek: absWeek(world.season, world.week) };
 }
 
 /** Why an action can't be taken now, or null. */
 export function actionBlock(world: World, id: string, action: RecruitAction): string | null {
-  if (hoursLeft(world) < ACTIONS[action].hours) return "Not enough hours left this week.";
+  if (hoursLeft(world) < hoursFor(world, id, action)) return "Not enough hours left this week.";
   const p = world.agency.prospects?.[id];
   const now = absWeek(world.season, world.week);
-  if (action === "call" && p?.called === now) return "You've called this week.";
+  if (!actionsFor(world, id).includes(action)) return isPro(world, id) ? "That's for amateurs." : "That's for pros.";
+  if ((action === "call" || action === "camp") && p?.called === now) return "You've been in touch this week.";
   if (action === "pitch" && p?.pitched === now) return "You've pitched this week.";
-  if (action === "visit" && p?.visited === world.season) return "You've visited this season.";
+  if ((action === "visit" || action === "dinner") && p?.visited === world.season) return action === "dinner" ? "You've had dinner this season." : "You've visited this season.";
+  if (action === "team" && p?.teamSeason === world.season) return "You've talked to his team this season.";
   return null;
 }
 
@@ -247,7 +281,7 @@ export function recruit(world: World, id: string, action: RecruitAction): string
   const wp = world.players[id]!;
   const p = prospectOf(world, id);
   const now = absWeek(world.season, world.week);
-  recruitingOf(world).hoursUsed += ACTIONS[action].hours;
+  recruitingOf(world).hoursUsed += hoursFor(world, id, action);
   const add = (n: number) => (p.interest = clamp(p.interest + n, 0, dealbreakerMet(world, dealbreaker(world, id)) ? 100 : 35));
   switch (action) {
     case "film":
@@ -273,6 +307,27 @@ export function recruit(world: World, id: string, action: RecruitAction): string
       add(12);
       return `You visit ${wp.player.name}.`;
     }
+    case "stats":
+      sharpen(world, id, 0.06);
+      return `You go through ${wp.player.name}'s numbers.`;
+    case "walk":
+      sharpen(world, id, 0.2);
+      add(3);
+      return `You walk a round with ${wp.player.name}; he saw you there.`;
+    case "camp":
+      p.called = now;
+      add(4);
+      return `You call ${wp.player.name}'s camp.`;
+    case "dinner":
+      p.visited = world.season;
+      p.known = true;
+      add(12);
+      return `You take ${wp.player.name} to dinner.`;
+    case "team":
+      p.teamSeason = world.season;
+      p.known = true;
+      add(3);
+      return `You talk to ${wp.player.name}'s caddie and coach.`;
     case "pitch": {
       p.pitched = now;
       const g = grades(world);
@@ -310,13 +365,25 @@ export function holdShowcase(world: World): number {
 
 // ---------------------------------------------------------------- the card: what you know
 
-export const readOf = (world: World, id: string): number => world.agency.knowledge[id]?.accuracy ?? 0;
+/**
+ * A pro's results and stats are public: everyone starts with a read of him,
+ * better the longer he's been on tour (up to a good read). Amateurs start blank.
+ */
+export function publicRead(world: World, id: string): number {
+  const wp = world.players[id];
+  if (!wp || wp.career.status === "amateur") return 0;
+  return clamp(0.25 + (wp.career.careerEvents / 25) * 0.04, 0.25, 0.45);
+}
+export const readOf = (world: World, id: string): number => Math.max(world.agency.knowledge[id]?.accuracy ?? 0, publicRead(world, id));
 export const READ_TIERS = { skills: 0.2, ceiling: 0.45, details: 0.6 } as const;
 
 /** A skill group as a range (never exact for a prospect). */
 export function groupRange(world: World, id: string, group: keyof typeof ATTRIBUTE_GROUPS): { low: number; high: number } | null {
   const keys = ATTRIBUTE_GROUPS[group] as readonly AttributeKey[];
-  const vals = keys.map((k) => scoutedAttribute(world, id, k)).filter((v): v is NonNullable<typeof v> => !!v);
+  const known = world.agency.knowledge[id];
+  // Your own reports, or (for a pro you haven't scouted past it) the public read.
+  const own = !!known && known.accuracy >= publicRead(world, id);
+  const vals = keys.map((key) => (own ? scoutedAttribute(world, id, key) : publicRange(world, id, key))).filter((v): v is NonNullable<typeof v> => !!v);
   if (!vals.length) return null;
   const low = vals.reduce((s, v) => s + v.low, 0) / vals.length;
   const high = vals.reduce((s, v) => s + v.high, 0) / vals.length;
@@ -455,4 +522,14 @@ export function rivalRecruitingWeek(world: World): string[] {
     }
   }
   return news;
+}
+
+/** A skill as the public numbers show it: a pro's range from his results alone. */
+function publicRange(world: World, id: string, key: AttributeKey): { low: number; high: number } | null {
+  const acc = publicRead(world, id);
+  if (!acc) return null;
+  const truth = world.players[id]!.player.attributes[key];
+  const spread = Math.ceil((1 - acc) * 5);
+  const value = clamp(Math.round(truth + (rngFor(world, id, 5106 + key.length).next() * 2 - 1) * spread), 1, 20);
+  return { low: clamp(value - spread, 1, 20), high: clamp(value + spread, 1, 20) };
 }

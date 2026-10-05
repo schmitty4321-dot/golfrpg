@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { rivalInterest, rivalMoves, rivalRecruitingWeek, MAX_READ, PRO_AGE, agencyList, createWorld, dealbreaker, groupRange, hoursLeft, interestIn, prospects, readOf, recruit, recruitBlock, signingDay, weeklyHours } from "../src/season";
+import { publicRead, acceptChance, hoursFor, proProspects, rivalInterest, rivalMoves, rivalRecruitingWeek, MAX_READ, PRO_AGE, agencyList, createWorld, dealbreaker, groupRange, hoursLeft, interestIn, prospects, readOf, recruit, recruitBlock, signingDay, weeklyHours } from "../src/season";
 
 describe("recruiting", () => {
   it("spends a weekly budget of hours, refilled each week", () => {
@@ -50,6 +50,24 @@ describe("recruiting", () => {
     const after = Object.values(rivalInterest(w, top)).reduce((a, b) => a + b, 0);
     expect(after).toBeGreaterThan(before);
     expect(rivalMoves(w, top).length).toBeGreaterThan(0);
+  });
+
+  it("pros share the same hours, with their own activities, a public read, and interest that helps an offer", () => {
+    const w = createWorld({ seed: 105, scenario: "agency" });
+    w.agency.reputation = 50;
+    const pro = proProspects(w, 120).slice(40).find((id) => !w.players[id]!.agent || w.players[id]!.agent!.untilSeason <= w.season)!;
+    // Pros have their own activities, and their public numbers give a read before any scouting.
+    expect(() => recruit(w, pro, "call")).toThrow(/amateurs/);
+    expect(publicRead(w, pro)).toBeGreaterThanOrEqual(0.25);
+    expect(groupRange(w, pro, "putting")).not.toBeNull();
+    const left = hoursLeft(w);
+    recruit(w, pro, "camp");
+    expect(hoursLeft(w)).toBe(left - hoursFor(w, pro, "camp"));
+    const offer = { commission: 0.1, years: 2 };
+    w.agency.prospects![pro]!.interest = 10;
+    const cold = acceptChance(w, pro, offer);
+    w.agency.prospects![pro]!.interest = 90;
+    expect(acceptChance(w, pro, offer)).toBeGreaterThan(cold);
   });
 });
 
