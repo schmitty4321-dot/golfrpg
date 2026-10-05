@@ -107,6 +107,23 @@ export function MomentsView({ world, game, lw }: { world: World; game: Game; lw:
     setCalls({});
   }
 
+  /** Plays the next round in every event straight through, as the plans say. */
+  function simWholeRound() {
+    setReplay(null);
+    setTicker([]);
+    game.liveAct((evs) => {
+      for (const e of evs) {
+        const t = e.tournament;
+        if (t.round >= 4 || inRound(t)) continue;
+        if (!stillIn(e)) finishLive(t);
+        else {
+          startLiveRound(t);
+          autoFinishRound(t);
+        }
+      }
+    });
+  }
+
   /** Starts the next round in every event that's still going, then plays to the first moment. */
   function startRound() {
     setReplay(null);
@@ -210,7 +227,13 @@ export function MomentsView({ world, game, lw }: { world: World; game: Game; lw:
         </div>
         <ClientStrip world={world} game={game} events={events} editable={round === 0} />
         <div className="btn-row" style={{ marginTop: 12 }}>
-          {!moment && !replay && !playing && !allDone && <button className="btn btn-primary" onClick={startRound}>Play round {round + 1}</button>}
+          {!moment && !replay && !playing && !allDone && (
+            <>
+              <button className="btn btn-primary" onClick={startRound}>Round {round + 1}: key moments</button>
+              <button className="btn" onClick={() => game.setLiveMode("follow")}>Round {round + 1}: hole by hole</button>
+              <button className="btn" onClick={simWholeRound}>Sim round {round + 1}</button>
+            </>
+          )}
           {!moment && !replay && playing && <button className="btn btn-primary" onClick={advance}>Play on</button>}
           {!moment && !replay && allDone && <button className="btn btn-primary" onClick={() => void game.completeLiveWeek()}>See the final results</button>}
           {playing && <button className="btn" onClick={simRound}>Sim to the end of the round</button>}

@@ -134,12 +134,13 @@ function FollowView({ world, game, lw }: { world: World; game: Game; lw: LiveWee
       <EventHeader event={ev.event} course={t.config.course} week={world.week} players={t.config.field.length} hasCut={t.config.cutTop !== undefined} status={status} compact={inHbh}>
         {!inHbh && t.round > 0 && !done(ev) && stillIn && (
           <>
-            <button className="btn btn-primary" onClick={() => game.liveAct(() => { startLiveRound(t); autoFinishRound(t); })}>Play round {next}</button>
             {canFollow(followed) && (
               <button className="btn btn-primary" onClick={startHbh}>
-                Play round {next} hole by hole
+                Round {next}: hole by hole
               </button>
             )}
+            <button className="btn" onClick={() => game.setLiveMode("moments")}>Round {next}: key moments</button>
+            <button className="btn" onClick={() => game.liveAct(() => { startLiveRound(t); autoFinishRound(t); })}>Sim round {next}</button>
           </>
         )}
         {!inHbh && !done(ev) && !stillIn && <button className="btn btn-primary" onClick={() => game.liveAct(() => void finishLive(t))}>Sim the rest of the tournament</button>}

@@ -184,6 +184,17 @@ export function useGame() {
     [publish],
   );
 
+  /** Switch how the rest of the live week is played (between rounds: key moments or hole by hole). */
+  const setLiveMode = useCallback(
+    (mode: LiveWeek["mode"]) => {
+      const lw = liveWeekRef.current;
+      if (!lw || lw.mode === mode) return;
+      liveWeekRef.current = { ...lw, mode, version: lw.version + 1 };
+      publish({ liveWeek: liveWeekRef.current });
+    },
+    [publish],
+  );
+
   /** Finish anything left in the live week (automatically), then play the rest of the world's week and save. */
   const completeLiveWeek = useCallback(async () => {
     const w = worldRef.current;
@@ -238,7 +249,7 @@ export function useGame() {
     [publish, persist],
   );
 
-  return { state, newGame, play, liveAct, completeLiveWeek, closeSeason, dismissReview, dismissLive, importSave, abandon, exportSave, act, lib: season };
+  return { state, newGame, play, liveAct, setLiveMode, completeLiveWeek, closeSeason, dismissReview, dismissLive, importSave, abandon, exportSave, act, lib: season };
 }
 
 export type Game = ReturnType<typeof useGame>;
