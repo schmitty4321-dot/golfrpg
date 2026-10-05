@@ -616,8 +616,11 @@ export function planCall(plan: RoundPlan, decisions: Decision[]): HoleCall | nul
 /**
  * The decisions on a client's next hole: at most three, less the calls that
  * hold for the round once you've made them (closing putts, rain, leaderboard).
+ * When asking you, a question asked in the last few holes is left out; his
+ * plan still makes that call (`forAsking` false), so a week you click through
+ * plays like one you simulate.
  */
-export function nextDecisions(t: LiveTournament, id = t.controlledId): Decision[] {
+export function nextDecisions(t: LiveTournament, id = t.controlledId, forAsking = true): Decision[] {
   const cur = t.live[id];
   if (!cur) return [];
   const course = t.config.course;
@@ -626,7 +629,7 @@ export function nextDecisions(t: LiveTournament, id = t.controlledId): Decision[
   const all = decisionsFor(course.holes[cur.holes.length]!, course, entryOf(t, id).player, holeSituation(t, id));
   const index = cur.holes.length;
   const last = t.lastAsked?.[key] ?? {};
-  const rested = (k: CallKind) => last[k] === undefined || index - last[k]! >= QUESTION_GAP;
+  const rested = (k: CallKind) => !forAsking || last[k] === undefined || index - last[k]! >= QUESTION_GAP;
   return topDecisions(all.filter((d) => !(STANDING_KINDS.includes(d.kind) && held(d.kind)) && rested(d.kind)));
 }
 
@@ -644,7 +647,7 @@ export const QUESTION_GAP = 4;
 
 /** Plays a client's next hole as his round plan says. Returns the score. */
 export function playPlannedHole(t: LiveTournament, id = t.controlledId): number {
-  return playLiveHole(t, planCall(t.plans[id] ?? "steady", nextDecisions(t, id)), id);
+  return playLiveHole(t, planCall(t.plans[id] ?? "steady", nextDecisions(t, id, false)), id);
 }
 
 /** Plays out the rest of the round as each client's plan says: one client, or all of them. */
@@ -733,7 +736,7 @@ export function nextMoment(t: LiveTournament): { ticker: TickerItem[]; moment: M
     if (fresh.length && atStake(s) && (t.stops[key] ?? 0) < MAX_STOPS) {
       return { ticker, moment: { id, round: t.round, index: s.index, situation: s, decisions: fresh } };
     }
-    const score = playLiveHole(t, planCall(t.plans[id] ?? "steady", decisions), id);
+    const score = playLiveHole(t, planCall(t.plans[id] ?? "steady", nextDecisions(t, id, false)), id);
     ticker.push({ id, round: t.round, index: s.index, score, par: course.holes[s.index]!.par });
   }
   const playoff = pendingPlayoff(t);
@@ -757,7 +760,7 @@ export function answerMoment(t: LiveTournament, m: Moment, call: HoleCall | null
   t.stops[key] = (t.stops[key] ?? 0) + 1;
   markAsked(t, m.id, m.decisions.map((d) => d.kind));
   // Questions you weren't asked on this hole go by his plan.
-  const planned = planCall(t.plans[m.id] ?? "steady", nextDecisions(t, m.id).filter((d) => !m.decisions.some((x) => x.kind === d.kind)));
+  const planned = planCall(t.plans[m.id] ?? "steady", nextDecisions(t, m.id, false).filter((d) => !m.decisions.some((x) => x.kind === d.kind)));
   const merged = planned || c ? { ...planned, ...c } : null;
   return playLiveHole(t, merged && Object.keys(merged).length ? merged : null, m.id);
 }
