@@ -294,7 +294,7 @@ export function recruit(world: World, id: string, action: RecruitAction): string
     case "call":
       p.called = now;
       p.known = true;
-      add(4);
+      add(6);
       return `You call ${wp.player.name}'s family.`;
     case "visit": {
       p.visited = world.season;
@@ -304,7 +304,7 @@ export function recruit(world: World, id: string, action: RecruitAction): string
         const c = (recruitingOf(world).coaches ??= {});
         c[s.name] = (c[s.name] ?? 0) + 1;
       }
-      add(12);
+      add(16);
       return `You visit ${wp.player.name}.`;
     }
     case "stats":
@@ -316,12 +316,12 @@ export function recruit(world: World, id: string, action: RecruitAction): string
       return `You walk a round with ${wp.player.name}; he saw you there.`;
     case "camp":
       p.called = now;
-      add(4);
+      add(6);
       return `You call ${wp.player.name}'s camp.`;
     case "dinner":
       p.visited = world.season;
       p.known = true;
-      add(12);
+      add(16);
       return `You take ${wp.player.name} to dinner.`;
     case "team":
       p.teamSeason = world.season;
@@ -332,7 +332,7 @@ export function recruit(world: World, id: string, action: RecruitAction): string
       p.pitched = now;
       const g = grades(world);
       const pts = priorities(world, id).reduce((s, k) => s + GRADE_POINTS[g[k]], 0) / 2;
-      add(2 + pts + (wp.academy ? 3 : 0));
+      add(3 + pts + (wp.academy ? 3 : 0));
       return `You pitch the agency to ${wp.player.name}.`;
     }
   }
@@ -437,7 +437,8 @@ export function signingDay(world: World, wp: WorldPlayer): string | null {
   const top = agencyList(world, wp.player.id)[0]!;
   if (top.you) {
     // A full roster can't take him: he goes to the winter market instead.
-    if (world.clientIds.length >= rosterLimit(world.agency.reputation, world.agency.hq)) return `Signing day: ${wp.player.name} wanted ${world.agency.name}, but your roster is full.`;
+    // A commitment is honoured even one over the roster limit; only a roster already past it loses him.
+    if (world.clientIds.length > rosterLimit(world.agency.reputation, world.agency.hq)) return `Signing day: ${wp.player.name} wanted ${world.agency.name}, but your roster is full.`;
     signClient(world, wp.player.id, { commission: marketRate(wp), years: 2 });
     return `Signing day: ${wp.player.name} commits to ${world.agency.name}!`;
   }
@@ -453,9 +454,10 @@ export function rankClasses(world: World, newPros: string[]): void {
     ids.map((id) => Math.max(1, Math.round(((world.players[id]?.development.potential ?? 11) - 10) * 2) / 2)).sort((a, b) => b - a).slice(0, 3).reduce((s, x) => s + x, 0);
   const mine = [...new Set(r.classes?.[world.season] ?? [])];
   const byRival = new Map<string, string[]>();
+  // Like for like: a rival's class is the prospects it recruited (and landed), not every new pro it signs in the winter market.
   for (const id of newPros) {
     const a = world.players[id]?.agent?.agency;
-    if (a) byRival.set(a, [...(byRival.get(a) ?? []), id]);
+    if (a && (r.rivals?.[id]?.interest[a] ?? 0) >= 40) byRival.set(a, [...(byRival.get(a) ?? []), id]);
   }
   const rows = [{ agency: world.agency.name, score: score(mine), signed: mine.length }, ...[...byRival].map(([agency, ids]) => ({ agency, score: score(ids), signed: ids.length }))].sort((a, b) => b.score - a.score);
   r.lastRanking = { season: world.season, rows };
@@ -516,8 +518,8 @@ export function rivalRecruitingWeek(world: World): string[] {
     const chosen = scored.slice(0, picks).map((x) => x.id);
     for (const id of chosen) {
       const rec = (all[id] ??= { interest: { ...rivalInterest(world, id) }, moves: [] });
-      const visit = rng.chance(0.15);
-      rec.interest[rival.name] = clamp((rec.interest[rival.name] ?? 0) + (visit ? 10 : 3 + rng.next() * 4), 0, 100);
+      const visit = rng.chance(0.12);
+      rec.interest[rival.name] = clamp((rec.interest[rival.name] ?? 0) + (visit ? 8 : 2 + rng.next() * 3), 0, 100);
       rec.moves.unshift({ agency: rival.name, text: visit ? "visited him" : "called his family", absWeek: now });
       rec.moves.length = Math.min(rec.moves.length, 6);
       if (world.agency.prospects?.[id] && (visit || rng.chance(0.25)) && news.length < 2) news.push(`${rival.name} ${visit ? "visit" : "call"} ${world.players[id]!.player.name}, one of your prospects.`);
