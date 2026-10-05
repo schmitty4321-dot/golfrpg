@@ -56,6 +56,7 @@ import { setObjectives } from "./board";
 import { checkBreakthrough, pressureGrowth } from "./progression";
 import { hasSkill } from "./staffSkills";
 import { talksWeek } from "./negotiation";
+import { rivalRecruitingWeek } from "./recruiting";
 
 /** What a client does this week. "auto" lets him pick his own schedule. */
 export type ClientChoice =
@@ -522,6 +523,8 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
     if (ryder) noteRyderTeam(world, Object.keys(ryder.names));
     // Players whose thinking time is up answer your offers.
     for (const line of talksWeek(world)) world.news.unshift(line);
+    // The rival agencies work their prospects too.
+    for (const line of rivalRecruitingWeek(world)) world.news.unshift(line);
     const messages = weeklyRivalMessages(world, report, createRng(mixSeed(world.seed, world.season, world.week, 1803)), MAX_DECISIONS_PER_WEEK - pressed);
     weeklyDilemmas(world, records, createRng(mixSeed(world.seed, world.season, world.week, 1802)), MAX_DECISIONS_PER_WEEK - pressed - messages);
   }

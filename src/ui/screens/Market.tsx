@@ -28,6 +28,7 @@ import { Stars } from "../components/Stars";
 import { money } from "../format";
 import type { Game } from "../useGame";
 import { Portrait } from "../components/Portrait";
+import { RecruitingDesk } from "../components/RecruitingDesk";
 
 const crest = (name: string) => ({
   "Apex Sports Management": "★", "Fairway Global": "◎", "Links & Co.": "♜", "Pinnacle Talent": "♠", "Clubhouse Partners": "♛", "Eagle Rock Agency": "◆",
@@ -42,6 +43,7 @@ export function Recruiting({ world, game }: { world: World; game: Game }) {
   const board = (world.agency.shortlist ?? []).map((id) => world.players[id]).filter((wp) => wp && !wp.client);
   return (
     <main>
+      <RecruitingDesk world={world} game={game} />
       <section className="panel">
         <div className="panel-head"><h2>Recruitment board</h2><span className="muted small">Add players from their profile · {board.length} on the board</span></div>
         {board.length === 0 ? (

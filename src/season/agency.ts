@@ -15,6 +15,7 @@ import { commissionWeight, decisionSensitivity, extensionBias, heldOutPenalty, o
 import { cleanExtras, extrasAppeal, type DealExtras } from "./contractTerms";
 import { overall } from "./development";
 import { hasSkill } from "./staffSkills";
+import { commissionGrace, firstCall, interestBonus, noteSigning, recruitBlock } from "./recruiting";
 
 export const RIVAL_AGENCIES = [
   "Apex Sports Management",
@@ -167,6 +168,8 @@ export function approachBlock(world: World, id: string): string | null {
   }
   const until = world.agency.cooldowns[id];
   if (until !== undefined && until > absWeek(world.season, world.week)) return "He turned you down recently. Give it a few weeks.";
+  const narrowed = recruitBlock(world, id);
+  if (narrowed) return narrowed;
   if (world.clientIds.length >= rosterLimit(world.agency.reputation, world.agency.hq)) {
     return `Your agency can manage ${rosterLimit(world.agency.reputation, world.agency.hq)} clients at its reputation. Grow it, or move to a bigger headquarters, to take on more.`;
   }
@@ -179,17 +182,23 @@ export function acceptChance(world: World, id: string, offer: Offer): number {
   const a = wp.player.attributes;
   let score = world.agency.reputation - expectedReputation(world, id);
   // A hard bargainer gets half a point more out of everyone.
-  score += (marketRate(wp) + (hasSkill(world, "hard-bargainer") ? 0.005 : 0) - offer.commission) * 100 * 3 * commissionWeight(wp); // each point under his going rate helps
+  // Each point under his going rate helps, each over it hurts; a keen pro you've recruited will go up to two points over for free.
+  const under = marketRate(wp) + (hasSkill(world, "hard-bargainer") ? 0.005 : 0) - offer.commission;
+  score += (under < 0 ? Math.min(0, under + commissionGrace(world, id)) : under) * 100 * 3 * commissionWeight(wp);
   score += recruitingBonus(world);
   score += negotiationBonus(world, "agent");
   score += signingSkills(world, wp, offer);
+  // A prospect you've recruited: his interest in you counts.
+  score += interestBonus(world, id);
   // Ambitious players want a big-name agency; young ones like security, veterans like flexibility.
   score -= Math.max(0, a.ambition - 12) * 1.5;
   score += wp.player.age <= 25 ? (offer.years - 1) * 3 : wp.player.age >= 36 ? (1 - offer.years) * 2 : 0;
+  // First call: a keen pro whose deal is up talks to you before anyone else.
+  const first = firstCall(world, id);
   // Someone with a rival agency is happy where he is unless you beat them.
-  if (wp.agent) score -= 6;
+  if (wp.agent && !first) score -= 6;
   // A rival bidding for a free player: its name and commission count against yours.
-  const bid = competingBid(world, id);
+  const bid = first ? null : competingBid(world, id);
   if (bid) score -= competitionPenalty(world, wp, bid) * (hasSkill(world, "bidding-war") ? 0.6 : 1);
   // What you promise him, and a head start if one of your old players sent him.
   score += promiseAppeal(wp, rankMap(world).get(id) ?? 999, offer.promises);
@@ -290,7 +299,10 @@ export function signClient(world: World, id: string, offer: Offer): void {
   const wp = world.players[id]!;
   // A player still on a rival's books in his final season joins you when that deal ends; we simplify and let him move now.
   wp.agent = null;
+  const grace = commissionGrace(world, id);
+  noteSigning(world, wp);
   wp.client = newManagement(world.season, offer.commission, offer.years);
+  if (grace > 0 && offer.commission > marketRate(wp)) wp.client.contract.keenGrace = Math.min(grace, offer.commission - marketRate(wp));
   const extras = cleanExtras(offer.extras);
   if (extras) wp.client.contract.extras = extras;
   payBonus(world, extras?.signingBonus);
@@ -376,7 +388,7 @@ export function updateHappiness(wp: WorldPlayer, week: { played: boolean; sgVsEx
   target += Math.min(10, c.sponsors.reduce((s, x) => s + x.annualValue, 0) / 150_000);
   const sensitivity = decisionSensitivity(wp);
   // Paying well over his going rate rankles; a bargain pleases him.
-  target -= (c.contract.commission - marketRate(wp)) * 100 * 1.5 * sensitivity;
+  target -= (c.contract.commission - marketRate(wp) - (c.contract.keenGrace ?? 0)) * 100 * 1.5 * sensitivity;
   if (week.heldOut) target -= (15 + heldOutPenalty(wp)) * sensitivity;
   target += financeMood(wp);
   // He's happier with an agent he trusts.

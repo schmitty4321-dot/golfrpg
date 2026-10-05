@@ -17,6 +17,7 @@ import { createRng } from "../engine";
 import { acceptChance, applyExtension, approachBlock, extendChance, signClient, type Offer } from "./agency";
 import { mixSeed } from "./entries";
 import { MAX_PROMISES, PROMISES, makePromises, trustOf, type PromiseKind } from "./promises";
+import { firstCall } from "./recruiting";
 import { competingBid } from "./rivals";
 import { bidPressure } from "./rivalAgents";
 import { has } from "./traits";
@@ -126,7 +127,8 @@ export function startNegotiation(world: World, playerId: string, kind: "sign" | 
   }
   const rng = createRng(mixSeed(world.seed, world.season, world.week, 1901, idNum(playerId), kind === "sign" ? 1 : 2));
   const patience = patienceFor(wp, kind);
-  const bid = kind === "sign" ? competingBid(world, playerId) : null;
+  // A keen pro on first call hears you before the other agencies bid.
+  const bid = kind === "sign" && !firstCall(world, playerId) ? competingBid(world, playerId) : null;
   const talks: Negotiation = {
     playerId,
     kind,

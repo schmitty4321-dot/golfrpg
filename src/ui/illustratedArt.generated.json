@@ -7541,5 +7541,1416 @@
       "rows": 88,
       "rle": "r2324w3r4w4r112s2r1s2r1s1r6s1r7s2r31w12r3w5r8w1r20s1r1s1r61s1r19s3r12s1r28w34r5w1r16s1r3s1r4s1r35f6r25s1r44w34r35s1r1s1r27f14r1f2r3f3r1f1r53w35r35s1r1s4r16f15r3s1r1s1r5f4r1f1r3f4r46w37r42s4r13f11r6f1r1f12r1f1r48w47r2w4r29s1r2s1r3s1r3s1r5f9r3f4r4f6r4s5r43w61r2w1r15s1r10s1r3s1r1s1r1s2r1f11r1f5r6f4r3s1r45w64r31s6r3f23r50w65r31s1r2s2r4f20r52w71r1w3r21s2r7f5r1f14r1f1r50w78r15s1r4s1r6f5r1f15r1f1r49w84r2w2r14f23r2f3r47w81r21f26r49w74r3w3r8s1r5s4r4f27r48w68r4w1r13s2r4s3r2f2r1f26r2f2r47w66r14s1r1s2r4s6r1f2r1f30r1f1r47w62r15s2r7s7r1f14r7f1r4f6r1f5r45w54r21s2r3f2r1s7r2f1r1f1r1f10r19f6r1f1r1s1r42w54r11s1r9s2r6s6r1f16r18f5r1f1r1f1r44w54r21s2r5f1r1s6r1f10r25f6r1f4r2s1r37w55r20s2r6s6r3f9r27f1r1f2r3f1r41w57r17s2r1f1r1s7r2f12r31f1r45w6r2w51r13s2r5s6r1f13r32f1r44w6r4w50r1w1r10s1r7s6r1f14r54w2r4w4r1w1r2w14r3w44r3w1r13s2r4f1r1s7r1f3r1f16r28f4r8s1r12w1r3w1r7w5r2w6r1w41r17s3r6f1r2s5r2f1r1f1r1f17r16f1r2f3r4f3r12s1r1s1r23w2r14w21r8w1r2w1r30s5r2f1r2f1r2f19r1f1r11f8r1f2r30w1r32w16r39f1r1s2r3f6r1f21r13f14r61w15r3w3r27s1r10f7r1f26r1f2r5f10r1f7r57w15r5w1r10w1r2s1r12s1r11f6r1f32r4f16r1f2r53w18r29s2r12f6r1f30r1f2r3f13r6f1r5s2r45w19r25s3r13f7r1f28r11f1r22s1r44w9r1w16r18s2r13f8r1f31r26f1r36w1r2w3r8w10r5w11r3w1r11s5r12f40r3f1r73w5r34s4r14f43r3f4r106s2r17f45r3f6r100s2r18f9r1f38r3f4r63s1r33s5r18f9r1f41r2f3r1f1r2f1r89s4r20f10r1f47r4f1r1f2r86s1r23f9r1f48r5f3r2f1r37s2r17w3r18s4r24f60r3f4r2f3r74s1r1s1r26f60r5f2r2f2r42s1r8w2r11s1r1s1r34f63r3f3r2f4r62s1r36f64r4f3r1f3r1f1r39s1r3s1r16w1r41f8r1f43r1f8r3f2r3f2r47s1r17s1r41f51r2f5r5f2r3f1r22s1r24s1r47f1r2f11r2f43r10f1r2f1r2f1r52s1r44f5r1f7r4f45r115f12r3f48r103f1r11f9r2f42r2f4r36s3r59f8r2f1r8f7r1f43r2f2r36s1r2s1r66f10r3f3r5f48r1f1r1f3r1f1r25s3r2s1r73f16r2f44r2f11r106f2r2f9r4f35r1f3r1f1r2f2r83s1r39f1r2f2r10f27r1f6r6f1r129f1r15f1r2f1r12f15r97s1r35f1r2f5r1f1r1f1r3f1r4f1r1f12r1f2r1f3r99s1r14f4r25f1r1f1r2f1r5f2r1f1r3f1r1f1r110s1r4f1r3f8r3f2r35f1r121f2r3f9r2f3r157f1r3f10r1f3r72s1r1s1r73s4r3f3r7f6r1f3r150s2r2f2r2f5r5f1r3f2r1f1r3f1r57s1r83s1r7f1r11f1r1f2r1f4r1f1r1f1r55s3r84s1r6f2r3f10r4f5r54s7r83s1r6f2r3f12r1f1r1f2r59s1r98f14r2f1r54s2r102f14r1f2r49s3r1s1r112f3r1f2r1f2r4s1r48s1r106s1r60s3r174s3r129s1r40s4r348s1r114"
     }
+  },
+  "riviera:1": {
+    "image": "art-demo/riviera/hole-01.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -3.361702,
+        2.573603,
+        270
+      ],
+      "y": [
+        -13.209667,
+        -0.749005,
+        640
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 270,
+        "y": 640
+      },
+      {
+        "at": 0.577,
+        "x": 1050,
+        "y": 560
+      },
+      {
+        "at": 0.9,
+        "x": 1440,
+        "y": 320
+      },
+      {
+        "at": 0.984,
+        "x": 1545,
+        "y": 285
+      },
+      {
+        "at": 1,
+        "x": 1541,
+        "y": 259
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1544,
+          "y": 276
+        }
+      ],
+      "holed": [
+        {
+          "x": 1541,
+          "y": 259
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1300,
+          "y": 505
+        },
+        {
+          "x": 1530,
+          "y": 290
+        }
+      ]
+    },
+    "meta": {
+      "number": 1,
+      "par": 5,
+      "yards": 503,
+      "tourAverage": 4.203,
+      "course": "Riviera Country Club",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2335s1r390s1r144s1r12s1r2s1r37s1r154s2r1s1r29s1r136s1r15s1r159s1r10s5r146s2r13s1r8s1r11s1r1s1r9s1r58s1r64s1r6s2r35s1r139s1r1s2r25s1r7s1r308s1r336s1r21s2r93f1r4f12r159f9r8f4r155f8r1f1r1s5r3f5r149f1r1f6r4f1r1s2r3s2r3f1r125f1r20f12r4f2r4f3r150f14r1f6r1f6r145f20r5f1r2f3r144f6r1f13r7f2r6f1r137f2r1f19r10f5r138f25r10f2r118f1r20f2r1f5r1f17r149f3r1f17r1f5r44s3r2s1r2s1r97f5r1f18r23s1r23s1r1s1r2s1r2s1r95f2r1f17r27s1r22s6r2s1r62f5r28f2r2f3r1f16r24s2r19s10r2s1r61f2r30f3r4f15r49s2r1s2r2s3r1s3r90f8r1f11r54s1r2s1r2s7r87f29r48s1r2s1r4s5r1s2r81f9r1f13r1f8r56s6r1s1r76f5r3f28r57s5r2s1r74f9r1f25r55s7r1s2r2s1r74f7r1f20r1f1r59s8r1s2r2s1r71f36r56s7r3s1r73f32r3f2r55s8r3s1r68f3r2f21r17s4r51s1r4s2r5s1r65f3r1f2r1f16r24s5r51s3r36s1r34f1r1f2r2f15r20f1r61s3r71f1r1f1r2f24r16f2r56s3r4s2r3s1r1s2r57f2r1f1r1f36r61s2r1s1r72f35r64s3r1s2r30s3r30f2r3f45r58s2r32s4r38f5r1f31r61s5r21f1r8s4r39f1r2f34r62s2r19f1r1f6r2f1r43f4r3f22r73s1r16f4r3f1r2f1r1f1r46f11r1f8r81s1r11f5r3f15r36f1r2f20r84s2r7f1r4f25r2f2r3f1r23s1r3f1r1f18r84s4r4f40r21s1r3f13r96f29r2f4r2f4r22s2f16r43f3r50f3r1f27r2f6r22s1r3f11r1f15r2f2r6f9r1f2r1f4r61f1r1f23r1f8r29f10r5f31r64f1r7f4r1f15r4f1r33f2r6f1r2f4r6f25r78f1r2f2r3f6r2f1r56f28r79f1r4f1r2f2r45f2r17f6r1f4r1f6r91f1r48f1r3f1r7f4r1f6r7f2r145f4r5f11r159f17r163f15r164f19r42f1r1f1r1f1r111f21r27f7r124f21r1f1r2f4r149f25r153f3r1f21r152f2r1f1r3f5r164f3r8f6r139s1r30f7r170f1r3f5r172f2r1f1r3f1r178f7r170f1r3f2r10f2r4f4r167f3r1f5r1f10r158f1r3f15r31"
+    }
+  },
+  "riviera:2": {
+    "image": "art-demo/riviera/hole-02.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -4.270949,
+        2.58419,
+        300
+      ],
+      "y": [
+        1.42299,
+        -1.247853,
+        795
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 300,
+        "y": 795
+      },
+      {
+        "at": 0.616,
+        "x": 1150,
+        "y": 400
+      },
+      {
+        "at": 0.983,
+        "x": 1500,
+        "y": 215
+      },
+      {
+        "at": 1,
+        "x": 1528,
+        "y": 205
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1509,
+          "y": 212
+        }
+      ],
+      "holed": [
+        {
+          "x": 1528,
+          "y": 205
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1408,
+          "y": 214
+        },
+        {
+          "x": 1398,
+          "y": 250
+        }
+      ]
+    },
+    "meta": {
+      "number": 2,
+      "par": 4,
+      "yards": 471,
+      "tourAverage": 4.081,
+      "course": "Riviera Country Club",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2334s1r10s1r30s1r5s1r2s1r131s1r17s1r23s2r329s1r23s1r176s1r410s1f6r176f12r2f1r2f2r38s2r113s3r3f12r45s1r74s1r39s3r1f12r46s2r6s4r63s1r42f9r54s1r3s2r102s4r10f1r57s2r67s1r24s4r9s4r1f11r55s1r102s3r2s1r1f9r57s1r14s1r66s1r8f6r12f7r140s1r5f7r8f3r1f13r1f2r136s1r7f13r1f14r85s1r42s1r2s1r4s1r6s1r2f14r1f14r131s1r1s1r17f8r2f15r142s2r2f1r6f5r1f12r149f2r4f6r1f12r153f4r7f13r3f2r146f1r1f1r3f3r2f19r147f7r1f19r146f7r2f14r3f4r45s9r84s1r1s2r4f5r2f14r54s10r1s1r88f4r1f18r51s1r5s3r4s1r89f20r59s2r96f3r2f14r85s1r11s1r48s2f1r2f1r7f1r1f14r148s1r1f1r12f16r144s1r8f3r2f17r147f1r11f10r2f1r5f2r145f7r2f15r9f1r147f1r1f17r120s1r37f12r127s1r31f1r3f15r161f11r4f2r94s1r59f3r1f12r163f18r138s2r17f24r133s2r12f26r127s1r9s2r8f2r4f19r4f1r128s1r7s1r8f1r2f1r1f16r140s1r1s4r1f11r1f14r2f1r139s3r7f8r1f16r2f2r132s2r4s1r17f19r131s2r23f22r3f2r147f1r1f28r124s2r21f32r132f1r10f20r136s1r2f6r10f23r68s1r70f5r2f2r2f2r1f20r57s1r12s1r57s2r12f1r2f9r1f20r129s1r8f1r6f6r1f30r122s2r7f1r10f1r3f32r120s2r1f1r15f1r3f26r126s4r17f1r4f25r123s1r1s4r6f3r8f1r3f26r121s1r1s1r1s4f1r2f6r2f8r6f8r3f12r3f1r5f1r95s1r14s4r1s2r1s1f3r11f2r2f3r8f7r1f1r6f4r1f7r97s1r19s1r6f10r2f1r4f4r5f1r1f1r3f4r1f6r7f1r2f1r109s4r1f1r6f10r2f1r2f1r1f1r1f3r2f3r15f3r116s5r2f2r5f10r2f1r134s1r6s2r4s5r2f4r3f12r13f1r123s2r7s1r1s6r1f5r3f11r151s1r4f6r2f11r1f1r12f1r136s1r9f1r2f11r1f1r10f1r153f1r4f4r1f1r306s1r208s3r30s1r147s5r17s1r137s1r22s4r325"
+    }
+  },
+  "riviera:3": {
+    "image": "art-demo/riviera/hole-03.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        2.776508,
+        2.789035,
+        280
+      ],
+      "y": [
+        -3.503793,
+        -1.054651,
+        760
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 280,
+        "y": 760
+      },
+      {
+        "at": 0.668,
+        "x": 1000,
+        "y": 560
+      },
+      {
+        "at": 0.982,
+        "x": 1435,
+        "y": 320
+      },
+      {
+        "at": 1,
+        "x": 1460,
+        "y": 312
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1443,
+          "y": 317
+        }
+      ],
+      "holed": [
+        {
+          "x": 1460,
+          "y": 312
+        }
+      ],
+      "bunker": [
+        {
+          "x": 960,
+          "y": 455
+        },
+        {
+          "x": 1515,
+          "y": 365
+        }
+      ]
+    },
+    "meta": {
+      "number": 3,
+      "par": 4,
+      "yards": 434,
+      "tourAverage": 3.911,
+      "course": "Riviera Country Club",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2337s1r2s1r9s2r18s1r4s1r4s2r7s2r7s1r9s2r2s2r1s2r3s1r7s2r8s1r9s5r1s1r5s2r2s1r3s2r4s1r30s1r1s1r10s3r20s3r1s1r5s1r1s1r38s1r2s1r9s1r5s1r1s2r13s3r1s1r1s1r4s2r1s2r7s4r25s1r36s2r3s1r1s1r2s1r2s2r36s2r20s1r3s1r9s1r17s1r83s2r39s1r40s3r54s2r3s1r161s1r3s3r11s1r112s1r49s4r16s1r17s1r2s1r85s1r49s1r3s1r15s1r19s2r81s1r51s1r125s3r59s1r115s1r45s1r13s3r1s1r1s1r57s1r453f1r58s1r65f2r325f2r11f3r4f2r60s1r91f1r1f6r3f1r6f3r1f1r157f1r4f3r2f1r165f3r5f1r2f20r148f1r1f5r1f26r132f17r4f20r2f2r131f2r2f3r2f7r7f3r3f7r6f1r1f2r103s1r31f28r7s2r127f1r1f6r2f26r1f5r2s10r124f4r2f26r1f2r4f3r2s7r127f32r1f2r133f8r4f35r4f2r1f4r117f6r2f3r5f38r1f1r115f11r5f42r116f2r1f1r1f1r3f2r7s1r4f34r123f2r4f2s9r2f31r126f1r2s2r3s6r3f29r4f1r115f2r8f1r2s11r2f25r126f6r2f2r1s12r2f25r126f6r3f1r1s8r2f29r124f1r4f5r3f2r7f1r2f40r112f1r6f51r1f5r47s1r65f5r4f1r3f44r4f1r1f1r112f4r1f3r1f6r1f1r1f36r1f1r118f50r123f3r2f1r1f44r128f7r1f7r1f35r101s1r20f1r2f11r2f1r1f31r126f17r1f27r130f45r17f1r60s1r57f1r1f7r1f33r126f1r11f41r4f1r119f2r13f42r119f3r4f2r3f2r1f45r115f10r4f45r1f5r1f10r98f6r2f3r3f1r1f40r2f1r14f3r1f2r96f11r2f2r1f41r78s1r40f3r5f1r3f2r1f39r2f2r67s1r11s1r37f5r8f41r124f2r6f1r2f36r90s1r40f4r2f1r1f31r1f1r3f2r6f1r2f3r78s1r35f1r2f36r1f1r1f3r8f2r4f6r1f1r106f1r3f3r4f1r2f4r2f2r7f4r2f1r7f9r1f7r2f3r3f6r99f2r5f4r4f16r3f3r1f2r2f3r2f4r1f10r1f1r9f1r3f1r97f3r13f12r2f2r1f1r1f15r2f2r2f10r2f4r2f1r1f3r95f3r2f1r1f24r1f13r19f2r4f5r1f4r1f2r90f3r2f31r1f1r4f2r18f1r111f4r1f38r132f3r1f16r1f15r5f3r1f1r129f16r2f10r1f6r2f3r4f1r1f1r2f4r119s1r2f2r2f3r2f7r1f9r5f2r1f1r4f1r1f5r1f11r116f3r1f6r1f15r18f1r2f23r107f8r5f13r11f8r2f1r3f18r114f1r1f1r14f1r13f5r3f1r9f1r1f7r174f4r174f5r1f1r84s1r87f1r1f3r2f3r171f2r450"
+    }
+  },
+  "riviera:4": {
+    "image": "art-demo/riviera/hole-04.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -1.082304,
+        3.289377,
+        450
+      ],
+      "y": [
+        50.114772,
+        -2.373626,
+        750
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 450,
+        "y": 750
+      },
+      {
+        "at": 0.971,
+        "x": 1310,
+        "y": 263
+      },
+      {
+        "at": 1,
+        "x": 1348,
+        "y": 222
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1323,
+          "y": 249
+        }
+      ],
+      "holed": [
+        {
+          "x": 1348,
+          "y": 222
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1220,
+          "y": 278
+        }
+      ]
+    },
+    "meta": {
+      "number": 4,
+      "par": 3,
+      "yards": 273,
+      "tourAverage": 3.114,
+      "course": "Riviera Country Club",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r3044s3r2s2r88f3r79s3r4s1r83f5r3f3r9s1r64s2r11s2r79f3r5f2r9s2r1s1r61s1r100f2r10s1r144f2r4f3r2f9r2f2r150f1r1f4r1f14r1f4r1f1r12s1r108s1r36f21r8s1r58s1r75f4r2s5r3f22r141f2r3s7r1f2r1f18r1f1r4f1r53s5r2s2r66f9r2s9r1f1r6f16r56s1r75f11r1s14r8f6r1f1r2f1r135f9r4s16r2f10r125f4r2f1r2f17r1s14r2f8r127f25r1s14r2f11r2f1r126f22r13f11r2f1r1f1r105f1r20f47r130f36r10f2r130f33r14f2r15s1r114f29r12f3r1f2r1f1r13s1r116f27r9f5r136f26r50s1r5s1r89f2r1f28r141f35r144f35r143f28r1f1r147f27r150f24r8f3r1f1r66s2r74f19r157f18r79s1r57f1r11f1r3f1r2f19r150f25r78s1r77f20r83s3r72f17r162f13r1f5r3f3r153f12r1f1r2f10r153f9r8f3r3f1r103s1r43f14r14f1r103s1r42f15r143f1r11f21r152f24r152f25r155f20r116s1r42f19r157f17r1f2r70s1r89f10r163f10r169f3r175f1r124f2r18f6r26f3r131f3r13f6r18f9r76s1r50s1r12f14r2f2r9f11r59s1r82f6r1f3r1f6r6f1r10f6r116s1r2f2r4f13r3f1r12f1r1f2r15f1r1f3r53s1r61f3r2f1r2f15r25f4r11f1r51s1r22s1r33s2r1f4r2f2r1f15r10f2r16f2r85s2r14s1r15s1r7f1r1f2r2f15r16f2r15f1r78s1r3s1r44f15r18f1r1f2r15f1r74s1r4s1r45f13r18f1r4f1r14f3r2f2r4f1r68s1r25s1r23f9r46f2r69s2r52f5r55f1r117f3r41s1r254s1r16s3r1s1r155s1r15s6r155s1r14s4r158s1r14s1r161s1r892"
+    }
+  },
+  "riviera:5": {
+    "image": "art-demo/riviera/hole-05.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -11.954997,
+        2.800805,
+        310
+      ],
+      "y": [
+        7.989115,
+        -1.273697,
+        775
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 310,
+        "y": 775
+      },
+      {
+        "at": 0.668,
+        "x": 950,
+        "y": 520
+      },
+      {
+        "at": 0.982,
+        "x": 1455,
+        "y": 265
+      },
+      {
+        "at": 1,
+        "x": 1481,
+        "y": 245
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1464,
+          "y": 258
+        }
+      ],
+      "holed": [
+        {
+          "x": 1481,
+          "y": 245
+        }
+      ]
+    },
+    "meta": {
+      "number": 5,
+      "par": 4,
+      "yards": 434,
+      "tourAverage": 4.02,
+      "course": "Riviera Country Club",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2344s2r11s1r12s1r2s1r10s1r20s2r21s1r44s1r38w2r19s1r358s1r16s2r29s1r65s1r58s1r20s1r129s1r52s2r159s1r11s1r19s1r1s1r108s1r44s1r11s1r8s1r151s1r31s1r23s1r70s2r7s1r2s1r176s1r34s2r145s1r30s1r79f2r55s1r27s1r84f6r2f3r81s2r1s1r1s1r74f13r1f3r152f2r3f3r1f10r49s1r3w2r36s2r53f4r1f9r1f4r1f10r1f1r90s1r56f15r6f5r2f1r54s3r38s1r49f8r2f7r2f9r1f1r58s1r1s1r1s1r2s2r74f8r4f22r59s2r1s7r17s1r4s1r5s1r39f8r4f26r109s1r27f34r1f3r98s2r38f25r1f5r3f4r99s1r33f23r2f2r3f10r1f2r1f1r87s1r23s1r18f4r2f15r2f5r7f3r106s1r27f5r3f15r2f3r3f3r5f2r1f1r99s1r6s1r22f7r2f16r4f3r4f3r3f2r103s1r6s1r19f7r2f16r11f6r1f4r74s1r28s1r6s1r16f7r2f12r2f4r3f2r12f2r78s1r28s1r21f22r1f4r1f1r7f1r11f3r74s1r36s1r10f27r23f3r1f1r111s1r9f30r15f1r3f1r82s1r34s1r9f33r2f1r109f1r33f33r1f4r98s1r1s1r38f34r1f7r98s1r36f35r1f7r2f1r5f2r4f8r69s1r3s1r1s1r38f33r1f23r3f1r79s1r35f34r1f16r87s1r1s1r36f34r1f12r92s1r1s1r30f1r2f36r1f9r128f3r1f2r1f40r99s1r33f35r1f3r133f39r135f1r2f38r12f1r98s1r19s1r2f55r52s1r62s3f1r6f40r1f9r12f1r2f1r101s1r9f5r1f51r114f1r1f7r1f44r4f3r115f1r1f7r1f38r1f1r63s1r60f45r71s1r55f13r1f36r71s1r50f16r1f37r121f51r78s1r40f1r1f2r1f5r1f44r81s1r36f55r2f2r115f17r1f35r87s1r1s1r31f34r1f6r1f7r96s1r29f3r1f42r20f1r104s1r1f1r5f9r5f11r1f1r1f5r2f1r1f4r99s1r33f2r4f4r1f1r1f12r3f1r3f1r1f1r1f3r1f2r100s2r4s1r25f11r9f1r1f7r1f4r1f1r2f6r1f4r102s1r19f15r1f12r7f25r97s1r17f1r2f7r1f4r1f15r1f12r1f9r78f1r26s1r17f2r1f10r1f17r1f4r1f3r1f4r47f1r82f1r1f30r1f5r1f5r50f1r41f1r39f12r1f19r1f4r1f3r1f2r1f5r47f1r71s1r2f4r1f10r2f18r1f4r1f1r2f4r1f1r48f1r1f2r42f2r29f4r1f5r1f4r2f19r1f7r2f4r39f2r1f1r1f3r2f2r74f3r1f5r1f6r3f26r1f1r1f11r21f1r4f6r84f4r2f3r1f5r2f18r2f27r3f1r1f10r2f3r93f4r1f1r1f8r7f14r1f7r1f1r1f1r1f18r1f9r1f1r1f1r28f2r66f12r1f4r3f3r1f3r8f5r2f2r2f25r5f1r58f1r41f1r1f3r2f1r17f1r10f6r2f8r1f11r2f1r22f1r45f1r42f4r33f2r4f15r2f2r71f1r4f1r37f3r3f1r32f11r2f4r78f1r3f2r4f1r33f1r7f2r12f1r2f2r1f3r2f2r1f1r1f14r68f1r16f1r6f1r31"
+    }
+  },
+  "riviera:6": {
+    "image": "art-demo/riviera/hole-06.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -2.334686,
+        4.447236,
+        440
+      ],
+      "y": [
+        -13.896149,
+        -3.090452,
+        760
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 440,
+        "y": 760
+      },
+      {
+        "at": 0.96,
+        "x": 1295,
+        "y": 303
+      },
+      {
+        "at": 1,
+        "x": 1325,
+        "y": 265
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1305,
+          "y": 290
+        }
+      ],
+      "holed": [
+        {
+          "x": 1325,
+          "y": 265
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1275,
+          "y": 305
+        },
+        {
+          "x": 1090,
+          "y": 300
+        },
+        {
+          "x": 1460,
+          "y": 360
+        }
+      ]
+    },
+    "meta": {
+      "number": 6,
+      "par": 3,
+      "yards": 199,
+      "tourAverage": 2.919,
+      "course": "Riviera Country Club",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2376s4r68s1r76s1r26s2r3s1r654s4r113s1r233s2r305s1r302s1r108s6r28s3r51f4r9f1r149f1r8f3r3f9r4f3r74s1r2s1r65f4r7f2r1f18r2f2r7f1r64s1r64s1r1f5r7f1r1f22r1f3r65s1r74f1r1s5f2r1f9r6f9r1f3r1f1r2f1r2f1r128f2r2s5r1f11r2s3r3f14r1f1r131f2r1s6r1f11r1s7r1f13r4f3r127f2s6r1f1r1f10r2s6f13r1f1r2f5r127f1r8f14r3f18r4f1r6s1r131f27r18s2r129f5r1f21r20s3r125f10r1f13r1f3r1f2s5r136f19r8f4r3f1r1s8r11s1r120f30r7s9r31s6r93f30r7f1r1s8r27s6r96f30r45s2r98f32r144f33r133f1r8f35r11f1r14f1r73s1r30f3r6f38r136f40r99s1r29f1r6f40r127f1r7f42r100s1r25f1r6f43r101s1r23f2r7f44r100s1r20f1r1f2r6f41r1f2r121f2r1f1r1f1r4f42r1f1r104s1r16f1r1f2r8f43r105s1r12f1r14f43r106s1r25f38r4f2r118f1r13f35r7f2r131f36r126f1r13f37r139f37r138f38r15f3r121f35r18f2r1f4r4f1r112f31r18f1r2f2r120f1r2f29r22f1r126f1r1f1r1f1r5f17r159f1r7f1r2f7r161f2r4f6r1f2r349f1r323f1r178f1r175f1r161f1r8f1r160f7r168f13r145s1r13f1r2f19r2f2r152f23r152f21r1f1r135s1r15f25r133s3r15f23r135s2r15f23r155f18r1f1r161f11r169f7r150s1r25f1r149s2r357s2r177s4r149"
+    }
+  },
+  "riviera:7": {
+    "image": "art-demo/riviera/hole-07.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        3.004743,
+        2.781699,
+        290
+      ],
+      "y": [
+        -2.604203,
+        -1.450518,
+        770
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 290,
+        "y": 770
+      },
+      {
+        "at": 0.711,
+        "x": 1000,
+        "y": 430
+      },
+      {
+        "at": 0.98,
+        "x": 1440,
+        "y": 195
+      },
+      {
+        "at": 1,
+        "x": 1418,
+        "y": 180
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1433,
+          "y": 190
+        }
+      ],
+      "holed": [
+        {
+          "x": 1418,
+          "y": 180
+        }
+      ],
+      "bunker": [
+        {
+          "x": 810,
+          "y": 415
+        },
+        {
+          "x": 1520,
+          "y": 215
+        }
+      ]
+    },
+    "meta": {
+      "number": 7,
+      "par": 4,
+      "yards": 408,
+      "tourAverage": 3.996,
+      "course": "Riviera Country Club",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2399s1r1s1r119s2r2s2r167s2r2s3r2s1r370s3r75f9r159f1r3f6r3f2r161f11r1f1r149s1r18f10r2s3r160f3r3f7r3s4r159f12r3s2r56s2r1s1r1s2r91f2r2f8r8s2r15s1r35s2r3s2r84f1r1f3r2f16r150f21r33s1r123f2r1f12r160f13r160f14r1f2r154f18r157f18r156f19r11s2r10s1r19s1r1s1r115f15r44s1r117f15r154f23r23s1r2s1r8s1r122f19r35s1r124f17r34s3r121f19r36s1r99f1r3f1r9f26r14f1r21s4r99f1r5s3r3f24r7f1r7f2r19s6r19s1r84s3r4f22r15f1r24s4r16s1r84s5r4f21r14f1r3s1r22s2r3s1r97s7r4f21r7f1r33s7r96s7r3f22r3f1r39s5r105f23r42s3r2s1r102f26r40s1r1s1r3s2r107f21r40s1r2s1r29s6r78f20r40s1r1s1r4s1r25s5r73f2r2f21r41s2r1s2r6s1r21s3r76f23r5f2r37s2r103f27r6f2r43s1r9s1r78f1r2f32r51s1r2s1r88f1r1f31r9f1r41s1r2s1r90f29r146f29r47s2r1s2r95f28r50s4r96f24r54s2r15s1r85f19r52s4r16s1r2s1r84f10r1f3r51s1r1s1r2s1r18s1r1s1r87f3r63s2r19s1r245f3r98s1r261f3r3f1r98s1r139s1r113f1r251s1r173s1r2s2r83f3r87s1r1s1r83f1r1f6r84s1r1s1r58f1r13f1r8f1r95s2r48s3r13f2r1f1r6f4r13f1r84s2r49f1r4f1r9f1r2f1r5f1r5f2r94s2r53f1r1f13r1f1r1f1r102s2r23s1r31f15r105s2r22s1r31f16r105s1r10s1r13s1r33f12r110s1r19s3r36f7r104s1r8s1r59f3r97s3r4s1r8s1r60f2r98s3r14s1r58f3r97s1r11s1r4s2r56f4r101s3r9s1r57f5r103s2r7s1r26s1r141s1r8s1r3s1r166s2r8s1r164s1r1s1r5s1r174s1r171s4r36"
+    }
+  },
+  "riviera:8": {
+    "image": "art-demo/riviera/hole-08.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -9.673709,
+        2.671169,
+        200
+      ],
+      "y": [
+        -4.273892,
+        -1.402169,
+        760
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 200,
+        "y": 760
+      },
+      {
+        "at": 0.67,
+        "x": 1250,
+        "y": 480
+      },
+      {
+        "at": 0.982,
+        "x": 1340,
+        "y": 183
+      },
+      {
+        "at": 1,
+        "x": 1352,
+        "y": 172
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1344,
+          "y": 179
+        }
+      ],
+      "holed": [
+        {
+          "x": 1352,
+          "y": 172
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1405,
+          "y": 433
+        },
+        {
+          "x": 815,
+          "y": 588
+        },
+        {
+          "x": 1265,
+          "y": 198
+        },
+        {
+          "x": 1450,
+          "y": 218
+        },
+        {
+          "x": 960,
+          "y": 238
+        },
+        {
+          "x": 865,
+          "y": 338
+        },
+        {
+          "x": 1020,
+          "y": 348
+        }
+      ]
+    },
+    "meta": {
+      "number": 8,
+      "par": 4,
+      "yards": 433,
+      "tourAverage": 4.093,
+      "course": "Riviera Country Club",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2364s1r1s3r175s3r176s1r65s1r166s2f4r72s2r101f9r67s2r76f2r5f2r16f8r142f1r1f3r1f3r14s2r5f8r70s1r17s1r1s1r48f9r14s2r5f6r4s1r135f5r1f3r22f4r1f1r5s1r83s3r48f6r26f8r2s4r79s1r45s2r2f9r23f11r130s1r2f7r23f2r1f13r1f1r127f9r10s1r12f15r86s2r40f15r5s1r15f14r55s1r70f9r1f2r1f3s1r1s4r16f14r120f14r1f2r1f2r2s1r2s1r2s1r12f1r1f12r126f11r2f2r3s1r1s1r13f16r78s1r49f9r5s1r2s4r1s1r10f16r60s1r17s1r37s1r8f11r6s2r2s4r9f17r28s3r88f1r6f9r1f1r7s1r5s1r7f16r34s3r87s2r2f10r9s1r2s3r7f12r1f1r125s4r1f9r4s1r11s1r5f15r38s2r88f10r4s3r16f25r118f14r18f27r109s1r5f17r17f28r8s1r107f19r13f22r1f2r11f1s1r100s1r4f20r3s1r9f20r18s1r98s1r3f22r3s2r9f16r67s1r56f1r3f15r4s2r11f15r26s1r93s1r5f1r1f1r1f17r1s1r1s3r10f13r8s5r114f20r3s1r1s1r11f10r11s6r104s1r8f17r1f1r5s3r11f11r10s5r102s1r10f17r7s1r4s1r8f15r7s7r109f17r2f1r12s1r6f15r8s5r103f5r1f18r1f1r1s1r18f22r95s2r11f25r2s1r2s3r13f22r106f1r1f1r1f23r1f1r5s1r1s1r11f2r1f25r2f4r95f3r2f1r1f19r1f2r3s1r3s1r7s1r3f1r2f31r1s2r93f24r20s2f2r1f28r1f2r71s1r18f1r2f1r3f23r4s1r5s1r11f2r1f27r56s1r19s1r15f1r2f2r1f23r12s1r12f2r1f25r94f1r4f24r10s1r1s1r9s2r2f1r2f22r102f23r3f3r19s1f2r2f23r90f2r4f26r6f1r6s1r3s1r10f1r1f22r101f21r4s2r12s1r11f24r103f19r4s3r10s1r6s1r1s3r1f2r1f16r105f6r1f16s4r19s1r1s2r1s1f2r1f20r103f1r7f12r17s1r9s1r1s1f2r1f24r85s1r13f1r8f12r4f1r9s1r14f2r2f23r85s2r13f1r8f2r1f6r19s1r9s1r1f2r11f5r5f3r1f2r80f1r1f1r1s3r9f1r11f1r4f4r20s1r9f2r52s1r52f1r2f1r2s2r29f2r18s1r12f1r2f6r95f2r4s4f1r27f1r21s2r10f1r2f7r92f1r1f2r2s4f2r50s2r1s1r2s1r5f1r1f8r95s5f6r47s4r6s1r1f2r2f16r71s1r13s4f9r45s2r1s1r6s1r2f2r2f16r75s1r8s3r1f1r3f2r52s1r5s1r3f2r2f15r87f7r52s3r8f3r1f18r85f10r49s2r10f26r79f10r6f1r55f20r85f6r66f18r76s1r2f4r2f3r2f3r64f18r2f4r73f2r1f4r72f1r3f12r80f3r1f8r8f3r47s1r15f13r76f3r2f12r5f2r2f5r10f1r37f1r11f2r2f9r62s1r9f3r1f13r4f3r1f2r6f1r38f1r6f1r12f13r46f1r23f4r1f12r30f1r4f1r4f2r1f6r15f1r13f8r1f2r2f2r67f3r2f11r5f1r35f6r18f1r13f1r1f5r10f1r2f1r63f1r2f5r2f2r42f7r31f3r7f1r12f1r63f1r1f3r39f5r4f6r32f4r130f1r358f1r466"
+    }
+  },
+  "riviera:9": {
+    "image": "art-demo/riviera/hole-09.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -4.357951,
+        2.543389,
+        250
+      ],
+      "y": [
+        10.220148,
+        -1.09329,
+        750
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 250,
+        "y": 750
+      },
+      {
+        "at": 0.633,
+        "x": 950,
+        "y": 520
+      },
+      {
+        "at": 0.983,
+        "x": 1435,
+        "y": 215
+      },
+      {
+        "at": 1,
+        "x": 1440,
+        "y": 212
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1437,
+          "y": 214
+        }
+      ],
+      "holed": [
+        {
+          "x": 1440,
+          "y": 212
+        }
+      ],
+      "bunker": [
+        {
+          "x": 810,
+          "y": 425
+        },
+        {
+          "x": 1340,
+          "y": 232
+        },
+        {
+          "x": 1500,
+          "y": 237
+        }
+      ]
+    },
+    "meta": {
+      "number": 9,
+      "par": 4,
+      "yards": 458,
+      "tourAverage": 4.024,
+      "course": "Riviera Country Club",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2334s1r358s2r58s1r185s2r2s3r362s1r7s1r73s1r172s1r121f8r161f1r1f9r2f2r159s1r2f1r1f1r91s3r53s1r22s3r1f1r1f7r1f1r1s3r1f2r72s3r1s1r66s1r2f8r1s2r3f7r1f1r1s3r1f1r83w1r65f20r1f1r3f3r147f1r1f23r1f3r1f1r152f23r100s1r52f24r24s1r76s1r40f1r1f16r1f15r136f38r111s1r31f2r1f22r2f7r144f22r1f10r110s1r23f2r2f26r1f10r112s1r31f26r1f4r144f26r4f2r81s1r49f38r1f1r4f1r126f43r110s1r24f42r122f2r11f5r1f34r67f1r51s1r3f4r1s7r1f25r1f13r130s6r2f4r1f33r48s2r4s1r73s8r1f3r3f32r1f1r49s1r65f2r1f1r3s2r4s8r1f4r1f23r2f2r2f3r68s2r2s1r9s1r37f2s15r2f4r1f21r74s1r19s1r1s1r39s8r4f3r2f24r70s1r21s4r41f9r4f26r64s1r31s3r39f5r1f32r65s3r29s2r37f3r1f1r1f34r1f1r69s2r26s1r31f9r1f38r69s1r17s2r7s2r29f9r1f35r1f2r71s1r26s2r28f8r1f36r1f2r137f39r136f40r2f2r129f1r1f38r1f2r3f2r132f38r72s4r5s1r56f39r72s1r1s2r49f2r8f1r3f38r72s1r50f53r130f44r1f1r3f2r127f44r4f1r1f1r125f45r3f2r116f54r4f2r109f61r114f62r3f1r1f1r110f20r1f35r1f9r107f21r4f39r3f2r104f26r1f1r2f3r3f1r1f1r2f13r4f1r1f3r1f3r4f1r105f13r1f17r12f3r2f2r1f5r1f4r3f1r109f2r1f39r1f2r2f1r5f1r6f1r3f3r1f1r33s1r70f3r4f6r1f19r1f1r1f33r105f1r1f1r6f4r8f32r10f1r3f4r1f1r106f1r2f16r1f16r2f9r4f1r13f1r4f1r107f17r1f1r4f21r131f20r7f4r1f1r3f1r2f1r1f1r133f18r1f2r10f3r2f1r139f19r11f3r2f3r44s1r88f1r2f21r11f3r2f1r35s1r98f1r3f18r1f1r12f3r142f19r11f3r57s1r87f5r4f4r2f1r11f5r145f2r4f6r14f4r172f4r171f3r173f2r488s1r181"
+    }
+  },
+  "riviera:10": {
+    "image": "art-demo/riviera/hole-10.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        12.750397,
+        3.554861,
+        370
+      ],
+      "y": [
+        -3.357775,
+        -1.956696,
+        820
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 370,
+        "y": 820
+      },
+      {
+        "at": 0.72,
+        "x": 900,
+        "y": 450
+      },
+      {
+        "at": 0.975,
+        "x": 1510,
+        "y": 223
+      },
+      {
+        "at": 1,
+        "x": 1492,
+        "y": 205
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1504,
+          "y": 217
+        }
+      ],
+      "holed": [
+        {
+          "x": 1492,
+          "y": 205
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1520,
+          "y": 173
+        },
+        {
+          "x": 1515,
+          "y": 303
+        }
+      ]
+    },
+    "meta": {
+      "number": 10,
+      "par": 4,
+      "yards": 315,
+      "tourAverage": 3.793,
+      "course": "Riviera Country Club",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2325s2r68s1r105s2r5s1r195s1r102s3r65s1r3s1r99s2r1s5r168s12r44s1r80s1r34f2r7f1r1s7r1f1r40s1r112f2r3f5r7s5r112s2r10s1r28f4r1f11r6s1r1f1r108s1r14s1r36f10r1f2r103s4r2s5r1s1r26f2r19f1r1f11r100s1r2s5r5s2r43f4r4f1r2f10r97s1r3s1r43f1r5f10r9f9r1f1r100s2r31f3r1f1r10f9r6f1r5f8r1f1r117s1r10s1r15f10r4f2r11f6r117s1r29f6r3f3r4s5r153f9r7s6r9f1r54s1r3s1r88f10r2s7r4s6r55s1r92f5r1f4r1s8r3s7r124f1r3f2r17f6r1f1r1f1r1f1r1s16r1f1r40s1r6s1r75f9r12f10r1f1r1f1r2s12r6f2r35s1r13s1r68f2r2f1r1f25r1f4r5s8r45s1r83f7r1f21r1f1r1f3r9s2r2f2r43s1r88f33r10f2r43s1r97f12r1f6r2f2r155f9r1f2r1f4r38s6r115f9r1f2r122s1r36f14r1f2r126f6r4f6r1f30r1f2r151f21r162f15r3f1r140f1r14f22r98s1r55f22r122f1r1f1r12f2r7f30r58s1r62f4r3f42r1f5r127f42r1f6r5f1r51s1r76f35r1f9r53s3r79f30r1f10r1f1r49s4r1s1r1s1r78f27r1f10r2f1r50s3r82f26r1f11r2f1r141f1r1f17r1f15r146f13r1f15r103s2r6f2r3f1r1f4r28f2r3f14r2f5r123f13r12f5r3f1r2f16r2f1r124f28r1s1r4f1r1f5r3f4r1f2r130f22r9f3r6f2r3f1r2f2r125f23r10f3r125f1r17f18r1f4r6f1r131f3r14f15r3f1r3f2r139f4r10f12r152f25r151f26r147f29r95s1r34f1r21f14r1f10r94s1r37f3r18f9r6f5r2f1r92s1r27f2r30f10r1f8r161f1r2f4r3f2r1f4r158f4r1f3r4f2r167f2r325f1r3f1r176f1r2f3r156f7r11f2r153f1r2f18r1f2r154f19r1f2r154f19r1f2r158f15r1f2r162f11r1f1r168f6r1f2r167f2r2f1r3f1r148f1r6f2r163s2r1f3r1f7r1f1r1f1r1f1r158s1r5f2r1f2r3f1r1f2r169f2r510"
+    }
+  },
+  "riviera:11": {
+    "image": "art-demo/riviera/hole-11.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        10.295984,
+        2.068966,
+        200
+      ],
+      "y": [
+        -16.350398,
+        -0.758621,
+        780
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 200,
+        "y": 780
+      },
+      {
+        "at": 0.497,
+        "x": 800,
+        "y": 560
+      },
+      {
+        "at": 0.883,
+        "x": 1350,
+        "y": 270
+      },
+      {
+        "at": 0.985,
+        "x": 1520,
+        "y": 165
+      },
+      {
+        "at": 1,
+        "x": 1525,
+        "y": 160
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1522,
+          "y": 163
+        }
+      ],
+      "holed": [
+        {
+          "x": 1525,
+          "y": 160
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1435,
+          "y": 175
+        },
+        {
+          "x": 1575,
+          "y": 195
+        }
+      ]
+    },
+    "meta": {
+      "number": 11,
+      "par": 5,
+      "yards": 583,
+      "tourAverage": 4.419,
+      "course": "Riviera Country Club",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2358s1r3s1r3s1r17s1r244f1r165s1r2f2r5f4r68s1r100f14r45s1r4s1r11s1r5s1r12s1r71s1r5s2r3f9r4f2r66s1r9s1r13s1r60s1r3f1r1s3r2f1r2f5r94s1r1s1r65f3r2f8r4s3r134f1r18f2r1f15r1s4r135f4r16f1r2f14r49s1r89f3r9f1r9f20r130f2r4f13r4f17r140f10r2f1r3f19r142f10r2f22r84s1r58f3r3f26r1f1r145f4r1f22r2f3r134s1r7f1r4f23r67s6r82f21r71s2r63s2r14f26r134s2r15f1r1f19r1f2r1f1r133s1r8s2r1s1r1s2r3f2r1f15r2f1r135s1r11s1r5s1r1s1r2f1r2f12r1f3r154s2r4f13r138s1r19s5r2f1r1f7r134s1r6f2r1f1r1f3r5s1r5s1r3s1r1s1r8f3r84s1r55f1r3f7r2f2r2s1r1s1r12s3r14f3r40s1r75s2r7f2r1f1r2f2r1f7r5s2r6s1r61s1r3s1r10s1r60s2r6f1r8f17r2s1r11s1r137f1r5f21r2s1r1s1r9s1r138f1r1f25r1s1r2s2r6s1r62s2r74f24r1f3r1s3r1s2r61s1r2s4r67f4r1f25r1f5r2s1r2s1r57s3r61s1r2f1r4f8r1f28r1f2r5s2r1s2r1s1r39s2r10s4r56s2r1s1r5f1r2f8r1f32r5f1r2s2r3s2r7s1r24s1r76s1r3f2r4f1r3f3r2f30r1f2r12s2r8s2r2s1r27s1r67s3r1f1r1f1r5f2r1f3r1f34r1f1r20s2r2s3r27s1r81f1r1f30r1f5r24s3r27s4r63s1r3f1r16f1r2f23r1f6r56s2r5s3r1s1r59f2r2f2r14f25r20f1r10f1r29s1r8s1r1s1r81f16r2f4r20f2r133f2r3f1r3f9r1f6r15f1r52s2r94f5r1f6r24f4r95f2r41f3r1f6r26f3r89s1r3f3r42f2r2f2r24f1r2f3r2f1r93f3r3f7r32f1r1f6r22f2r1f1r95f5r2f8r36f1r26f3r92f18r63f4r34s1r61f1r1f12r63f5r3f1r85f4r3f14r61f5r84s1r6f3r2f16r60f3r89f2r2f1r2f2r1f15r58f3r2f1r38s1r50f3r2f1r2f15r59f4r87f8r1f8r69f3r87f7r1f6r64f1r1f1r89s1r4f18r65f2r82s1r2s1r4f22r67f3r1f2r74s2r1f8r1f14r77f1r71s1r2f3r1f17r76f2r44s1r27s2r1s1f2r3f18r1f1r115s1r30s1r10f15r79f1r41s3r28f3r7f1r1f11r1f1r21f1r55f2r43s1r26f6r1f9r4f1r5f6r75f1r63s2r7f1r1f3r3f2r1f1r2f1r1f1r2f1r5f8r60f7r5f1r60s3r8f7r1f1r3f2r1f1r79f3r67s2r2f5r1f7r1f2r5f1r1f2r79f1r67s2r1f3r1f1r3f5r1f4r5f1r3f3r85f2r56s2f2r2f1r1f3r6f4r10f1r2f1r77f1r4f1r58s2f4r1f7r1f2r1f1r1f2r78f1r12f1r1f5r55s1r2f1r2f8r1f4r80f1r2f4r12f3r56s2f2r3f5r1f6r80f2r2f4r13f1r46s2r1s1r5s2r3f1r7f1r1f3r1f1r80f2r2f6r58s2r22f1r75f6r1f3r1f1r1f9r2f1r54s2r95f4r2f12r1f5r55s2r5s2r92f1r1f1r1f1r1f4r1f2r70s1r97f1r1f1r76s1r55f1r116"
+    }
+  },
+  "riviera:12": {
+    "image": "art-demo/riviera/hole-12.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -1.13899,
+        2.588959,
+        270
+      ],
+      "y": [
+        -0.700111,
+        -1.215776,
+        780
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 270,
+        "y": 780
+      },
+      {
+        "at": 0.605,
+        "x": 1050,
+        "y": 450
+      },
+      {
+        "at": 0.983,
+        "x": 1480,
+        "y": 223
+      },
+      {
+        "at": 1,
+        "x": 1495,
+        "y": 208
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1485,
+          "y": 218
+        }
+      ],
+      "holed": [
+        {
+          "x": 1495,
+          "y": 208
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1420,
+          "y": 238
+        },
+        {
+          "x": 1560,
+          "y": 253
+        }
+      ]
+    },
+    "meta": {
+      "number": 12,
+      "par": 4,
+      "yards": 479,
+      "tourAverage": 4.22,
+      "course": "Riviera Country Club",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2351s3r24s1r334s4r4s1r168s1r1s1r39s1r7s1r106w1r58s1r7s1r118w1r30s1r63f1r66s1r4s1r37s1r76f2r61s1r37s2r66f1r10f3r64w1r28s2r4s1r62f11r100s1r67f12r98s1r6s1r48f3r4s2r2f10r152f4r2f2r3s2r2f1r1f6r108s1r42f3r1f4r1f5r2f9r3s3r46s1r19s1r26s1r47s1r3s1r2f4r1f18r2s3r134s1r7s1r6s3r2f2r1f15r4f1r1f1r97s2r4s1r5s1r22s3r9s2r3s5r6f15r100s3r34s3r1s1r5s1r4s1r2s4r2s2r4f4r1f3r102s1r3s1r31s3r1s5r1s2r2s1r2s1r1s1r2s10r1f5r1f1r135s1r2s1r2s7r2s2r5s4r3s5r1s2r3f1r140f1r6s2r3s2r1s1r1s2r8s5r6s2r4s1r136f2r4s6r2s1r6s1r1s1r1s2r8s2r60s1r61s1r18f4r2s1r1s4r2s2r7s2r6s4r1s1r123f2r10f12r1s1r3s7r4s1r1s4r1s1r3s2r126f5r2f15r1f1r1s1r5s6r3s3r3s5r127f2r1f22s1r1s1r4s3r1s2r140f24r8s3r2s4r52s1r64f3r15f23r14s2r4s1r3s1r39s1r72f4r14f21r1f1r140f28r3f2r1f1r136f1r6f26r6f2r141f2r1f23r153f24r153f24r151f23r1f2r19s1r36s1r28s1r59f25r1f1r1f1r124s1r22f1r1f25r77s1r50s1r2s1r16f1r1f21r80s1r57s1r17f21r136s1r2s1r17f19r140f4r9f24r36s1r12s1r39s1r52f8r1f25r71s1r72f5r2f24r1f2r129s2r15f1r1f24r2f3r86s1r52f6r2f23r6f1r132f5r1f6r1f22r3f1r5f1r130f13r1f23r143f8r1f24r35s1r108f6r1f25r21s1r45s1r79f1r2f26r33s1r115f30r33s2r8s1r95f5r1f32r138f3r2f29r1f2r1f1r141f27r2f6r142f23r3f4r1f3r99s1r21f3r22f24r1f1r1f2r1f3r97s1r2s1r11f2r10f3r19f8r1f7r1f4r6f2r130f5r9f6r2f9r6f1r6f3r133f2r2f1r2f5r3f13r13f1r1f1r23s1r99f1r16f19r17f1r25s1r96f1r1f6r10f1r2f1r3f12r17f2r104f1r19f5r17f1r2f4r1f4r19f1r42s1r21s1r54f8r23f3r1f2r112s3r14f5r1f13r23f1r1f2r35s1r88f1r2f5r10f8r65s1r74s2r8f1r1f13r1f2r2f2r1f3r113s1r34f2r2f13r1f8r2f1r130s1r15f2r2f18r2f2r3f2r69s1r59s1r15f1r5f16r8f1r134s3r20f5r1f4r163f2r3f1r1f4r1f1r164f1r3f1r1f2r3f1r1f1r166f6r4f1r166f7r1f1r66s1r74s1r32f2r140s2r32f3r145"
+    }
+  },
+  "riviera:13": {
+    "image": "art-demo/riviera/hole-13.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        3.781566,
+        1.439392,
+        330
+      ],
+      "y": [
+        -0.178484,
+        -1.269222,
+        800
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 330,
+        "y": 800
+      },
+      {
+        "at": 0.632,
+        "x": 900,
+        "y": 430
+      },
+      {
+        "at": 0.983,
+        "x": 945,
+        "y": 240
+      },
+      {
+        "at": 1,
+        "x": 945,
+        "y": 228
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 945,
+          "y": 236
+        }
+      ],
+      "holed": [
+        {
+          "x": 945,
+          "y": 228
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1200,
+          "y": 323
+        }
+      ]
+    },
+    "meta": {
+      "number": 13,
+      "par": 4,
+      "yards": 459,
+      "tourAverage": 4.077,
+      "course": "Riviera Country Club",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2369s2r49s2r10s2r31s2r40s1r40s1r23s1r29s3r25s1r53s1r6w2r97s2r155s3r25s1r4s1r56s1r101s1r32s1r221s1r129s1r38s1r74f1r63s1r40s3r71f5r99s1r51s1r7f1r48s1r63s1r5s1r45s1r4s2r1f1r7f7r113s1r44f1r1f1r2f3r1f15r17s1r2s1r117s2r8s1r6f2r18f1r1f1r2f1r105s1r38s1r4s2r12f10r64s2r75s1r6s1r6s1r13f11r61s3r86s1r1s2r12f10r1f9r126s1r1s1r11s1r13f8r1f12r138s1r18f35r114s1r13s1r19f15r4s2r8f1r2f1r108s1r15s1r19f15r4s6r120s1r3s1r1s2r25f14r5s4r121s1r2s1r1s1r3s1r27f16r9f3r29s1r81s1r2s1r2s1r2s1r29f16r1f3r1f3r98s1r18s2r1s1r1s2r26f24r33s1r74s1r11s1r1s1r33f17r39s2r16s1r62s1r4s1r33f20r39s3r24s1r36s1r21s1r31f12r48s1r52s1r18s1r38f1r3f10r29f1r50s1r6s1r24s1r38f2r10f13r52s7r22s1r5s1r4s1r18s1r1s1r35s1r9f1r1f5r1f18r7f1r37s4r1s2r22s1r42s1r4s1r30f27r42s1r5s1r19s1r46s1r28f1r3f24r4f2r19f1r12s1r13s2r19s2r5s1r33s1r1s1r34f4r1f20r7f5r63s1r25s2r12s3r13s1r9s1f3r3f29r7f2r2f1r10f2r5f3r42s1r1s1r26s2r11s4r13s1r3s1r2f12r2f23r12f1r1s1r12f1r3f3s1r25s1r14s1r4s2r21s1r3s2r3s3r3s2r8s2r14f2r3f25r39f1r23s1r16s1r14s1r2s2r12s1r2s1r5s7r4s1r16f28r76s2r19s4r4s2r5s1r1s1r3s2r2s4r5s1r1s1r8f1r9f24r17s1r60s1r5s1r13s1r2s2r4s5r6s4r1s3r4s3r5f4r3f2r2f27r101s1r1s1r1s1r4s2r6s2r1s1r2s4r18f2r1f11r2f3r1f12r104s5r10s5r13f3r2f2r3f17r3f10r105s1r14s4r23f30r105s1r12s3r24f17r3f11r102s1r3s1r2s1r6s6r1s2r19f33r104s2r1s4r1s9r11f2r4f1r4f28r111s5r4s3r13f5r1f29r56s1r5s1r66s4r11f2r1f2r2f29r64s1r51s2r8s1r10f3r3f2r2f13r2f1r1f3r66s4r56s1r1s4r12f3r4f2r3f8r1f15r61s3r45s1r13s5r1s2r1s1r13f6r1f30r74f1r32s1r8s5r18f1r5f7r22f10r47s1r44s2r17s2r8f3r1f3r6f1r1f8r27f1r58s2r56s3r12f4r4f15r38f1r43s2r76f14r1f11r30f1r81s2r15s1r7f8r3f30r31s1r1f1r39s1r50s3r6f1r1f1r8f29r1f1r35f2r102f1r3f19r4f6r43f1r84s3r1f1r10f24r5f5r124s4r1f6r4f15r1f11r7f1r7f3r1f1r33f1r80s2r2f4r3f2r1f2r9f3r1f1r3f9r14f13r107s1r1f4r1f1r14f4r10f2r1f2r16f1r1f9r5f5r99f2r2f1r5f11r3f2r9f2r5f2r7f1r8f6r7f3r5f2r14f2r77f1r2f1r6f9r1f1r6f1r33f3r2f2r31f1r73f1r2f1r1f1r7f9r17f1r69s1r78f11r75f7r5s1f3r74f8r83f1r6f1r2f3r1f1r4s2r40s4r5f1r12f1r10f1r26f1r61f4r1f2r7s1r1s1r39s3r2s2r2f3r6f11r94f1r51s2r6f2r10f10r141s2r1s4r5f1r10f12r141s4r2s2r13f1r2f10r145s3r21f1r15f1r134s2r39f2r174f1r73f1r1f2r236"
+    }
+  },
+  "riviera:14": {
+    "image": "art-demo/riviera/hole-14.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0.087907,
+        5.713542,
+        330
+      ],
+      "y": [
+        -15.150168,
+        -2.96875,
+        720
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 330,
+        "y": 720
+      },
+      {
+        "at": 0.958,
+        "x": 1400,
+        "y": 303
+      },
+      {
+        "at": 1,
+        "x": 1427,
+        "y": 270
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1409,
+          "y": 292
+        }
+      ],
+      "holed": [
+        {
+          "x": 1427,
+          "y": 270
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1190,
+          "y": 303
+        },
+        {
+          "x": 1545,
+          "y": 353
+        }
+      ]
+    },
+    "meta": {
+      "number": 14,
+      "par": 3,
+      "yards": 192,
+      "tourAverage": 3.004,
+      "course": "Riviera Country Club",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2327s1r37s2r4s2r5s1r50s1r10s1r61s1r1s1r34s1r2s1r75s1r3s2r3s1r53s1r7s3r19s1r2s3r2s1r2s2r51s1r81s1r1s1r5s1r10s3r12s2r5s1r1s1r134s1r6s1r5s1r6s1r168s1r177s1r5s1r3s1r4s4r2s1r3s1r152s2r3s1r2s1r8s1r5s3r159s1r16s1r1s1r176s1r2s1r3s1r130s1r111f1r4f2r59s2r106f5r1f1r6f5r50s3r1s1r4s1r51s1r54f1r4f2r1f1r2f3r47s5r1s4r13s1r37s1r43f11r10f6r44s2r2s5r1s4r2s1r3s1r4s1r36s2r35f16r1f9r5f4r44s1r1s2r2s4r1s2r7s1r76f17r1f11r2f1r1f4r41s1r4s1r2s4r79s5r3f12r1f19r1f2r132s7r2f29r1f2r2f1r134s5r4f29r1f3r139f1r5f27r117f1r1f1r24f4r4f19r125f2r1f6r17f3r9f10r6f1r3s1r3s1r101f1r9f3r4f1r3f1r9f3r2f6r8f2r5f5r6s4r2s2r98f2r14f6r1f8r5f12r10f8r5s8f2r10s1r83f2r19f1r1f3r2f2r3f34r1f2r12f2r9s1r7s2r4s1r88f1r1f2r1f1r1f41r9f3r14s1r6s3r31s1r54f2r1f1r1f1r3f42r37s4r30s1r62f38r42s2r94f20r94s1r60f19r20f2r135f16r160f22r153f21r63s1r90f21r153f1r1f31r57s1r54s1r27f3r2f27r73s1r64f1r3f2r4f27r72s2r70f3r1f40r4f2r55s2r2s1r56f5r2f2r1f2r1f41r59s1r1s3r57f1r4f51r61s4r44s1r18f2r1f41r67s1r44s1r20f39r118s1r13f1r3f30r129s1r16f27r145f1r1f27r150f3r1f1r2f21r1f1r148f1r2f2r2f19r147f1r4f1r3f2r3f14r93s1r46f4r4f5r2f1r5f2r3f6r99s1r41f1r1f2r4f4r1f3r4f1r1f1r5f4r144f1r6f2r1f1r1f1r1f1r2f1r1f2r1f1r4f2r149f1r2f1r1f1r4f4r4f1r6f2r147f9r4f3r5f2r158f1r5f1r154f2r4f2r14f2r6f2r143f2r2f10r1f1r14f2r134s1r7f3r2f17r1f3r128s1r11s1r4f2r2f3r2f17r2f2r138s2r7f1r2f2r2f8r1f8r2f4r137s1r6f1r2f3r2f17r2f2r131s1r16f4r2f8r1f8r2f3r112s1r34f4r2f17r2f3r112s1r1s1r33f3r2f17r2f2r136s1r9f6r1f18r2f1r119s1r30f22r148s1r6f2r1f2r1f14r125s1r29f1r7f2r3f8r168f7r1f1r145s2r26f4r145s1r2s1r178s1r176s1r1s3r175s1r1s3r176s6r175s5r155"
+    }
+  },
+  "riviera:15": {
+    "image": "art-demo/riviera/hole-15.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.426728,
+        2.76757,
+        270
+      ],
+      "y": [
+        -0.847989,
+        -1.203917,
+        750
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 270,
+        "y": 750
+      },
+      {
+        "at": 0.595,
+        "x": 950,
+        "y": 470
+      },
+      {
+        "at": 0.984,
+        "x": 1520,
+        "y": 215
+      },
+      {
+        "at": 1,
+        "x": 1525,
+        "y": 204
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1522,
+          "y": 211
+        }
+      ],
+      "holed": [
+        {
+          "x": 1525,
+          "y": 204
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1190,
+          "y": 380
+        },
+        {
+          "x": 1535,
+          "y": 255
+        }
+      ]
+    },
+    "meta": {
+      "number": 15,
+      "par": 4,
+      "yards": 487,
+      "tourAverage": 4.138,
+      "course": "Riviera Country Club",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2397s2r2s3r64s1r1s2r587s1r19s1r71f2r82s2r58s1r27f4r180f4r2f1r158f8r2f8r13f2r58s1r90f3r4f17r1f2r1f1r34s1r5s2r16s3r26s1r61f1r5f1r3f12r2f1r39s3r1s2r16s3r87f10r2f3r14f2r80s4r1s1r48f2r1f1r4f17r6s2r46s2r42s1r1s1r50f24r4s4r7f1r36s1r4s1r1s5r84f25r1f3r2s5r5f3r47s2r78f26r5f2r8f4r45s1r2s1r79f25r7f1r2f1r5f2r134f21r2f1r8f1r69s1r70f2r1f18r32f1r119f22r3f1r147f26r1f2r44s1r46s1r57f21r6f2r91s1r56f17r1f1r144f8r5f14r2f1r7s4r139f4r1f21r3s8r114f1r26f3r1f18r1f1r4s6r105s2r27f2r3f6r1f21r5s5r102s5r36f2r1f21r1s10r51s2r94f19r2s8r148f19r158f17r134s1r20f23r58s2r89f1r6f22r55s3r2f4r71s1r17f25r59f3r73f3r15f25r3f2r130f5r10f28r2f3r133f1r12f31r133f2r3f1r6f1r1f27r1f2r138f6r2f31r139f32r3f2r124f2r9f1r3f32r3f3r127f3r2f37r5f1r130f1r1f38r4f2r133f36r103s2r37f32r1f1r4f1r137f31r147f25r2f1r4f1r64s1r80f20r1f2r156f6r8f2r158f10r1f3r83s1r36s2f1r31f2r1f1r2f1r5f3r132f3r30f6r1f4r128s1r45f1r75s1r31s1r21s2r121s1r232s2r387f1r308s2r179f14r138s1r24f11r1f1r151s3r11f9r168f9r150s3r7f1r9f6r2f1r160f4r6f3r1f2r164f12r147s1r10f2r14f1r1561"
+    }
+  },
+  "riviera:16": {
+    "image": "art-demo/riviera/hole-16.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -5.157851,
+        5.795181,
+        350
+      ],
+      "y": [
+        -21.411708,
+        -3.26506,
+        720
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 350,
+        "y": 720
+      },
+      {
+        "at": 0.952,
+        "x": 1300,
+        "y": 328
+      },
+      {
+        "at": 1,
+        "x": 1312,
+        "y": 298
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1304,
+          "y": 318
+        }
+      ],
+      "holed": [
+        {
+          "x": 1312,
+          "y": 298
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1230,
+          "y": 265
+        },
+        {
+          "x": 1150,
+          "y": 320
+        },
+        {
+          "x": 1165,
+          "y": 370
+        },
+        {
+          "x": 1330,
+          "y": 415
+        },
+        {
+          "x": 1455,
+          "y": 375
+        },
+        {
+          "x": 1420,
+          "y": 285
+        }
+      ]
+    },
+    "meta": {
+      "number": 16,
+      "par": 3,
+      "yards": 166,
+      "tourAverage": 2.98,
+      "course": "Riviera Country Club",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2342s1r1s1r6s1r7s1r158s1r2s1r13s1r94s1r253s1r18s1r91s1r1s1r63s2r110s4r171s4r2f1r173s1r342s1r156s1r172f1r1f1r33s1r145f1r33s1r42s1r15s1r71s2r3f1r3f2r35s1r41s3r11s1r9s2r60s7r4f3r101s1r61s5r12s5r5f1r85s1r63s4r3f4r1f1r5s6r83s1r72f1r1f11r4s7r1f1r74s1r1s4r3s4r54s4r5f1r2f12r2f1s8r4f1r69s1r1s5r4s2r42f1r11s9r3f14r36s1r51s3r58s10r3f15r16f1r1s1r70s1r59s5r4f2r1f13r8s4r10s1r68s1r69f1r3f13r6s6r4f1r138s5r6f11r4s10r3f1r136s7r4f2r2f5r8s10r2f1r133f1r1s10f1r18s10f1r138s8r20s10r2f1r133f3r3s1r9s5r11s9r1f2r132f2r5f1r2f3r4s14r3s8r1f1r137f2r10s16r3s7r125f6r7f8r5s17r4s4r1f1r128f19r4s16r7f2r129f22r7s7r142f24r5f4r1f1r2f1r140f24r7f1r109s1r36f26r115s1r27f2r4f29r142f37r137f3r1f36r3f1r125f6r3f39r5f1r122f47r25s1r103f46r128f48r34s1r96f43r37s1r41s1r1s1r35f1r18f38r1f1r134f2r1f35r1f1r39s1r102f31r46s1r99f26r51s1r41s1r45f1r13f22r100f4r9f1r42f17r110f1r1f1r42f3r2f14r1f1r153f1r3f16r121f2r34f1r1f3r1f11r110f2r13f1r2f1r36f5r1f1r114f10r10f1r145f2r3f1r2f2r1f15r18f1r131f2r6f15r2f3r149f1r2f2r2f16r2f2r155f21r155f22r154f22r157f19r160f1r1f14r160f1r1f1r3f11r150s1r19f5r2f1r147s5r173s5r175s2r1244s1r328"
+    }
+  },
+  "riviera:17": {
+    "image": "art-demo/riviera/hole-17.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -5.707831,
+        2.023536,
+        290
+      ],
+      "y": [
+        5.544995,
+        -0.98045,
+        770
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 290,
+        "y": 770
+      },
+      {
+        "at": 0.492,
+        "x": 800,
+        "y": 560
+      },
+      {
+        "at": 0.873,
+        "x": 1300,
+        "y": 320
+      },
+      {
+        "at": 0.985,
+        "x": 1480,
+        "y": 200
+      },
+      {
+        "at": 1,
+        "x": 1480,
+        "y": 200
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1480,
+          "y": 200
+        }
+      ],
+      "holed": [
+        {
+          "x": 1480,
+          "y": 200
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1395,
+          "y": 217
+        },
+        {
+          "x": 1245,
+          "y": 460
+        }
+      ]
+    },
+    "meta": {
+      "number": 17,
+      "par": 5,
+      "yards": 590,
+      "tourAverage": 4.606,
+      "course": "Riviera Country Club",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2366s1r39s1r6s1r102s1r17s2r10s1r25w2r8s1r107s1r1s3r65s1r106s1r7s2r165s2r190s2r37s1r168w1r96s1r28s1r115f12r1f1r43s1r29s1r82s3r17f1r77s1r73f1r5s4r3f1r3f2r163f1r5f4r1f4r71f1r80f6r6f9r76s1r79f8r3f11r155f2r4f1r1f14r158f2r1f18r116s2r39f18r145f1r1f6r3f19r25s1r3s1r31f12r78f2r2f22r61f10r2f2r66f1r9f18r26s1r43f1r1f6r70f4r5f21r67f2r5f2r72f4r1f26r65f2r68f5r8f26r69f1r59f1r1f2r3f10r2f27r71f3r61f1r5f35r144f32r28s1r11s1r104f29r67f3r64f3r10f30r44s1r22f1r1f1r58f2r8f5r2f36r67f2r52f1r1f1r11f33r4f1r3f7r62f1r54f9r2f29r141f2r1f32r4s5r9f1r110f1r2f1r3f1r1f1r3f30r8s7r44s2r79f4r1f30r6s10r41s2r1s2r71f1r9f33r3s10r46s1r2s1r67f3r12f31r5s7r45s2r1s1r70f2r3f2r1f6r1f32r140f40r124f1r16f37r1f1r63s3r53f2r15f37r68s1r54f1r6f1r2f1r5f38r62s1r14s2r1s1r44f1r11f38r1f3r74s2r39f1r2f4r1f4r6f36r67s1r57f1r12f39r128f1r8f36r136f1r2f39r134f28r1f2r1f8r121f4r11f27r7f6r124f2r3f4r2f28r9f3r1f5r7f2r119f31r18f7r120f30r145f32r21f4r118f33r18f4r1f4r47s1r24s1r43f32r17f10r114f33r20f4r120f28r1f4r23f3r77s1r41f7r1f12r6f1r2f6r97s1r25s6r8f2r4f2r1f2r25f4r122s3r20f9r136s8r28f10r129s7r14f1r20f5r128s6r10f2r9f2r139s1r8s4r10f1r7f4r2f3r72f1r6f7r2f3r27f3r26s2r8f11r3f3r1f5r1f1r66f2r2f1r4f8r59s2r8f11r3f4r1f6r75f10r38f2r16s2r6f3r1f9r9f1r1f6r73f5r45f1r6s1r4s1r2s2r6f13r15f4r1f2r70f2r60s2r6f13r7f1r17f2r126s3r12f6r1f1r152s3r19f1r64s1r87s3r172s3r36f1r135s3r173s2r175s1r353"
+    }
+  },
+  "riviera:18": {
+    "image": "art-demo/riviera/hole-18.webp?v=1",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0.539789,
+        2.245149,
+        220
+      ],
+      "y": [
+        -2.7001,
+        -1.061119,
+        780
+      ]
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 220,
+        "y": 780
+      },
+      {
+        "at": 0.581,
+        "x": 850,
+        "y": 560
+      },
+      {
+        "at": 0.984,
+        "x": 1350,
+        "y": 273
+      },
+      {
+        "at": 1,
+        "x": 1340,
+        "y": 262
+      }
+    ],
+    "targets": {
+      "green": [
+        {
+          "x": 1347,
+          "y": 269
+        }
+      ],
+      "holed": [
+        {
+          "x": 1340,
+          "y": 262
+        }
+      ],
+      "bunker": [
+        {
+          "x": 1165,
+          "y": 458
+        },
+        {
+          "x": 1210,
+          "y": 393
+        },
+        {
+          "x": 1305,
+          "y": 363
+        }
+      ]
+    },
+    "meta": {
+      "number": 18,
+      "par": 4,
+      "yards": 499,
+      "tourAverage": 4.142,
+      "course": "Riviera Country Club",
+      "framed": true
+    },
+    "mask": {
+      "cell": 10,
+      "cols": 177,
+      "rows": 88,
+      "rle": "r2352s1r96s4r1s1r162s1r3s1r1s3r1s2r4s4r145s1r13s5r1s1r152s3r1s2r16s3r22s1r130s1r22s1r17s3r130s4r3s1r36s3r132s1r76s1r3s2r121s5r63s1r28s2r1s2r78s2r90s1r1s1r41s1r9f1r32s1r84s1r2s1r44s2r7f2r29f2r6s1r43s1r3s1r85f3r30f3r7s1r1s1r1s3r114f1r12f2r14f12r4f1r16s1r114f1r18f1r7f17r154f21r145f7r2f1r2f15r151f2r1f8r92s1r73f6r6f1r85s1r79f10r3f2r164f15r155f2r4f19r2f1r146f1r6f9r12f7r146f10r2f3r4s1r5f2r3f2r142f14r1f2r4s6r1f1r5f2r133f20r7s6r55s1r81f1r4f21r2s2r1f3r58s2r86f21r3s2r2f2r55s1r3s3r83f24r1s5r57s1r1s2r84f24r68s1r76f5r1f29r147f26r5f1r6f1r141f21r4s2r1f2r3f4r141f20r1s6r1f1r6f2r3f1r140f16r1s4r1f1r10f1r1f1r52s2r2s1r8s1r1s1r75f13r19f1r54s1r90f7r1f4r14f1r58s1r1s1r86f10r18f1r152f5r174f3r332f8r14f1r150f27r156f17r1f2r163f13r12f1r154f9r170f2r1f2r158f1r12f1r170f2r2f1r118s1r2f1r1f1r155f9r17f1r29f1r11f1r106f1r2f4r7f3r21f3r19f4r116f1r3s4r9f2r14f6r20f4r119f1r11f4r11f11r13f1r2f7r109s2r7f1r13f1r2f3r4f19r1f4r1f8r110s3r4s2r2f2r2f1r1f1r1f1r8f20r1f16r126f31r6f2r5f5r125f3r5f26r13f2r141f21r14f2r1f1r2f2r113f2r15f3r4f14r21f2r129f1r3f1r11f8r20f1r129f1r6f1r14f5r11f1r120s1r1f2r16f5r17f1r22f1r1f1r114f1r3f8r5f2r15f3r1f1r20f2r101s1r16f12r21f1r2f1r21f1r104f1r10f13r1f1r10f1r12f1r1f1r22f1r107s2r2f13r51f1r109f14r161f2r1f11r2f1r162f10r2f1r165f1r2f4r174f1r867"
+    }
   }
 }
