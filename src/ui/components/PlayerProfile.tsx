@@ -97,7 +97,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
   };
 
   return (
-    <div className="player-page" role="dialog" aria-modal="true" aria-labelledby="profile-title">
+    <div className="player-page" role="dialog" aria-modal="true" aria-labelledby="profile-title" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="player-page-inner">
         <button className="btn btn-small player-back" onClick={onClose}><span aria-hidden>←</span> Back</button>
         <div className="pp-layout">
