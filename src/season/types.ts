@@ -307,6 +307,8 @@ export interface RivalAgency {
   moves: string[];
   /** -100 (hostile) to 100 (friendly): how its head agent feels about you (older saves: 0). */
   relationship?: number;
+  /** Players it has lost to you lately (each counts for less every season): a rival you keep raiding shrinks. */
+  lostToYou?: number;
 }
 
 export interface WorldPlayer {

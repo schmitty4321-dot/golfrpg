@@ -20,6 +20,7 @@ import {
   potentialEstimate,
   rankMap,
   toggleShortlist,
+  rivalCapacity,
   type Trophy,
   type World,
 } from "../../season";
@@ -160,7 +161,7 @@ function RivalAgencies({ world }: { world: World }) {
               <article className="rival-card" key={rival.name}>
                 <div className="rival-card-head"><span className="agency-crest">{crest(rival.name)}</span><strong>{rival.name}</strong></div>
                 <div className="rival-agent"><Portrait player={{ id: `staff-${rival.name}`, nationality: "USA", age: 55 }} {...(agentOf(rival.name).portrait ? { index: agentOf(rival.name).portrait } : {})} size={118} title={agentOf(rival.name).agent} /><div><strong>{agentOf(rival.name).agent}</strong><span className={`relationship ${(rival.relationship ?? 0) <= -20 ? "hostile" : (rival.relationship ?? 0) >= 20 ? "friendly" : "neutral"}`}>{relationshipWord(rival.relationship ?? 0)} ({Math.round(rival.relationship ?? 0)})</span></div></div>
-                <dl><div><dt>Reputation</dt><dd>{Math.round(rival.reputation)}</dd></div><div><dt>Players</dt><dd>{players}/{style.capacity}</dd></div><div><dt>Dev deals</dt><dd>{deals}</dd></div></dl>
+                <dl><div><dt>Reputation</dt><dd>{Math.round(rival.reputation)}</dd></div><div><dt>Players</dt><dd>{players}/{rivalCapacity(rival)}</dd></div><div><dt>Dev deals</dt><dd>{deals}</dd></div></dl>
                 <div className="rival-style" title={style.blurb}><span>{styleIcon(rival.style)}</span><div><strong>{style.label}</strong><small>{style.blurb}</small></div></div>
                 <div className="small rival-moves">
                   {rival.moves.length === 0 ? (
