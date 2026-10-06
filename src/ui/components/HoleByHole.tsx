@@ -8,6 +8,7 @@ import {
   holeLayout,
   liveBoard,
   markAsked,
+  noteYourCall,
   nextDecisions,
   playLiveHole,
   traceHole,
@@ -102,6 +103,7 @@ export function HoleByHole({ t, who = t.controlledId, name, onChange, onRoundDon
   function play() {
     const call = Object.keys(calls).length ? calls : null;
     markAsked(t, who, decisions.map((d) => d.kind));
+    if (call) noteYourCall(t, who);
     const p = playOne(call);
     setPlayed(p);
     setStep(0);

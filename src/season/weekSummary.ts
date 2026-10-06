@@ -128,7 +128,8 @@ export function weekSummary(world: World, report: WeekReport): WeekSummary {
         if (!worst || d > worst.toPar) worst = { round: r + 1, hole: h + 1, toPar: d };
       }),
     );
-    const callsMade = (row.calls ?? []).flat().filter((c) => c && Object.keys(c).length).length;
+    // Your own calls only: the round plan's automatic choices aren't yours.
+    const callsMade = row.yourCalls ?? 0;
     const c = wp.client;
     const goals = (c.goals ?? []).map((g) => {
       const p = goalProgress(world, wp, g);

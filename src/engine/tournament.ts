@@ -43,6 +43,8 @@ export interface PlayerEventResult {
   sgPerRound: number;
   /** The calls made for a player played hole by hole, by round and hole (null: his own call). */
   calls?: (HoleCall | null)[][];
+  /** Holes where you made the call yourself (not his round plan). */
+  yourCalls?: number;
 }
 
 export interface TournamentResult {
@@ -70,6 +72,8 @@ interface Entry {
   playoffStrokes: number;
   weekForm: number;
   calls?: (HoleCall | null)[][];
+  /** Holes where you made the call yourself (not his round plan). */
+  yourCalls?: number;
 }
 
 const total = (e: Entry) => e.rounds.reduce((s, x) => s + x, 0);
@@ -241,6 +245,7 @@ function rank(entries: Entry[], par: number, purse: number): PlayerEventResult[]
         sg,
         sgPerRound: sgTotal / x.rounds.length,
         ...(x.calls ? { calls: x.calls } : {}),
+        ...(x.yourCalls ? { yourCalls: x.yourCalls } : {}),
       });
     }
     i = j;
@@ -760,11 +765,18 @@ export function answerMoment(t: LiveTournament, m: Moment, call: HoleCall | null
   }
   const key = `${m.id}:${m.round}`;
   t.stops[key] = (t.stops[key] ?? 0) + 1;
+  if (c) noteYourCall(t, m.id);
   markAsked(t, m.id, m.decisions.map((d) => d.kind));
   // Questions you weren't asked on this hole go by his plan.
   const planned = planCall(t.plans[m.id] ?? "steady", nextDecisions(t, m.id, false).filter((d) => !m.decisions.some((x) => x.kind === d.kind)));
   const merged = planned || c ? { ...planned, ...c } : null;
   return playLiveHole(t, merged && Object.keys(merged).length ? merged : null, m.id);
+}
+
+/** Counts a hole where you made the call yourself (the week's review shows how many). */
+export function noteYourCall(t: LiveTournament, id: string): void {
+  const e = entryOf(t, id);
+  e.yourCalls = (e.yourCalls ?? 0) + 1;
 }
 
 /** Plays whatever is left (rounds and holes) as the plans say, and closes the tournament. */
