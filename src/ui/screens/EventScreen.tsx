@@ -82,7 +82,7 @@ function EventHeader({ event, course, week, players, hasCut, status, compact, ch
 }
 
 function LiveWeekView({ world, game, lw }: { world: World; game: Game; lw: LiveWeek }) {
-  if (lw.mode === "moments") return <MomentsView world={world} game={game} lw={lw} />;
+  if (lw.mode === "moments" || lw.mode === "broadcast") return <MomentsView world={world} game={game} lw={lw} />;
   return <FollowView world={world} game={game} lw={lw} />;
 }
 

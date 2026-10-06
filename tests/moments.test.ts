@@ -237,4 +237,18 @@ describe("live weeks", () => {
     }
     throw new Error("no seed put two clients in one event");
   });
+
+  it("with no calls left, a round plays through without stopping, exactly as the plans would", () => {
+    const x = startLive(config(), [a, b, c]);
+    const y = startLive(config(), [a, b, c]);
+    for (const t of [x, y]) {
+      startLiveRound(t);
+      autoFinishRound(t);
+      startLiveRound(t);
+    }
+    const r = nextMoment(x, { stops: false });
+    expect(r.moment).toBeNull();
+    autoFinishRound(y);
+    expect(rows(x, [])).toEqual(rows(y, []));
+  });
 });

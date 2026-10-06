@@ -23,9 +23,10 @@ import {
   type LiveTournament,
   type Moment,
   type Course,
+  type RoundPlan,
 } from "../../engine";
 import type { LiveEvent, World } from "../../season";
-import type { Game, LiveWeek } from "../useGame";
+import { CALLS_PER_ROUND, type Game, type LiveWeek } from "../useGame";
 import { toPar } from "../format";
 import { useHoleMap } from "../holeMaps";
 import { HoleDrawing, ShotSequence } from "./ShotTracer";
@@ -55,6 +56,56 @@ function roundScores(t: LiveTournament, id: string, round: number): number[] {
   return t.entries.find((e) => e.player.id === id)?.holes[round - 1] ?? [];
 }
 
+/** Where a client stands after the last round played (null before round 1 or once he's out). */
+function standing(t: LiveTournament, id: string): { position: number; label: string; back: number } | null {
+  if (t.round < 1 || inRound(t) || !clientActive(t, id)) return null;
+  const rows = standingsAfterRound(liveSnapshot(t), t.round);
+  const r = rows.find((x) => x.player.id === id);
+  if (!r) return null;
+  return { position: r.position, label: r.positionLabel, back: r.toPar - rows[0]!.toPar };
+}
+
+/**
+ * The plan your caddie would pick for the next round, and why: protect a
+ * place inside the cut line or a lead, attack when he needs birdies, else steady.
+ */
+export function suggestPlan(t: LiveTournament, id: string): { plan: RoundPlan; why: string } | null {
+  const st = standing(t, id);
+  if (!st) return null;
+  const next = t.round + 1;
+  const cutTop = t.config.cutTop;
+  if (next === 2 && cutTop !== undefined) {
+    if (st.position > cutTop + 5) return { plan: "attack", why: `${st.label} after round 1: he needs birdies to make the cut` };
+    if (st.position > cutTop - 15) return { plan: "protect", why: `${st.label}: around the cut line, no big numbers` };
+    return { plan: "steady", why: `${st.label}: safely inside the cut line` };
+  }
+  if (next === 3) {
+    if (st.back >= 6 && st.position > 10) return { plan: "attack", why: `${st.back} back at halfway: he needs a move on Saturday` };
+    return { plan: "steady", why: `${st.label}, ${st.back <= 0 ? "leading" : `${st.back} back`}` };
+  }
+  if (next === 4) {
+    if (st.back <= -2) return { plan: "protect", why: `Leads by ${-st.back}: make them come to him` };
+    if (st.back >= 3 && st.back <= 7) return { plan: "attack", why: `${st.back} back going into Sunday: he has to go and get it` };
+    return { plan: "steady", why: st.back <= 2 ? `${st.back <= 0 ? "In the lead" : `${st.back} back`}: play his game` : `${st.label}: a solid finish` };
+  }
+  return null;
+}
+
+/** Whether broadcast mode goes live for the next round: Friday with a client near the cut line, Sunday with one in the top 10. */
+function liveWorthy(events: LiveEvent[], next: number): string | null {
+  for (const e of events) {
+    const t = e.tournament;
+    for (const id of e.clientIds) {
+      const st = standing(t, id);
+      if (!st) continue;
+      const cutTop = t.config.cutTop;
+      if (next === 2 && cutTop !== undefined && st.position >= cutTop - 15 && st.position <= cutTop + 20) return "a client is around the cut line";
+      if (next === 4 && st.position <= 10) return `a client is ${st.label} going into Sunday`;
+    }
+  }
+  return null;
+}
+
 const eventDone = (t: LiveTournament) => t.round >= 4 && !inRound(t) && !pendingPlayoff(t).length;
 const stillIn = (e: LiveEvent) => e.tournament.round < 2 || e.clientIds.some((id) => clientActive(e.tournament, id));
 
@@ -72,6 +123,7 @@ export function stakeWords(s: HoleSituation, playoff = false): string {
  * call; the hole then plays out in the tracer.
  */
 export function MomentsView({ world, game, lw }: { world: World; game: Game; lw: LiveWeek }) {
+  const broadcast = lw.mode === "broadcast";
   const [moment, setMoment] = useState<{ ev: number; m: Moment } | null>(null);
   const [calls, setCalls] = useState<HoleCall>({});
   const [replay, setReplay] = useState<Replay | null>(null);
@@ -81,6 +133,10 @@ export function MomentsView({ world, game, lw }: { world: World; game: Game; lw:
   const round = Math.max(...events.map((e) => e.tournament.round));
   const allDone = events.every((e) => eventDone(e.tournament));
   const playing = events.some((e) => inRound(e.tournament));
+  // Broadcast: a few calls a round across all your clients (letting him play it his way is free).
+  const callsLeft = broadcast ? Math.max(0, CALLS_PER_ROUND - (lw.callsUsed?.[round] ?? 0)) : Infinity;
+  const nextRound = round + 1;
+  const goLive = broadcast && !playing && !allDone ? liveWorthy(events, nextRound) : null;
 
   useEffect(() => {
     if (!replay || step >= replay.trace.shots.length) return;
@@ -89,14 +145,14 @@ export function MomentsView({ world, game, lw }: { world: World; game: Game; lw:
   }, [replay, step]);
 
   /** Plays on to the next moment in any event (or the end of the round). */
-  function advance() {
+  function advance(stops = callsLeft > 0) {
     let found: { ev: number; m: Moment } | null = null;
     const lines: string[] = [];
     game.liveAct((evs) => {
       for (let i = 0; i < evs.length && !found; i++) {
         const t = evs[i]!.tournament;
         if (!inRound(t) && !pendingPlayoff(t).length) continue;
-        const { ticker: played, moment: m } = nextMoment(t);
+        const { ticker: played, moment: m } = nextMoment(t, { stops });
         for (const item of played) {
           const line = tickerLine(world, item);
           if (line) lines.push(line);
@@ -159,6 +215,9 @@ export function MomentsView({ world, game, lw }: { world: World; game: Game; lw:
     const hole = course.holes[m.index]!;
     const wave = t.live[m.id]?.wave ?? "PM";
     let score: number | null = null;
+    // Your own call spends one of the round's calls (a playoff call is always yours to make).
+    const spends = broadcast && !m.playoff && !!call && Object.keys(call).length > 0;
+    if (spends) game.spendCall(m.round);
     game.liveAct(() => {
       score = answerMoment(t, m, call);
     });
@@ -169,7 +228,7 @@ export function MomentsView({ world, game, lw }: { world: World; game: Game; lw:
       setStep(0);
       setMoment(null);
     } else {
-      advance();
+      advance(callsLeft - (spends ? 1 : 0) > 0);
     }
   }
 
@@ -193,6 +252,7 @@ export function MomentsView({ world, game, lw }: { world: World; game: Game; lw:
           calls={calls}
           setCalls={setCalls}
           odds={odds}
+          callsLeft={broadcast ? callsLeft : null}
           onPlay={() => answer(Object.keys(calls).length ? calls : null)}
           onPlan={() => answer(planCall(current.plans[moment.m.id] ?? "steady", moment.m.decisions))}
         />
@@ -220,27 +280,51 @@ export function MomentsView({ world, game, lw }: { world: World; game: Game; lw:
       <section className="panel">
         <div className="panel-head">
           <div>
-            <h2>Week {world.week}: key moments</h2>
+            <h2>Week {world.week}: {broadcast ? "broadcast" : "key moments"}</h2>
             <span className="secondary small">
               {round === 0 ? "Before round 1" : allDone ? "Final round done" : playing ? `Round ${round} in progress` : `After round ${round}`}
             </span>
           </div>
-          <span className="muted small">Stops for the cut line, weekend contention and playoffs</span>
+          <span className="muted small">
+            {broadcast
+              ? playing
+                ? `Your calls this round: ${callsLeft} of ${CALLS_PER_ROUND} left`
+                : "Quiet rounds sim to a recap; Friday's cut line and Sunday's contention go live"
+              : "Stops for the cut line, weekend contention and playoffs"}
+          </span>
         </div>
-        <ClientStrip world={world} game={game} events={events} editable={round === 0} />
+        {playing && <LiveLeaders world={world} events={events} />}
+        <ClientStrip world={world} game={game} events={events} editable={round === 0 || (!playing && !allDone)} suggest={round >= 1 && !playing && !allDone} />
         <div className="btn-row" style={{ marginTop: 12 }}>
-          {!moment && !replay && !playing && !allDone && (
+          {broadcast && !moment && !replay && !playing && !allDone && (
+            <>
+              {goLive ? (
+                <>
+                  <button className="btn btn-primary" onClick={startRound} title={`Live because ${goLive}`}>Round {nextRound}: watch live</button>
+                  <button className="btn" onClick={simWholeRound}>Sim round {nextRound}</button>
+                </>
+              ) : (
+                <>
+                  <button className="btn btn-primary" onClick={simWholeRound}>Sim round {nextRound}</button>
+                  <button className="btn" onClick={startRound}>Watch round {nextRound} live</button>
+                </>
+              )}
+              <button className="btn" onClick={() => game.setLiveMode("follow")}>Hole by hole</button>
+            </>
+          )}
+          {!broadcast && !moment && !replay && !playing && !allDone && (
             <>
               <button className="btn btn-primary" onClick={startRound}>Round {round + 1}: key moments</button>
               <button className="btn" onClick={() => game.setLiveMode("follow")}>Round {round + 1}: hole by hole</button>
               <button className="btn" onClick={simWholeRound}>Sim round {round + 1}</button>
             </>
           )}
-          {!moment && !replay && playing && <button className="btn btn-primary" onClick={advance}>Play on</button>}
+          {!moment && !replay && playing && <button className="btn btn-primary" onClick={() => advance()}>Play on</button>}
           {!moment && !replay && allDone && <button className="btn btn-primary" onClick={() => void game.completeLiveWeek()}>See the final results</button>}
           {playing && <button className="btn" onClick={simRound}>Sim to the end of the round</button>}
           {!allDone && <button className="btn" onClick={() => void game.completeLiveWeek()}>Sim the rest of the week</button>}
         </div>
+        {goLive && <p className="small go-live">Going live: {goLive}.</p>}
         {ticker.length > 0 && <p className="ticker secondary small" aria-live="polite">{ticker.slice(-5).join(" · ")}</p>}
       </section>
 
@@ -329,9 +413,23 @@ function TraceDrawing({ trace, step, courseName }: { trace: HoleTrace; step: num
 }
 
 /** Each client this week: where he stands, today's score and his round plan. */
-function ClientStrip({ world, game, events, editable }: { world: World; game: Game; events: LiveEvent[]; editable: boolean }) {
+function ClientStrip({ world, game, events, editable, suggest }: { world: World; game: Game; events: LiveEvent[]; editable: boolean; suggest?: boolean }) {
+  const advice = suggest
+    ? events
+        .flatMap((e) => e.clientIds.map((id) => ({ t: e.tournament, id, s: suggestPlan(e.tournament, id) })))
+        .filter((x) => x.s && (x.t.plans[x.id] ?? "steady") !== x.s.plan)
+    : [];
+  const next = Math.max(...events.map((e) => e.tournament.round)) + 1;
   return (
     <div className="client-strip">
+      {advice.length > 0 && (
+        <div className="btn-row plan-review">
+          <span className="secondary small">
+            {next === 4 ? "Saturday night: " : ""}your caddie would change {advice.length} plan{advice.length === 1 ? "" : "s"} for round {next}.
+          </span>
+          <button className="btn btn-small" onClick={() => { for (const a of advice) setRoundPlan(game, a.t, a.id, a.s!.plan); }}>Use his suggestions</button>
+        </div>
+      )}
       {events.flatMap((e) => {
         const t = e.tournament;
         const snap = t.round > 0 && !inRound(t) ? liveSnapshot(t) : null;
@@ -359,8 +457,11 @@ function ClientStrip({ world, game, events, editable }: { world: World; game: Ga
                 {events.length > 1 && <span className="muted small"> · {e.event.name}</span>}
                 <div className="secondary small">{where}</div>
               </div>
-              {editable ? (
-                <RoundPlanPicker plan={t.plans[id] ?? "steady"} onPick={(p) => setRoundPlan(game, t, id, p)} />
+              {editable && (t.round === 0 || clientActive(t, id)) ? (
+                <div>
+                  <RoundPlanPicker plan={t.plans[id] ?? "steady"} onPick={(p) => setRoundPlan(game, t, id, p)} />
+                  {suggest && <PlanSuggestion t={t} id={id} />}
+                </div>
               ) : (
                 <span className="muted small" title={PLAN_LABELS[t.plans[id] ?? "steady"].blurb}>Plan: {PLAN_LABELS[t.plans[id] ?? "steady"].label}</span>
               )}
@@ -393,7 +494,7 @@ function caddieRead(his: Odds, mine: Odds, key: string): string {
   return `${verdict}${wilder ? " More birdie looks, more trouble." : tamer ? " Safer, fewer birdie looks." : ""}`;
 }
 
-function MomentCard({ world, t, eventName, m, calls, setCalls, odds, onPlay, onPlan }: {
+function MomentCard({ world, t, eventName, m, calls, setCalls, odds, callsLeft, onPlay, onPlan }: {
   world: World;
   t: LiveTournament;
   eventName: string | null;
@@ -401,6 +502,8 @@ function MomentCard({ world, t, eventName, m, calls, setCalls, odds, onPlay, onP
   calls: HoleCall;
   setCalls: (fn: (c: HoleCall) => HoleCall) => void;
   odds: { his: { expected: number; birdie: number; bogey: number }; mine: { expected: number; birdie: number; bogey: number } | null } | null;
+  /** Broadcast mode: calls left this round (null: no limit). */
+  callsLeft: number | null;
   onPlay: () => void;
   onPlan: () => void;
 }) {
@@ -450,6 +553,11 @@ function MomentCard({ world, t, eventName, m, calls, setCalls, odds, onPlay, onP
               </fieldset>
             );
           })}
+          {callsLeft !== null && !m.playoff && (
+            <p className="small calls-left">
+              <strong>{callsLeft} of {CALLS_PER_ROUND} calls left this round.</strong> <span className="muted">Making a call spends one; letting him play it his way is free.</span>
+            </p>
+          )}
           {odds?.mine && <p className="secondary small caddie-read">{caddieRead(odds.his, odds.mine, `${m.id}:${m.round}:${m.index}:${JSON.stringify(calls)}`)}</p>}
           <div className="btn-row">
             <button className="btn btn-primary" onClick={onPlay}>{m.playoff ? "Go to the playoff" : `Play hole ${m.index + 1}`}</button>
@@ -458,5 +566,52 @@ function MomentCard({ world, t, eventName, m, calls, setCalls, odds, onPlay, onP
         </div>
       </div>
     </section>
+  );
+}
+
+/** The plan the caddie suggests for a client's next round, if it differs from the one he's on. */
+function PlanSuggestion({ t, id }: { t: LiveTournament; id: string }) {
+  const s = suggestPlan(t, id);
+  if (!s) return null;
+  const same = (t.plans[id] ?? "steady") === s.plan;
+  return (
+    <div className="muted small">
+      {same ? "Your caddie agrees" : <>Suggested: <strong>{PLAN_LABELS[s.plan].label}</strong></>} · {s.why}
+    </div>
+  );
+}
+
+/** While a round plays: the top of each leaderboard, with your clients picked out wherever they are. */
+function LiveLeaders({ world, events }: { world: World; events: LiveEvent[] }) {
+  return (
+    <div className="live-leaders">
+      {events.map((e) => {
+        const t = e.tournament;
+        const lead = e.clientIds.find((id) => t.live[id]) ?? e.clientIds.find((id) => clientActive(t, id));
+        if (!lead || !inRound(t)) return null;
+        const board = liveBoard(t, lead);
+        const mine = new Set(e.clientIds);
+        const posOf = (toParScore: number) => {
+          const p = board.findIndex((r) => r.toPar === toParScore) + 1;
+          return `${board.filter((r) => r.toPar === toParScore).length > 1 ? "T" : ""}${p}`;
+        };
+        const rows = board.filter((r, i) => i < 5 || mine.has(r.player.id));
+        return (
+          <table key={e.event.id} className="hbh-board live-leaders-board">
+            <caption className="secondary small">{e.event.name}: round {t.round}, live</caption>
+            <tbody>
+              {rows.map((r) => (
+                <tr key={r.player.id} className={mine.has(r.player.id) ? "me" : ""}>
+                  <td className="num">{posOf(r.toPar)}</td>
+                  <td>{mine.has(r.player.id) ? <PlayerName id={r.player.id}>{world.players[r.player.id]?.player.name ?? r.player.name}</PlayerName> : r.player.name}</td>
+                  <td className="num">{toPar(r.toPar)}</td>
+                  <td className="num muted small">{mine.has(r.player.id) ? (t.live[r.player.id] ? `thru ${t.live[r.player.id]!.holes.length}` : "F") : ""}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        );
+      })}
+    </div>
   );
 }
