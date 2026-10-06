@@ -721,7 +721,9 @@ export function pendingPlayoff(t: LiveTournament): string[] {
  * holes played on the way and the moment (null: the round is over). Asking
  * again without answering returns the same moment.
  */
-export function nextMoment(t: LiveTournament): { ticker: TickerItem[]; moment: Moment | null } {
+export function nextMoment(t: LiveTournament, opts: { stops?: boolean } = {}): { ticker: TickerItem[]; moment: Moment | null } {
+  // With no calls left to make, the round plays through (a playoff still stops: that call is always yours).
+  const stops = opts.stops ?? true;
   const ticker: TickerItem[] = [];
   const course = t.config.course;
   for (;;) {
@@ -733,7 +735,7 @@ export function nextMoment(t: LiveTournament): { ticker: TickerItem[]; moment: M
     const decisions = nextDecisions(t, id);
     // Each question is asked once a round; later holes go by his plan (and any closing-putts call).
     const fresh = decisions.filter((d) => !(t.asked[key] ?? []).includes(d.kind));
-    if (fresh.length && atStake(s) && (t.stops[key] ?? 0) < MAX_STOPS) {
+    if (stops && fresh.length && atStake(s) && (t.stops[key] ?? 0) < MAX_STOPS) {
       return { ticker, moment: { id, round: t.round, index: s.index, situation: s, decisions: fresh } };
     }
     const score = playLiveHole(t, planCall(t.plans[id] ?? "steady", nextDecisions(t, id, false)), id);

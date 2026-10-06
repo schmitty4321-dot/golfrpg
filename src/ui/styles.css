@@ -300,6 +300,12 @@ tr.mine td { font-weight: 600; }
 .round-call-choices .choice { align-content: start; }
 .client-strip-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
 .client-strip-row .round-plan { margin: 0; }
+.plan-review { align-items: center; padding: 8px 10px; border: 1px dashed var(--accent); border-radius: 8px; background: var(--accent-soft); }
+.go-live { margin: 8px 0 0; color: var(--accent); font-weight: 650; }
+.calls-left { margin: 8px 0; padding: 6px 10px; border-radius: 6px; background: var(--accent-soft); }
+.live-leaders { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; margin: 0 0 10px; }
+.live-leaders-board { width: 100%; }
+.live-leaders-board caption { text-align: left; padding: 0 0 4px; }
 .moment-body { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 16px; align-items: start; }
 @media (max-width: 800px) { .moment-body { grid-template-columns: 1fr; } }
 select, input[type="text"], input[type="number"] {

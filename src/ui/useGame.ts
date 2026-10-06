@@ -21,21 +21,26 @@ import { finishLive } from "../engine";
 import { deleteSave, loadSave, writeSave } from "./storage";
 
 /**
- * How a week with your clients in the field is played: "quick" sims it
- * straight to the results, "moments" stops only for the calls that matter,
- * "follow" walks one client hole by hole with the others alongside.
+ * How a week with your clients in the field is played: "broadcast" sims the
+ * quiet rounds and goes live only when a client has something on the line
+ * (Friday's cut, Sunday in the top 10), with a few calls a round to spend;
+ * "quick" sims it straight to the results, "moments" stops for every call
+ * that matters, "follow" walks one client hole by hole with the others alongside.
  */
-export type WeekTempo = "quick" | "moments" | "follow";
+export type WeekTempo = "broadcast" | "quick" | "moments" | "follow";
+
+/** Calls you can make a round in broadcast mode, shared across all your clients. */
+export const CALLS_PER_ROUND = 3;
 
 const TEMPO_KEY = "fm-week-tempo";
 
-/** The speed you last picked (Key moments until you pick one). */
+/** The speed you last picked (Broadcast until you pick one). */
 export function loadTempo(): WeekTempo {
   try {
     const v = localStorage.getItem(TEMPO_KEY);
-    return v === "quick" || v === "follow" || v === "moments" ? v : "moments";
+    return v === "quick" || v === "follow" || v === "moments" || v === "broadcast" ? v : "broadcast";
   } catch {
-    return "moments";
+    return "broadcast";
   }
 }
 
@@ -54,6 +59,8 @@ export interface LiveWeek {
   mode: Exclude<WeekTempo, "quick">;
   /** Bumped on every change, so screens re-render (the tournaments change in place). */
   version: number;
+  /** Calls you've made each round (broadcast mode), by round number. */
+  callsUsed?: Record<number, number>;
 }
 
 export interface GameState {
@@ -184,6 +191,19 @@ export function useGame() {
     [publish],
   );
 
+  /** Spends one of the round's calls (broadcast mode). */
+  const spendCall = useCallback(
+    (round: number) => {
+      const lw = liveWeekRef.current;
+      if (!lw) return;
+      const used = { ...(lw.callsUsed ?? {}) };
+      used[round] = (used[round] ?? 0) + 1;
+      liveWeekRef.current = { ...lw, callsUsed: used, version: lw.version + 1 };
+      publish({ liveWeek: liveWeekRef.current });
+    },
+    [publish],
+  );
+
   /** Switch how the rest of the live week is played (between rounds: key moments or hole by hole). */
   const setLiveMode = useCallback(
     (mode: LiveWeek["mode"]) => {
@@ -249,7 +269,7 @@ export function useGame() {
     [publish, persist],
   );
 
-  return { state, newGame, play, liveAct, setLiveMode, completeLiveWeek, closeSeason, dismissReview, dismissLive, importSave, abandon, exportSave, act, lib: season };
+  return { state, newGame, play, liveAct, spendCall, setLiveMode, completeLiveWeek, closeSeason, dismissReview, dismissLive, importSave, abandon, exportSave, act, lib: season };
 }
 
 export type Game = ReturnType<typeof useGame>;

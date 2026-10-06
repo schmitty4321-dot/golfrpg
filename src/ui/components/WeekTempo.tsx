@@ -3,6 +3,7 @@ import type { World } from "../../season";
 import type { Game, WeekTempo } from "../useGame";
 
 export const TEMPO_LABELS: Record<WeekTempo, { label: string; blurb: string }> = {
+  broadcast: { label: "Broadcast", blurb: "Watch the leaderboard. Quiet rounds sim to a recap; it goes live for Friday's cut line and for Sunday when a client is in the top 10, and you get 3 calls a round to spend." },
   quick: { label: "Quick", blurb: "Sim the week straight to the results; your clients play their round plans." },
   moments: { label: "Key moments", blurb: "Sim every round, stopping only for the calls that matter: the cut line on Friday, contention on the weekend, a playoff." },
   follow: { label: "Follow one", blurb: "Walk one client hole by hole; your others play alongside on their round plans." },
