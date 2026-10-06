@@ -10,6 +10,7 @@ import {
   getCourse,
   liveSnapshot,
   markAsked,
+  noteYourCall,
   nextDecisions,
   nextMoment,
   planCall,
@@ -19,7 +20,7 @@ import {
   type Decision,
   type TournamentConfig,
 } from "../src/engine";
-import { createWorld, liveEvents, playWeek } from "../src/season";
+import { createWorld, liveEvents, playWeek, weekSummary } from "../src/season";
 
 const field = generateTourField(createRng(7), 120);
 const config = (seed = 11): TournamentConfig => ({ name: "Moments Open", course: getCourse("tpc-sawgrass"), field, purse: 9_000_000, seed, cutTop: 65 });
@@ -250,5 +251,20 @@ describe("live weeks", () => {
     expect(r.moment).toBeNull();
     autoFinishRound(y);
     expect(rows(x, [])).toEqual(rows(y, []));
+  });
+
+  it("the week's review counts only the calls you made, not the round plan's", () => {
+    const w = createWorld({ seed: 61, scenario: "agency" });
+    const events = liveEvents(w);
+    const e = events[0]!;
+    for (const id of e.clientIds) e.tournament.plans[id] = "attack";
+    const mine = e.clientIds[0]!;
+    noteYourCall(e.tournament, mine);
+    noteYourCall(e.tournament, mine);
+    const played = Object.fromEntries(events.map((x) => [x.event.id, finishLive(x.tournament)]));
+    const report = playWeek(w, {}, played);
+    const s = weekSummary(w, report);
+    expect(s.clients.find((c) => c.id === mine)!.callsMade).toBe(2);
+    for (const c of s.clients.filter((c) => c.id !== mine)) expect(c.callsMade).toBe(0);
   });
 });

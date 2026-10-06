@@ -278,6 +278,20 @@ tr.mine td { font-weight: 600; }
 .schedule-note { width: fit-content; padding: 2px 8px; border-radius: 6px; background: var(--surface-2); color: var(--text-2); font-size: 12px; font-weight: 600; }
 @media (max-width: 620px) { .schedule-week { grid-template-columns: 1fr; gap: 6px; } }
 .week-summary .ws-clients { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; }
+.week-summary .ws-cols-1 { grid-template-columns: minmax(0, 1fr); }
+.week-summary .ws-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.week-summary .ws-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.ws-cols-1 .ws-client { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); column-gap: 16px; }
+.ws-cols-1 .ws-client-head { grid-column: 1 / -1; }
+.ws-compact .ws-client { padding: 9px 11px; }
+.ws-compact .ws-finish { font-size: 18px; }
+.ws-compact .ws-facts > div { padding: 4px 6px; }
+.ws-compact .ws-facts b { font-size: 13px; }
+.ws-compact .ws-lines { font-size: 12px; gap: 2px; }
+.ws-group + .ws-group { margin-top: 14px; }
+.ws-group-head { margin: 0 0 8px; font-size: 15px; }
+@media (max-width: 1100px) { .week-summary .ws-cols-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 720px) { .week-summary .ws-cols-2, .week-summary .ws-cols-3 { grid-template-columns: minmax(0, 1fr); } .ws-cols-1 .ws-client { display: block; } }
 .ws-client, .ws-box { padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
 .ws-client-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
 .ws-client-head > div { display: grid; }

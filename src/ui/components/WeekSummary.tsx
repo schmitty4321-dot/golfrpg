@@ -48,13 +48,25 @@ function ClientCard({ c }: { c: ClientWeek }) {
         {c.best && c.worst && (
           <li>Best hole: {holeWord(c.best.toPar)} on {c.best.hole} (round {c.best.round}). Worst: {holeWord(c.worst.toPar)} on {c.worst.hole} (round {c.worst.round}).</li>
         )}
-        <li>{c.callsMade ? `You made the call on ${c.callsMade} hole${c.callsMade === 1 ? "" : "s"}.` : "He made every call himself."}</li>
+        <li>{c.callsMade ? `You made the call on ${c.callsMade} hole${c.callsMade === 1 ? "" : "s"}.` : "You left every call to him and his round plan."}</li>
         {c.roundCalls.map((l) => <li key={l} className="secondary">{l.slice(c.name.length + 2)}</li>)}
         {c.goals.length > 0 && <li>Season goals: {c.goals.map((g, i) => <span key={i} className={g.met ? "good-text" : ""}>{i ? " · " : ""}{g.met ? "✓ " : ""}{g.text}</span>)}</li>}
         <li>Mood <Delta before={c.mood.before} after={c.mood.after} /> · trust <Delta before={c.trust.before} after={c.trust.after} /> · condition {c.condition}%</li>
         <li><strong>Next week:</strong> {c.nextWeek}</li>
       </ul>
     </article>
+  );
+}
+
+/** Columns for a group of client cards: one alone, two side by side, four as a square, otherwise rows of three. */
+const columnsFor = (n: number) => (n <= 1 ? 1 : n === 2 || n === 4 ? 2 : 3);
+
+/** A grid of client cards sized to how many there are; with seven or more the cards are tighter. */
+function ClientGrid({ clients, total }: { clients: ClientWeek[]; total: number }) {
+  return (
+    <div className={`ws-clients ws-cols-${columnsFor(clients.length)}${total >= 7 ? " ws-compact" : ""}`}>
+      {clients.map((c) => <ClientCard key={c.id} c={c} />)}
+    </div>
   );
 }
 
@@ -65,7 +77,19 @@ export function WeekSummary({ world, report }: { world: World; report: WeekRepor
   return (
     <section className="panel week-summary">
       <div className="panel-head"><h2>Week {report.week} in review</h2><span className="muted small">How your players and the agency did</span></div>
-      <div className="ws-clients">{s.clients.map((c) => <ClientCard key={c.id} c={c} />)}</div>
+      {(() => {
+        // Clients in different events this week: a group for each event, biggest first.
+        const groups = [...new Set(s.clients.map((c) => c.eventName))]
+          .map((name) => ({ name, clients: s.clients.filter((c) => c.eventName === name) }))
+          .sort((a, b) => b.clients.length - a.clients.length);
+        if (groups.length === 1) return <ClientGrid clients={s.clients} total={s.clients.length} />;
+        return groups.map((g) => (
+          <div key={g.name} className="ws-group">
+            <h3 className="ws-group-head">{g.name} <span className="muted small">· {g.clients.length} client{g.clients.length === 1 ? "" : "s"}</span></h3>
+            <ClientGrid clients={g.clients} total={s.clients.length} />
+          </div>
+        ));
+      })()}
       <div className="ws-bottom">
         {s.agency && (
           <article className="ws-box">
