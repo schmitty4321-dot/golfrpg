@@ -156,6 +156,18 @@ export function rosterSizes(world: World): Map<string, number> {
   return out;
 }
 
+/**
+ * How many players a rival can carry: its style's list, a quarter bigger or
+ * smaller as its reputation rises or falls from where it started, and two
+ * places fewer for each player it has lost to you lately (never under 60%).
+ */
+export function rivalCapacity(r: RivalAgency): number {
+  const base = RIVAL_STYLES[r.style].capacity;
+  const start = RIVAL_PROFILES.find((p) => p.name === r.name)?.reputation ?? 60;
+  const repFactor = 1 + clamp((r.reputation - start) / 40, -1, 1) * 0.25;
+  return Math.max(Math.ceil(base * 0.6), Math.round(base * repFactor - 2 * (r.lostToYou ?? 0)));
+}
+
 /** List sizes once this season's expiring deals have run out: the room each rival has for the winter market. */
 export function winterRoster(world: World): Map<string, number> {
   const out = new Map<string, number>();
@@ -178,7 +190,7 @@ export function rivalBids(world: World, id: string, roster: Map<string, number> 
   ensureRivals(world).forEach((r, i) => {
     const style = RIVAL_STYLES[r.style];
     const current = wp.agent?.agency === r.name;
-    if ((roster.get(r.name) ?? 0) >= style.capacity) return;
+    if ((roster.get(r.name) ?? 0) >= rivalCapacity(r)) return;
     // Nobody chases a player who would laugh at them.
     if (needed - r.reputation > 30) return;
     const rng = createRng(mixSeed(world.seed, world.season, 1401, idNum(id), i + 1));
@@ -330,6 +342,8 @@ export function rivalReputations(world: World): void {
     r.reputation = clamp(Math.round((r.reputation * 0.75 + target * 0.25) * 10) / 10, 5, 100);
     r.repHistory.push(r.reputation);
     if (r.repHistory.length > 30) r.repHistory.shift();
+    // Losses to you fade: half as much each season.
+    if (r.lostToYou) r.lostToYou = r.lostToYou < 0.25 ? 0 : Math.round(r.lostToYou * 50) / 100;
   }
 }
 

@@ -45,7 +45,9 @@ export const STARTING_BANK = 250_000;
 export const STARTING_REPUTATION = 15;
 
 /** How many clients the agency can look after: grows with reputation, and a bigger headquarters adds room. */
-export const rosterLimit = (reputation: number, hq = 0): number => Math.min(8, 2 + Math.floor(reputation / 15)) + (HQ_TIERS[hq]?.roster ?? 0);
+/** Clients you can manage: 2 plus one for every 15 reputation up to 8, one more each at 85 and 95, plus your headquarters' extra room. */
+export const rosterLimit = (reputation: number, hq = 0): number =>
+  Math.min(8, 2 + Math.floor(reputation / 15)) + (reputation >= 85 ? 1 : 0) + (reputation >= 95 ? 1 : 0) + (HQ_TIERS[hq]?.roster ?? 0);
 
 export interface HqTier {
   name: string;
@@ -298,6 +300,12 @@ export function clientSupportCost(world: World): number {
 export function signClient(world: World, id: string, offer: Offer): void {
   const wp = world.players[id]!;
   // A player still on a rival's books in his final season joins you when that deal ends; we simplify and let him move now.
+  // Raiding a rival shrinks it.
+  const from = wp.agent && world.rivals?.find((r) => r.name === wp.agent!.agency);
+  if (from) {
+    from.lostToYou = (from.lostToYou ?? 0) + 1;
+    from.moves.unshift(`Loses ${wp.player.name} to ${world.agency.name}.`);
+  }
   wp.agent = null;
   const grace = commissionGrace(world, id);
   noteSigning(world, wp);
