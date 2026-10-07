@@ -201,14 +201,14 @@ function AgencyStrip({ world }: { world: World }) {
 
 function Alerts({ world, go }: { world: World; go: Go }) {
   // Each line follows the client's name, which links to his page.
-  const items: { id: string; text: string; tab: "agency" | "training"; tone: string }[] = [];
+  const items: { id: string; text: string; tab: "agency" | "training" | "partnerships"; tone: string }[] = [];
   for (const id of world.clientIds) {
     const wp = world.players[id]!;
     const m = wp.client!;
     if (m.contract.untilSeason <= world.season) items.push({ id, text: `'s contract ends this season. Extend it or he leaves.`, tab: "agency", tone: "var(--critical)" });
     if (m.offers.length) {
       const left = Math.min(...m.offers.map((x) => x.expiresAbsWeek)) - absWeek(world.season, world.week);
-      items.push({ id, text: ` has ${m.offers.length} sponsor offer${m.offers.length === 1 ? "" : "s"} waiting (the first lapses ${left <= 0 ? "this week" : `in ${left} week${left === 1 ? "" : "s"}`}).`, tab: "agency", tone: "var(--good)" });
+      items.push({ id, text: ` has ${m.offers.length} sponsor offer${m.offers.length === 1 ? "" : "s"} waiting (the first lapses ${left <= 0 ? "this week" : `in ${left} week${left === 1 ? "" : "s"}`}).`, tab: "partnerships", tone: "var(--good)" });
     }
     if (m.happiness < 40) items.push({ id, text: ` is unhappy (${Math.round(m.happiness)}).`, tab: "agency", tone: "var(--serious)" });
   }

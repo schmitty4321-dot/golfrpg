@@ -24,7 +24,6 @@ export function Headquarters({ world, game }: { world: World; game: Game }) {
       <HqPanel world={world} game={game} />
       <StaffPanel world={world} game={game} />
       <div className="grid-2">
-        <BrandsPanel world={world} game={game} />
         <InvestmentsPanel world={world} game={game} />
         <EventsPanel world={world} game={game} />
       </div>
@@ -319,7 +318,7 @@ function InvestmentsPanel({ world, game }: { world: World; game: Game }) {
   );
 }
 
-function BrandsPanel({ world, game }: { world: World; game: Game }) {
+export function BrandsPanel({ world, game }: { world: World; game: Game }) {
   const deals = world.agency.brands ?? [];
   const offers = brandOffers(world);
   return (

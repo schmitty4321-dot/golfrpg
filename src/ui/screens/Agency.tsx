@@ -78,49 +78,6 @@ export function Agency({ world, game }: { world: World; game: Game }) {
         <p className="muted small">When a contract ends he leaves unless you've extended it. Happier clients are likelier to stay; results, sponsor money and fair commission keep them happy.</p>
       </section>
 
-      <section className="panel">
-        <div className="panel-head"><h2>Sponsorship offers</h2><span className="muted small">Offers lapse after three weeks · your agency takes 20% of endorsements</span></div>
-        {world.clientIds.every((id) => world.players[id]!.client!.offers.length === 0) ? (
-          <p className="empty">No offers right now. They arrive at the start of a season and after strong weeks.</p>
-        ) : (
-          <div className="sponsor-card-grid">
-            {world.clientIds.flatMap((id) =>
-              world.players[id]!.client!.offers.map((o) => {
-                const wp = world.players[id]!;
-                const art = BRAND_ART[o.sponsor];
-                const weeksLeft = o.expiresAbsWeek - (world.season * 52 + world.week);
-                return (
-                  <article className="sponsor-card sponsor-offer" key={o.id}>
-                    <img className="sponsor-banner" src={art ? `${import.meta.env.BASE_URL}${art.banner}` : `/art/sponsors/${o.category}.webp`} alt={art ? `${o.sponsor}: ${art.tagline}` : ""} />
-                    <div className="sponsor-card-body">
-                      <Portrait player={wp.player} size={64} />
-                      <div className="sponsor-card-who">
-                        <div><strong>{o.sponsor}</strong> <span className="sponsor-tag">{CATEGORY_LABELS[o.category]}</span> <span className="sponsor-offer-tag">Offer</span></div>
-                        <PlayerName id={id}>{wp.player.name}</PlayerName>
-                      </div>
-                      <div className="sponsor-card-terms">
-                        <div><b>{money(o.annualValue)}</b><small>Per season</small></div>
-                        <div><b>End of S{o.untilSeason}</b><small>Runs to</small></div>
-                      </div>
-                    </div>
-                    <div className="sponsor-bonuses">
-                      <div><b>{money(o.winBonus)}</b><small>a win</small></div>
-                      <div><b>{money(o.majorBonus)}</b><small>extra for a major</small></div>
-                      <div><b>{weeksLeft <= 0 ? "This week" : `${weeksLeft} week${weeksLeft === 1 ? "" : "s"}`}</b><small>to decide</small></div>
-                    </div>
-                    <div className="btn-row sponsor-offer-actions">
-                      <button className="btn btn-small btn-primary" onClick={() => game.act((w) => game.lib.acceptSponsor(w, id, o.id))}>Accept</button>
-                      <button className="btn btn-small" onClick={() => game.act((w) => game.lib.declineSponsor(w, id, o.id))}>Decline</button>
-                    </div>
-                  </article>
-                );
-              }),
-            )}
-          </div>
-        )}
-      </section>
-
-      <CurrentSponsorships world={world} />
     </main>
   );
 }
@@ -214,8 +171,55 @@ function ExtendForm({ world, game, id }: { world: World; game: Game; id: string 
   );
 }
 
+/** Sponsorship offers for your clients, as banner cards with Accept and Decline. */
+export function SponsorshipOffers({ world, game }: { world: World; game: Game }) {
+  return (
+      <section className="panel">
+      <div className="panel-head"><h2>Sponsorship offers</h2><span className="muted small">Offers lapse after three weeks · your agency takes 20% of endorsements</span></div>
+      {world.clientIds.every((id) => world.players[id]!.client!.offers.length === 0) ? (
+        <p className="empty">No offers right now. They arrive at the start of a season and after strong weeks.</p>
+      ) : (
+        <div className="sponsor-card-grid">
+          {world.clientIds.flatMap((id) =>
+            world.players[id]!.client!.offers.map((o) => {
+              const wp = world.players[id]!;
+              const art = BRAND_ART[o.sponsor];
+              const weeksLeft = o.expiresAbsWeek - (world.season * 52 + world.week);
+              return (
+                <article className="sponsor-card sponsor-offer" key={o.id}>
+                  <img className="sponsor-banner" src={art ? `${import.meta.env.BASE_URL}${art.banner}` : `/art/sponsors/${o.category}.webp`} alt={art ? `${o.sponsor}: ${art.tagline}` : ""} />
+                  <div className="sponsor-card-body">
+                    <Portrait player={wp.player} size={64} />
+                    <div className="sponsor-card-who">
+                      <div><strong>{o.sponsor}</strong> <span className="sponsor-tag">{CATEGORY_LABELS[o.category]}</span> <span className="sponsor-offer-tag">Offer</span></div>
+                      <PlayerName id={id}>{wp.player.name}</PlayerName>
+                    </div>
+                    <div className="sponsor-card-terms">
+                      <div><b>{money(o.annualValue)}</b><small>Per season</small></div>
+                      <div><b>End of S{o.untilSeason}</b><small>Runs to</small></div>
+                    </div>
+                  </div>
+                  <div className="sponsor-bonuses">
+                    <div><b>{money(o.winBonus)}</b><small>a win</small></div>
+                    <div><b>{money(o.majorBonus)}</b><small>extra for a major</small></div>
+                    <div><b>{weeksLeft <= 0 ? "This week" : `${weeksLeft} week${weeksLeft === 1 ? "" : "s"}`}</b><small>to decide</small></div>
+                  </div>
+                  <div className="btn-row sponsor-offer-actions">
+                    <button className="btn btn-small btn-primary" onClick={() => game.act((w) => game.lib.acceptSponsor(w, id, o.id))}>Accept</button>
+                    <button className="btn btn-small" onClick={() => game.act((w) => game.lib.declineSponsor(w, id, o.id))}>Decline</button>
+                  </div>
+                </article>
+              );
+            }),
+          )}
+        </div>
+      )}
+    </section>
+  );
+}
+
 /** Every client's active deals as banner cards, with the season's totals on top. */
-function CurrentSponsorships({ world }: { world: World }) {
+export function CurrentSponsorships({ world }: { world: World }) {
   const deals = world.clientIds.flatMap((id) => world.players[id]!.client!.sponsors.map((s) => ({ id, s })));
   const annual = deals.reduce((t, d) => t + d.s.annualValue, 0);
   const earned = deals.reduce((t, d) => t + (d.s.earned ?? 0), 0);
