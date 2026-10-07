@@ -128,9 +128,11 @@ describe("contracts and happiness", () => {
   it("keeps a happy client who agrees to an extension", () => {
     const w = fresh();
     w.players.client!.client!.happiness = 100;
+    const before = w.players.client!.client!.contract.untilSeason;
     const r = extendContract(w, "client", { commission: 0.1, years: 2 });
     expect(r.chance).toBeGreaterThan(0.9);
-    if (r.accepted) expect(w.players.client!.client!.contract.untilSeason).toBe(w.season + 2);
+    // The new seasons go on the end of the deal he has.
+    if (r.accepted) expect(w.players.client!.client!.contract.untilSeason).toBe(Math.max(w.season, before) + 2);
   });
 
   it("moves happiness each week and keeps it in range", () => {

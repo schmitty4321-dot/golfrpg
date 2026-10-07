@@ -16,6 +16,7 @@ import { cleanExtras, extrasAppeal, type DealExtras } from "./contractTerms";
 import { overall } from "./development";
 import { hasSkill } from "./staffSkills";
 import { commissionGrace, firstCall, interestBonus, noteSigning, recruitBlock } from "./recruiting";
+import { leverageScore, loyaltyScore, wishScore, type Wish } from "./extensions";
 
 export const RIVAL_AGENCIES = [
   "Apex Sports Management",
@@ -310,6 +311,7 @@ export function signClient(world: World, id: string, offer: Offer): void {
   const grace = commissionGrace(world, id);
   noteSigning(world, wp);
   wp.client = newManagement(world.season, offer.commission, offer.years);
+  wp.client.joinedSeason = world.season;
   if (grace > 0 && offer.commission > marketRate(wp)) wp.client.contract.keenGrace = Math.min(grace, offer.commission - marketRate(wp));
   const extras = cleanExtras(offer.extras);
   if (extras) wp.client.contract.extras = extras;
@@ -342,16 +344,20 @@ export function extendContract(world: World, id: string, offer: Offer): OfferRes
 export function applyExtension(world: World, id: string, offer: Offer): void {
   const wp = world.players[id]!;
   const extras = cleanExtras(offer.extras);
-  const { extras: _old, ...rest } = wp.client!.contract;
-  wp.client!.contract = { ...rest, commission: offer.commission, untilSeason: world.season + offer.years, ...(extras ? { extras } : {}) };
+  const { extras: _old, rookie: _rookie, ...rest } = wp.client!.contract;
+  // An early extension adds to the deal he has; otherwise it runs from the end of this season.
+  const from = Math.max(world.season, wp.client!.contract.untilSeason);
+  wp.client!.contract = { ...rest, commission: offer.commission, untilSeason: from + offer.years, ...(extras ? { extras } : {}) };
+  // A new deal settles the rivals' approaches.
+  wp.client!.tapped = 0;
   payBonus(world, extras?.signingBonus);
   if (extras?.signingBonus) wp.client!.finances.agencyBonus = (wp.client!.finances.agencyBonus ?? 0) + extras.signingBonus;
   makePromises(world, wp, offer.promises);
-  world.news.unshift(`${wp.player.name} extends with ${world.agency.name} until the end of season ${world.season + offer.years}.`);
+  world.news.unshift(`${wp.player.name} extends with ${world.agency.name} until the end of season ${from + offer.years}.`);
 }
 
 /** The chance a client accepts an extension on these terms: his mood, the commission, your name, trust and promises. */
-export function extendChance(world: World, id: string, offer: Offer): number {
+export function extendChance(world: World, id: string, offer: Offer & { boost?: number; fill?: Wish }): number {
   const wp = world.players[id];
   if (!wp?.client) return 0;
   const score =
@@ -365,7 +371,12 @@ export function extendChance(world: World, id: string, offer: Offer): number {
     // Promises kept build trust; broken ones make him wary of new ones.
     (trustOf(wp) - START_TRUST) * 0.25 +
     promiseAppeal(wp, rankMap(world).get(id) ?? 999, offer.promises) * (trustOf(wp) / START_TRUST) +
-    extrasAppeal(wp, rankMap(world).get(id) ?? 999, offer.extras, offer.commission);
+    extrasAppeal(wp, rankMap(world).get(id) ?? 999, offer.extras, offer.commission) +
+    // What he wants from the deal, how strong his hand is, and loyalty (a season early, a career deal).
+    wishScore(world, wp, offer) +
+    leverageScore(world, id) +
+    loyaltyScore(world, wp, offer) +
+    (offer.boost ?? 0);
   return clamp(1 / (1 + Math.exp(-score / 7)), 0.02, 0.98);
 }
 
@@ -396,7 +407,8 @@ export function updateHappiness(wp: WorldPlayer, week: { played: boolean; sgVsEx
   target += Math.min(10, c.sponsors.reduce((s, x) => s + x.annualValue, 0) / 150_000);
   const sensitivity = decisionSensitivity(wp);
   // Paying well over his going rate rankles; a bargain pleases him.
-  target -= (c.contract.commission - marketRate(wp) - (c.contract.keenGrace ?? 0)) * 100 * 1.5 * sensitivity;
+  // A rookie deal's rate was set before he turned pro: it doesn't rankle while it runs.
+  if (!c.contract.rookie) target -= (c.contract.commission - marketRate(wp) - (c.contract.keenGrace ?? 0)) * 100 * 1.5 * sensitivity;
   if (week.heldOut) target -= (15 + heldOutPenalty(wp)) * sensitivity;
   target += financeMood(wp);
   // He's happier with an agent he trusts.

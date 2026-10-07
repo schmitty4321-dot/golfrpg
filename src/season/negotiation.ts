@@ -25,6 +25,7 @@ import { teamOf } from "./ryderCup";
 import { absWeek, type World, type WorldPlayer } from "./types";
 import { describeExtras, type DealExtras } from "./contractTerms";
 import { rivalBids } from "./rivals";
+import { extensionWindow, leverage, maxYears, playCard, type CardId, type Wish } from "./extensions";
 
 export interface Terms {
   commission: number;
@@ -53,8 +54,16 @@ export interface Negotiation {
   status: "open" | "agreed" | "walked";
   /** The rival bidding against you (signings), and whether it has raised yet. */
   rival?: { agency: string; raised: boolean };
-  /** Signing talks: the offer he's thinking over, and the week he'll answer. */
+  /** The offer he's thinking over, and the week he'll answer. */
   pending?: { terms: Terms; answerAbsWeek: number; agentWhenAsked?: string };
+  /** Extension talks: the week of your last offer (one a week). */
+  offerWeek?: number;
+  /** Staff cards in play: rounds added, a boost for the next offer, a wish the next offer counts as meeting. */
+  extraRounds?: number;
+  boost?: number;
+  fill?: Wish;
+  /** He's already told you he wants to see what's out there. */
+  tested?: boolean;
 }
 
 export const MAX_ROUNDS = 4;
@@ -73,6 +82,9 @@ export function negotiationFor(world: World, playerId?: string): Negotiation | u
   return world.talks?.[playerId] ?? (world.negotiation?.playerId === playerId ? world.negotiation : undefined);
 }
 
+/** Rounds these talks can run: four, plus any your renewal specialist buys. */
+export const roundsFor = (n: Negotiation): number => MAX_ROUNDS + (n.extraRounds ?? 0);
+
 export const activeNegotiation = (world: World, playerId?: string): Negotiation | null => {
   const n = negotiationFor(world, playerId);
   return n?.status === "open" ? n : null;
@@ -80,8 +92,8 @@ export const activeNegotiation = (world: World, playerId?: string): Negotiation 
 
 /** Why another signing offer can't go in now, or null: one a week, and none while he's thinking one over. */
 export function offerBlock(world: World, n: Negotiation): string | null {
-  if (n.kind !== "sign") return null;
   if (n.pending) return "He's still thinking over your last offer.";
+  if (n.kind === "extend") return n.offerWeek === absWeek(world.season, world.week) ? "You've made him this week's offer; you can make another next week." : null;
   if (world.agency.offerWeek === absWeek(world.season, world.week)) return "You've made this week's offer; you can make another next week.";
   return null;
 }
@@ -89,6 +101,8 @@ export function offerBlock(world: World, n: Negotiation): string | null {
 /** How long he takes over an offer: two to four weeks for the first (a bell curve: some answer at once, some keep you waiting), a week or two after that. */
 export function answerDelay(world: World, n: Negotiation): number {
   const rng = createRng(mixSeed(world.seed, world.season, world.week, 1902, idNum(n.playerId), n.round));
+  // Your own client knows you: on the spot now and then, otherwise a week or two.
+  if (n.kind === "extend") return rng.chance(0.25) ? 0 : rng.chance(0.6) ? 1 : 2;
   if (n.round > 1) return rng.chance(0.3) ? 2 : 1;
   if (rng.chance(0.07)) return 0;
   return Math.max(1, Math.min(8, Math.round(rng.normal(3, 1))));
@@ -98,9 +112,9 @@ export function answerDelay(world: World, n: Negotiation): number {
 export const interestedAgencies = (world: World, playerId: string): string[] => [...new Set(rivalBids(world, playerId).map((b) => b.agency))].slice(0, 3);
 
 /** The odds he'd accept these terms (the same as a straight offer). */
-export function termsChance(world: World, n: Pick<Negotiation, "playerId" | "kind">, t: Terms): number {
+export function termsChance(world: World, n: Pick<Negotiation, "playerId" | "kind"> & Partial<Pick<Negotiation, "boost" | "fill">>, t: Terms): number {
   const offer: Offer = { commission: t.commission, years: t.years, promises: t.promises, ...(t.extras ? { extras: t.extras } : {}) };
-  return n.kind === "sign" ? acceptChance(world, n.playerId, offer) : extendChance(world, n.playerId, offer);
+  return n.kind === "sign" ? acceptChance(world, n.playerId, offer) : extendChance(world, n.playerId, { ...offer, ...(n.boost ? { boost: n.boost } : {}), ...(n.fill ? { fill: n.fill } : {}) });
 }
 
 function patienceFor(wp: WorldPlayer, kind: "sign" | "extend"): number {
@@ -122,8 +136,11 @@ export function startNegotiation(world: World, playerId: string, kind: "sign" | 
     if (block) return block;
   } else {
     if (!wp.client) return "He isn't your client.";
+    if (world.talks?.[playerId]?.status === "open") return null;
     const until = world.agency.cooldowns[playerId];
     if (until !== undefined && until > absWeek(world.season, world.week)) return "He's not ready to talk again yet.";
+    const win = extensionWindow(world, playerId);
+    if (!win.open) return win.reason;
   }
   const rng = createRng(mixSeed(world.seed, world.season, world.week, 1901, idNum(playerId), kind === "sign" ? 1 : 2));
   const patience = patienceFor(wp, kind);
@@ -137,13 +154,12 @@ export function startNegotiation(world: World, playerId: string, kind: "sign" | 
     patienceMax: patience,
     // His bar: an offer is accepted when its odds reach it, so each offer's odds are its real chance.
     bar: rng.next(),
-    lines: [{ by: "him", text: kind === "sign" ? `${wp.player.name} is listening. What are you offering?` : `${wp.player.name} wants to hear what you have in mind.` }],
+    lines: [{ by: "him", text: kind === "sign" ? `${wp.player.name} is listening. What are you offering?` : wp.client && wp.client.contract.untilSeason > world.season ? `${wp.player.name} is happy to talk a season early.` : `${wp.player.name} wants to hear what you have in mind.` }],
     counter: null,
     status: "open",
     ...(bid ? { rival: { agency: bid.agency, raised: false } } : {}),
   };
-  if (kind === "sign") (world.talks ??= {})[playerId] = talks;
-  else world.negotiation = talks;
+  (world.talks ??= {})[playerId] = talks;
   return null;
 }
 
@@ -192,7 +208,7 @@ function close(world: World, n: Negotiation, t: Terms): void {
     n.lines.push({ by: "him", text: `"Deal." ${wp.player.name} signs with ${world.agency.name}: ${describeTerms(t)}.`, terms: t });
   } else {
     applyExtension(world, n.playerId, offer);
-    n.lines.push({ by: "him", text: `"Deal." ${wp.player.name} stays until the end of season ${world.season + t.years}.`, terms: t });
+    n.lines.push({ by: "him", text: `"Deal." ${wp.player.name} stays until the end of season ${wp.client?.contract.untilSeason ?? world.season + t.years}.`, terms: t });
   }
 }
 
@@ -209,12 +225,14 @@ function walk(world: World, n: Negotiation): void {
 export function makeOffer(world: World, t: Terms, playerId?: string): Negotiation | null {
   const n = activeNegotiation(world, playerId);
   if (!n || offerBlock(world, n)) return null;
-  const terms: Terms = { commission: Math.min(0.2, Math.max(MIN_COMMISSION, t.commission)), years: Math.min(3, Math.max(1, t.years)), promises: t.promises.slice(0, MAX_PROMISES), ...(t.extras ? { extras: t.extras } : {}) };
+  const longest = n.kind === "extend" ? maxYears(world, world.players[n.playerId]!) : 3;
+  const terms: Terms = { commission: Math.min(0.2, Math.max(MIN_COMMISSION, t.commission)), years: Math.min(longest, Math.max(1, t.years)), promises: t.promises.slice(0, MAX_PROMISES), ...(t.extras ? { extras: t.extras } : {}) };
   n.round++;
   n.lines.push({ by: "you", text: `You offer ${describeTerms(terms)}.`, terms });
-  if (n.kind === "sign") {
+  {
     // He takes his time: the answer comes in a later week (or, now and then, on the spot).
-    world.agency.offerWeek = absWeek(world.season, world.week);
+    if (n.kind === "sign") world.agency.offerWeek = absWeek(world.season, world.week);
+    else n.offerWeek = absWeek(world.season, world.week);
     n.counter = null;
     const delay = answerDelay(world, n);
     if (delay > 0) {
@@ -230,14 +248,24 @@ export function makeOffer(world: World, t: Terms, playerId?: string): Negotiatio
 /** His answer to an offer: yes, a counter, or (patience gone) he walks. */
 function answer(world: World, n: Negotiation, terms: Terms): Negotiation {
   const chance = termsChance(world, n, terms);
+  // A card's boost and wish are for one offer only.
+  delete n.boost;
+  delete n.fill;
   if (chance >= n.bar) {
     close(world, n, terms);
     return n;
   }
   n.patience -= chance < n.bar - LOWBALL ? 2 : 1;
-  if (n.patience <= 0 || n.round >= MAX_ROUNDS) {
+  if (n.patience <= 0 || n.round >= roundsFor(n)) {
     walk(world, n);
     return n;
+  }
+  // A client with a strong hand wants to see what's out there first (once): the rivals get a look in.
+  if (n.kind === "extend" && !n.tested && leverage(world, n.playerId) >= 60) {
+    n.tested = true;
+    const c = world.players[n.playerId]!.client!;
+    c.tapped = Math.min(40, (c.tapped ?? 0) + 8);
+    n.lines.push({ by: "him", text: `"I'm not saying no. But the way I'm playing, I want to see what's out there first."` });
   }
   // A rival bidding for him comes back with more while you talk.
   if (n.rival && !n.rival.raised && n.round >= 2) {
@@ -265,6 +293,8 @@ export function acceptCounter(world: World, playerId?: string): Negotiation | nu
   if (termsChance(world, n, t) >= n.bar) {
     close(world, n, t);
     bump(world, "counterDeals");
+    delete n.boost;
+    delete n.fill;
   }
   else walk(world, n);
   return n;
@@ -284,6 +314,17 @@ export function clearTalks(world: World, playerId: string): void {
   if (world.talks?.[playerId] && world.talks[playerId]!.status !== "open") delete world.talks[playerId];
 }
 
+/** Plays a staff card in extension talks (see extensions.ts). Returns what happened, or why not. */
+export function playTalksCard(world: World, playerId: string, card: CardId): string {
+  const n = world.talks?.[playerId];
+  if (!n) return "You're not talking to him.";
+  return playCard(world, n, card, () => {
+    const last = [...n.lines].reverse().find((l) => l.terms)?.terms ?? { commission: world.players[playerId]!.client?.contract.commission ?? 0.1, years: 2, promises: [] };
+    const c = findCounter(world, n, last);
+    return termsChance(world, n, c) >= n.bar ? `he'd sign for ${describeTerms(c)}.` : "nothing you can offer gets him there yet.";
+  });
+}
+
 /** Weekly: players whose thinking time is up give their answers. Returns the news lines. */
 export function talksWeek(world: World): string[] {
   const now = absWeek(world.season, world.week);
@@ -293,15 +334,16 @@ export function talksWeek(world: World): string[] {
     if (n.status !== "open" || !n.pending || n.pending.answerAbsWeek > now) continue;
     const { terms, agentWhenAsked } = n.pending;
     delete n.pending;
-    // He may have gone elsewhere in the meantime.
-    if (!wp || wp.client || (wp.agent && wp.agent.agency !== agentWhenAsked)) {
+    // He may have gone elsewhere in the meantime (or, for an extension, left you).
+    if (n.kind === "extend" ? !wp?.client : !wp || wp.client || (wp.agent && wp.agent.agency !== agentWhenAsked)) {
       n.status = "walked";
       n.lines.push({ by: "him", text: wp ? `${wp.player.name} has signed with ${wp.agent?.agency ?? "someone else"}.` : "He's gone." });
       out.push(`${wp?.player.name ?? "A player"} signed elsewhere while you waited.`);
       continue;
     }
     const status = answer(world, n, terms).status as Negotiation["status"];
-    out.push(status === "agreed" ? `${wp.player.name} accepts your offer and signs with ${world.agency.name}!` : status === "walked" ? `${wp.player.name} turns down your offer.` : `${wp.player.name} has come back with a counter-offer.`);
+    const ext = n.kind === "extend";
+    out.push(status === "agreed" ? (ext ? `${wp!.player.name} agrees a new deal with ${world.agency.name}!` : `${wp!.player.name} accepts your offer and signs with ${world.agency.name}!`) : status === "walked" ? `${wp!.player.name} turns down your ${ext ? "extension" : "offer"}.` : `${wp!.player.name} has come back with a counter-offer${ext ? " on his extension" : ""}.`);
   }
   return out;
 }

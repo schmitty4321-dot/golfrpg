@@ -221,7 +221,7 @@ export function ProspectCard({ world, game, id }: { world: World; game: Game; id
           {pro && !firstCall(world, id) && <p className="small muted">At interest {FIRST_CALL}, he takes your call first when his deal is up: rival bids won't count against you.</p>}
           {pro && commissionGrace(world, id) > 0 && <p className="small">He's keen enough to pay up to {Math.round((marketRate(wp) + commissionGrace(world, id)) * 1000) / 10}% (his going rate is {Math.round(marketRate(wp) * 1000) / 10}%) without it hurting your chances, or his mood once he's signed.</p>}
           {pro && <p className="small">Interest counts when you make him an offer{wp.agent && wp.agent.untilSeason > world.season ? `, which you can from his final season with ${wp.agent.agency}` : ""}. His tour numbers are public, so you start with a read of him.</p>}
-          {narrowing(wp) && <p className="small">He turns pro at the end of this season and commits on signing day to the top of his list.</p>}
+          {narrowing(wp) && <p className="small">He turns pro at the end of this season and commits on signing day to the top of his list. With you, that's a three-season rookie deal at 13%.</p>}
         </section>
       </div>
 
