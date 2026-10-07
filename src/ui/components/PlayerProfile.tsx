@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { NegotiationTable } from "./Negotiation";
+import { ProfileCoaches, ProfileEquipment } from "./ProfileGear";
 import { PromisePicker } from "./Promises";
 import { ATTRIBUTE_LABELS, createRng, describeTendencies, feetInches, liveBoard, nationInfo, tendencies, type AttributeKey } from "../../engine";
 import {
@@ -54,7 +55,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
   const [years, setYears] = useState(2);
   const [promises, setPromises] = useState<PromiseKind[]>([]);
   const [result, setResult] = useState<string | null>(null);
-  const [tab, setTab] = useState<"profile" | "stats" | "results" | "development">("profile");
+  const [tab, setTab] = useState<"profile" | "stats" | "results" | "development" | "coaches" | "equipment">("profile");
   // A full screen of its own: Escape goes back, and the page underneath doesn't scroll.
   const close = useRef(onClose);
   close.current = onClose;
@@ -153,6 +154,8 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
               <button aria-current={tab === "stats" ? "page" : undefined} onClick={() => setTab("stats")}>Stats</button>
               <button aria-current={tab === "results" ? "page" : undefined} onClick={() => setTab("results")}>Results</button>
               <button aria-current={tab === "development" ? "page" : undefined} onClick={() => setTab("development")}>Development</button>
+              {wp.client && <button aria-current={tab === "coaches" ? "page" : undefined} onClick={() => setTab("coaches")}>Coaches</button>}
+              <button aria-current={tab === "equipment" ? "page" : undefined} onClick={() => setTab("equipment")}>Equipment</button>
             </nav>
           </aside>
           {known && (
@@ -278,6 +281,10 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
           </p>
         )}
               </>
+            ) : tab === "coaches" ? (
+              <ProfileCoaches world={world} game={game} wp={wp} />
+            ) : tab === "equipment" ? (
+              <ProfileEquipment wp={wp} />
             ) : tab === "development" ? (
               <DevelopmentTab world={world} game={game} wp={wp} potential={potential} known={known} />
             ) : tab === "stats" ? (

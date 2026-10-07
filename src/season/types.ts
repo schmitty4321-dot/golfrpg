@@ -194,10 +194,17 @@ export interface Development {
 
 export type SponsorCategory = "equipment" | "apparel" | "watch" | "financial" | "automotive" | "beverage";
 
+/** What an apparel deal puts him in. */
+export type ApparelItem = "hat" | "shirt" | "shoes";
+
 export interface Sponsorship {
   id: string;
   sponsor: string;
   category: SponsorCategory;
+  /** Apparel only: what the deal covers (older deals: the full kit). */
+  items?: ApparelItem[];
+  /** Why the sponsor came calling ("after his win at the Farmers"). */
+  reason?: string;
   /** Paid in weekly instalments over the season. */
   annualValue: number;
   winBonus: number;
@@ -704,6 +711,9 @@ export interface BrandDeal {
   goals?: import("./brandGoals").BrandGoal[];
   /** A renewal from a brand whose goals were met last time. */
   renewal?: boolean;
+  /** An offer: the week it lapses, and why the brand came calling. */
+  expiresAbsWeek?: number;
+  reason?: string;
 }
 
 export type AgencyEventKind = "clinic" | "proAm" | "exhibition";

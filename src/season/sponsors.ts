@@ -1,8 +1,8 @@
-import { brandLift, followerLift } from "./showcase";
+import { brandLift, followerLift, followers } from "./showcase";
 import { hiredStaffer, sponsorBoost } from "./market";
 import { clamp, type Rng } from "../engine";
 import { rankMap } from "./points";
-import { absWeek, type SponsorCategory, type SponsorOffer, type World, type WorldPlayer } from "./types";
+import { absWeek, type ApparelItem, type SponsorCategory, type SponsorOffer, type Sponsorship, type World, type WorldPlayer } from "./types";
 import { bonusMultiplier, offerChanceMultiplier, sponsorValueMultiplier } from "./traits";
 import { hasSkill } from "./staffSkills";
 import { owns } from "./investments";
@@ -90,19 +90,90 @@ const TOP_VALUE: Record<SponsorCategory, number> = {
 };
 const MARKET: Record<string, number> = { USA: 1.2, Japan: 1.3, Korea: 1.15, England: 1.05, Australia: 1.05 };
 
+/** His place on a season list (money or points): 1 is top; 999 if he's not on it. */
+function listRank(world: World, wp: WorldPlayer, key: "seasonEarnings" | "seasonPoints"): number {
+  const mine = wp.career[key];
+  if (!mine) return 999;
+  let ahead = 0;
+  for (const p of Object.values(world.players)) if (p.career[key] > mine) ahead++;
+  return ahead + 1;
+}
+
 /**
- * How attractive a player is to sponsors, 0-1: world ranking, recent
- * wins, youth, home market, and your agency's pull.
+ * What sponsors see in him, from his results: his best standing on the world
+ * ranking, the money list and the points list; wins this season and last; top
+ * 10s this season; and his following. Returns a score and the headline reason.
+ */
+export function profileOf(world: World, wp: WorldPlayer): { score: number; reason: string } {
+  const world_ = rankMap(world).get(wp.player.id) ?? 999;
+  const money = listRank(world, wp, "seasonEarnings");
+  const points = listRank(world, wp, "seasonPoints");
+  const best = Math.min(world_, money, points);
+  const rankScore = best <= 10 ? 1 : best <= 50 ? 0.7 : best <= 125 ? 0.45 : best <= 250 ? 0.2 : 0.08;
+  const real = wp.career.results.filter((r) => r.tier !== "dev");
+  const winsNow = real.filter((r) => r.season === world.season && r.position === 1).length;
+  const winsLast = real.filter((r) => r.season === world.season - 1 && r.position === 1).length;
+  const top10 = real.filter((r) => r.season === world.season && r.position <= 10).length;
+  const fans = followers(world, wp);
+  const fanScore = fans > 10_000 ? Math.min(0.15, Math.log10(fans / 10_000) * 0.07) : 0;
+  const score = rankScore + winsNow * 0.1 + winsLast * 0.05 + Math.min(0.15, top10 * 0.02) + fanScore;
+  const lastWin = [...real].reverse().find((r) => r.season === world.season && r.position === 1);
+  const reason = lastWin
+    ? `after his win at the ${lastWin.eventName.replace(/^The /, "")}`
+    : top10 >= 3
+      ? `${top10} top-10 finishes this season`
+      : best <= 250
+        ? best === money ? `#${money} on the money list` : best === points ? `#${points} on the points list` : `world #${world_}`
+        : fans >= 100_000
+          ? `his ${Math.round(fans / 1000)}k followers`
+          : "a promising start";
+  return { score, reason };
+}
+
+/**
+ * How attractive a player is to sponsors, 0-1.4: his results (see profileOf),
+ * youth, home market, and your agency's pull.
  */
 export function marketability(world: World, wp: WorldPlayer): number {
-  const rank = rankMap(world).get(wp.player.id) ?? 400;
-  const rankScore = rank <= 10 ? 1 : rank <= 50 ? 0.7 : rank <= 125 ? 0.45 : rank <= 250 ? 0.2 : 0.08;
-  const recentWins = wp.career.results.filter((r) => r.position === 1 && r.season >= world.season - 1).length;
   const youth = wp.player.age <= 25 ? 1.15 : wp.player.age >= 40 ? 0.85 : 1;
   const market = MARKET[wp.player.nationality] ?? 1;
   const agency = 0.8 + world.agency.reputation / 250;
   // The press and his choices (inbox.ts) add or take away a little.
-  return clamp(rankScore * youth * market * agency + recentWins * 0.08 + (wp.client?.buzz ?? 0), 0.02, 1.4);
+  return clamp(profileOf(world, wp).score * youth * market * agency + (wp.client?.buzz ?? 0), 0.02, 1.4);
+}
+
+// ---------------------------------------------------------------- endorsement slots
+
+/** How many endorsements a player can carry: two, one more each for the world's top 100 and top 30, and one for a win in the last year. */
+export function endorsementSlots(world: World, wp: WorldPlayer): number {
+  const rank = rankMap(world).get(wp.player.id) ?? 999;
+  const now = absWeek(world.season, world.week);
+  const won = wp.career.results.some((r) => r.position === 1 && r.tier !== "dev" && now - absWeek(r.season, r.week) <= 52);
+  return 2 + (rank <= 100 ? 1 : 0) + (rank <= 30 ? 1 : 0) + (won ? 1 : 0);
+}
+
+/** Why he can't take another deal now, or null. */
+export function sponsorBlock(world: World, clientId: string): string | null {
+  const wp = world.players[clientId];
+  const c = wp?.client;
+  if (!wp || !c) return "He isn't your client.";
+  const slots = endorsementSlots(world, wp);
+  return c.sponsors.length >= slots ? `All ${slots} of his endorsement slots are taken: let a deal run out, or decline and wait for a better one.` : null;
+}
+
+export const APPAREL_ITEMS: ApparelItem[] = ["hat", "shirt", "shoes"];
+export const APPAREL_LABELS: Record<ApparelItem, string> = { hat: "Hat", shirt: "Shirt", shoes: "Shoes" };
+/** Each item's share of a full apparel deal's value. */
+const ITEM_SHARE: Record<ApparelItem, number> = { hat: 0.25, shirt: 0.4, shoes: 0.35 };
+
+/** What an apparel deal covers (older deals: the full kit); other categories cover nothing. */
+export const itemsOf = (s: Sponsorship): ApparelItem[] => (s.category !== "apparel" ? [] : s.items?.length ? s.items : APPAREL_ITEMS);
+
+/** Who dresses him: the brand on each item, or null. */
+export function wardrobe(wp: WorldPlayer): Record<ApparelItem, string | null> {
+  const out: Record<ApparelItem, string | null> = { hat: null, shirt: null, shoes: null };
+  for (const s of wp.client?.sponsors ?? []) for (const it of itemsOf(s)) out[it] = s.sponsor;
+  return out;
 }
 
 /** What the marketing lead's skills add to an offer: their category, the underdog, the overseas client. */
@@ -116,23 +187,31 @@ function marketingSkills(world: World, wp: WorldPlayer, category: SponsorCategor
   return x;
 }
 
-/** Tries to generate a new offer for a client; at most one per category at a time. */
+/** Tries to generate a new offer for a client: at most two waiting, one per category (apparel: one per item). */
 export function maybeOffer(world: World, wp: WorldPlayer, rng: Rng, chance: number): SponsorOffer | null {
   const c = wp.client;
   // Amateurs can't take endorsement money.
-  if (!c || wp.career.status === "amateur" || !rng.chance(chance)) return null;
-  const taken = new Set([...c.sponsors, ...c.offers].map((s) => s.category));
+  if (!c || wp.career.status === "amateur" || c.offers.length >= 2 || !rng.chance(chance)) return null;
+  const covered = new Set([...c.sponsors, ...c.offers].flatMap(itemsOf));
+  const loose = APPAREL_ITEMS.filter((it) => !covered.has(it));
+  const taken = new Set([...c.sponsors, ...c.offers].filter((s) => s.category !== "apparel").map((s) => s.category));
+  if (!loose.length) taken.add("apparel");
   const open = (Object.keys(BRANDS) as SponsorCategory[]).filter((k) => !taken.has(k));
   if (open.length === 0) return null;
   const category = rng.pick(open);
+  // Apparel: the full kit when he's wearing nothing branded (usually), otherwise one item.
+  const items = category !== "apparel" ? undefined : loose.length === APPAREL_ITEMS.length && rng.chance(0.6) ? [...APPAREL_ITEMS] : [rng.pick(loose)];
+  const share = items ? items.reduce((s, it) => s + ITEM_SHARE[it], 0) : 1;
   const m = marketability(world, wp);
   const scale = Math.min(1, m);
-  const annualValue = Math.round((TOP_VALUE[category] * scale * scale * (0.7 + rng.next() * 0.6) * sponsorValueMultiplier(world, wp, category) * sponsorBoost(world) * brandLift(world, category) * followerLift(world, wp) * marketingSkills(world, wp, category)) / 5_000) * 5_000;
+  const annualValue = Math.round((share * TOP_VALUE[category] * scale * scale * (0.7 + rng.next() * 0.6) * sponsorValueMultiplier(world, wp, category) * sponsorBoost(world) * brandLift(world, category) * followerLift(world, wp) * marketingSkills(world, wp, category)) / 5_000) * 5_000;
   if (annualValue < 20_000) return null;
   const offer: SponsorOffer = {
     id: `sp${world.season}-${world.week}-${wp.player.id}-${category}`,
     sponsor: rng.pick(BRANDS[category]),
     category,
+    ...(items ? { items } : {}),
+    reason: profileOf(world, wp).reason,
     annualValue,
     winBonus: Math.round((annualValue * 0.1 * bonusMultiplier(wp)) / 1_000) * 1_000,
     majorBonus: Math.round((annualValue * 0.3 * bonusMultiplier(wp)) / 1_000) * 1_000,
@@ -140,7 +219,8 @@ export function maybeOffer(world: World, wp: WorldPlayer, rng: Rng, chance: numb
     expiresAbsWeek: absWeek(world.season, world.week) + 3 + (hasSkill(world, "never-lapse") ? 3 : 0),
   };
   c.offers.push(offer);
-  world.news.unshift(`${offer.sponsor} offers ${wp.player.name} a ${category} deal worth $${annualValue.toLocaleString("en-US")} a season.`);
+  const what = items && items.length < APPAREL_ITEMS.length ? items.map((it) => APPAREL_LABELS[it].toLowerCase()).join(" and ") : category;
+  world.news.unshift(`${offer.sponsor} offers ${wp.player.name} a ${what} deal worth $${annualValue.toLocaleString("en-US")} a season, ${offer.reason}.`);
   return offer;
 }
 
@@ -148,6 +228,8 @@ export function acceptSponsor(world: World, clientId: string, offerId: string): 
   const c = world.players[clientId]?.client;
   const offer = c?.offers.find((o) => o.id === offerId);
   if (!c || !offer) throw new Error("no such offer");
+  // No free slot: the offer stays on the table until it lapses or you decline it.
+  if (sponsorBlock(world, clientId)) return;
   c.offers = c.offers.filter((o) => o.id !== offerId);
   const { expiresAbsWeek: _drop, ...deal } = offer;
   void _drop;
@@ -184,6 +266,8 @@ function lapseOffer(world: World, wp: WorldPlayer, o: SponsorOffer, rng: Rng): v
   const c = wp.client!;
   const { expiresAbsWeek: _drop, ...deal } = o;
   void _drop;
+  // No free slot: the deal goes elsewhere.
+  if (c.sponsors.length >= endorsementSlots(world, wp)) return;
   const lead = hiredStaffer(world, "marketing");
   if (lead) {
     c.sponsors.push(deal);

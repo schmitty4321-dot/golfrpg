@@ -200,7 +200,7 @@ export function Training({ world, game, clientId }: { world: World; game: Game; 
   );
 }
 
-function StaffRow({ role, world, game, clientId }: { role: CoachRole; world: World; game: Game; clientId: string }) {
+export function StaffRow({ role, world, game, clientId }: { role: CoachRole; world: World; game: Game; clientId: string }) {
   const current = world.coaches.find((c) => c.id === world.players[clientId]!.client!.staff[role]);
   const options = world.coaches.filter((c) => c.role === role).sort((a, b) => a.quality - b.quality);
   return (

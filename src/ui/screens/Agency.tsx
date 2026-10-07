@@ -1,6 +1,6 @@
 import { Fragment, useState } from "react";
 import { NegotiationTable } from "../components/Negotiation";
-import { BRAND_ART, CAREER_SEASONS, STATUS_LABELS, WISHES, ageingNote, keepHim, letGoBlock, letHimGo, rivalBidFor, extensionWindow, knownWishes, leverage, pointsList, rankMap, rosterLimit, talkItOver, tenure, wishesOf, type World } from "../../season";
+import { APPAREL_LABELS, itemsOf, BRAND_ART, CAREER_SEASONS, STATUS_LABELS, WISHES, ageingNote, keepHim, letGoBlock, letHimGo, rivalBidFor, extensionWindow, knownWishes, leverage, pointsList, rankMap, rosterLimit, talkItOver, tenure, wishesOf, type World } from "../../season";
 import { Portrait } from "../components/Portrait";
 import { Nation } from "../components/Flag";
 import { PlayerName } from "../components/PlayerLink";
@@ -191,8 +191,9 @@ export function SponsorshipOffers({ world, game }: { world: World; game: Game })
                   <div className="sponsor-card-body">
                     <Portrait player={wp.player} size={64} />
                     <div className="sponsor-card-who">
-                      <div><strong>{o.sponsor}</strong> <span className="sponsor-tag">{CATEGORY_LABELS[o.category]}</span> <span className="sponsor-offer-tag">Offer</span></div>
+                      <div><strong>{o.sponsor}</strong> <span className="sponsor-tag">{CATEGORY_LABELS[o.category]}{o.category === "apparel" ? `: ${game.lib.itemsOf(o).map((it) => game.lib.APPAREL_LABELS[it].toLowerCase()).join(", ")}` : ""}</span> <span className="sponsor-offer-tag">Offer</span></div>
                       <PlayerName id={id}>{wp.player.name}</PlayerName>
+                      {o.reason && <span className="small muted">Why now: {o.reason}</span>}
                     </div>
                     <div className="sponsor-card-terms">
                       <div><b>{money(o.annualValue)}</b><small>Per season</small></div>
@@ -205,7 +206,8 @@ export function SponsorshipOffers({ world, game }: { world: World; game: Game })
                     <div><b>{weeksLeft <= 0 ? "This week" : `${weeksLeft} week${weeksLeft === 1 ? "" : "s"}`}</b><small>to decide</small></div>
                   </div>
                   <div className="btn-row sponsor-offer-actions">
-                    <button className="btn btn-small btn-primary" onClick={() => game.act((w) => game.lib.acceptSponsor(w, id, o.id))}>Accept</button>
+                    <span className="small muted sponsor-slots">Endorsement slots: {wp.client!.sponsors.length} of {game.lib.endorsementSlots(world, wp)} used</span>
+                    <button className="btn btn-small btn-primary" disabled={!!game.lib.sponsorBlock(world, id)} title={game.lib.sponsorBlock(world, id) ?? undefined} onClick={() => game.act((w) => game.lib.acceptSponsor(w, id, o.id))}>Accept</button>
                     <button className="btn btn-small" onClick={() => game.act((w) => game.lib.declineSponsor(w, id, o.id))}>Decline</button>
                   </div>
                 </article>
@@ -250,7 +252,7 @@ export function CurrentSponsorships({ world }: { world: World }) {
                 <div className="sponsor-card-body">
                   <Portrait player={wp.player} size={64} />
                   <div className="sponsor-card-who">
-                    <div><strong>{s.sponsor}</strong> <span className="sponsor-tag">{CATEGORY_LABELS[s.category]}</span> <span className="sponsor-active">Active</span></div>
+                    <div><strong>{s.sponsor}</strong> <span className="sponsor-tag">{CATEGORY_LABELS[s.category]}{s.category === "apparel" ? `: ${itemsOf(s).map((it) => APPAREL_LABELS[it].toLowerCase()).join(", ")}` : ""}</span> <span className="sponsor-active">Active</span></div>
                     <PlayerName id={id}>{wp.player.name}</PlayerName>
                   </div>
                   <div className="sponsor-card-terms">
