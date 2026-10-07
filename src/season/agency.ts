@@ -16,7 +16,7 @@ import { cleanExtras, extrasAppeal, type DealExtras } from "./contractTerms";
 import { overall } from "./development";
 import { hasSkill } from "./staffSkills";
 import { commissionGrace, firstCall, interestBonus, noteSigning, recruitBlock } from "./recruiting";
-import { leverageScore, loyaltyScore, wishScore, type Wish } from "./extensions";
+import { leverageScore, loyaltyScore, marketScore, wishScore, type Wish } from "./extensions";
 
 export const RIVAL_AGENCIES = [
   "Apex Sports Management",
@@ -376,6 +376,7 @@ export function extendChance(world: World, id: string, offer: Offer & { boost?: 
     wishScore(world, wp, offer) +
     leverageScore(world, id) +
     loyaltyScore(world, wp, offer) +
+    marketScore(world, id, offer) +
     (offer.boost ?? 0);
   return clamp(1 / (1 + Math.exp(-score / 7)), 0.02, 0.98);
 }

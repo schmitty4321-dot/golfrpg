@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { WISHES, cardsInHand, knownWishes, leverage, maxYears, roundsFor, wishMet, commissionGrace, interestedAgencies, marketRate, negotiationFor, offerBlock, RELEASE_CLAUSE_STEPS, RETAINER_STEPS, SIGNING_BONUS_STEPS, STRUCTURE_LABELS, WIN_BONUS_STEPS, cleanExtras, describeTerms, warmth, type CommissionStructure, type PromiseKind, type World } from "../../season";
+import { WISHES, rivalBidFor, cardsInHand, knownWishes, leverage, maxYears, roundsFor, wishMet, commissionGrace, interestedAgencies, marketRate, negotiationFor, offerBlock, RELEASE_CLAUSE_STEPS, RETAINER_STEPS, SIGNING_BONUS_STEPS, STRUCTURE_LABELS, WIN_BONUS_STEPS, cleanExtras, describeTerms, warmth, type CommissionStructure, type PromiseKind, type World } from "../../season";
 import type { Game } from "../useGame";
 import { PromisePicker } from "./Promises";
 import { PlayerName } from "./PlayerLink";
@@ -172,6 +172,10 @@ function ExtensionSide({ world, game, playerId, terms }: { world: World; game: G
         ))}
         {known.length === 1 && <span className="muted"> · one more you haven't found</span>}
       </div>
+      {(() => {
+        const bid = rivalBidFor(world, playerId);
+        return bid ? <div className="small bad-text"><strong>Rival bid:</strong> {bid.agency} at {Math.round(bid.commission * 100)}%. Your rate above theirs counts against you.</div> : null;
+      })()}
       <div className="small"><strong>His leverage:</strong> {lev >= 60 ? "strong" : lev >= 40 ? "fair" : "weak"} <span className="muted">({lev})</span>{n.boost ? <span className="good-text"> · your closer's word is in</span> : null}</div>
       {hand.length > 0 && (
         <div className="ext-cards">
