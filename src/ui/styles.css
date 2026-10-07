@@ -315,6 +315,7 @@ tr.mine td { font-weight: 600; }
 .client-strip-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
 .client-strip-row .round-plan { margin: 0; }
 .ext-desk { padding: 6px 0; }
+.farewell-note { margin: 8px 0 0; padding: 6px 10px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); }
 .ext-desk-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
 .ext-wishes { margin: 4px 0 8px; padding-left: 18px; font-size: 13px; display: grid; gap: 2px; }
 .ext-side { display: grid; gap: 6px; margin: 4px 0 10px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); }

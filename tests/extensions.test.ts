@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   ROOKIE_SEASONS,
+  finishSeason,
+  keepHim,
+  letGoBlock,
+  letHimGo,
+  rosterCount,
   createWorld,
   extendChance,
   extensionWindow,
@@ -112,5 +117,25 @@ describe("contract extensions", () => {
     makeRookieDeal(w, wp);
     expect(wp.client!.contract.untilSeason).toBe(w.season + ROOKIE_SEASONS);
     expect(wp.client!.contract.rookie).toBe(true);
+  });
+
+  it("letting him go frees his place now; he leaves on good terms at the season's end", () => {
+    const { w, id } = world();
+    const c = w.players[id]!.client!;
+    c.contract.untilSeason = w.season + 1;
+    expect(letGoBlock(w, id)).toMatch(/final season/);
+    c.contract.untilSeason = w.season;
+    const before = rosterCount(w);
+    letHimGo(w, id);
+    expect(c.farewell).toBe(true);
+    expect(rosterCount(w)).toBe(before - 1);
+    expect(extensionWindow(w, id).open).toBe(false);
+    // Change of mind while there's room, then let him go again.
+    keepHim(w, id);
+    expect(c.farewell).toBe(false);
+    letHimGo(w, id);
+    finishSeason(w);
+    expect(w.clientIds).not.toContain(id);
+    expect(w.news.some((l) => /on good terms/.test(l))).toBe(true);
   });
 });

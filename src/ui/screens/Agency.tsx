@@ -1,6 +1,6 @@
 import { Fragment, useState } from "react";
 import { NegotiationTable } from "../components/Negotiation";
-import { BRAND_ART, CAREER_SEASONS, STATUS_LABELS, WISHES, ageingNote, rivalBidFor, extensionWindow, knownWishes, leverage, pointsList, rankMap, rosterLimit, talkItOver, tenure, wishesOf, type World } from "../../season";
+import { BRAND_ART, CAREER_SEASONS, STATUS_LABELS, WISHES, ageingNote, keepHim, letGoBlock, letHimGo, rivalBidFor, extensionWindow, knownWishes, leverage, pointsList, rankMap, rosterLimit, talkItOver, tenure, wishesOf, type World } from "../../season";
 import { Portrait } from "../components/Portrait";
 import { Nation } from "../components/Flag";
 import { PlayerName } from "../components/PlayerLink";
@@ -55,7 +55,7 @@ export function Agency({ world, game }: { world: World; game: Game }) {
                         <td className="num">#{ranks.get(id) ?? "—"}</td>
                         <td>{mood(m.happiness)} <span className="muted small">{Math.round(m.happiness)}</span></td>
                         <td><TraitChips ids={[...traitsOf(wp.player)]} /></td>
-                        <td className={expiring ? "bad-text" : ""}>{Math.round(m.contract.commission * 100)}% · {expiring ? "ends this season" : `to S${m.contract.untilSeason}`}</td>
+                        <td className={expiring && !m.farewell ? "bad-text" : ""}>{Math.round(m.contract.commission * 100)}% · {m.farewell ? "farewell season" : expiring ? "ends this season" : `to S${m.contract.untilSeason}`}</td>
                         <td className="num">{money(m.sponsors.reduce((s, x) => s + x.annualValue, 0))}</td>
                         <td className="num">{money(m.finances.commission)}</td>
                         <td>
@@ -177,8 +177,26 @@ function ExtendForm({ world, game, id }: { world: World; game: Game; id: string 
           <p className="small muted" style={{ margin: "4px 0 0" }}>He's {mood(m.happiness).toLowerCase()}. Happier clients sign on more readily.</p>
         </div>
       </div>
+      {m.farewell && <p className="small farewell-note">Farewell season: he leaves on good terms when his deal ends, and his place is already free.</p>}
       <div className="btn-row" style={{ marginTop: 8 }}>
-        <button
+        {!m.farewell && !letGoBlock(world, id) && (
+          <button
+            className="btn btn-small"
+            title="He plays out his deal and leaves on good terms: a little reputation instead of the hit for a client walking out, and his place frees up now"
+            onClick={() => {
+              if (!confirm(`Let ${wp.player.name} go at the end of the season? His place frees up now.`)) return;
+              let t = "";
+              game.act((w) => (t = letHimGo(w, id)));
+              setMsg(t);
+            }}
+          >
+            Let him go
+          </button>
+        )}
+        {m.farewell && (
+          <button className="btn btn-small" onClick={() => { let t = ""; game.act((w) => (t = keepHim(w, id))); setMsg(t); }}>Change your mind</button>
+        )}
+        {!m.farewell && <button
           className="btn btn-primary btn-small"
           onClick={() => {
             let text = "";
@@ -188,7 +206,7 @@ function ExtendForm({ world, game, id }: { world: World; game: Game; id: string 
           }}
         >
           {talks?.status === "open" ? "Back to the talks" : "Open talks"}
-        </button>
+        </button>}
         {msg && <strong className="small">{msg}</strong>}
       </div>
       {talking && <NegotiationTable world={world} game={game} playerId={id} onClose={() => setTalking(false)} />}
