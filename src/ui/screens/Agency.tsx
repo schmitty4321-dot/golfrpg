@@ -1,6 +1,6 @@
 import { Fragment, useState } from "react";
 import { NegotiationTable } from "../components/Negotiation";
-import { BRAND_ART, CAREER_SEASONS, STATUS_LABELS, WISHES, extensionWindow, knownWishes, leverage, pointsList, rankMap, rosterLimit, talkItOver, tenure, wishesOf, type World } from "../../season";
+import { BRAND_ART, CAREER_SEASONS, STATUS_LABELS, WISHES, ageingNote, rivalBidFor, extensionWindow, knownWishes, leverage, pointsList, rankMap, rosterLimit, talkItOver, tenure, wishesOf, type World } from "../../season";
 import { Portrait } from "../components/Portrait";
 import { Nation } from "../components/Flag";
 import { PlayerName } from "../components/PlayerLink";
@@ -152,6 +152,7 @@ function ExtendForm({ world, game, id }: { world: World; game: Game; id: string 
             With you {years} season{years === 1 ? "" : "s"}
             {years >= CAREER_SEASONS ? " · career deal: up to four seasons, and he likes a ladder" : ` · career deals open after ${CAREER_SEASONS}`}
           </p>
+          {ageingNote(wp) && <p className="small bad-text" style={{ margin: "4px 0 0" }}>{ageingNote(wp)} Potential {Math.round(wp.development.potential * 10) / 10}.</p>}
         </div>
         <div>
           <span className="recruit-label">What he wants</span>
@@ -169,6 +170,10 @@ function ExtendForm({ world, game, id }: { world: World; game: Game; id: string 
             {lev >= 60 ? "Strong: he's playing well and the rivals know it." : lev >= 40 ? "Fair: some interest elsewhere." : "Weak: a good time to talk."}
             {m.tapped ? " Rival agencies have been in touch." : ""}
           </p>
+          {(() => {
+            const bid = rivalBidFor(world, id);
+            return bid ? <p className="small bad-text" style={{ margin: "4px 0 0" }}>{bid.agency} have offered him {Math.round(bid.commission * 100)}%. Beat it, or he may go.</p> : null;
+          })()}
           <p className="small muted" style={{ margin: "4px 0 0" }}>He's {mood(m.happiness).toLowerCase()}. Happier clients sign on more readily.</p>
         </div>
       </div>

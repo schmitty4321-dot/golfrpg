@@ -92,7 +92,7 @@ export function wishMet(wp: WorldPlayer, wish: Wish, offer: Offer): boolean {
 
 /** Score points for an extension from his wishes: +4 for each met, -2 for each ignored. */
 export function wishScore(world: World, wp: WorldPlayer, offer: Offer & { fill?: Wish }): number {
-  return wishesOf(world, wp).reduce((s, w) => s + (offer.fill === w || wishMet(wp, w, offer) ? 4 : -2), 0);
+  return wishesOf(world, wp).reduce((s, w) => s + (offer.fill === w || wishMet(wp, w, offer) ? 3 : -2), 0);
 }
 
 /** Talk it over with him (once a week): you learn one more of his wishes. Returns what you learned, or why not. */
@@ -141,12 +141,50 @@ export function leverage(world: World, id: string): number {
   const now = absWeek(world.season, world.week);
   const recent = wp.career.results.filter((r) => r.tier !== "dev" && now - absWeek(r.season, r.week) <= 8);
   let form = 0;
-  for (const r of recent) form += r.position === 1 ? 20 : r.position <= 10 ? 6 : r.position <= 25 ? 2 : !r.madeCut ? -3 : 0;
+  for (const r of recent) form += r.position === 1 ? 30 : r.position <= 10 ? 10 : r.position <= 25 ? 4 : !r.madeCut ? -4 : 0;
   return Math.round(clamp(30 + form + (wp.client.tapped ?? 0), 0, 100));
 }
 
 /** Leverage as score points against an extension (neutral at 30). */
-export const leverageScore = (world: World, id: string): number => -(leverage(world, id) - 30) * 0.15;
+export const leverageScore = (world: World, id: string): number => -(leverage(world, id) - 30) * 0.25;
+
+/**
+ * The market's pull on any client whose deal is running out: other agencies
+ * exist, so an ordinary offer keeps him about seven times in ten. Meeting his
+ * wishes, settling a season early or a sharper rate is what beats it.
+ */
+export const MARKET_PULL = 7.25;
+
+/** A rival's concrete bid for a top-100 client in his final season: about a point under his going rate. */
+export function rivalBidFor(world: World, id: string): { agency: string; commission: number } | null {
+  const wp = world.players[id];
+  const c = wp?.client;
+  if (!wp || !c || c.contract.untilSeason > world.season || world.week < windowWeek(world)) return null;
+  if ((rankMap(world).get(id) ?? 999) > 100) return null;
+  const rivals = world.rivals ?? [];
+  const agency = rivals.length ? rivals[(idNum(id) + world.season) % rivals.length]!.name : "A rival agency";
+  return { agency, commission: Math.max(0.05, Math.round((marketRate(wp) - 0.01) * 100) / 100) };
+}
+
+/** The rival bid against your offer: it counts against you, more so the further your rate is above theirs. */
+export function rivalBidScore(world: World, id: string, offer: Offer): number {
+  const bid = rivalBidFor(world, id);
+  return bid ? -3 - Math.max(0, offer.commission - bid.commission) * 100 * 1.5 : 0;
+}
+
+/** The pull of the market on an expiring deal (a deal settled a season early feels it less). */
+export function marketScore(world: World, id: string, offer: Offer): number {
+  const c = world.players[id]?.client;
+  if (!c) return 0;
+  return -(c.contract.untilSeason > world.season ? MARKET_PULL / 2 : MARKET_PULL) + rivalBidScore(world, id, offer);
+}
+
+/** An ageing client: his best years may be behind him (shown on the extension desk). */
+export function ageingNote(wp: WorldPlayer): string | null {
+  const age = wp.player.age;
+  if (age < 34) return null;
+  return age >= 38 ? `At ${age}, he's near the end: a short deal, if any.` : `At ${age}, his best years may be behind him: think about the length.`;
+}
 
 /** Players with you this many seasons can sign career deals. */
 export const CAREER_SEASONS = 3;
@@ -162,7 +200,7 @@ export const maxYears = (world: World, wp: WorldPlayer): number => (tenure(world
 /** Loyalty in an extension's score: a season early (+4), and a ladder career deal for a long-time client (+3). */
 export function loyaltyScore(world: World, wp: WorldPlayer, offer: Offer): number {
   let s = 0;
-  if (wp.client && wp.client.contract.untilSeason > world.season) s += 4;
+  if (wp.client && wp.client.contract.untilSeason > world.season) s += 2;
   if (tenure(world, wp) >= CAREER_SEASONS && offer.extras?.structure === "ladder") s += 3;
   return s;
 }
@@ -193,7 +231,7 @@ export function extensionsWeek(world: World): string[] {
     // A holdout: unhappy, ranked, nobody's talking to him, not in the last few weeks.
     const talking = world.talks?.[id]?.status === "open";
     const quiet = c.holdoutWeek === undefined || now - c.holdoutWeek >= 3;
-    if (!talking && quiet && c.happiness < 50 && rank <= 60 && world.week >= windowWeek(world) + 3) {
+    if (!talking && quiet && rank <= 60 && leverage(world, id) >= 50 && world.week >= windowWeek(world) + 3) {
       const rng = createRng(mixSeed(world.seed, world.season, world.week, 7702, idNum(id)));
       if (rng.chance(0.25)) {
         c.holdoutWeek = now;

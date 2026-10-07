@@ -25,7 +25,7 @@ import { teamOf } from "./ryderCup";
 import { absWeek, type World, type WorldPlayer } from "./types";
 import { describeExtras, type DealExtras } from "./contractTerms";
 import { rivalBids } from "./rivals";
-import { extensionWindow, leverage, maxYears, playCard, type CardId, type Wish } from "./extensions";
+import { extensionWindow, leverage, maxYears, playCard, windowWeek, type CardId, type Wish } from "./extensions";
 
 export interface Terms {
   commission: number;
@@ -170,13 +170,15 @@ function findCounter(world: World, n: Negotiation, t: Terms): Terms {
   const wp = world.players[n.playerId]!;
   const ok = (x: Terms) => termsChance(world, n, x) >= n.bar;
   const otherLength = wp.player.age <= 27 ? Math.min(3, t.years + 1) : Math.max(1, t.years - 1);
+  // A client re-signing moves at most two points: past that, he'd rather see what the market says.
+  const floor = n.kind === "extend" ? Math.max(MIN_COMMISSION, Math.round((t.commission - 0.02) * 100) / 100) : MIN_COMMISSION;
   // 1) a lower commission, a point at a time (or a different length at the same price).
-  for (let c = t.commission; c >= MIN_COMMISSION - 1e-9; c = step(c)) {
+  for (let c = t.commission; c >= floor - 1e-9; c = step(c)) {
     for (const x of [{ ...t, commission: c }, { ...t, commission: c, years: otherLength }]) if (ok(x)) return x;
   }
   // 2) a promise he'd value, with the commission cut as little as possible.
   if (t.promises.length < MAX_PROMISES) {
-    for (let c = t.commission; c >= MIN_COMMISSION - 1e-9; c = step(c)) {
+    for (let c = t.commission; c >= floor - 1e-9; c = step(c)) {
       for (const p of allowedPromises(wp, t.promises)) {
         const x = { ...t, commission: c, promises: [...t.promises, p.kind] };
         if (ok(x)) return x;
@@ -188,7 +190,7 @@ function findCounter(world: World, n: Negotiation, t: Terms): Terms {
     .sort((a, b) => b.appeal(wp, 999) - a.appeal(wp, 999))
     .slice(0, Math.max(0, MAX_PROMISES - t.promises.length))
     .map((p) => p.kind);
-  return { commission: MIN_COMMISSION, years: t.years, promises: [...t.promises, ...best], ...(t.extras ? { extras: t.extras } : {}) };
+  return { commission: floor, years: t.years, promises: [...t.promises, ...best], ...(t.extras ? { extras: t.extras } : {}) };
 }
 
 export function describeTerms(t: Terms): string {
@@ -216,8 +218,12 @@ function walk(world: World, n: Negotiation): void {
   const wp = world.players[n.playerId]!;
   n.status = "walked";
   n.counter = null;
-  world.agency.cooldowns[n.playerId] = absWeek(world.season, world.week) + WALK_COOLDOWN;
-  n.lines.push({ by: "him", text: `${wp.player.name} has heard enough and walks away. He won't talk again for ${WALK_COOLDOWN} weeks.` });
+  // A client walking out in his final season has made up his mind: he'll test the market (only your dispute settler can talk him round).
+  const final = n.kind === "extend" && !!wp.client && wp.client.contract.untilSeason <= world.season;
+  // Early talks that break down wait for his final-season window.
+  const early = n.kind === "extend" && !!wp.client && wp.client.contract.untilSeason > world.season;
+  world.agency.cooldowns[n.playerId] = final ? absWeek(world.season + 1, 0) : early ? absWeek(world.season + 1, windowWeek(world)) : absWeek(world.season, world.week) + WALK_COOLDOWN;
+  n.lines.push({ by: "him", text: final ? `${wp.player.name} has heard enough. He'll see what the market says when his deal runs out.` : early ? `${wp.player.name} would rather wait: he'll talk again in his final season.` : `${wp.player.name} has heard enough and walks away. He won't talk again for ${WALK_COOLDOWN} weeks.` });
   world.news.unshift(`${wp.player.name} walks out of talks with ${world.agency.name}.`);
 }
 
