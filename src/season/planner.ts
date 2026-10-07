@@ -36,11 +36,21 @@ export function weekDays(world: World, wp: WorldPlayer, eventRegion: Region | nu
   return { days: EVENT_DAYS, travel: Math.min(EVENT_DAYS.length, travelDays(world, wp, eventRegion)) };
 }
 
-/** A plan fitted to the free days: missing days rest, extra days are dropped. */
-export function fitPlan(plan: DayActivity[] | undefined, free: number, allowed: DayActivity[]): DayActivity[] {
+/**
+ * A plan fitted to the free days: missing days rest, extra days are dropped.
+ * Before an event (`once`), each activity but rest can fill only one day: a
+ * repeat becomes rest.
+ */
+export function fitPlan(plan: DayActivity[] | undefined, free: number, allowed: DayActivity[], once = false): DayActivity[] {
+  const used = new Set<DayActivity>();
   return Array.from({ length: free }, (_, i) => {
     const a = plan?.[i];
-    return a && allowed.includes(a) ? a : "rest";
+    if (!a || !allowed.includes(a)) return "rest";
+    if (once && a !== "rest") {
+      if (used.has(a)) return "rest";
+      used.add(a);
+    }
+    return a;
   });
 }
 

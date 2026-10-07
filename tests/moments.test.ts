@@ -10,6 +10,7 @@ import {
   getCourse,
   liveSnapshot,
   markAsked,
+  featureHoles,
   noteYourCall,
   nextDecisions,
   nextMoment,
@@ -266,5 +267,19 @@ describe("live weeks", () => {
     const s = weekSummary(w, report);
     expect(s.clients.find((c) => c.id === mine)!.callsMade).toBe(2);
     for (const c of s.clients.filter((c) => c.id !== mine)) expect(c.callsMade).toBe(0);
+  });
+
+  it("a watched round features at least three holes, even in round 1 with no calls left", () => {
+    const t = startLive(config(), [a, b]);
+    startLiveRound(t);
+    featureHoles(t, [a, b]);
+    let moments = 0;
+    for (let guard = 0; guard < 50; guard++) {
+      const { moment } = nextMoment(t, { stops: false });
+      if (!moment) break;
+      moments++;
+      answerMoment(t, moment, null);
+    }
+    expect(moments).toBeGreaterThanOrEqual(3);
   });
 });

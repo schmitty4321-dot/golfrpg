@@ -251,18 +251,31 @@ function InfoCard({ title, text, selected = false, onClick }: { title: string; t
 }
 function Check({ title, text }: { title: string; text: string }) { return <div className="preround-check"><b aria-hidden>✓</b><div><strong>{title}</strong><span>{text}</span></div></div>; }
 
+/**
+ * The week's final page: the main event's scoreboard first, then your
+ * players' boxes and the agency's week, then any lesser event's results.
+ */
 function FinalView({ world, report, onDone }: { world: World; report: WeekReport; onDone: () => void }) {
-  const events = reportEvents(report);
-  const [which, setWhich] = useState(0);
-  const live = events[which]!;
+  // The biggest purse is the week's main event.
+  const events = [...reportEvents(report)].sort((a, b) => b.event.purse - a.event.purse);
+  const [main, ...others] = events;
+  const header = (e: EventView, withContinue: boolean) => (
+    <EventHeader event={e.event} course={e.result.course} week={report.week} players={e.result.leaderboard.length} hasCut={e.result.cutLine !== null} status="Final">
+      {withContinue && <button className="btn btn-primary" onClick={onDone}>Continue</button>}
+    </EventHeader>
+  );
   return (
     <main>
+      {main && header(main, true)}
+      {main && <Final world={world} report={report} live={main} />}
       <WeekSummary world={world} report={report} />
-      <EventTabs names={events.map((e) => e.event.name)} which={which} setWhich={setWhich} />
-      <EventHeader event={live.event} course={live.result.course} week={report.week} players={live.result.leaderboard.length} hasCut={live.result.cutLine !== null} status="Final">
-        <button className="btn btn-primary" onClick={onDone}>Continue</button>
-      </EventHeader>
-      <Final world={world} report={report} live={live} />
+      {others.map((e) => (
+        <Fragment key={e.event.id}>
+          {header(e, false)}
+          <Final world={world} report={report} live={e} />
+        </Fragment>
+      ))}
+      {others.length > 0 && <div className="btn-row"><button className="btn btn-primary" onClick={onDone}>Continue</button></div>}
     </main>
   );
 }

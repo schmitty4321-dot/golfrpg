@@ -389,6 +389,8 @@ export interface LiveTournament {
   playoffCalls: Record<string, HoleCall | null>;
   /** A lift or drag on a client's form for one round (strokes per round), by `${id}:${round}`: your calls between rounds. */
   boosts: Record<string, number>;
+  /** Featured holes for a watched round, by round: a client's hole from `from` on stops for a moment whatever's at stake. */
+  featured?: Record<number, { id: string; from: number; done?: boolean }[]>;
   /** Question kinds already asked at key moments, by `${id}:${round}` (each is asked once a round). */
   asked: Record<string, CallKind[]>;
   /** The hole (0-based) each question was last put to a client, by `${id}:${round}` (older saves: none). */
@@ -726,9 +728,10 @@ export function pendingPlayoff(t: LiveTournament): string[] {
  * holes played on the way and the moment (null: the round is over). Asking
  * again without answering returns the same moment.
  */
-export function nextMoment(t: LiveTournament, opts: { stops?: boolean } = {}): { ticker: TickerItem[]; moment: Moment | null } {
-  // With no calls left to make, the round plays through (a playoff still stops: that call is always yours).
+export function nextMoment(t: LiveTournament, opts: { stops?: boolean; maxHoles?: number } = {}): { ticker: TickerItem[]; moment: Moment | null; paused?: boolean } {
+  // With no calls left to make, the round plays through on what's at stake (featured holes and a playoff still stop).
   const stops = opts.stops ?? true;
+  let played = 0;
   const ticker: TickerItem[] = [];
   const course = t.config.course;
   for (;;) {
@@ -740,9 +743,14 @@ export function nextMoment(t: LiveTournament, opts: { stops?: boolean } = {}): {
     const decisions = nextDecisions(t, id);
     // Each question is asked once a round; later holes go by his plan (and any closing-putts call).
     const fresh = decisions.filter((d) => !(t.asked[key] ?? []).includes(d.kind));
-    if (stops && fresh.length && atStake(s) && (t.stops[key] ?? 0) < MAX_STOPS) {
+    const feature = (t.featured?.[t.round] ?? []).find((f) => f.id === id && !f.done && s.index >= f.from);
+    if (fresh.length && (feature || (stops && atStake(s) && (t.stops[key] ?? 0) < MAX_STOPS))) {
+      if (feature) feature.done = true;
       return { ticker, moment: { id, round: t.round, index: s.index, situation: s, decisions: fresh } };
     }
+    // Watching hole by hole: hand back after a few holes so the leaderboard can update.
+    if (opts.maxHoles !== undefined && played >= opts.maxHoles) return { ticker, moment: null, paused: true };
+    played++;
     const score = playLiveHole(t, planCall(t.plans[id] ?? "steady", nextDecisions(t, id, false)), id);
     ticker.push({ id, round: t.round, index: s.index, score, par: course.holes[s.index]!.par });
   }
@@ -754,6 +762,15 @@ export function nextMoment(t: LiveTournament, opts: { stops?: boolean } = {}): {
     return { ticker, moment: { id, round: 4, index, situation: s, decisions: decisionsFor(course.holes[index]!, course, entryOf(t, id).player, s), playoff: true } };
   }
   return { ticker, moment: null };
+}
+
+/** Holes featured in a watched round: the 4th, 10th and 15th (or the next with a call to make), shared out among the clients given, best placed first. */
+export const FEATURED_FROM = [3, 9, 14];
+
+export function featureHoles(t: LiveTournament, ids: string[]): void {
+  const live = ids.filter((id) => t.live[id]);
+  if (!live.length) return;
+  (t.featured ??= {})[t.round] = FEATURED_FROM.map((from, i) => ({ id: live[i % live.length]!, from }));
 }
 
 /** Answers a key moment with your call (null: his own) and plays the hole. Returns the score (null for a playoff, which is played at the finish). */

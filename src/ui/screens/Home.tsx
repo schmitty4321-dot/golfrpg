@@ -355,7 +355,7 @@ function DayPlanner({ world, id, choice, entered, onChoose }: { world: World; id
   if (choice.kind === "enter" && !event) return null;
   const { days, travel } = weekDays(world, wp, event?.region ?? null);
   const allowed = event ? EVENT_WEEK_ACTIVITIES : OFF_WEEK_ACTIVITIES;
-  const plan = fitPlan(choice.days ?? (choice.kind === "enter" && choice.practice ? ["practice"] : undefined), days.length - travel, allowed);
+  const plan = fitPlan(choice.days ?? (choice.kind === "enter" && choice.practice ? ["practice"] : undefined), days.length - travel, allowed, !!event);
   const set = (i: number, a: DayActivity) => {
     const next = [...plan];
     next[i] = a;
@@ -380,7 +380,11 @@ function DayPlanner({ world, id, choice, entered, onChoose }: { world: World; id
             <label key={d} className={`planner-day act-${plan[i - travel]}`}>
               <span className="planner-dname">{d}</span>
               <select value={plan[i - travel]} onChange={(e) => set(i - travel, e.target.value as DayActivity)} aria-label={`${wp.player.name}, ${d}`}>
-                {allowed.map((a) => <option key={a} value={a}>{ACTIVITIES[a].short}</option>)}
+                {allowed.map((a) => {
+                  // Before an event, each activity but rest fills one day only.
+                  const taken = !!event && a !== "rest" && plan.some((x, j) => x === a && j !== i - travel);
+                  return <option key={a} value={a} disabled={taken}>{ACTIVITIES[a].short}{taken ? " (done)" : ""}</option>;
+                })}
               </select>
             </label>
           ),

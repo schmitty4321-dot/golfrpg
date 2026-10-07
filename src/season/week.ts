@@ -174,7 +174,7 @@ export function weekPlans(world: World, choices: ClientChoices): Map<string, Day
     if (!wp || !c || (c.kind !== "enter" && c.kind !== "rest")) continue;
     const event = c.kind === "enter" ? world.schedule.find((e) => e.id === c.eventId) : undefined;
     const { days, travel } = weekDays(world, wp, event?.region ?? null);
-    out.set(id, fitPlan(c.days, days.length - travel, event ? EVENT_WEEK_ACTIVITIES : OFF_WEEK_ACTIVITIES));
+    out.set(id, fitPlan(c.days, days.length - travel, event ? EVENT_WEEK_ACTIVITIES : OFF_WEEK_ACTIVITIES, !!event));
   }
   return out;
 }
