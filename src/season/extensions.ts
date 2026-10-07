@@ -15,7 +15,7 @@
  * - Rookie deals: an amateur signed on signing day gets three full pro seasons.
  */
 import { clamp, createRng } from "../engine";
-import { addReputation, marketRate, type Offer } from "./agency";
+import { addReputation, marketRate, rosterCount, rosterLimit, type Offer } from "./agency";
 import { seasonWeeks } from "./calendar";
 import { mixSeed } from "./entries";
 import { hiredStaffer } from "./market";
@@ -123,6 +123,7 @@ export type WindowState = { open: true; early: boolean } | { open: false; reason
 export function extensionWindow(world: World, id: string): WindowState {
   const c = world.players[id]?.client;
   if (!c) return { open: false, reason: "He isn't your client." };
+  if (c.farewell) return { open: false, reason: "You've agreed to let him go at the end of his deal." };
   const until = c.contract.untilSeason;
   if (until === world.season + 1) return { open: true, early: true };
   if (until <= world.season) {
@@ -220,7 +221,7 @@ export function extensionsWeek(world: World): string[] {
   for (const id of world.clientIds) {
     const wp = world.players[id]!;
     const c = wp.client!;
-    if (c.contract.untilSeason > world.season) continue;
+    if (c.contract.untilSeason > world.season || c.farewell) continue;
     const rank = ranks.get(id) ?? 999;
     const before = c.tapped ?? 0;
     c.tapped = Math.min(40, before + (rank <= 30 ? 4 : rank <= 100 ? 2.5 : 1));
@@ -243,6 +244,50 @@ export function extensionsWeek(world: World): string[] {
     }
   }
   return out;
+}
+
+// ---------------------------------------------------------------- letting him go
+
+/** Why you can't let him go now, or null: only in his final season. */
+export function letGoBlock(world: World, id: string): string | null {
+  const c = world.players[id]?.client;
+  if (!c) return "He isn't your client.";
+  if (c.farewell) return "You've already agreed to let him go.";
+  if (c.contract.untilSeason > world.season) return "You can let him go in the final season of his deal.";
+  return null;
+}
+
+/**
+ * Let him go: he plays out his deal and leaves on good terms at the season's
+ * end (a little reputation instead of the hit for a client walking out). His
+ * place is free at once, for a new signing or signing day; talks about a new
+ * deal end, and the rivals stop circling.
+ */
+export function letHimGo(world: World, id: string): string {
+  const block = letGoBlock(world, id);
+  if (block) return block;
+  const wp = world.players[id]!;
+  const c = wp.client!;
+  c.farewell = true;
+  c.tapped = 0;
+  c.happiness = clamp(c.happiness + 5, 0, 100);
+  const n = world.talks?.[id];
+  if (n && n.status === "open") {
+    n.status = "walked";
+    delete n.pending;
+    n.lines.push({ by: "you", text: "You agree to part ways at the end of the season." });
+  }
+  world.news.unshift(`${wp.player.name} and ${world.agency.name} agree to part ways when his deal ends this season.`);
+  return `${wp.player.name} plays out his deal and leaves on good terms. His place is free now.`;
+}
+
+/** Changed your mind: only while his place hasn't been filled. */
+export function keepHim(world: World, id: string): string {
+  const c = world.players[id]?.client;
+  if (!c?.farewell) return "You haven't let him go.";
+  if (rosterCount(world) >= rosterLimit(world.agency.reputation, world.agency.hq)) return "His place has been filled: you can't take it back.";
+  c.farewell = false;
+  return "He's staying for now: talk about a new deal when you're ready.";
 }
 
 // ---------------------------------------------------------------- staff cards

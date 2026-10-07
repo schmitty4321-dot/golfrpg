@@ -47,6 +47,9 @@ export const STARTING_REPUTATION = 15;
 
 /** How many clients the agency can look after: grows with reputation, and a bigger headquarters adds room. */
 /** Clients you can manage: 2 plus one for every 15 reputation up to 8, one more each at 85 and 95, plus your headquarters' extra room. */
+/** Clients taking up a place: one you're letting go at the end of his deal has already given his up. */
+export const rosterCount = (world: World): number => world.clientIds.filter((id) => !world.players[id]?.client?.farewell).length;
+
 export const rosterLimit = (reputation: number, hq = 0): number =>
   Math.min(8, 2 + Math.floor(reputation / 15)) + (reputation >= 85 ? 1 : 0) + (reputation >= 95 ? 1 : 0) + (HQ_TIERS[hq]?.roster ?? 0);
 
@@ -173,7 +176,7 @@ export function approachBlock(world: World, id: string): string | null {
   if (until !== undefined && until > absWeek(world.season, world.week)) return "He turned you down recently. Give it a few weeks.";
   const narrowed = recruitBlock(world, id);
   if (narrowed) return narrowed;
-  if (world.clientIds.length >= rosterLimit(world.agency.reputation, world.agency.hq)) {
+  if (rosterCount(world) >= rosterLimit(world.agency.reputation, world.agency.hq)) {
     return `Your agency can manage ${rosterLimit(world.agency.reputation, world.agency.hq)} clients at its reputation. Grow it, or move to a bigger headquarters, to take on more.`;
   }
   return null;
@@ -446,8 +449,11 @@ export function agencySeasonEnd(world: World, rng: Rng): string[] {
   for (const wp of [...clients(world)]) {
     if (wp.client!.contract.untilSeason <= world.season) {
       departures.push(wp.player.name);
-      // Clients walking out is noticed.
-      addReputation(world.agency, -1.5);
+      // Clients walking out is noticed; one you let go with your blessing is a good look.
+      if (wp.client!.farewell) {
+        addReputation(world.agency, 0.5);
+        world.news.unshift(`${wp.player.name} leaves ${world.agency.name} on good terms, with thanks on both sides.`);
+      } else addReputation(world.agency, -1.5);
       // He goes to the winter market, where the rivals bid for him (rivals.ts).
       releaseClient(world, wp.player.id);
     }

@@ -10,7 +10,7 @@
  * dealbreakers, and each season's class is ranked against the rivals'.
  */
 import { ATTRIBUTE_GROUPS, clamp, createRng, type AttributeKey } from "../engine";
-import { addReputation, clients, marketRate, rosterLimit, signClient, RIVAL_AGENCIES } from "./agency";
+import { addReputation, clients, marketRate, rosterCount, rosterLimit, signClient, RIVAL_AGENCIES } from "./agency";
 import { PRO_AGE, amateurRanking } from "./amateurs";
 import { mixSeed } from "./entries";
 import { stafferQuality } from "./market";
@@ -465,7 +465,7 @@ export function signingDay(world: World, wp: WorldPlayer): string | null {
   if (top.you) {
     // A full roster can't take him: he goes to the winter market instead.
     // A commitment is honoured even one over the roster limit; only a roster already past it loses him.
-    if (world.clientIds.length > rosterLimit(world.agency.reputation, world.agency.hq)) return `Signing day: ${wp.player.name} wanted ${world.agency.name}, but your roster is full.`;
+    if (rosterCount(world) > rosterLimit(world.agency.reputation, world.agency.hq)) return `Signing day: ${wp.player.name} wanted ${world.agency.name}, but your roster is full.`;
     signClient(world, wp.player.id, { commission: marketRate(wp), years: ROOKIE_SEASONS });
     makeRookieDeal(world, wp);
     return `Signing day: ${wp.player.name} commits to ${world.agency.name} on a ${ROOKIE_SEASONS}-season rookie deal!`;

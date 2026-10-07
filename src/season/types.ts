@@ -243,6 +243,8 @@ export interface ClientManagement {
   tapped?: number;
   /** The week he last went public about his contract. */
   holdoutWeek?: number;
+  /** You've agreed to let him go at the end of his deal: his place is free now, and he leaves on good terms. */
+  farewell?: boolean;
   training: TrainingPlan;
   /** Coach id per role. */
   staff: Partial<Record<CoachRole, string>>;
