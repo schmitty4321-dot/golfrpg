@@ -1,8 +1,6 @@
 import { Fragment, useState } from "react";
 import { NegotiationTable } from "../components/Negotiation";
-import { PromisePicker } from "../components/Promises";
-import type { PromiseKind } from "../../season";
-import { BRAND_ART, STATUS_LABELS, pointsList, rankMap, rosterLimit, type World } from "../../season";
+import { BRAND_ART, CAREER_SEASONS, STATUS_LABELS, WISHES, extensionWindow, knownWishes, leverage, pointsList, rankMap, rosterLimit, talkItOver, tenure, wishesOf, type World } from "../../season";
 import { Portrait } from "../components/Portrait";
 import { Nation } from "../components/Flag";
 import { PlayerName } from "../components/PlayerLink";
@@ -128,42 +126,67 @@ export function Agency({ world, game }: { world: World; game: Game }) {
 }
 
 function ExtendForm({ world, game, id }: { world: World; game: Game; id: string }) {
-  const m = world.players[id]!.client!;
-  const [commission, setCommission] = useState(Math.round(m.contract.commission * 100));
-  const [years, setYears] = useState(2);
-  const [promises, setPromises] = useState<PromiseKind[]>([]);
+  const wp = world.players[id]!;
+  const m = wp.client!;
   const [msg, setMsg] = useState<string | null>(null);
+  const [talking, setTalking] = useState(false);
+  const win = extensionWindow(world, id);
+  const all = wishesOf(world, wp);
+  const known = knownWishes(world, wp);
+  const lev = leverage(world, id);
+  const years = tenure(world, wp);
+  const talks = world.talks?.[id];
   return (
-    <div className="btn-row" style={{ alignItems: "center", padding: "6px 0", flexWrap: "wrap" }}>
-      <strong>New deal:</strong>
-      <label className="small secondary">Commission
-        <select value={commission} onChange={(e) => setCommission(Number(e.target.value))} style={{ marginLeft: 6 }}>
-          {[5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].map((c) => <option key={c} value={c}>{c}%</option>)}
-        </select>
-      </label>
-      <label className="small secondary">Extra seasons
-        <select value={years} onChange={(e) => setYears(Number(e.target.value))} style={{ marginLeft: 6 }}>
-          {[1, 2, 3].map((y) => <option key={y} value={y}>{y}</option>)}
-        </select>
-      </label>
-      <span className="small secondary">He's {mood(m.happiness).toLowerCase()}. Happier clients sign on more readily.</span>
-      <button
-        className="btn btn-primary btn-small"
-        onClick={() => {
-          let text = "";
-          game.act((w) => {
-            text = game.lib.startNegotiation(w, id, "extend") ?? "";
-            if (!text) game.lib.makeOffer(w, { commission: commission / 100, years, promises });
-          });
-          setMsg(text || null);
-        }}
-      >
-        Open talks
-      </button>
-      <NegotiationTable world={world} game={game} playerId={id} onClose={() => setMsg(null)} />
-      {msg && <strong className="small">{msg}</strong>}
-      <span className="small muted">(Runs from the end of this season: new end is season {world.season + years}.)</span>
-      <PromisePicker wp={world.players[id]!} value={promises} onChange={setPromises} />
+    <div className="ext-desk">
+      <div className="ext-desk-grid">
+        <div>
+          <span className="recruit-label">The deal</span>
+          <p className="small" style={{ margin: "4px 0" }}>
+            {Math.round(m.contract.commission * 100)}% to the end of season {m.contract.untilSeason}
+            {m.contract.rookie ? " · rookie deal (the rate doesn't bother him while it runs)" : ""}
+          </p>
+          <p className="small secondary" style={{ margin: 0 }}>
+            {win.open ? (win.early ? "A season early: a loyalty discount if you settle now." : "His final season: the window is open, and the rivals are circling.") : win.reason}
+          </p>
+          <p className="small secondary" style={{ margin: "4px 0 0" }}>
+            With you {years} season{years === 1 ? "" : "s"}
+            {years >= CAREER_SEASONS ? " · career deal: up to four seasons, and he likes a ladder" : ` · career deals open after ${CAREER_SEASONS}`}
+          </p>
+        </div>
+        <div>
+          <span className="recruit-label">What he wants</span>
+          <ul className="ext-wishes">
+            {all.map((w, i) => (
+              <li key={w}>{known.includes(w) ? <><strong>{WISHES[w].label}</strong> <span className="muted small">{WISHES[w].ask}</span></> : <span className="muted">Wish {i + 1}: talk it over to find out</span>}</li>
+            ))}
+          </ul>
+          <button className="btn btn-small" onClick={() => { let t = ""; game.act((w) => (t = talkItOver(w, id))); setMsg(t); }}>Talk it over</button>
+        </div>
+        <div>
+          <span className="recruit-label">His leverage</span>
+          <span className="meter" style={{ display: "block", margin: "6px 0" }}><span style={{ width: `${lev}%` }} /></span>
+          <p className="small secondary" style={{ margin: 0 }}>
+            {lev >= 60 ? "Strong: he's playing well and the rivals know it." : lev >= 40 ? "Fair: some interest elsewhere." : "Weak: a good time to talk."}
+            {m.tapped ? " Rival agencies have been in touch." : ""}
+          </p>
+          <p className="small muted" style={{ margin: "4px 0 0" }}>He's {mood(m.happiness).toLowerCase()}. Happier clients sign on more readily.</p>
+        </div>
+      </div>
+      <div className="btn-row" style={{ marginTop: 8 }}>
+        <button
+          className="btn btn-primary btn-small"
+          onClick={() => {
+            let text = "";
+            game.act((w) => (text = game.lib.startNegotiation(w, id, "extend") ?? ""));
+            setMsg(text || null);
+            if (!text) setTalking(true);
+          }}
+        >
+          {talks?.status === "open" ? "Back to the talks" : "Open talks"}
+        </button>
+        {msg && <strong className="small">{msg}</strong>}
+      </div>
+      {talking && <NegotiationTable world={world} game={game} playerId={id} onClose={() => setTalking(false)} />}
     </div>
   );
 }

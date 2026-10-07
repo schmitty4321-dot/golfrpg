@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { absWeek, acceptCounter, acceptChance, answerDelay, clearTalks, createWorld, makeOffer, offerBlock, startNegotiation, talksWeek, termsChance, type Negotiation, type World } from "../src/season";
+import { absWeek, acceptCounter, acceptChance, answerDelay, clearTalks, createWorld, makeOffer, offerBlock, startNegotiation, talksWeek, termsChance, windowWeek, type Negotiation, type World } from "../src/season";
 
 /** A world with room on the roster and a player you could sign. */
 function setup(seed: number): { w: World; id: string } {
@@ -101,10 +101,17 @@ describe("the negotiation table", () => {
   it("extends a client on the agreed terms", () => {
     const w = createWorld({ seed: 68, scenario: "agency" });
     const id = w.clientIds[0]!;
+    // His final season, past the halfway point: the window is open.
+    w.players[id]!.client!.contract.untilSeason = w.season;
+    w.week = windowWeek(w);
     expect(startNegotiation(w, id, "extend")).toBeNull();
-    w.negotiation!.bar = 0; // he'll take anything
-    makeOffer(w, { commission: 0.12, years: 3, promises: ["camp"] });
-    expect(w.negotiation!.status).toBe("agreed");
+    const n = w.talks![id]!;
+    n.bar = 0; // he'll take anything
+    makeOffer(w, { commission: 0.12, years: 3, promises: ["camp"] }, id);
+    // He answers on the spot or within two weeks.
+    w.week += 2;
+    talksWeek(w);
+    expect(n.status).toBe("agreed");
     expect(w.players[id]!.client!.contract.untilSeason).toBe(w.season + 3);
     expect(w.players[id]!.client!.contract.commission).toBeCloseTo(0.12);
     expect(w.players[id]!.client!.promises!.some((p) => p.kind === "camp")).toBe(true);

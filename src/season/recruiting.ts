@@ -18,6 +18,7 @@ import { rankMap } from "./points";
 import { schoolOf } from "./schools";
 import { scoutedAttribute } from "./scouting";
 import { absWeek, type World, type WorldPlayer } from "./types";
+import { ROOKIE_SEASONS, makeRookieDeal } from "./extensions";
 
 // ---------------------------------------------------------------- the weekly budget
 
@@ -465,8 +466,9 @@ export function signingDay(world: World, wp: WorldPlayer): string | null {
     // A full roster can't take him: he goes to the winter market instead.
     // A commitment is honoured even one over the roster limit; only a roster already past it loses him.
     if (world.clientIds.length > rosterLimit(world.agency.reputation, world.agency.hq)) return `Signing day: ${wp.player.name} wanted ${world.agency.name}, but your roster is full.`;
-    signClient(world, wp.player.id, { commission: marketRate(wp), years: 2 });
-    return `Signing day: ${wp.player.name} commits to ${world.agency.name}!`;
+    signClient(world, wp.player.id, { commission: marketRate(wp), years: ROOKIE_SEASONS });
+    makeRookieDeal(world, wp);
+    return `Signing day: ${wp.player.name} commits to ${world.agency.name} on a ${ROOKIE_SEASONS}-season rookie deal!`;
   }
   wp.agent = { agency: top.agency, untilSeason: world.season + 2, commission: 0.1 };
   return `Signing day: ${wp.player.name} commits to ${top.agency}.`;

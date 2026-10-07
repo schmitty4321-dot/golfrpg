@@ -225,11 +225,24 @@ export interface ClientContract {
   extras?: import("./contractTerms").DealExtras;
   /** Commission over his going rate he agreed to because he was keen on you: it doesn't rankle. */
   keenGrace?: number;
+  /** A rookie deal from signing day: three full pro seasons, and the rate doesn't rankle while it runs. */
+  rookie?: boolean;
 }
 
 /** Everything the agency manages for one client. */
 export interface ClientManagement {
   contract: ClientContract;
+  /** The season he first signed with you (older saves: the current contract's). */
+  joinedSeason?: number;
+  /** What he wants from his next deal (see extensions.ts), and how many of them you've found out. */
+  wishes?: string[];
+  wishesKnown?: number;
+  /** The week you last talked his next deal over with him. */
+  talkedWeek?: number;
+  /** How hard the rivals have tapped him up in his final season (adds to his leverage). */
+  tapped?: number;
+  /** The week he last went public about his contract. */
+  holdoutWeek?: number;
   training: TrainingPlan;
   /** Coach id per role. */
   staff: Partial<Record<CoachRole, string>>;
@@ -405,6 +418,8 @@ export interface Agency {
   cooldowns: Record<string, number>;
   /** The absolute week of the agency's last signing offer (one a week). */
   offerWeek?: number;
+  /** Staff cards played in extension talks this season (see extensions.ts). */
+  cards?: { season: number; used: Record<string, number> };
   /** Recruiting: this week's hours, pipelines, coach relations, classes (see recruiting.ts). */
   recruiting?: import("./recruiting").RecruitingState;
   /** Prospects you've worked on: their interest in you. */
