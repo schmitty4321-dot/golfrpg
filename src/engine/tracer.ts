@@ -53,7 +53,7 @@ export interface HoleLayout {
  * and trees, in yards with the tee at (0, 0) and the green up the y axis
  * (built by scripts/osm; the full outlines for drawing are in public/holes).
  */
-interface RealHole {
+export interface RealHole {
   path: number[][];
   green: number[];
   bunkers: number[][];
@@ -63,6 +63,8 @@ interface RealHole {
 }
 const REAL_HOLES = realHoles as unknown as Record<string, Record<string, RealHole>>;
 const REAL_HOLE_OVERRIDES = realHoleOverrides as unknown as Record<string, Record<string, RealHole>>;
+/** The real map of a hole (bunkers, water, the line of play), when the course has one. */
+export const realHoleOf = (courseId: string, hole: number): RealHole | undefined => REAL_HOLES[courseId]?.[String(hole)] ?? REAL_HOLE_OVERRIDES[courseId]?.[String(hole)];
 
 /** Whether a course has real hole maps (and so a drawing to load). */
 export const hasRealHoles = (courseId: string): boolean => !!REAL_HOLES[courseId] || !!REAL_HOLE_OVERRIDES[courseId];
