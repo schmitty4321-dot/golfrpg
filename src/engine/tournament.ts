@@ -3,7 +3,7 @@ import type { MatchPlayBracket } from "./matchPlay";
 import { tiedPayout } from "./purse";
 import { createRng, type Rng } from "./rng";
 import { DAY_SD, WEEK_SD, playHole, roundForm, simulateRound, type HoleState, type RoundContext } from "./round";
-import { STANDING_KINDS, callEffect, decisionsFor, topDecisions, type CallKind, type Decision, type HoleCall, type HoleSituation } from "./calls";
+import { STANDING_KINDS, callEffect, decisionsFor, topDecisions, type CallKind, type Decision, type HoleCall, type HoleSituation, holeFindings } from "./calls";
 import { pinTuck } from "./pins";
 import type { PlayerEventContext } from "./traits";
 import { SG_CATEGORIES, type Course, type Player, type RoundWeather, type StrokesGained, type Wave } from "./types";
@@ -200,7 +200,7 @@ function runPlayoff(entries: Entry[], course: Course, weather: RoundWeather, rng
       const dayForm = e.dayForms[e.dayForms.length - 1]!;
       const ctx: RoundContext = { player: e.player, course, weather, wave: "PM", round: 4, shotsBehind: 0, rng, playoff: true, ...eventFields(config, e.player.id) };
       const call = calls[e.player.id];
-      const mod = call ? callEffect(call, hole, e.player, pinTuck(course, hole, 3)) : undefined;
+      const mod = call ? callEffect(call, hole, e.player, pinTuck(course, hole, 3), { findings: holeFindings(course, hole) }) : undefined;
       return playHole({ ctx, hole: { ...hole, number: 18 }, dayForm, teeShotHoles, state, ...(mod ? { mod } : {}) });
     });
     const low = Math.min(...scores);
@@ -537,7 +537,7 @@ export function playLiveHole(t: LiveTournament, call: HoleCall | null = null, id
   call = Object.keys(merged).length ? (merged as HoleCall) : null;
   const me = entryOf(t, id);
   const teeShotHoles = course.holes.filter((h) => h.par > 3).length;
-  const score = playHole({ ctx: cur.ctx, hole, dayForm: cur.dayForm, teeShotHoles, state: cur.state, mod: callEffect(call, hole, me.player, pinTuck(course, hole, t.round - 1), conditions(t, id)) });
+  const score = playHole({ ctx: cur.ctx, hole, dayForm: cur.dayForm, teeShotHoles, state: cur.state, mod: callEffect(call, hole, me.player, pinTuck(course, hole, t.round - 1), { ...conditions(t, id), findings: holeFindings(course, hole) }) });
   cur.holes.push(score);
   const calls = me.calls!;
   (calls[t.round - 1] ??= []).push(call && Object.keys(call).length ? call : null);
@@ -568,7 +568,7 @@ export function callOdds(t: LiveTournament, call: HoleCall | null, id = t.contro
   const salt = id === t.controlledId ? 0 : idHash(id);
   const rng = createRng((t.config.seed ^ (t.round * 131 + cur.holes.length * 7) ^ salt) >>> 0);
   const ctx = { ...cur.ctx, rng };
-  const mod = callEffect(call, hole, me.player, pinTuck(course, hole, t.round - 1), conditions(t, id));
+  const mod = callEffect(call, hole, me.player, pinTuck(course, hole, t.round - 1), { ...conditions(t, id), findings: holeFindings(course, hole) });
   const N = 1500;
   let sum = 0;
   let birdies = 0;
@@ -605,6 +605,7 @@ export function holeSituation(t: LiveTournament, id = t.controlledId): HoleSitua
     wind: conditions(t, id).wind,
     rain: !!t.weather[t.round - 1]?.rain,
     lastOverPar: cur?.holes.length ? Math.max(0, cur.state.lastOverPar) : 0,
+    condition: entryOf(t, id).player.condition,
   };
 }
 
@@ -634,9 +635,8 @@ export function nextDecisions(t: LiveTournament, id = t.controlledId, forAsking 
   const key = `${id}:${t.round}`;
   const held = (k: CallKind) => !!t.standing[key]?.[k] || (t.asked[key] ?? []).includes(k);
   const all = decisionsFor(course.holes[cur.holes.length]!, course, entryOf(t, id).player, holeSituation(t, id));
-  const index = cur.holes.length;
-  const last = t.lastAsked?.[key] ?? {};
-  const rested = (k: CallKind) => !forAsking || last[k] === undefined || index - last[k]! >= QUESTION_GAP;
+  // Each question is put to a client at most once a round.
+  const rested = (k: CallKind) => !forAsking || !(t.asked[key] ?? []).includes(k);
   return topDecisions(all.filter((d) => !(STANDING_KINDS.includes(d.kind) && held(d.kind)) && rested(d.kind)));
 }
 

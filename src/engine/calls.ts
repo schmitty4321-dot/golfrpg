@@ -7,6 +7,7 @@
  * other round.
  */
 import { TOUR_AVERAGE } from "./attributes";
+import { realHoleOf } from "./tracer";
 import { clamp } from "./rng";
 import type { HoleMod } from "./round";
 import { hasTrait, traitReachBonus } from "./traits";
@@ -41,13 +42,59 @@ export interface HoleCall {
   layup?: "close" | "wedge";
   /** He and his caddie disagree: back him, or back the caddie. */
   trust?: "player" | "caddie";
+  /** Fairway bunkers at his driving distance: carry them, or lay up short of them. */
+  bunkerCarry?: "carry" | "short";
+  /** A sharp dogleg: cut the corner, or play to the bend. */
+  dogleg?: "cut" | "bend";
+  /** A short par 3: chase the flag, or the fat side of the green. */
+  chase?: "flag" | "fat";
+  /** A long par 3: fire at the green, or play short for a chip. */
+  longThree?: "fire" | "short";
+  /** The course's hardest hole: take it on, or play for par. */
+  hardest?: "attack" | "par";
+  /** The course's scoring hole: press for birdie, or take what it gives. */
+  scoring?: "press" | "take";
+  /** Lightning greens: die the putts at the hole, or hit them firm (holds for the round). */
+  speed?: "die" | "firm";
+  /** Running on empty late in the week: dig deep, or conserve. */
+  energy?: "dig" | "conserve";
+}
+
+/** What the real course map says about a hole: fairway bunkers at driving distance, and how sharply the line of play bends (degrees). */
+export function holeFindings(course: Course, hole: Hole): { bunkersAtDrive: number; dogleg: number } {
+  const real = realHoleOf(course.id, hole.number);
+  if (!real || hole.par === 3) return { bunkersAtDrive: 0, dogleg: 0 };
+  // A bunker that reaches within 25 yards of the line, 245-325 yards out.
+  const bunkersAtDrive = real.bunkers.filter((b) => {
+    const [x = 0, y = 0, r = 0] = b;
+    return y >= 245 && y <= 325 && Math.abs(x) - r <= 25;
+  }).length;
+  const p = real.path;
+  let dogleg = 0;
+  if (p.length >= 3) {
+    const at = (i: number): [number, number] => [p[i]?.[0] ?? 0, p[i]?.[1] ?? 0];
+    const [p0, p1, p2] = [at(0), at(1), at(2)];
+    const a = Math.atan2(p1[0] - p0[0], p1[1] - p0[1]);
+    const b = Math.atan2(p2[0] - p1[0], p2[1] - p1[1]);
+    dogleg = Math.abs((((b - a) * 180) / Math.PI + 540) % 360 - 180);
+  }
+  return { bunkersAtDrive, dogleg };
+}
+
+/** The course's hardest and easiest holes against par, from the real tour's scoring (when most holes have it). */
+function ratedHoles(course: Course): { hardest: Hole | null; easiest: Hole | null } {
+  const rated = course.holes.filter((h) => h.tourAverage !== undefined);
+  if (rated.length < 12) return { hardest: null, easiest: null };
+  const diff = (h: Hole) => h.tourAverage! - h.par;
+  const sorted = [...rated].sort((x, y) => diff(y) - diff(x));
+  return { hardest: diff(sorted[0]!) >= 0.2 ? sorted[0]! : null, easiest: diff(sorted[sorted.length - 1]!) <= -0.15 ? sorted[sorted.length - 1]! : null };
 }
 
 /** Calls that, once made, hold for the rest of the round and aren't asked again. */
-export const STANDING_KINDS: CallKind[] = ["putt", "rain", "board"];
+export const STANDING_KINDS: CallKind[] = ["putt", "rain", "board", "speed"];
 
 /** Which questions win when a hole raises more than a few (situations first, then the big shots). */
-const PRIORITY: CallKind[] = ["temper", "board", "putt", "carry", "second", "tee", "wind", "approach", "trouble", "layup", "firm", "rain", "trust"];
+const PRIORITY: CallKind[] = ["temper", "energy", "board", "putt", "speed", "carry", "second", "bunkerCarry", "dogleg", "tee", "longThree", "chase", "wind", "approach", "hardest", "scoring", "trouble", "layup", "firm", "rain", "trust"];
 
 /** The few questions worth asking on one hole (at most `n`), in priority order. */
 export function topDecisions(list: Decision[], n = 3): Decision[] {
@@ -77,6 +124,8 @@ export interface HoleSituation {
   rain?: boolean;
   /** Strokes over par on his last hole (0 if par or better). */
   lastOverPar?: number;
+  /** His condition today, 0-100. */
+  condition?: number;
 }
 
 /** Yards the player can reach in two on a par 5 (drive plus a long second). */
@@ -221,11 +270,94 @@ export function decisionsFor(hole: Hole, course: Course, player: Player, s: Hole
       ],
     });
   }
+  // What the course map and the tour's numbers say about this hole.
+  const found = holeFindings(course, hole);
+  if (found.bunkersAtDrive >= 1) {
+    out.push({
+      kind: "bunkerCarry",
+      question: `Fairway bunker${found.bunkersAtDrive > 1 ? "s" : ""} at his driving distance: carry ${found.bunkersAtDrive > 1 ? "them" : "it"} or lay short?`,
+      options: [
+        { value: "carry", label: "Carry them", blurb: "Driver over the sand; a short approach if it works." },
+        { value: "short", label: "Lay short", blurb: "A club less; dry sand-free fairway, a longer shot in." },
+      ],
+    });
+  }
+  if (found.dogleg >= 25) {
+    out.push({
+      kind: "dogleg",
+      question: "A sharp dogleg: cut the corner or play to the bend?",
+      options: [
+        { value: "cut", label: "Cut the corner", blurb: "Shape it over the trees; a wedge in, or a lost ball." },
+        { value: "bend", label: "Play to the bend", blurb: "The safe line; a mid-iron in." },
+      ],
+    });
+  }
+  if (hole.par === 3 && hole.yards <= 165) {
+    out.push({
+      kind: "chase",
+      question: "A wedge in his hand on a short par 3: does he chase the flag?",
+      options: [
+        { value: "flag", label: "Chase the flag", blurb: "All over it; short-sided when he misses." },
+        { value: "fat", label: "The fat side", blurb: "Twenty feet, two putts, on to the next." },
+      ],
+    });
+  }
+  if (hole.par === 3 && hole.yards >= 215) {
+    out.push({
+      kind: "longThree",
+      question: "A long par 3: fire at the green or play short for a chip?",
+      options: [
+        { value: "fire", label: "Fire at the green", blurb: "Hybrid or long iron at it; the misses are long and wrong." },
+        { value: "short", label: "Play short, chip on", blurb: "Lean on the short game for par." },
+      ],
+    });
+  }
+  const rated = ratedHoles(course);
+  if (rated.hardest === hole) {
+    out.push({
+      kind: "hardest",
+      question: `The course's hardest hole (the tour averages ${hole.tourAverage!.toFixed(2)}): take it on or play for par?`,
+      options: [
+        { value: "attack", label: "Take it on", blurb: "A birdie here is worth two anywhere else." },
+        { value: "par", label: "Play for par", blurb: "Fairway, green, two putts and move on." },
+      ],
+    });
+  }
+  if (rated.easiest === hole) {
+    out.push({
+      kind: "scoring",
+      question: `The scoring hole (the tour averages ${hole.tourAverage!.toFixed(2)}): press for birdie or take what it gives?`,
+      options: [
+        { value: "press", label: "Press for birdie", blurb: "Everyone's making birdie; he can't afford par." },
+        { value: "take", label: "Take what it gives", blurb: "A birdie look without forcing it." },
+      ],
+    });
+  }
+  if (course.greenSpeed >= 12.5) {
+    out.push({
+      kind: "speed",
+      question: `Lightning greens (${course.greenSpeed.toFixed(1)} on the stimp): how does he putt them today?`,
+      options: [
+        { value: "firm", label: "Hit them firm", blurb: "Takes the break out; the misses run past." },
+        { value: "die", label: "Die them at the hole", blurb: "Tap-ins on the misses; a few come up short." },
+      ],
+    });
+  }
+  if ((s.condition ?? 100) < 60 && s.round >= 3 && s.index >= 11) {
+    out.push({
+      kind: "energy",
+      question: `He's running on empty (${Math.round(s.condition!)}% condition): dig deep or conserve?`,
+      options: [
+        { value: "dig", label: "Dig deep", blurb: "Everything he has left on every shot." },
+        { value: "conserve", label: "Conserve", blurb: "Simple shots, no heroics, get it in." },
+      ],
+    });
+  }
   return out;
 }
 
 /** What a set of calls does to the hole, for this player. `tuck` (0-1) is how tucked today's pin is. */
-export function callEffect(call: HoleCall | null | undefined, hole: Hole, player: Player, tuck = 0.5, cond: { wind?: number; firmness?: number } = {}): HoleMod {
+export function callEffect(call: HoleCall | null | undefined, hole: Hole, player: Player, tuck = 0.5, cond: { wind?: number; firmness?: number; findings?: { bunkersAtDrive: number; dogleg: number } } = {}): HoleMod {
   const mod: HoleMod = { mean: 0, sd: 1, blowup: 1 };
   if (!call) return mod;
   const a = player.attributes;
@@ -322,6 +454,33 @@ export function callEffect(call: HoleCall | null | undefined, hole: Hole, player
   // Backing him pays when he reads a course well (and the caddie adds little); backing the caddie, when he listens.
   if (call.trust === "player") shift({ mean: 0.03 - (d("courseManagement") + d("greenReading")) * 0.025, sd: 1.03, blowup: 1 });
   if (call.trust === "caddie") shift({ mean: -0.02 - d("coachability") * 0.015 + (d("courseManagement") + d("greenReading")) * 0.008, sd: 0.96, blowup: 0.9 });
+  // Fairway bunkers: the long hitter carries them; the wild one finds them.
+  const sand = cond.findings?.bunkersAtDrive ?? 1;
+  if (call.bunkerCarry === "carry") shift({ mean: -0.06 - d("drivingDistance") * 0.02 + sand * 0.02, sd: 1.1, blowup: Math.max(0.5, (1 + 0.3 * sand) * (1 - d("drivingAccuracy") * 0.04)) });
+  if (call.bunkerCarry === "short") shift({ mean: 0.05 - d("fairwayWoods") * 0.012 - d("midIrons") * 0.01, sd: 0.92, blowup: 0.7 });
+  // A dogleg: the shot-maker cuts it; the sharper the bend, the more it asks.
+  const bend = clamp(((cond.findings?.dogleg ?? 30) - 25) / 40, 0, 1);
+  if (call.dogleg === "cut") shift({ mean: -0.07 - (d("shotShaping") + d("drivingDistance")) * 0.012 + bend * 0.05, sd: 1.1, blowup: 1.3 + bend * 0.5 + tight * 0.4 });
+  if (call.dogleg === "bend") shift({ mean: 0.04 - d("courseManagement") * 0.01 - d("midIrons") * 0.006, sd: 0.93, blowup: 0.75 });
+  // A wedge on a short par 3: the precise player chases; a tucked pin punishes the chase.
+  if (call.chase === "flag") shift({ mean: -0.06 - (d("wedges") + d("distanceControl")) * 0.015 + (tuck - 0.5) * 0.04, sd: 1.15, blowup: (1 + hole.hazard * 1.5 + hole.bunkers * 0.1) * (0.7 + tuck) });
+  if (call.chase === "fat") shift({ mean: 0.01 - tuck * 0.03 - d("lagPutting") * 0.01, sd: 0.9, blowup: 0.6 });
+  // A long par 3: the long-iron player fires; the chipper plays short.
+  if (call.longThree === "fire") shift({ mean: -0.05 - (d("longIrons") + d("fairwayWoods")) * 0.015, sd: 1.12, blowup: 1.2 + hole.hazard * 0.8 });
+  if (call.longThree === "short") shift({ mean: 0.06 - d("chipping") * 0.02 - hole.hazard * 0.05, sd: 0.9, blowup: 0.6 });
+  // The hardest hole: the straight, aggressive player takes it on; the course manager plays for par.
+  if (call.hardest === "attack") shift({ mean: -0.05 - d("aggression") * 0.006 - (d("midIrons") + d("drivingAccuracy")) * 0.01, sd: 1.15, blowup: 1.35 });
+  if (call.hardest === "par") shift({ mean: 0.02 - d("courseManagement") * 0.018, sd: 0.88, blowup: 0.6 });
+  // The scoring hole: the wedge-and-putter player presses.
+  if (call.scoring === "press") shift({ mean: -0.06 - (d("wedges") + d("shortPutts")) * 0.012, sd: 1.1, blowup: 1.2 });
+  if (call.scoring === "take") shift({ mean: 0.03 - d("courseManagement") * 0.008, sd: 0.9, blowup: 0.75 });
+  // Fast greens: the speed player dies them; the holer hits them firm.
+  if (call.speed === "die") shift({ mean: -0.01 - (d("speedControl") + d("lagPutting")) * 0.012 + d("shortPutts") * 0.004, sd: 0.92, blowup: 0.85 });
+  if (call.speed === "firm") shift({ mean: -0.02 - d("shortPutts") * 0.015 + d("speedControl") * 0.004, sd: 1.1, blowup: 1.15 });
+  // Running on empty: stamina digs deep; the composed conserve. The emptier he is, the more it matters.
+  const empty = Math.max(0, 60 - player.condition);
+  if (call.energy === "dig") shift({ mean: -0.04 - d("stamina") * 0.02 + empty * 0.004, sd: 1.1, blowup: 1.2 });
+  if (call.energy === "conserve") shift({ mean: 0.02 - d("composure") * 0.012 - empty * 0.003, sd: 0.9, blowup: 0.7 });
   // A stubborn player ignores a quarter of your calls and commits harder to the rest.
   if (hasTrait(player, "stubborn")) {
     const k = 0.825;
