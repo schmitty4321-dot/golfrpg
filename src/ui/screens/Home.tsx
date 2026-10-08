@@ -42,6 +42,7 @@ import { TIER_LABELS, fitWord, formWord, millions, money, signed } from "../form
 import type { Go } from "../nav";
 import { GoalsPanel } from "../components/Goals";
 import { loadTempo, saveTempo, type Game, type WeekTempo } from "../useGame";
+import { COACH_ROLES, STAFF_LABELS, STAFF_ROLES, extensionWindow, hiredStaffer, hoursLeft, prospects, proProspects, rankMap, spentThisWeek, weeklyHours } from "../../season";
 import { RoundPlanPicker, TEMPO_LABELS } from "../components/WeekTempo";
 import { TournamentEmblem } from "../components/TournamentLogo";
 import { PlayerName } from "../components/PlayerLink";
@@ -76,6 +77,8 @@ export function Home({ world, game, go, week }: { world: World; game: Game; go: 
   const last = game.state.reports[game.state.reports.length - 1];
   return (
     <main>
+      {!seasonOver && <WeeklyChecklist world={world} go={go} />}
+      <h3 className="section-label">Play</h3>
       <WeekHero world={world} game={game} week={week} />
       <AgencyStrip world={world} />
       <Alerts world={world} go={go} />
@@ -116,6 +119,102 @@ export function Home({ world, game, go, week }: { world: World; game: Game; go: 
         </div>
       </div>
     </main>
+  );
+}
+
+/** This week's sheet: what needs doing, each line a link to the screen that does it. */
+function WeeklyChecklist({ world, go }: { world: World; go: Go }) {
+  const spent = spentThisWeek(world);
+  const left = hoursLeft(world);
+  const now = absWeek(world.season, world.week);
+  const ranks = rankMap(world);
+  const clients = world.clientIds.map((id) => ({ id, wp: world.players[id]!, c: world.players[id]!.client! }));
+  const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
+
+  const lapsing = [
+    ...clients.flatMap(({ c }) => c.offers.filter((o) => o.expiresAbsWeek - now <= 1)),
+    ...(world.agency.brandOffers ?? []).filter((b) => b.expiresAbsWeek !== undefined && b.expiresAbsWeek - now <= 1),
+  ];
+  const talks = clients.filter(({ id, c }) => c.contract.untilSeason <= world.season && extensionWindow(world, id).open);
+  const unset = clients.filter(({ c }) => !c.roundPlan);
+  // The caddie's rule before any standings exist: a top-25 player keeps his game, anyone else needs to attack.
+  const caddie = (id: string) => ((ranks.get(id) ?? 999) <= 25 ? "Steady" : "Attack");
+  const tired = clients.filter(({ wp }) => wp.player.condition < 60 || !!wp.injury);
+  const openRoles = STAFF_ROLES.filter((r) => !hiredStaffer(world, r));
+  const openCoaches = clients.reduce((n, { c }) => n + COACH_ROLES.filter((r) => !c.staff[r]).length, 0);
+
+  const items: { title: string; done: boolean; detail: string; cta: string; run: () => void }[] = [
+    {
+      title: "Recruit amateurs",
+      done: spent.amateur > 0,
+      detail: spent.amateur > 0 ? `${spent.amateur} hour${spent.amateur === 1 ? "" : "s"} spent on amateurs.` : `${prospects(world).length} on your board · ${left} of ${weeklyHours(world)} hours left.`,
+      cta: "Recruiting",
+      run: () => go("recruiting"),
+    },
+    {
+      title: "Recruit pros",
+      done: spent.pro > 0,
+      detail: spent.pro > 0 ? `${spent.pro} hour${spent.pro === 1 ? "" : "s"} spent on pros.` : `${proProspects(world).length} you could approach, on the same hours.`,
+      cta: "Recruiting",
+      run: () => go("recruiting"),
+    },
+    {
+      title: "Sponsor deals expiring",
+      done: lapsing.length === 0,
+      detail: lapsing.length ? `${plural(lapsing.length, "deal")} lapse${lapsing.length === 1 ? "s" : ""} this week or next.` : "Nothing lapsing soon.",
+      cta: "Partnerships",
+      run: () => go("partnerships"),
+    },
+    {
+      title: "Extension talks",
+      done: talks.length === 0,
+      detail: talks.length ? `${talks.map(({ wp }) => wp.player.name.split(" ").pop()).join(", ")}: final season, talks are open.` : "No talks open this week.",
+      cta: "Roster",
+      run: () => go("agency"),
+    },
+    {
+      title: "Round plans",
+      done: unset.length === 0,
+      detail: unset.length
+        ? `${plural(unset.length, "client")} without a plan. Caddie suggests ${caddie(unset[0]!.id)} for ${unset[0]!.wp.player.name.split(" ").pop()}.`
+        : "Every client has a plan.",
+      cta: "Plans below",
+      run: () => document.querySelector(".week-round-plans")?.scrollIntoView({ block: "center" }),
+    },
+    {
+      title: "Condition",
+      done: tired.length === 0,
+      detail: tired.length ? tired.map(({ wp }) => (wp.injury ? `${wp.player.name.split(" ").pop()} injured` : `${wp.player.name.split(" ").pop()} at ${Math.round(wp.player.condition)}%`)).join(" · ") + ": a rest week would help." : "Everyone's fit enough to play.",
+      cta: "Roster",
+      run: () => go("agency"),
+    },
+    {
+      title: "Open staff spots",
+      done: openRoles.length === 0,
+      detail: openRoles.length ? `${openRoles.map((r) => STAFF_LABELS[r].label.toLowerCase()).join(", ")} empty${openCoaches ? ` · ${plural(openCoaches, "coach slot")} unfilled` : ""}.` : openCoaches ? `${plural(openCoaches, "coach slot")} unfilled.` : "Every agency role is filled.",
+      cta: "HQ",
+      run: () => go("hq"),
+    },
+  ];
+  return (
+    <section className="panel weekly-checklist" aria-label="This week">
+      <div className="panel-head">
+        <h2>This week</h2>
+        <span className="secondary small">{items.filter((i) => i.done).length} of {items.length} clear</span>
+      </div>
+      <ol className="checklist">
+        {items.map((it) => (
+          <li key={it.title} className={it.done ? "done" : undefined}>
+            <span className="check-mark" aria-hidden>{it.done ? "✓" : ""}</span>
+            <span className="check-body">
+              <strong>{it.title}</strong>
+              <span className="muted small">{it.detail}</span>
+            </span>
+            <button className="btn btn-small" onClick={it.run}>{it.cta} ›</button>
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { commissionGrace, firstCall, marketRate, publicRead, acceptChance, hoursFor, proProspects, rivalInterest, rivalMoves, rivalRecruitingWeek, MAX_READ, PRO_AGE, agencyList, createWorld, dealbreaker, groupRange, hoursLeft, interestIn, prospects, readOf, recruit, recruitBlock, signingDay, weeklyHours } from "../src/season";
+import { commissionGrace, firstCall, marketRate, spentThisWeek, publicRead, acceptChance, hoursFor, proProspects, rivalInterest, rivalMoves, rivalRecruitingWeek, MAX_READ, PRO_AGE, agencyList, createWorld, dealbreaker, groupRange, hoursLeft, interestIn, prospects, readOf, recruit, recruitBlock, signingDay, weeklyHours } from "../src/season";
 
 describe("recruiting", () => {
   it("spends a weekly budget of hours, refilled each week", () => {
@@ -95,5 +95,20 @@ describe("recruiting", () => {
     w.agency.prospects![pro]!.interest = 80;
     expect(commissionGrace(w, pro)).toBeCloseTo(0.02);
     expect(acceptChance(w, pro, { commission: rate + 0.02, years: 2 })).toBeCloseTo(acceptChance(w, pro, { commission: rate, years: 2 }), 6);
+  });
+
+  it("this week's recruiting hours are counted separately for amateurs and pros, and reset each week", () => {
+    const w = createWorld({ seed: 105, scenario: "agency" });
+    w.agency.reputation = 50;
+    const amateur = prospects(w)[0]!;
+    const pro = proProspects(w, 120).slice(40)[0]!;
+    expect(spentThisWeek(w)).toEqual({ amateur: 0, pro: 0 });
+    recruit(w, amateur, "film");
+    expect(spentThisWeek(w).amateur).toBeGreaterThan(0);
+    expect(spentThisWeek(w).pro).toBe(0);
+    recruit(w, pro, "stats");
+    expect(spentThisWeek(w).pro).toBeGreaterThan(0);
+    w.week++;
+    expect(spentThisWeek(w)).toEqual({ amateur: 0, pro: 0 });
   });
 });
