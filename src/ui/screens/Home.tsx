@@ -190,7 +190,8 @@ function WeeklyChecklist({ world, go }: { world: World; go: Go }) {
     },
     {
       title: "Open staff spots",
-      done: openRoles.length === 0,
+      // Ticked only when nothing is open: the agency roles and every client's coach slots.
+      done: openRoles.length === 0 && openCoaches === 0,
       detail: openRoles.length ? `${openRoles.map((r) => STAFF_LABELS[r].label.toLowerCase()).join(", ")} empty${openCoaches ? ` · ${plural(openCoaches, "coach slot")} unfilled` : ""}.` : openCoaches ? `${plural(openCoaches, "coach slot")} unfilled.` : "Every agency role is filled.",
       cta: "HQ",
       run: () => go("hq"),
