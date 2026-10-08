@@ -1438,3 +1438,7 @@ select, input[type="text"], input[type="number"] {
 .check-mark { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); color: var(--accent); font-weight: 800; }
 .checklist li.done .check-mark { background: var(--accent); border-color: var(--accent); color: #fff; }
 .check-body { display: grid; gap: 2px; min-width: 0; }
+
+/* ---------- the week's sections ---------- */
+.section-label { margin: 18px 0 8px; font-size: 14px; font-weight: 600; color: var(--text-secondary); letter-spacing: 0.02em; }
+.checklist li .btn { white-space: nowrap; }
