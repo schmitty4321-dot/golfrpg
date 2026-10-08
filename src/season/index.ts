@@ -51,6 +51,8 @@ export * from "./board";
 export * from "./progression";
 export * from "./brandGoals";
 export * from "./staffSkills";
+export * from "./managerFx";
+export * from "./managers";
 export * from "./schools";
 export * from "./recruiting";
 export * from "./extensions";

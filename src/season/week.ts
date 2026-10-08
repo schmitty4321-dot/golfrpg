@@ -27,6 +27,7 @@ import { scoutingWeek, weeklyScoutCost } from "./scouting";
 import { sponsorBonus, sponsorWeek } from "./sponsors";
 import { recordEvent } from "./history";
 import { beginRebuild, endOfWeek } from "./staff";
+import { manageStaff } from "./managers";
 import { familiarityWith, recordFamiliarity } from "./familiarity";
 import { takePracticeRound, takePracticeTrip } from "./practice";
 import { caddiePay, payJet, travelMode } from "./team";
@@ -442,6 +443,8 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
     takePracticeTrip(world, wp, c.courseId);
     tripTo.set(id, c.courseId);
   }
+  // Development directors fill and upgrade the staff they're trusted with, before the week's wages are paid.
+  for (const id of world.clientIds) manageStaff(world, id);
   endOfWeek(world, playedIds, rng, new Map([...plans].map(([id, p]) => [id, trainingBoost(p)])));
   // A week longer together: the caddie and his player get to know each other.
   for (const id of world.clientIds) {

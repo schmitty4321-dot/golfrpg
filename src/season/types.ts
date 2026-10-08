@@ -166,6 +166,17 @@ export interface Coach {
   formerClient?: boolean;
 }
 
+/** A development director: runs one client's coaching staff when you let him (see managers.ts). */
+export interface Manager {
+  id: string;
+  name: string;
+  /** 1-20: his eye for talent, and what he's paid. */
+  quality: number;
+  /** Skill ids from managerFx.ts (MANAGER_SKILLS), one to three. */
+  skills: string[];
+  weeklyFee: number;
+}
+
 export interface Injury {
   name: string;
   weeksLeft: number;
@@ -255,6 +266,9 @@ export interface ClientManagement {
   training: TrainingPlan;
   /** Coach id per role. */
   staff: Partial<Record<CoachRole, string>>;
+  /** The development director in charge of his staff (id in World.managers), and whether he's let hire the coaches. */
+  manager?: string;
+  autoHire?: boolean;
   finances: Finances;
   /** 0-100: how he feels about the agency. Low at contract end and he walks. */
   happiness: number;
@@ -627,6 +641,8 @@ export interface World {
   news: string[];
   /** Coaches available to hire (a coach can work with several players). */
   coaches: Coach[];
+  /** Development directors available to hire, one client each (older saves get them on load). */
+  managers?: Manager[];
   /** Caddies available to hire (older saves get them on load). */
   caddies?: Caddie[];
   history: History;

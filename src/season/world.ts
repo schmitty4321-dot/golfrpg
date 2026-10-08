@@ -27,6 +27,7 @@ import { DEV_EXEMPT_THROUGH, DEV_GRADUATES, addFullDevTour, buildTour, matchPlay
 import { MAX_POTENTIAL, archetypeCeiling, newDevelopment, overall } from "./development";
 import { asSetUp, nextCourseSetup } from "./courseSetup";
 import { generateCoaches, offseason, OFFSEASON_WEEKS } from "./staff";
+import { generateManagers } from "./managers";
 import { rivalSeasonEnd } from "./rivals";
 import { EUROPE, ensureRyderCup } from "./ryderCup";
 import { STAFF_LABELS, contractFee, hiredStaffer, staffContract, staffSeasonEnd, stafferFee } from "./market";
@@ -239,6 +240,7 @@ export function createWorld(opts: CreateWorldOptions): World {
     pastSeasons: [],
     news: [],
     coaches: generateCoaches(opts.seed),
+    managers: generateManagers(opts.seed),
     caddies: generateCaddies(opts.seed),
     history: newHistory(),
     ...(opts.style && opts.style !== "realistic" ? { style: opts.style } : {}),
