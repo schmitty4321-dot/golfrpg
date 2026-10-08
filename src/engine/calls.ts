@@ -296,17 +296,17 @@ export function callEffect(call: HoleCall | null | undefined, hole: Hole, player
   const wind = clamp(((cond.wind ?? 15) - 10) / 15, 0, 1);
   const firm = (cond.firmness ?? 0.6) - 0.6;
   // A stiff wind punishes the full swing and rewards the knock-down; a breeze is the other way round.
-  if (call.wind === "full") shift({ mean: -0.05 - d("windTolerance") * 0.02 + wind * 0.03, sd: 1 + 0.2 * wind, blowup: 1 + 0.6 * wind * hole.exposure });
-  if (call.wind === "knockdown") shift({ mean: 0.03 - d("trajectoryControl") * 0.02 - wind * 0.06, sd: 0.88, blowup: 0.75 });
+  if (call.wind === "full") shift({ mean: -0.06 - d("windTolerance") * 0.035 + wind * 0.04, sd: 1 + 0.2 * wind, blowup: 1 + 0.6 * wind * hole.exposure });
+  if (call.wind === "knockdown") shift({ mean: 0.02 - d("trajectoryControl") * 0.035 - wind * 0.07, sd: 0.88, blowup: 0.75 });
   // Water short: the carry pays for a precise iron player, the bail-out when the hazard is real.
   if (call.carry === "carry") shift({ mean: -0.12 - (d("midIrons") + d("distanceControl")) * 0.01 + hole.hazard * 0.05, sd: 1.12, blowup: 1 + hole.hazard * 2 });
   if (call.carry === "bailout") shift({ mean: 0.1 - d("chipping") * 0.012 - hole.hazard * 0.1, sd: 0.88, blowup: 0.45 });
   // Trees: the hero shot for a shot-maker on an open hole, the punch-out where it's tight.
   if (call.trouble === "hero") shift({ mean: -0.07 - (d("creativity") + d("shotShaping")) * 0.012 + tight * 0.03, sd: 1.1, blowup: 1.5 + tight * 0.8 });
   if (call.trouble === "punch") shift({ mean: 0.05 - d("courseManagement") * 0.01 - tight * 0.08, sd: 0.92, blowup: 0.6 });
-  // Firm greens: the firmer they are, the more running it in beats flying it.
-  if (call.firm === "fly") shift({ mean: -0.05 - d("wedges") * 0.012 + firm * 0.3, sd: 1.1, blowup: 1.15 });
-  if (call.firm === "run") shift({ mean: 0.03 - (d("creativity") + d("trajectoryControl")) * 0.008 - firm * 0.3, sd: 0.92, blowup: 0.85 });
+  // Firm greens: the firmer they are, the more running it in beats flying it; a shot-maker runs it in better, a wedge player flies it better.
+  if (call.firm === "fly") shift({ mean: -0.04 - d("wedges") * 0.015 + firm * 0.6, sd: 1.1, blowup: 1.15 });
+  if (call.firm === "run") shift({ mean: 0.02 - (d("creativity") + d("trajectoryControl")) * 0.015 - firm * 0.6, sd: 0.92, blowup: 0.85 });
   // Rain: the power player keeps swinging; the straight hitter grips down.
   if (call.rain === "normal") shift({ mean: -0.03 - d("drivingDistance") * 0.008, sd: 1.1, blowup: 1.3 });
   if (call.rain === "smooth") shift({ mean: 0.02 - d("drivingAccuracy") * 0.008 - d("composure") * 0.004, sd: 0.92, blowup: 0.75 });
@@ -316,11 +316,12 @@ export function callEffect(call: HoleCall | null | undefined, hole: Hole, player
   // The leaderboard: knowing where he stands lifts the composed and rattles the nervy.
   if (call.board === "look") shift({ mean: 0.02 - (d("composure") + d("sundayNerves")) * 0.012 - (hasTrait(player, "clutch-gene") ? 0.06 : 0), sd: 1.04, blowup: 1.05 });
   if (call.board === "blind") shift({ mean: 0.01 - d("focus") * 0.01, sd: 0.95, blowup: 0.9 });
-  if (call.layup === "close") shift({ mean: -0.03 - d("pitching") * 0.012, sd: 1.06, blowup: 1.15 });
-  if (call.layup === "wedge") shift({ mean: -0.015 - d("wedges") * 0.012, sd: 0.94, blowup: 0.88 });
-  // Backing him pays when he reads a course well; backing the caddie, when he listens.
-  if (call.trust === "player") shift({ mean: 0.02 - (d("courseManagement") + d("greenReading")) * 0.01, sd: 1.03, blowup: 1 });
-  if (call.trust === "caddie") shift({ mean: -0.03 - d("coachability") * 0.008, sd: 0.96, blowup: 0.9 });
+  // Laying up: a strong pitcher gets it close and scores from there; everyone else wants his full-wedge number.
+  if (call.layup === "close") shift({ mean: -0.02 - d("pitching") * 0.03, sd: 1.06, blowup: 1.15 });
+  if (call.layup === "wedge") shift({ mean: -0.03 - d("wedges") * 0.015, sd: 0.94, blowup: 0.88 });
+  // Backing him pays when he reads a course well (and the caddie adds little); backing the caddie, when he listens.
+  if (call.trust === "player") shift({ mean: 0.03 - (d("courseManagement") + d("greenReading")) * 0.025, sd: 1.03, blowup: 1 });
+  if (call.trust === "caddie") shift({ mean: -0.02 - d("coachability") * 0.015 + (d("courseManagement") + d("greenReading")) * 0.008, sd: 0.96, blowup: 0.9 });
   // A stubborn player ignores a quarter of your calls and commits harder to the rest.
   if (hasTrait(player, "stubborn")) {
     const k = 0.825;

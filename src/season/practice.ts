@@ -16,7 +16,7 @@ const TRAVEL: Record<Region, number> = { NA: 5_000, EU: 9_000, ASIA: 10_000, AUS
 
 /** His familiarity after a practice round there (worth two tournament rounds). */
 export function afterPracticeRound(wp: WorldPlayer, courseId: string): number {
-  return familiarityAfter(familiarityWith(wp, courseId), 2, 99, false, hasTrait(wp.player, "course-horse"));
+  return familiarityAfter(familiarityWith(wp, courseId), 3, 99, false, hasTrait(wp.player, "course-horse"));
 }
 
 /** His familiarity after a practice trip (a few days on the course: three rounds' worth). */

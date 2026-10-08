@@ -9,7 +9,8 @@ describe("challenges", () => {
       expect(w.challenge).toMatchObject({ id: c.id, status: "active", deadline: w.season + c.seasons - 1 });
       expect(checkChallenge(w, "week")).toBeNull();
     }
-  });
+  // A full world (with its warm-up season) for every challenge: well over the default limit on a busy machine.
+  }, 180_000);
 
   it("are won when the goal is met, with a better score for finishing early", () => {
     const w = createWorld({ seed: 112, scenario: "journeyman" });

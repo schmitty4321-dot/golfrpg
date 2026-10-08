@@ -429,6 +429,8 @@ export interface Agency {
   offerWeek?: number;
   /** Staff cards played in extension talks this season (see extensions.ts). */
   cards?: { season: number; used: Record<string, number> };
+  /** The week a media day last earned reputation: one a week across the agency counts. */
+  mediaWeek?: number;
   /** Recruiting: this week's hours, pipelines, coach relations, classes (see recruiting.ts). */
   recruiting?: import("./recruiting").RecruitingState;
   /** Prospects you've worked on: their interest in you. */
