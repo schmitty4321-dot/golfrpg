@@ -456,30 +456,30 @@ export function callEffect(call: HoleCall | null | undefined, hole: Hole, player
   if (call.trust === "caddie") shift({ mean: -0.02 - d("coachability") * 0.015 + (d("courseManagement") + d("greenReading")) * 0.008, sd: 0.96, blowup: 0.9 });
   // Fairway bunkers: the long hitter carries them; the wild one finds them.
   const sand = cond.findings?.bunkersAtDrive ?? 1;
-  if (call.bunkerCarry === "carry") shift({ mean: -0.06 - d("drivingDistance") * 0.02 + sand * 0.02, sd: 1.1, blowup: Math.max(0.5, (1 + 0.3 * sand) * (1 - d("drivingAccuracy") * 0.04)) });
-  if (call.bunkerCarry === "short") shift({ mean: 0.05 - d("fairwayWoods") * 0.012 - d("midIrons") * 0.01, sd: 0.92, blowup: 0.7 });
+  if (call.bunkerCarry === "carry") shift({ mean: -0.06 - d("drivingDistance") * 0.02 + sand * 0.02, sd: 1.1, blowup: Math.max(0.5, (1 + 0.3 * sand) * (1 - d("drivingAccuracy") * 0.05)) });
+  if (call.bunkerCarry === "short") shift({ mean: 0.01 - d("fairwayWoods") * 0.01 - d("midIrons") * 0.008 - sand * 0.01, sd: 0.92, blowup: 0.6 });
   // A dogleg: the shot-maker cuts it; the sharper the bend, the more it asks.
   const bend = clamp(((cond.findings?.dogleg ?? 30) - 25) / 40, 0, 1);
   if (call.dogleg === "cut") shift({ mean: -0.07 - (d("shotShaping") + d("drivingDistance")) * 0.012 + bend * 0.05, sd: 1.1, blowup: 1.3 + bend * 0.5 + tight * 0.4 });
-  if (call.dogleg === "bend") shift({ mean: 0.04 - d("courseManagement") * 0.01 - d("midIrons") * 0.006, sd: 0.93, blowup: 0.75 });
+  if (call.dogleg === "bend") shift({ mean: -d("courseManagement") * 0.012 - bend * 0.03, sd: 0.93, blowup: 0.7 });
   // A wedge on a short par 3: the precise player chases; a tucked pin punishes the chase.
-  if (call.chase === "flag") shift({ mean: -0.06 - (d("wedges") + d("distanceControl")) * 0.015 + (tuck - 0.5) * 0.04, sd: 1.15, blowup: (1 + hole.hazard * 1.5 + hole.bunkers * 0.1) * (0.7 + tuck) });
-  if (call.chase === "fat") shift({ mean: 0.01 - tuck * 0.03 - d("lagPutting") * 0.01, sd: 0.9, blowup: 0.6 });
+  if (call.chase === "flag") shift({ mean: -0.08 - (d("wedges") + d("distanceControl")) * 0.015 + (tuck - 0.5) * 0.04, sd: 1.15, blowup: (1 + hole.hazard * 1.5 + hole.bunkers * 0.1) * (0.7 + tuck) });
+  if (call.chase === "fat") shift({ mean: -0.01 - tuck * 0.03 - d("lagPutting") * 0.012, sd: 0.9, blowup: 0.6 });
   // A long par 3: the long-iron player fires; the chipper plays short.
   if (call.longThree === "fire") shift({ mean: -0.05 - (d("longIrons") + d("fairwayWoods")) * 0.015, sd: 1.12, blowup: 1.2 + hole.hazard * 0.8 });
-  if (call.longThree === "short") shift({ mean: 0.06 - d("chipping") * 0.02 - hole.hazard * 0.05, sd: 0.9, blowup: 0.6 });
+  if (call.longThree === "short") shift({ mean: 0.02 - d("chipping") * 0.02 - hole.hazard * 0.06, sd: 0.9, blowup: 0.55 });
   // The hardest hole: the straight, aggressive player takes it on; the course manager plays for par.
   if (call.hardest === "attack") shift({ mean: -0.05 - d("aggression") * 0.006 - (d("midIrons") + d("drivingAccuracy")) * 0.01, sd: 1.15, blowup: 1.35 });
   if (call.hardest === "par") shift({ mean: 0.02 - d("courseManagement") * 0.018, sd: 0.88, blowup: 0.6 });
   // The scoring hole: the wedge-and-putter player presses.
-  if (call.scoring === "press") shift({ mean: -0.06 - (d("wedges") + d("shortPutts")) * 0.012, sd: 1.1, blowup: 1.2 });
-  if (call.scoring === "take") shift({ mean: 0.03 - d("courseManagement") * 0.008, sd: 0.9, blowup: 0.75 });
+  if (call.scoring === "press") shift({ mean: -0.06 - (d("wedges") + d("shortPutts")) * 0.015, sd: 1.12, blowup: 1.25 });
+  if (call.scoring === "take") shift({ mean: -0.01 - d("courseManagement") * 0.01, sd: 0.9, blowup: 0.7 });
   // Fast greens: the speed player dies them; the holer hits them firm.
-  if (call.speed === "die") shift({ mean: -0.01 - (d("speedControl") + d("lagPutting")) * 0.012 + d("shortPutts") * 0.004, sd: 0.92, blowup: 0.85 });
-  if (call.speed === "firm") shift({ mean: -0.02 - d("shortPutts") * 0.015 + d("speedControl") * 0.004, sd: 1.1, blowup: 1.15 });
+  if (call.speed === "die") shift({ mean: -(d("speedControl") + d("lagPutting")) * 0.012 + d("shortPutts") * 0.004, sd: 0.92, blowup: 0.85 });
+  if (call.speed === "firm") shift({ mean: -d("shortPutts") * 0.015 + d("speedControl") * 0.004, sd: 1.1, blowup: 1.15 });
   // Running on empty: stamina digs deep; the composed conserve. The emptier he is, the more it matters.
   const empty = Math.max(0, 60 - player.condition);
-  if (call.energy === "dig") shift({ mean: -0.04 - d("stamina") * 0.02 + empty * 0.004, sd: 1.1, blowup: 1.2 });
+  if (call.energy === "dig") shift({ mean: -0.02 - d("stamina") * 0.025 + empty * 0.005, sd: 1.1, blowup: 1.25 });
   if (call.energy === "conserve") shift({ mean: 0.02 - d("composure") * 0.012 - empty * 0.003, sd: 0.9, blowup: 0.7 });
   // A stubborn player ignores a quarter of your calls and commits harder to the rest.
   if (hasTrait(player, "stubborn")) {
