@@ -1092,8 +1092,16 @@ select, input[type="text"], input[type="number"] {
 .dev-form label { display: grid; gap: 4px; font-size: 12px; color: var(--text-2); }
 .dev-form select { width: 100%; }
 .dev-funding { margin-bottom: 12px; }
-.dev-budget { width: 100%; }
+.bag-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+.bag-card { display: grid; gap: 3px; align-content: start; padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+.bag-card .club-art { width: 100%; height: 90px; object-fit: contain; }
+.bag-card .apparel-art { width: 100%; height: 70px; object-fit: cover; border-radius: 6px; }
+.bag-card .apparel-art.blank { background: var(--surface-2); }
+.bag-card.sponsored { border-color: var(--accent); }
+.dev-budget { width: 100%; table-layout: fixed; }
 .dev-budget td { padding: 4px 0; }
+.dev-budget td:first-child { white-space: normal; padding-right: 10px; }
+.dev-budget td.num { width: 96px; text-align: right; white-space: nowrap; }
 .dev-total td { font-weight: 650; border-top: 1px solid var(--border); }
 .dev-changes { display: flex; flex-wrap: wrap; gap: 6px; }
 .dev-up { background: var(--accent-soft); color: var(--accent); }

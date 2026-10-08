@@ -57,6 +57,7 @@ import { checkBreakthrough, pressureGrowth } from "./progression";
 import { hasSkill } from "./staffSkills";
 import { talksWeek } from "./negotiation";
 import { extensionsWeek } from "./extensions";
+import { brandOfferWeek } from "./showcase";
 import { rivalRecruitingWeek } from "./recruiting";
 
 /** What a client does this week. "auto" lets him pick his own schedule. */
@@ -174,7 +175,7 @@ export function weekPlans(world: World, choices: ClientChoices): Map<string, Day
     if (!wp || !c || (c.kind !== "enter" && c.kind !== "rest")) continue;
     const event = c.kind === "enter" ? world.schedule.find((e) => e.id === c.eventId) : undefined;
     const { days, travel } = weekDays(world, wp, event?.region ?? null);
-    out.set(id, fitPlan(c.days, days.length - travel, event ? EVENT_WEEK_ACTIVITIES : OFF_WEEK_ACTIVITIES));
+    out.set(id, fitPlan(c.days, days.length - travel, event ? EVENT_WEEK_ACTIVITIES : OFF_WEEK_ACTIVITIES, !!event));
   }
   return out;
 }
@@ -456,7 +457,9 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
     const rec = report.clients[id]?.record ?? null;
     const goodWeek = !!rec && rec.madeCut && rec.position <= 5;
     const dayPlan = plans.get(id) ?? [];
-    const pay = sponsorWeek(world, wp, rng, goodWeek, seasonWeeks(world), 0.1 * dayPlan.filter((d) => d === "sponsor").length);
+    // A win brings the sponsors running; a top 10 helps.
+    const results = !rec || rec.tier === "dev" ? 0 : rec.position === 1 ? 0.45 : rec.madeCut && rec.position <= 10 ? 0.15 : 0;
+    const pay = sponsorWeek(world, wp, rng, goodWeek, seasonWeeks(world), 0.1 * dayPlan.filter((d) => d === "sponsor").length + results);
     if (pay > 0) payEndorsement(world, id, pay);
     const before = wp.client!.happiness;
     updateHappiness(wp, { played: playedIds.has(id), sgVsExpected: sgVsExpected.get(id) ?? null, heldOut: heldOut(plan, id, choices[id]) });
@@ -525,6 +528,8 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
     // Players whose thinking time is up answer your offers.
     for (const line of talksWeek(world)) world.news.unshift(line);
     for (const line of extensionsWeek(world)) world.news.unshift(line);
+    // Brands come calling after your clients' big weeks.
+    for (const line of brandOfferWeek(world, records)) world.news.unshift(line);
     // The rival agencies work their prospects too.
     for (const line of rivalRecruitingWeek(world)) world.news.unshift(line);
     const messages = weeklyRivalMessages(world, report, createRng(mixSeed(world.seed, world.season, world.week, 1803)), MAX_DECISIONS_PER_WEEK - pressed);

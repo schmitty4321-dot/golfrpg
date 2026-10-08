@@ -8,7 +8,7 @@ import { agencyTable } from "./market";
 import { mixSeed } from "./entries";
 import { pointsList, rankMap } from "./points";
 import { BRANDS } from "./sponsors";
-import type { AgencyEventKind, BrandDeal, SponsorCategory, Trophy, World, WorldPlayer } from "./types";
+import { absWeek, type AgencyEventKind, type BrandDeal, type EventRecord, type SponsorCategory, type Trophy, type World, type WorldPlayer } from "./types";
 import { RENEW_AT, RENEW_RAISE, SNUB_BELOW, brandMood, goalsFor, guaranteed } from "./brandGoals";
 import { hasSkill } from "./staffSkills";
 
@@ -17,7 +17,9 @@ import { hasSkill } from "./staffSkills";
 /** This season's partnership offers: more and bigger as the agency's name and roster grow. */
 export function brandOffers(world: World): BrandDeal[] {
   if (world.agency.brandOffers) {
-    // Offers made before brands had goals get them.
+    // Offers made before brands had goals get them; lapsed ones go.
+    const now = absWeek(world.season, world.week);
+    world.agency.brandOffers = world.agency.brandOffers.filter((o) => o.expiresAbsWeek === undefined || o.expiresAbsWeek >= now);
     for (const o of world.agency.brandOffers) o.goals ??= goalsFor(world, o.category);
     return world.agency.brandOffers;
   }
@@ -28,7 +30,7 @@ export function brandOffers(world: World): BrandDeal[] {
   const offers: BrandDeal[] = [];
   for (let i = 0; i < n; i++) {
     const category = open.splice(rng.int(0, open.length - 1), 1)[0]!;
-    const scale = (world.agency.reputation / 50) * (0.6 + Math.min(4, world.clientIds.length) * 0.2) * (0.8 + rng.next() * 0.4);
+    const scale = (world.agency.reputation / 50) * (0.6 + Math.min(4, world.clientIds.length) * 0.2) * (0.8 + rng.next() * 0.4) * resultsLift(world);
     // A brand whose goals were mostly met comes back first, and pays more; one left disappointed doesn't call.
     const pleased = BRANDS[category].find((b) => (brandMood(world, b) ?? 0) >= RENEW_AT);
     const willing = BRANDS[category].filter((b) => (brandMood(world, b) ?? 1) >= SNUB_BELOW);
@@ -42,14 +44,90 @@ export function brandOffers(world: World): BrandDeal[] {
       untilSeason: world.season + rng.int(1, 2),
       goals: goalsFor(world, category),
       ...(pleased ? { renewal: true } : {}),
+      expiresAbsWeek: absWeek(world.season, world.week) + 6,
+      reason: pleased ? "they liked how the last deal went" : "the new season's round of offers",
     });
   }
   return (world.agency.brandOffers = offers);
 }
 
+/** Partnerships the agency can carry at once: one, then more as its name grows (two at 30, three at 60, four at 85). */
+export const brandSlots = (world: World): number => {
+  const r = world.agency.reputation;
+  return r < 30 ? 1 : r < 60 ? 2 : r < 85 ? 3 : 4;
+};
+
+/** Why you can't sign another partnership now, or null. */
+export function brandBlock(world: World): string | null {
+  const slots = brandSlots(world);
+  return (world.agency.brands ?? []).length >= slots ? `Your agency can carry ${slots} partnership${slots === 1 ? "" : "s"} at its reputation: let one run out, or decline and wait for a better one.` : null;
+}
+
+/** This season's results across your clients, as a lift on what brands will pay: wins, top 10s and followers. */
+function resultsLift(world: World): number {
+  let wins = 0;
+  let top10 = 0;
+  let fans = 0;
+  for (const wp of clients(world)) {
+    for (const r of wp.career.results) {
+      if (r.season !== world.season || r.tier === "dev") continue;
+      if (r.position === 1) wins++;
+      if (r.position <= 10) top10++;
+    }
+    fans += followers(world, wp);
+  }
+  return 1 + Math.min(1, wins * 0.15 + top10 * 0.03 + (fans > 100_000 ? Math.log10(fans / 100_000) * 0.2 : 0));
+}
+
+/**
+ * Weekly: after a client's win (half the time) or top 10 (now and then), a
+ * brand in a category you don't have offers a partnership, sized by your
+ * clients' results. Offers lapse after a few weeks. Returns news lines.
+ */
+export function brandOfferWeek(world: World, records: Map<string, EventRecord | null>): string[] {
+  if (world.agency.reputation < 15) return [];
+  const offers = brandOffers(world);
+  const out: string[] = [];
+  const rng = createRng(mixSeed(world.seed, world.season, world.week, 812));
+  for (const [id, rec] of records) {
+    if (!rec || rec.tier === "dev" || offers.length >= 3) continue;
+    const big = rec.position === 1;
+    if (!(big ? rng.chance(0.5) : rec.madeCut && rec.position <= 10 && rng.chance(0.12))) continue;
+    const held = new Set([...(world.agency.brands ?? []), ...offers].map((b) => b.category));
+    const open = (Object.keys(BRANDS) as SponsorCategory[]).filter((c) => !held.has(c));
+    if (!open.length) break;
+    const category = rng.pick(open);
+    const willing = BRANDS[category].filter((b) => (brandMood(world, b) ?? 1) >= SNUB_BELOW);
+    const brand = rng.pick(willing.length ? willing : BRANDS[category]);
+    const name = world.players[id]?.player.name ?? "a client";
+    const scale = (world.agency.reputation / 50) * (0.6 + Math.min(4, world.clientIds.length) * 0.2) * (0.8 + rng.next() * 0.4) * resultsLift(world) * (big ? 1.15 : 1);
+    const deal: BrandDeal = {
+      id: `b${world.season}-${world.week}-${category}`,
+      brand,
+      category,
+      annual: Math.round((100_000 + 400_000 * scale) / 10_000) * 10_000,
+      lift: Math.round((0.05 + rng.next() * 0.1) * 100) / 100,
+      untilSeason: world.season + rng.int(1, 2),
+      goals: goalsFor(world, category),
+      expiresAbsWeek: absWeek(world.season, world.week) + 4,
+      reason: big ? `after ${name}'s win at the ${rec.eventName.replace(/^The /, "")}` : `after ${name}'s top 10 at the ${rec.eventName.replace(/^The /, "")}`,
+    };
+    offers.push(deal);
+    out.push(`${brand} want an agency partnership with ${world.agency.name}, ${deal.reason}.`);
+  }
+  return out;
+}
+
+/** Turn a partnership offer down: it's gone. */
+export function declineBrand(world: World, id: string): void {
+  world.agency.brandOffers = brandOffers(world).filter((b) => b.id !== id);
+}
+
 export function signBrand(world: World, id: string): void {
   const offer = brandOffers(world).find((b) => b.id === id);
   if (!offer) throw new Error(`no brand offer ${id}`);
+  // A full book of partnerships: the offer waits until it lapses or you decline it.
+  if (brandBlock(world)) return;
   (world.agency.brands ??= []).push(offer);
   world.agency.brandOffers = brandOffers(world).filter((b) => b.id !== id && b.category !== offer.category);
   addReputation(world.agency, 1);

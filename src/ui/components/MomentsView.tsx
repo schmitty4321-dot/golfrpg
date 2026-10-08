@@ -3,6 +3,7 @@ import {
   answerMoment,
   autoFinishRound,
   callOdds,
+  featureHoles,
   clientActive,
   finishLive,
   holeLayout,
@@ -129,6 +130,9 @@ export function MomentsView({ world, game, lw }: { world: World; game: Game; lw:
   const [replay, setReplay] = useState<Replay | null>(null);
   const [step, setStep] = useState(0);
   const [ticker, setTicker] = useState<string[]>([]);
+  // Broadcast, watching live: the board moves on a hole at a time by itself.
+  const [watching, setWatching] = useState(false);
+  const [paused, setPaused] = useState(false);
   const events = lw.events;
   const round = Math.max(...events.map((e) => e.tournament.round));
   const allDone = events.every((e) => eventDone(e.tournament));
@@ -138,6 +142,17 @@ export function MomentsView({ world, game, lw }: { world: World; game: Game; lw:
   const nextRound = round + 1;
   const goLive = broadcast && !playing && !allDone ? liveWorthy(events, nextRound) : null;
 
+  // Watching a round: every couple of seconds each client plays his next hole, until a moment or the end of the round.
+  useEffect(() => {
+    if (!watching || paused || moment || replay) return;
+    if (!playing) {
+      setWatching(false);
+      return;
+    }
+    const tick = setTimeout(() => advance(callsLeft > 0, Math.max(1, events.reduce((n, e) => n + e.clientIds.filter((id) => e.tournament.live[id]).length, 0))), 1600);
+    return () => clearTimeout(tick);
+  });
+
   useEffect(() => {
     if (!replay || step >= replay.trace.shots.length) return;
     const id = setTimeout(() => setStep((s) => s + 1), step === 0 ? 350 : 900);
@@ -145,14 +160,14 @@ export function MomentsView({ world, game, lw }: { world: World; game: Game; lw:
   }, [replay, step]);
 
   /** Plays on to the next moment in any event (or the end of the round). */
-  function advance(stops = callsLeft > 0) {
+  function advance(stops = callsLeft > 0, maxHoles?: number) {
     let found: { ev: number; m: Moment } | null = null;
     const lines: string[] = [];
     game.liveAct((evs) => {
       for (let i = 0; i < evs.length && !found; i++) {
         const t = evs[i]!.tournament;
         if (!inRound(t) && !pendingPlayoff(t).length) continue;
-        const { ticker: played, moment: m } = nextMoment(t, { stops });
+        const { ticker: played, moment: m } = nextMoment(t, { stops, ...(maxHoles !== undefined ? { maxHoles } : {}) });
         for (const item of played) {
           const line = tickerLine(world, item);
           if (line) lines.push(line);
@@ -182,7 +197,7 @@ export function MomentsView({ world, game, lw }: { world: World; game: Game; lw:
     });
   }
 
-  /** Starts the next round in every event that's still going, then plays to the first moment. */
+  /** Starts the next round in every event that's still going, then plays to the first moment (broadcast: watches it hole by hole). */
   function startRound() {
     setReplay(null);
     setTicker([]);
@@ -192,10 +207,18 @@ export function MomentsView({ world, game, lw }: { world: World; game: Game; lw:
         if (t.round >= 4 || inRound(t)) continue;
         // Nobody of yours left in it: play it out.
         if (!stillIn(e)) finishLive(t);
-        else startLiveRound(t);
+        else {
+          // At least three holes to watch and play a round, best-placed clients first (placed before the round starts).
+          const order = [...e.clientIds].sort((a, b) => (standing(t, a)?.position ?? 999) - (standing(t, b)?.position ?? 999));
+          startLiveRound(t);
+          if (broadcast) featureHoles(t, order);
+        }
       }
     });
-    advance();
+    if (broadcast) {
+      setWatching(true);
+      setPaused(false);
+    } else advance();
   }
 
   function simRound() {
@@ -319,7 +342,10 @@ export function MomentsView({ world, game, lw }: { world: World; game: Game; lw:
               <button className="btn" onClick={simWholeRound}>Sim round {round + 1}</button>
             </>
           )}
-          {!moment && !replay && playing && <button className="btn btn-primary" onClick={() => advance()}>Play on</button>}
+          {!moment && !replay && playing && !watching && <button className="btn btn-primary" onClick={() => advance()}>Play on</button>}
+          {!moment && !replay && playing && watching && (
+            <button className="btn btn-primary" onClick={() => setPaused((p) => !p)}>{paused ? "Resume" : "Pause"}</button>
+          )}
           {!moment && !replay && allDone && <button className="btn btn-primary" onClick={() => void game.completeLiveWeek()}>See the final results</button>}
           {playing && <button className="btn" onClick={simRound}>Sim to the end of the round</button>}
           {!allDone && <button className="btn" onClick={() => void game.completeLiveWeek()}>Sim the rest of the week</button>}
@@ -544,7 +570,7 @@ function MomentCard({ world, t, eventName, m, calls, setCalls, odds, callsLeft, 
                     <strong>His call</strong>
                   </button>
                   {d.options.map((o) => (
-                    <button key={o.value} className="choice" aria-pressed={chosen === o.value} onClick={() => pick(d.kind, o.value)} title={o.blurb}>
+                    <button key={o.value} className="choice" aria-pressed={chosen === o.value} disabled={callsLeft === 0} onClick={() => pick(d.kind, o.value)} title={o.blurb}>
                       <strong>{o.label}</strong>
                       <span className="small muted call-blurb">{o.blurb}</span>
                     </button>
@@ -555,7 +581,7 @@ function MomentCard({ world, t, eventName, m, calls, setCalls, odds, callsLeft, 
           })}
           {callsLeft !== null && !m.playoff && (
             <p className="small calls-left">
-              <strong>{callsLeft} of {CALLS_PER_ROUND} calls left this round.</strong> <span className="muted">Making a call spends one; letting him play it his way is free.</span>
+              <strong>{callsLeft} of {CALLS_PER_ROUND} calls left this round.</strong> <span className="muted">{callsLeft === 0 ? "Watch him play it his way." : "Making a call spends one; letting him play it his way is free."}</span>
             </p>
           )}
           {odds?.mine && <p className="secondary small caddie-read">{caddieRead(odds.his, odds.mine, `${m.id}:${m.round}:${m.index}:${JSON.stringify(calls)}`)}</p>}

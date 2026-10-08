@@ -9,7 +9,7 @@ import {
   type AgencyStaffer,
   brandGoalProgress,
   guaranteed,
-  maxPayout, CENTER_TIERS, HQ_TIERS, AGENCY_EVENTS, STAFF_LABELS, STAFF_ROLES, brandOffers, buildCenter, eventBlock, eventTakings, followers, holdEvent, signBrand, centerBlock, dealClients, hireStaffer, hiredStaffer, hqBlock, fireStaffer, buyoutCost, contractFee, staffContract, termDiscount, STAFF_TERMS, rosterLimit, staffMarket, staffWages, upgradeHq, type AgencyEventKind, type StaffRole, type World } from "../../season";
+  maxPayout, CENTER_TIERS, HQ_TIERS, AGENCY_EVENTS, STAFF_LABELS, STAFF_ROLES, brandOffers, brandBlock, brandSlots, declineBrand, buildCenter, eventBlock, eventTakings, followers, holdEvent, signBrand, centerBlock, dealClients, hireStaffer, hiredStaffer, hqBlock, fireStaffer, buyoutCost, contractFee, staffContract, termDiscount, STAFF_TERMS, rosterLimit, staffMarket, staffWages, upgradeHq, type AgencyEventKind, type StaffRole, type World } from "../../season";
 import { money } from "../format";
 import type { Game } from "../useGame";
 import { StaffPortrait, StaffRoleIcon } from "../components/StaffPortrait";
@@ -24,7 +24,6 @@ export function Headquarters({ world, game }: { world: World; game: Game }) {
       <HqPanel world={world} game={game} />
       <StaffPanel world={world} game={game} />
       <div className="grid-2">
-        <BrandsPanel world={world} game={game} />
         <InvestmentsPanel world={world} game={game} />
         <EventsPanel world={world} game={game} />
       </div>
@@ -319,18 +318,19 @@ function InvestmentsPanel({ world, game }: { world: World; game: Game }) {
   );
 }
 
-function BrandsPanel({ world, game }: { world: World; game: Game }) {
+export function BrandsPanel({ world, game }: { world: World; game: Game }) {
   const deals = world.agency.brands ?? [];
   const offers = brandOffers(world);
   return (
     <section className="panel">
       <div className="panel-head"><h2>Brand partnerships</h2><span className="muted small">Agency-wide deals: a yearly fee, and better offers for your clients</span></div>
+      <p className="small secondary" style={{ marginTop: 0 }}>Partnership slots: <strong>{deals.length} of {brandSlots(world)}</strong> used (more as your reputation grows). Brands also come calling after your clients' wins and top 10s; offers lapse after a few weeks.</p>
       {deals.length > 0 && <div className="brand-deal-grid">{deals.map((b) => <BrandCard key={b.id} world={world} deal={b} active />)}</div>}
-      <div className="pp-label" style={{ marginTop: 10 }}>On offer this season</div>
+      <div className="pp-label" style={{ marginTop: 10 }}>On offer</div>
       {offers.length === 0 ? (
         <p className="empty">{world.agency.reputation < 15 ? "Brands start calling at reputation 15." : "No more offers this season."}</p>
       ) : (
-        <div className="brand-deal-grid">{offers.map((b) => <BrandCard key={b.id} world={world} deal={b} onSign={() => game.act((w) => signBrand(w, b.id))} />)}</div>
+        <div className="brand-deal-grid">{offers.map((b) => <BrandCard key={b.id} world={world} deal={b} block={brandBlock(world)} onSign={() => game.act((w) => signBrand(w, b.id))} onDecline={() => game.act((w) => declineBrand(w, b.id))} />)}</div>
       )}
     </section>
   );
@@ -339,7 +339,7 @@ function BrandsPanel({ world, game }: { world: World; game: Game }) {
 /** Goals that stand in for another (when the roster or season rules it out) share its medallion. */
 const GOAL_ICON: Record<string, string> = { "ap-points": "fi-top30", "wa-cuts": "wa-timeless" };
 
-function BrandCard({ world, deal, active = false, onSign }: { world: World; deal: ReturnType<typeof brandOffers>[number]; active?: boolean; onSign?: () => void }) {
+function BrandCard({ world, deal, active = false, onSign, onDecline, block }: { world: World; deal: ReturnType<typeof brandOffers>[number]; active?: boolean; onSign?: () => void; onDecline?: () => void; block?: string | null }) {
   const progress = active ? brandGoalProgress(world, deal) : null;
   const fmt = (n: number, unit?: string) => (unit === "money" ? money(n) : unit === "pct" ? `${n}%` : unit === "yards" ? `${n} yds` : `${n}`);
   // How far along a goal is: for a rank, how close the best so far is to the target rank.
@@ -367,7 +367,14 @@ function BrandCard({ world, deal, active = false, onSign }: { world: World; deal
         </ul>
       )}
       {deal.renewal && !active && <span className="small good-text">They're back: last time you met their goals.</span>}
-      {onSign && <button className="btn btn-primary" onClick={onSign}>Sign partnership</button>}
+      {!active && deal.reason && <span className="small muted">Why now: {deal.reason}{deal.expiresAbsWeek !== undefined ? ` · lapses in ${Math.max(0, deal.expiresAbsWeek - (world.season * 52 + world.week))} week${deal.expiresAbsWeek - (world.season * 52 + world.week) === 1 ? "" : "s"}` : ""}</span>}
+      {onSign && (
+        <div className="btn-row">
+          <button className="btn btn-primary" disabled={!!block} title={block ?? undefined} onClick={onSign}>Sign partnership</button>
+          {onDecline && <button className="btn" onClick={onDecline}>Decline</button>}
+        </div>
+      )}
+      {onSign && block && <span className="small muted">{block}</span>}
       {active && <span className="brand-active-label">Active partner</span>}
     </article>
   );

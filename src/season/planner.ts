@@ -16,11 +16,11 @@ export type DayActivity = "rest" | "range" | "gym" | "practice" | "sponsor" | "m
 
 export const ACTIVITIES: Record<DayActivity, { label: string; short: string; blurb: string; condition: number; fee: number }> = {
   rest: { label: "Rest", short: "Rest", blurb: "Recover. Costs nothing.", condition: 0, fee: 0 },
-  range: { label: "Range work", short: "Range", blurb: "Training this week counts 15% more.", condition: -1, fee: 0 },
-  gym: { label: "Gym", short: "Gym", blurb: "Stamina and flexibility grow 30% faster this week; lowers injury risk.", condition: -1, fee: 0 },
-  practice: { label: "Practice round", short: "Practice", blurb: "Learn this week's course: familiarity up before the event.", condition: -2, fee: 2_500 },
+  range: { label: "Range work", short: "Range", blurb: "Sharper this week (form up), and training counts 15% more.", condition: -1, fee: 0 },
+  gym: { label: "Gym", short: "Gym", blurb: "Recovers 2 condition, lowers injury risk, and stamina and flexibility grow 30% faster this week.", condition: 0, fee: 0 },
+  practice: { label: "Practice round", short: "Practice", blurb: "Learn this week's course: familiarity well up before the event.", condition: -1, fee: 2_500 },
   sponsor: { label: "Sponsor day", short: "Sponsor", blurb: "Keeps sponsors sweet: a new offer is likelier, and he's paid an appearance fee.", condition: -1, fee: 0 },
-  media: { label: "Media day", short: "Media", blurb: "Interviews and content: a little reputation for the agency; some players hate it.", condition: 0, fee: 0 },
+  media: { label: "Media day", short: "Media", blurb: "Interviews and content: a little reputation for the agency (one media day a week counts); some players hate it.", condition: 0, fee: 0 },
 };
 
 /** Activities that make sense before an event, and in a week off. */
@@ -36,11 +36,21 @@ export function weekDays(world: World, wp: WorldPlayer, eventRegion: Region | nu
   return { days: EVENT_DAYS, travel: Math.min(EVENT_DAYS.length, travelDays(world, wp, eventRegion)) };
 }
 
-/** A plan fitted to the free days: missing days rest, extra days are dropped. */
-export function fitPlan(plan: DayActivity[] | undefined, free: number, allowed: DayActivity[]): DayActivity[] {
+/**
+ * A plan fitted to the free days: missing days rest, extra days are dropped.
+ * Before an event (`once`), each activity but rest can fill only one day: a
+ * repeat becomes rest.
+ */
+export function fitPlan(plan: DayActivity[] | undefined, free: number, allowed: DayActivity[], once = false): DayActivity[] {
+  const used = new Set<DayActivity>();
   return Array.from({ length: free }, (_, i) => {
     const a = plan?.[i];
-    return a && allowed.includes(a) ? a : "rest";
+    if (!a || !allowed.includes(a)) return "rest";
+    if (once && a !== "rest") {
+      if (used.has(a)) return "rest";
+      used.add(a);
+    }
+    return a;
   });
 }
 
@@ -73,7 +83,11 @@ export function applyPlan(world: World, wp: WorldPlayer, plan: DayActivity[]): n
   const c = wp.client;
   if (!c) return 0;
   const cost = planCost(plan.filter((a) => a !== "practice")); // practice rounds are charged when played
-  wp.player.condition = clamp(wp.player.condition + cost.condition, 0, 100);
+  // Gym work pays back in recovery; range work sharpens him for the week.
+  const gym = count(plan, "gym");
+  wp.player.condition = clamp(wp.player.condition + cost.condition + gym * 2, 0, 100);
+  const range = count(plan, "range");
+  if (range) wp.player.form = clamp(wp.player.form + range * 0.04, -1, 1);
   let mood = 0;
   const sponsors = count(plan, "sponsor");
   if (sponsors) {
@@ -86,7 +100,12 @@ export function applyPlan(world: World, wp: WorldPlayer, plan: DayActivity[]): n
   }
   const media = count(plan, "media");
   if (media) {
-    addReputation(world.agency, media * 0.15);
+    // The press only has room for one story a week from one agency.
+    const now = world.season * 52 + world.week;
+    if (world.agency.mediaWeek !== now) {
+      world.agency.mediaWeek = now;
+      addReputation(world.agency, 0.15);
+    }
     c.followers = Math.round(followers(world, wp) * (1 + 0.02 * media));
     const t = wp.player.traits ?? [];
     mood += media * (t.includes("media-darling") ? 1 : t.includes("hothead") || t.includes("anonymous-grinder") ? -2 : -0.5);

@@ -7,6 +7,7 @@ import { ClientPicker } from "./components/ClientPicker";
 import { Scouting } from "./screens/Scouting";
 import { Career } from "./screens/Career";
 import { Finances } from "./screens/Finances";
+import { Partnerships } from "./screens/Partnerships";
 import { Headquarters } from "./screens/Headquarters";
 import { Recruiting, Rivals, Trophies } from "./screens/Market";
 import { MatchPlayScreen, RyderCupScreen } from "./screens/MatchPlay";
@@ -177,6 +178,8 @@ export function App() {
         <Trophies world={world} />
       ) : tab === "rivals" ? (
         <Rivals world={world} />
+      ) : tab === "partnerships" ? (
+        <Partnerships world={world} game={game} />
       ) : tab === "hq" ? (
         <Headquarters world={world} game={game} />
       ) : tab === "finances" ? (
