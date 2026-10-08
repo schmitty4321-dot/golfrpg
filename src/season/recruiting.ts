@@ -28,6 +28,8 @@ export const weeklyHours = (world: World): number => Math.round(30 + (world.agen
 export interface RecruitingState {
   absWeek: number;
   hoursUsed: number;
+  /** This week's hours by kind of prospect (the weekly checklist reads these). */
+  kindHours?: { amateur: number; pro: number };
   showcaseSeason?: number;
   /** Visits and signings with each college's coach (a relationship). */
   coaches?: Record<string, number>;
@@ -66,8 +68,15 @@ export const recruitingOf = (world: World): RecruitingState => {
   if (r.absWeek !== now) {
     r.absWeek = now;
     r.hoursUsed = 0;
+    r.kindHours = { amateur: 0, pro: 0 };
   }
   return r;
+};
+
+/** This week's recruiting hours on amateurs and on pros: what the weekly checklist ticks off. */
+export const spentThisWeek = (world: World): { amateur: number; pro: number } => {
+  const r = recruitingOf(world);
+  return r.kindHours ?? { amateur: 0, pro: 0 };
 };
 export const hoursLeft = (world: World): number => Math.max(0, weeklyHours(world) - recruitingOf(world).hoursUsed);
 
@@ -308,7 +317,11 @@ export function recruit(world: World, id: string, action: RecruitAction): string
   const wp = world.players[id]!;
   const p = prospectOf(world, id);
   const now = absWeek(world.season, world.week);
-  recruitingOf(world).hoursUsed += hoursFor(world, id, action);
+  const spent = recruitingOf(world);
+  const hours = hoursFor(world, id, action);
+  spent.hoursUsed += hours;
+  spent.kindHours ??= { amateur: 0, pro: 0 };
+  spent.kindHours[isPro(world, id) ? "pro" : "amateur"] += hours;
   const add = (n: number) => (p.interest = clamp(p.interest + n, 0, dealbreakerMet(world, dealbreaker(world, id)) ? 100 : 35));
   switch (action) {
     case "film":

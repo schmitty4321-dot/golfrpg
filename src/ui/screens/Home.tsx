@@ -42,6 +42,7 @@ import { TIER_LABELS, fitWord, formWord, millions, money, signed } from "../form
 import type { Go } from "../nav";
 import { GoalsPanel } from "../components/Goals";
 import { loadTempo, saveTempo, type Game, type WeekTempo } from "../useGame";
+import { hoursLeft, prospects, proProspects, seasonWeeks as weeksInSeason, spentThisWeek, weeklyHours } from "../../season";
 import { RoundPlanPicker, TEMPO_LABELS } from "../components/WeekTempo";
 import { TournamentEmblem } from "../components/TournamentLogo";
 import { PlayerName } from "../components/PlayerLink";
@@ -76,6 +77,7 @@ export function Home({ world, game, go, week }: { world: World; game: Game; go: 
   const last = game.state.reports[game.state.reports.length - 1];
   return (
     <main>
+      {!seasonOver && <WeeklyChecklist world={world} go={go} />}
       <WeekHero world={world} game={game} week={week} />
       <AgencyStrip world={world} />
       <Alerts world={world} go={go} />
@@ -116,6 +118,53 @@ export function Home({ world, game, go, week }: { world: World; game: Game; go: 
         </div>
       </div>
     </main>
+  );
+}
+
+/** The week's three jobs, ticked off as you do them: recruit amateurs, recruit pros, play the week. */
+function WeeklyChecklist({ world, go }: { world: World; go: Go }) {
+  const spent = spentThisWeek(world);
+  const left = hoursLeft(world);
+  const amateurs = prospects(world).length;
+  const pros = proProspects(world).length;
+  const items: { title: string; done: boolean; detail: string; action?: { label: string; run: () => void } }[] = [
+    {
+      title: "Recruit amateurs",
+      done: spent.amateur > 0,
+      detail: spent.amateur > 0 ? `${spent.amateur} hour${spent.amateur === 1 ? "" : "s"} spent on amateurs this week.` : `${amateurs} amateur${amateurs === 1 ? "" : "s"} on your board. ${left} of ${weeklyHours(world)} hours left.`,
+      action: { label: "Open recruiting", run: () => go("recruiting") },
+    },
+    {
+      title: "Recruit pros",
+      done: spent.pro > 0,
+      detail: spent.pro > 0 ? `${spent.pro} hour${spent.pro === 1 ? "" : "s"} spent on pros this week.` : `${pros} pro${pros === 1 ? "" : "s"} you could approach. Same hours as the amateurs.`,
+      action: { label: "Open recruiting", run: () => go("recruiting") },
+    },
+    {
+      title: `Play week ${world.week} of ${weeksInSeason(world)}`,
+      done: false,
+      detail: "Set the plans below, then play the week.",
+    },
+  ];
+  return (
+    <section className="panel weekly-checklist" aria-label="This week's checklist">
+      <div className="panel-head">
+        <h2>This week</h2>
+        <span className="secondary small">{items.filter((i) => i.done).length} of {items.length} done</span>
+      </div>
+      <ol className="checklist">
+        {items.map((it) => (
+          <li key={it.title} className={it.done ? "done" : undefined}>
+            <span className="check-mark" aria-hidden>{it.done ? "✓" : ""}</span>
+            <span className="check-body">
+              <strong>{it.title}</strong>
+              <span className="muted small">{it.detail}</span>
+            </span>
+            {it.action && !it.done && <button className="btn btn-small" onClick={it.action.run}>{it.action.label}</button>}
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }
 
