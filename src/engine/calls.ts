@@ -233,14 +233,17 @@ export function callEffect(call: HoleCall | null | undefined, hole: Hole, player
   const fw = hole.fairwayWidth || 30;
   const tight = clamp((30 - fw) / 10, 0, 1);
 
+  // Every call is a trade the hole, the day and his game decide: the bold
+  // option pays for a player with the skills for it on a hole that allows it,
+  // and costs one without them where it doesn't. "His call" is the baseline.
   if (call.tee && call.tee !== "driver" && hole.par > 3) {
-    // Laying back costs distance (more for long hitters and long holes) and saves trouble (more for wild drivers).
-    const lost = 0.05 + Math.max(0, hole.yards - 400) / 2500 + d("drivingDistance") * 0.006;
-    const saved = (0.4 * hole.hazard + 0.3 * tight) * (0.25 - d("drivingAccuracy") * 0.02 + d("fairwayWoods") * 0.005);
+    // Laying back costs distance (more for long hitters and long holes) and saves trouble (more for wild drivers, on tight or hazard-lined holes).
+    const lost = 0.08 + Math.max(0, hole.yards - 400) / 1500 + d("drivingDistance") * 0.012;
+    const saved = (0.5 * hole.hazard + 0.4 * tight) * (0.35 - d("drivingAccuracy") * 0.04 + d("fairwayWoods") * 0.01);
     const tee: HoleMod =
       call.tee === "3-wood"
-        ? { mean: lost - saved, blowup: 0.75, sd: 0.96 }
-        : { mean: 2.2 * lost - 1.6 * saved - (hasTrait(player, "stinger") ? 0.03 : 0), blowup: 0.5, sd: 0.92 };
+        ? { mean: lost - saved, blowup: 0.65, sd: 0.95 }
+        : { mean: 2.2 * lost - 1.6 * saved - (hasTrait(player, "stinger") ? 0.06 : 0), blowup: 0.4, sd: 0.9 };
     // A driver addict pulls driver anyway half the time.
     const k = hasTrait(player, "driver-addict") ? 0.5 : 1;
     mod.mean += tee.mean * k;
@@ -249,64 +252,75 @@ export function callEffect(call: HoleCall | null | undefined, hole: Hole, player
   }
   if (call.second && hole.par === 5) {
     if (call.second === "go") {
-      // More eagles and birdies; the trouble shows up as big numbers, not a worse average.
-      mod.mean += -0.07 - d("longIrons") * 0.01 - d("fairwayWoods") * 0.005 - (hasTrait(player, "rescue-merchant") ? 0.02 : 0);
-      mod.sd *= 1.12;
-      mod.blowup *= (1 + hole.hazard * 2) * (hasTrait(player, "rescue-merchant") ? 0.85 : 1) * (hasTrait(player, "long-iron-artist") ? 0.85 : 1);
+      // Eagles and birdies for the long hitter; the trouble shows up as big numbers on a hazard-lined hole.
+      mod.mean += -0.12 - d("longIrons") * 0.025 - d("fairwayWoods") * 0.012 - (hasTrait(player, "rescue-merchant") ? 0.04 : 0);
+      mod.sd *= 1.15;
+      mod.blowup *= (1 + hole.hazard * 2.5) * (hasTrait(player, "rescue-merchant") ? 0.8 : 1) * (hasTrait(player, "long-iron-artist") ? 0.8 : 1);
     } else {
-      mod.mean += 0.05 - d("wedges") * 0.004;
+      // Laying up is the play where the trouble is, and for a wedge player.
+      mod.mean += 0.08 - hole.hazard * 0.12 - d("wedges") * 0.012;
       mod.sd *= 0.9;
-      mod.blowup *= 0.6;
+      mod.blowup *= 0.55;
     }
   }
   if (call.approach) {
     if (call.approach === "attack") {
-      // Going at a tucked pin brings the edge of the green, and what's beyond it, into play.
-      mod.mean += -0.06 - (d("midIrons") + d("wedges") + d("distanceControl")) * 0.002 + (tuck - 0.5) * 0.04;
-      // Tuned with the hole-to-hole luck (HOLE_SD): attacking keeps its extra misses.
-      mod.sd *= 1.17;
-      mod.blowup *= (1 + hole.hazard * 1.5 + hole.bunkers * 0.05) * (1 + (tuck - 0.5) * 0.6);
+      // Going at a tucked pin brings the edge of the green, and what's beyond it, into play; an open pin is there to be attacked.
+      // The pin always gives more birdie looks; a tucked one behind trouble pays for them in big numbers.
+      mod.mean += -0.1 - (d("midIrons") + d("wedges") + d("distanceControl")) * 0.008 + hole.hazard * 0.02;
+      mod.sd *= 1.2;
+      mod.blowup *= (1 + hole.hazard * 2.2 + hole.bunkers * 0.06) * (0.6 + tuck);
     } else {
-      mod.mean += 0.04 - (tuck - 0.5) * 0.03;
-      mod.sd *= 0.9;
-      mod.blowup *= 0.7;
+      // The middle always means fewer big numbers; it costs birdies, less of a price the more tucked the pin (the one shot that doesn't chase it).
+      mod.mean += 0.04 - tuck * 0.03 - hole.hazard * 0.03 - d("courseManagement") * 0.006;
+      mod.sd *= 0.88;
+      mod.blowup *= 0.65 - hole.hazard * 0.1;
     }
   }
   if (call.putt) {
     if (call.putt === "charge") {
-      mod.mean += -0.005 - (d("shortPutts") + d("greenReading")) * 0.002 - (hasTrait(player, "long-range-sniper") ? 0.012 : 0);
-      mod.sd *= 1.12;
+      mod.mean += -0.02 - (d("shortPutts") + d("greenReading")) * 0.008 - (hasTrait(player, "long-range-sniper") ? 0.03 : 0);
+      mod.sd *= 1.15;
+      mod.blowup *= 1.1;
     } else {
-      mod.mean += 0.01 - d("lagPutting") * 0.002;
-      mod.sd *= 0.88;
+      mod.mean += 0.01 - d("lagPutting") * 0.008;
+      mod.sd *= 0.85;
+      mod.blowup *= 0.85;
     }
   }
-  // Each call below shifts the hole a little, by how well it suits him: close
-  // to an even swap for a tour-average player, so "his call" stays the baseline.
   const shift = (m: HoleMod) => {
     mod.mean += m.mean;
     mod.sd *= m.sd;
     mod.blowup *= m.blowup;
   };
   const wind = clamp(((cond.wind ?? 15) - 10) / 15, 0, 1);
-  if (call.wind === "full") shift({ mean: -0.03 - d("windTolerance") * 0.006, sd: 1 + 0.12 * wind, blowup: 1 + 0.25 * wind * hole.exposure });
-  if (call.wind === "knockdown") shift({ mean: 0.02 - d("trajectoryControl") * 0.008, sd: 0.9, blowup: 0.8 });
-  if (call.carry === "carry") shift({ mean: -0.06 - (d("midIrons") + d("distanceControl")) * 0.003, sd: 1.1, blowup: 1 + hole.hazard * 1.6 });
-  if (call.carry === "bailout") shift({ mean: 0.07 - d("chipping") * 0.004, sd: 0.9, blowup: 0.5 });
-  if (call.trouble === "hero") shift({ mean: -0.03 - (d("creativity") + d("shotShaping")) * 0.004, sd: 1.08, blowup: 1.3 });
-  if (call.trouble === "punch") shift({ mean: 0.025 - d("courseManagement") * 0.003, sd: 0.94, blowup: 0.7 });
-  if (call.firm === "fly") shift({ mean: -0.02 - d("wedges") * 0.004 + ((cond.firmness ?? 0.6) - 0.6) * 0.1, sd: 1.08, blowup: 1.1 });
-  if (call.firm === "run") shift({ mean: 0.01 - (d("creativity") + d("trajectoryControl")) * 0.003, sd: 0.94, blowup: 0.9 });
-  if (call.rain === "normal") shift({ mean: -0.01, sd: 1.06, blowup: 1.15 });
-  if (call.rain === "smooth") shift({ mean: 0.015 - d("drivingAccuracy") * 0.002, sd: 0.95, blowup: 0.85 });
-  if (call.temper === "fire") shift({ mean: -0.03 - d("aggression") * 0.004 + (hasTrait(player, "hothead") ? 0.06 : 0), sd: 1.12, blowup: 1.2 });
-  if (call.temper === "calm") shift({ mean: -0.02 - d("composure") * 0.004, sd: 0.93, blowup: 0.85 });
-  if (call.board === "look") shift({ mean: -(d("composure") + d("sundayNerves")) * 0.004 - (hasTrait(player, "clutch-gene") ? 0.03 : 0), sd: 1.02, blowup: 1 });
-  if (call.board === "blind") shift({ mean: 0.005 - d("focus") * 0.003, sd: 0.97, blowup: 0.95 });
-  if (call.layup === "close") shift({ mean: -0.01 - d("pitching") * 0.004, sd: 1.05, blowup: 1.1 });
-  if (call.layup === "wedge") shift({ mean: -0.005 - d("wedges") * 0.004, sd: 0.95, blowup: 0.9 });
-  if (call.trust === "player") shift({ mean: 0.01 - (d("courseManagement") + d("greenReading")) * 0.003, sd: 1.02, blowup: 1 });
-  if (call.trust === "caddie") shift({ mean: -0.01, sd: 0.97, blowup: 0.95 });
+  const firm = (cond.firmness ?? 0.6) - 0.6;
+  // A stiff wind punishes the full swing and rewards the knock-down; a breeze is the other way round.
+  if (call.wind === "full") shift({ mean: -0.05 - d("windTolerance") * 0.02 + wind * 0.03, sd: 1 + 0.2 * wind, blowup: 1 + 0.6 * wind * hole.exposure });
+  if (call.wind === "knockdown") shift({ mean: 0.03 - d("trajectoryControl") * 0.02 - wind * 0.06, sd: 0.88, blowup: 0.75 });
+  // Water short: the carry pays for a precise iron player, the bail-out when the hazard is real.
+  if (call.carry === "carry") shift({ mean: -0.12 - (d("midIrons") + d("distanceControl")) * 0.01 + hole.hazard * 0.05, sd: 1.12, blowup: 1 + hole.hazard * 2 });
+  if (call.carry === "bailout") shift({ mean: 0.1 - d("chipping") * 0.012 - hole.hazard * 0.1, sd: 0.88, blowup: 0.45 });
+  // Trees: the hero shot for a shot-maker on an open hole, the punch-out where it's tight.
+  if (call.trouble === "hero") shift({ mean: -0.07 - (d("creativity") + d("shotShaping")) * 0.012 + tight * 0.03, sd: 1.1, blowup: 1.5 + tight * 0.8 });
+  if (call.trouble === "punch") shift({ mean: 0.05 - d("courseManagement") * 0.01 - tight * 0.08, sd: 0.92, blowup: 0.6 });
+  // Firm greens: the firmer they are, the more running it in beats flying it.
+  if (call.firm === "fly") shift({ mean: -0.05 - d("wedges") * 0.012 + firm * 0.3, sd: 1.1, blowup: 1.15 });
+  if (call.firm === "run") shift({ mean: 0.03 - (d("creativity") + d("trajectoryControl")) * 0.008 - firm * 0.3, sd: 0.92, blowup: 0.85 });
+  // Rain: the power player keeps swinging; the straight hitter grips down.
+  if (call.rain === "normal") shift({ mean: -0.03 - d("drivingDistance") * 0.008, sd: 1.1, blowup: 1.3 });
+  if (call.rain === "smooth") shift({ mean: 0.02 - d("drivingAccuracy") * 0.008 - d("composure") * 0.004, sd: 0.92, blowup: 0.75 });
+  // After a big number: fire up the aggressive, calm the composed; a hothead told to get it back loses his head.
+  if (call.temper === "fire") shift({ mean: -0.06 - d("aggression") * 0.012 + (hasTrait(player, "hothead") ? 0.15 : 0), sd: 1.18, blowup: 1.35 });
+  if (call.temper === "calm") shift({ mean: -0.04 - d("composure") * 0.012, sd: 0.9, blowup: 0.75 });
+  // The leaderboard: knowing where he stands lifts the composed and rattles the nervy.
+  if (call.board === "look") shift({ mean: 0.02 - (d("composure") + d("sundayNerves")) * 0.012 - (hasTrait(player, "clutch-gene") ? 0.06 : 0), sd: 1.04, blowup: 1.05 });
+  if (call.board === "blind") shift({ mean: 0.01 - d("focus") * 0.01, sd: 0.95, blowup: 0.9 });
+  if (call.layup === "close") shift({ mean: -0.03 - d("pitching") * 0.012, sd: 1.06, blowup: 1.15 });
+  if (call.layup === "wedge") shift({ mean: -0.015 - d("wedges") * 0.012, sd: 0.94, blowup: 0.88 });
+  // Backing him pays when he reads a course well; backing the caddie, when he listens.
+  if (call.trust === "player") shift({ mean: 0.02 - (d("courseManagement") + d("greenReading")) * 0.01, sd: 1.03, blowup: 1 });
+  if (call.trust === "caddie") shift({ mean: -0.03 - d("coachability") * 0.008, sd: 0.96, blowup: 0.9 });
   // A stubborn player ignores a quarter of your calls and commits harder to the rest.
   if (hasTrait(player, "stubborn")) {
     const k = 0.825;
