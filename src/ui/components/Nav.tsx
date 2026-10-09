@@ -10,6 +10,8 @@ const ICONS: Record<SectionId, ReactNode> = {
   clients: <><circle cx="8" cy="8" r="3" /><path d="M2.5 19c.6-3.4 2.8-5 5.5-5s4.9 1.6 5.5 5" /><circle cx="16" cy="8.5" r="2.5" /><path d="M15 14.2c2.6-.2 4.6 1.3 5.3 4.8" /></>,
   // Briefcase.
   agency: <><rect x="3" y="7" width="18" height="12" rx="2" /><path d="M9 7V5h6v2M3 12h18" /></>,
+  // A person with a plus: signing new talent.
+  recruiting: <><circle cx="10" cy="8" r="3.5" /><path d="M4 20c.8-3.6 3.2-5.5 6-5.5s5.2 1.9 6 5.5" /><path d="M19 4v5M16.5 6.5h5" /></>,
   // Trophy.
   tour: <><path d="M7 4h10v5a5 5 0 0 1-10 0z" /><path d="M7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3M12 14v4M8 20h8" /></>,
   // A save disk.
