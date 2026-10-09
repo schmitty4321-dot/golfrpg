@@ -129,7 +129,7 @@ export function ScoutingBoard({ world, game }: { world: World; game: Game }) {
                     <td className="num">{r?.top20 ?? 0}</td>
                     <td className="num">{r ? ordinal(r.best) : "–"}</td>
                     <td className="num">{r?.lastFinish ? ordinal(r.lastFinish) : "–"}</td>
-                    <td className="small">{mark === "keen" ? "Keen" : mark === "recruiting" ? "Recruiting" : "Not worked on"}</td>
+                    <td className="small">{mark === "keen" ? "Leaning in" : mark === "recruiting" ? "Recruiting" : "Not worked on"}</td>
                     <td><button className="btn btn-small" onClick={() => game.act((w) => toggleShortlist(w, id))}>Remove</button></td>
                   </tr>
                 );

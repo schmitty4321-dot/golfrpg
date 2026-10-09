@@ -92,17 +92,17 @@ function RecruitSummary({ world }: { world: World }) {
       <div>
         <span className="small muted">Recruits you're working on</span>
         <strong>{worked.length}</strong>
-        <span className="small muted">{recruiting.length} recruiting · {keen.length} keen</span>
+        <span className="small muted">{recruiting.length} recruiting · {keen.length} leaning in</span>
       </div>
       <div>
-        <span className="small muted">Keen</span>
+        <span className="small muted">Leaning in</span>
         <strong>{keen.length}</strong>
         <span className="small muted">{keenAmateurs} amateurs · {keenPros} pros</span>
       </div>
       <div>
         <span className="small muted">Class places</span>
         <strong>{keenAmateurs}<span className="small muted"> of {AMATEUR_CLASS_SIZE}</span></strong>
-        <span className="small muted">Amateurs keen · commit on signing day</span>
+        <span className="small muted">Amateurs leaning in · commit on signing day</span>
       </div>
     </div>
   );
@@ -114,7 +114,7 @@ function RecruitBadge({ state, pro }: { state: RecruitMark; pro: boolean }) {
   if (state === "recruiting") {
     return <span className="recruit-mark recruiting" role="img" aria-label="Recruiting" title="You've worked on him: his interest is building">◉</span>;
   }
-  const label = pro ? "First call" : "Keen";
+  const label = pro ? "First call" : "Leaning in";
   return <span className="recruit-mark keen" role="img" aria-label={label} title={`You've recruited him: his interest is at the first-call level (${FIRST_CALL})`}>● {label}</span>;
 }
 
