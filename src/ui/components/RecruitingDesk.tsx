@@ -142,7 +142,7 @@ export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
       </div>
       <div className="table-wrap">
         <table>
-          <thead><tr><th>Stars</th><th>{tab === "pro" ? "Player" : "Prospect"}</th><th className="num">Age</th><th>{tab === "pro" ? "World · contract" : "School"}</th><th>Your read</th><th>Interest</th><th>Most interested rival</th><th>His list</th><th /></tr></thead>
+          <thead><tr><th>Stars</th><th>{tab === "pro" ? "Player" : "Prospect"}</th><th className="num">Age</th><th>{tab === "pro" ? "World · contract" : "School"}</th><th>Your read</th><th>Interest (0-100)</th><th>Most interested rival</th><th>His list</th><th /></tr></thead>
           <tbody>
             {list.map((id) => {
               const wp = world.players[id]!;
