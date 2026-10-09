@@ -32,6 +32,7 @@ import {
   FIRST_CALL,
   recruitMark,
   recruitingCountdown,
+  RECRUITING_OPENS,
   standingMove,
   standingOrder,
   type RecruitMark,
@@ -62,6 +63,9 @@ import { TraitChips } from "./Traits";
 const readWords = (r: number) => (r <= 0 ? "Not scouted" : r < READ_TIERS.skills ? "A glimpse" : r < READ_TIERS.ceiling ? "Rough read" : r < READ_TIERS.details ? "Good read" : "Detailed read");
 const range = (x: { low: number; high: number }) => (x.low === x.high ? `${x.low}` : `${x.low}–${x.high}`);
 
+/** What the hours show instead of a number while recruiting is shut. */
+const hoursShutNote = (world: World): string => (world.week < RECRUITING_OPENS ? `Doesn't start until week ${RECRUITING_OPENS}` : "Recruiting is closed for the season");
+
 /** The desk's summary bar: hours this week, who you're working on, who's keen, and the amateur class places. */
 function RecruitSummary({ world }: { world: World }) {
   const spent = spentThisWeek(world);
@@ -76,8 +80,14 @@ function RecruitSummary({ world }: { world: World }) {
     <div className="recruit-summary" aria-label="Recruiting summary">
       <div>
         <span className="small muted">Hours left this week</span>
-        <strong>{left}<span className="small muted"> of {total}</span></strong>
-        <span className="small muted">Amateurs {spent.amateur} h · Pros {spent.pro} h spent</span>
+        {total ? (
+          <>
+            <strong>{left}<span className="small muted"> of {total}</span></strong>
+            <span className="small muted">Amateurs {spent.amateur} h · Pros {spent.pro} h spent</span>
+          </>
+        ) : (
+          <span className="small muted">{hoursShutNote(world)}</span>
+        )}
       </div>
       <div>
         <span className="small muted">Recruits you're working on</span>
@@ -128,11 +138,11 @@ export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
     <section className="panel">
       <div className="panel-head">
         <div><h2>Recruiting desk</h2><span className="muted small">One budget of hours for amateurs and pros: scout them and build their interest. Amateurs choose on signing day; pros weigh it when you make an offer.</span></div>
-        <div className="recruit-hours"><strong>{left}</strong><span>of {total} hours left this week</span></div>
+        <div className="recruit-hours">{total ? <><strong>{left}</strong><span>of {total} hours left this week</span></> : <span>{hoursShutNote(world)}</span>}</div>
       </div>
       <p className="small" style={{ margin: "0 0 8px" }}><strong>{recruitingCountdown(world)}</strong></p>
       <RecruitSummary world={world} />
-      <div className="meter" style={{ marginBottom: 12 }}><span style={{ width: `${Math.round((left / total) * 100)}%` }} /></div>
+      <div className="meter" style={{ marginBottom: 12 }}><span style={{ width: `${total ? Math.round((left / total) * 100) : 0}%` }} /></div>
       <div className="recruit-grades">
         <span className="recruit-label">How prospects see you</span>
         {(Object.keys(SELLING_POINTS) as (keyof typeof SELLING_POINTS)[]).map((k) => (

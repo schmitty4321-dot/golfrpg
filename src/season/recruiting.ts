@@ -23,7 +23,9 @@ import { ROOKIE_SEASONS, makeRookieDeal } from "./extensions";
 // ---------------------------------------------------------------- the weekly budget
 
 /** Hours a week: more with a bigger headquarters and a better agent. */
-export const weeklyHours = (world: World): number => Math.round(30 + (world.agency.hq ?? 0) * 5 + stafferQuality(world, "agent") * 0.5);
+/** A week's recruiting hours: none outside the recruiting window (weeks 10 to 32). */
+export const weeklyHours = (world: World): number =>
+  recruitingWindow(world) ? 0 : Math.round(30 + (world.agency.hq ?? 0) * 5 + stafferQuality(world, "agent") * 0.5);
 
 export interface RecruitingState {
   absWeek: number;
