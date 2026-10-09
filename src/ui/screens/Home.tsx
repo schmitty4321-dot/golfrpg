@@ -76,7 +76,7 @@ export function Home({ world, game, go, week }: { world: World; game: Game; go: 
   const last = game.state.reports[game.state.reports.length - 1];
   return (
     <main>
-      <WeekCommandCenter world={world} game={game} go={go} />
+      <WeekCommandCenter world={world} game={game} go={go} week={week} />
       <ChallengeBanner world={world} />
       <InboxPanel world={world} game={game} />
       <div className="grid-2">
@@ -135,8 +135,17 @@ const DECISION_ART = {
   staff: "/art/facilities/hq-2.webp",
 } as const;
 
+function MastheadFact({ kind, label, value, note }: { kind: "purse" | "weather" | "course"; label: string; value: string; note?: string }) {
+  const icon = kind === "purse"
+    ? <><path d="M7 3h10v5a5 5 0 0 1-10 0zM7 5H4v2a3 3 0 0 0 3 3M17 5h3v2a3 3 0 0 1-3 3M12 13v4M8 20h8" /></>
+    : kind === "weather"
+      ? <><circle cx="12" cy="12" r="4" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2" /></>
+      : <><path d="M7 21V3M7 4l10 4-10 4M4 21h16" /><ellipse cx="15" cy="18" rx="4" ry="2" /></>;
+  return <div className="week-event-fact"><span><svg viewBox="0 0 24 24" aria-hidden>{icon}</svg></span><div><small>{label}</small><strong>{value}</strong>{note && <em>{note}</em>}</div></div>;
+}
+
 /** The week's event, strongest entrants and seven decisions that must be cleared. */
-function WeekCommandCenter({ world, game, go }: { world: World; game: Game; go: Go }) {
+function WeekCommandCenter({ world, game, go, week }: { world: World; game: Game; go: Go; week: WeekChoices }) {
   const weeks = seasonWeeks(world);
   if (world.week > weeks) {
     return <section className="hero week-command-season-over"><div className="hero-body"><div className="hero-kicker">{world.agency.name} · Season {world.season}</div><h1 className="hero-title">The season is over</h1><div className="hero-meta">Close it to hand out cards, settle contracts and see how your agency did.</div></div><button className="btn btn-primary hero-play" onClick={() => void game.closeSeason()}>Close the season <span aria-hidden>▸</span></button></section>;
@@ -155,6 +164,9 @@ function WeekCommandCenter({ world, game, go }: { world: World; game: Game; go: 
   const tired = world.clientIds.filter((id) => world.players[id]!.player.condition < 80).length;
   const clear = [amateurs === 0, pros === 0, offers === 0, expiring === 0, world.clientIds.length === 0, tired === 0, false].filter(Boolean).length;
   const scrollPlans = () => document.getElementById("weekly-player-plans")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const playWeek = () => void game.play(Object.fromEntries(world.clientIds.map((id) => [id, week.choices[id] ?? defaultWeekChoice(world, id)])));
+  const temperature = 68 + ((world.week * 7 + main.courseId.length) % 13);
+  const weather = course.windiness > .62 ? `${temperature}°  Breezy` : course.firmness < .42 ? `${temperature}°  Overcast` : `${temperature}°  Sunny`;
   const decisions = [
     { key: "amateurs", icon: "◉", title: "Recruit amateurs", copy: "Find and evaluate the next generation of talent.", status: `${amateurs} on your board`, action: "Search amateurs", run: () => go("amateurResults") },
     { key: "pros", icon: "♟", title: "Recruit pros", copy: "Identify professionals who may be open to representation.", status: `${pros} approachable`, action: "View prospects", run: () => go("scouting") },
@@ -168,9 +180,10 @@ function WeekCommandCenter({ world, game, go }: { world: World; game: Game; go: 
     <div className="week-event-masthead">
       <img src={VENUE_BANNERS[main.courseId] ?? "/art/player-command/hero.png"} alt={`Illustrated view of ${course.name}`} />
       <div className="week-event-shade" />
-      <div className="week-event-copy"><span>Week {world.week} of {weeks} · {TIER_LABELS[main.tier]}</span><h1>{main.name}</h1><p>{course.name}{course.info ? ` · ${course.info.city}` : ""}</p><dl><div><dt>Purse</dt><dd>{millions(main.purse)}</dd></div><div><dt>Course</dt><dd>Par {coursePar(course)} · {courseYards(course).toLocaleString("en-US")} yds</dd></div></dl></div>
-      <div className="week-featured-field"><small>Top players in the field</small><div>{featured.map((wp) => <article key={wp.player.id}><Portrait player={wp.player} size={76} title={wp.player.name} /><b>#{ranks.get(wp.player.id) ?? "—"}</b><span>{wp.player.name}</span></article>)}</div></div>
-      <div className="week-ready"><strong>{clear} of 7</strong><span>clear</span></div>
+      <div className="week-event-copy"><span>Week {world.week} of {weeks} · {TIER_LABELS[main.tier]}</span><h1>{main.name}</h1><p>{course.name}{course.info ? ` · ${course.info.city}` : ""}</p></div>
+      <div className="week-event-facts"><MastheadFact kind="purse" label="Purse" value={money(main.purse)} /><MastheadFact kind="weather" label="Weather" value={weather} /><MastheadFact kind="course" label="Course" value={course.name} note={`Par ${coursePar(course)} · ${courseYards(course).toLocaleString("en-US")} yds`} /></div>
+      <div className="week-featured-field"><small>Top players in the field</small><div>{featured.map((wp) => <article key={wp.player.id}><Portrait player={wp.player} size={132} title={wp.player.name} /><b>#{ranks.get(wp.player.id) ?? "—"}</b><span>{wp.player.name}</span></article>)}</div></div>
+      <div className="week-event-actions"><div className="week-ready"><strong>{clear} of 7</strong><span>ready</span></div><button className="btn btn-primary" onClick={playWeek}>Play week {world.week} <span aria-hidden>›</span></button></div>
     </div>
     <div className="week-decisions-heading"><div><span>WEEKLY COMMAND CENTER</span><h2>Seven decisions before Thursday</h2><p>Clear the board, then play the week.</p></div></div>
     <div className="week-decision-grid">{decisions.map((d) => <article className={`week-decision-card ${"urgent" in d && d.urgent ? "urgent" : ""}`} key={d.key}><img src={DECISION_ART[d.key]} alt="" /><div className="week-decision-copy"><span className="week-decision-icon">{d.icon}</span><h3>{d.title}</h3><p>{d.copy}</p><strong>{d.status}</strong><button className="btn btn-primary" onClick={d.run}>{d.action} <span aria-hidden>›</span></button></div></article>)}</div>
