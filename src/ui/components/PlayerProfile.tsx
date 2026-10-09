@@ -113,8 +113,9 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
                 <br />
                 {wp.client ? "Your client" : wp.agent ? `${wp.agent.agency} (until end of season ${wp.agent.untilSeason})${wp.agent.deal ? " · development deal" : ""}` : "Free agent"}
                 {!wp.client && (
-                  <div style={{ marginTop: 8 }}>
-                    <button className="btn btn-small" onClick={() => game.act((w) => toggleShortlist(w, id))}>{onShortlist(world, id) ? "On your board ✓" : "Add to board"}</button>
+                  <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-start" }}>
+                    <button className="btn btn-small" onClick={() => game.act((w) => toggleShortlist(w, id))}>{onShortlist(world, id) ? "On your watch list ✓" : "Add to watch list"}</button>
+                    <button className="btn btn-small" disabled={queued} onClick={() => game.act((w) => queueScouting(w, id))}>{queued ? "Scout is gathering intel" : "Have a scout gather intel"}</button>
                   </div>
                 )}
                 {archetype && <div style={{ marginTop: 8 }}><ArchetypePill id={archetype} tier={masteryTier(wp, ARCHETYPE_KEY)} /></div>}
@@ -183,12 +184,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
               </div>
               {!known ? (
                 <p className="empty">
-                  Your agency has no report on him: only his results are public.{" "}
-                  {!wp.client && (
-                    <button className="linkish" disabled={queued} onClick={() => game.act((w) => queueScouting(w, id))}>
-                      {queued ? "Queued for scouting" : "Add to the scouting queue"}
-                    </button>
-                  )}
+                  Your agency has no report on him: only his results are public.{queued ? " A scout is on his way to gather intel." : ""}
                 </p>
               ) : (
                 <>

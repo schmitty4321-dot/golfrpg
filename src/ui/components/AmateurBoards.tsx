@@ -96,7 +96,7 @@ export function ScoutingBoard({ world, game }: { world: World; game: Game }) {
   return (
     <section className="panel">
       <div className="panel-head">
-        <h2>Scouting board</h2>
+        <h2>Watch list</h2>
         <span className="secondary small">{ids.length} on your board</span>
       </div>
       {closed && <p className="small muted">{closed}</p>}
