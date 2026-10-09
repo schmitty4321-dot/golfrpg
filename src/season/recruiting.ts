@@ -322,6 +322,15 @@ export function recruitingWindow(world: World): string | null {
   return null;
 }
 
+/** The desk's countdown: weeks until recruiting starts, then weeks until it ends. */
+export function recruitingCountdown(world: World): string {
+  const plural = (n: number) => `${n} week${n === 1 ? "" : "s"}`;
+  if (world.week < RECRUITING_OPENS) return `${plural(RECRUITING_OPENS - world.week)} until recruiting starts`;
+  if (world.week < RECRUITING_CLOSES) return `${plural(RECRUITING_CLOSES - world.week)} until recruiting ends`;
+  if (world.week === RECRUITING_CLOSES) return "Last week of recruiting: it closes after this week";
+  return "Recruiting is closed for the season. Signing day is at the end of the season.";
+}
+
 export function actionBlock(world: World, id: string, action: RecruitAction): string | null {
   const closed = recruitingWindow(world);
   if (closed) return closed;

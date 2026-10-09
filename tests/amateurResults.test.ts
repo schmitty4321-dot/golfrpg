@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { RECRUITING_CLOSES, actionBlock, amateurRanking, createWorld, onShortlist, playWeek, prospects, recruit, recruitingWindow, standingMove, standingOrder, toggleShortlist, type World } from "../src/season";
+import { RECRUITING_CLOSES, actionBlock, recruitingCountdown, amateurRanking, createWorld, onShortlist, playWeek, prospects, recruit, recruitingWindow, standingMove, standingOrder, toggleShortlist, type World } from "../src/season";
 
 const amateurs = (w: World): string[] => Object.values(w.players).filter((p) => p.career.status === "amateur").map((p) => p.player.id);
 
@@ -42,6 +42,12 @@ describe("recruiting window", () => {
     expect(recruitingWindow(w)).toBeNull();
     w.week = RECRUITING_CLOSES + 1;
     expect(recruitingWindow(w)).toMatch(/closed after week 32/);
+    w.week = 1;
+    expect(recruitingCountdown(w)).toBe("9 weeks until recruiting starts");
+    w.week = 10;
+    expect(recruitingCountdown(w)).toBe("22 weeks until recruiting ends");
+    w.week = RECRUITING_CLOSES;
+    expect(recruitingCountdown(w)).toMatch(/Last week of recruiting/);
   });
 
   it("blocks recruiting actions while shut, but the board stays open to watch", () => {

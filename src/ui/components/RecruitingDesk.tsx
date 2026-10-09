@@ -31,7 +31,7 @@ import {
   firstCall,
   FIRST_CALL,
   recruitMark,
-  recruitingWindow,
+  recruitingCountdown,
   standingMove,
   standingOrder,
   type RecruitMark,
@@ -130,7 +130,7 @@ export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
         <div><h2>Recruiting desk</h2><span className="muted small">One budget of hours for amateurs and pros: scout them and build their interest. Amateurs choose on signing day; pros weigh it when you make an offer.</span></div>
         <div className="recruit-hours"><strong>{left}</strong><span>of {total} hours left this week</span></div>
       </div>
-      {recruitingWindow(world) && <p className="small muted">{recruitingWindow(world)}</p>}
+      <p className="small" style={{ margin: "0 0 8px" }}><strong>{recruitingCountdown(world)}</strong></p>
       <RecruitSummary world={world} />
       <div className="meter" style={{ marginBottom: 12 }}><span style={{ width: `${Math.round((left / total) * 100)}%` }} /></div>
       <div className="recruit-grades">
