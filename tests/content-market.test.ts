@@ -27,8 +27,8 @@ describe("expanded illustrated markets", () => {
     }
   });
 
-  it("provides a stable 200-face cartoon portrait catalog", () => {
-    expect(PLAYER_PORTRAIT_CATALOG).toHaveLength(200);
+  it("provides a stable 400-face cartoon portrait catalog", () => {
+    expect(PLAYER_PORTRAIT_CATALOG).toHaveLength(400);
     const looks = PLAYER_PORTRAIT_CATALOG.map((id) => JSON.stringify(portraitSpec({ id, nationality: "USA", age: 20 + (Number(id.split("-").at(-1)) % 35) })));
     expect(new Set(looks).size).toBeGreaterThan(175);
   });
