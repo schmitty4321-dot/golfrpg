@@ -9,7 +9,7 @@ import {
   type AgencyStaffer,
   brandGoalProgress,
   guaranteed,
-  maxPayout, CENTER_TIERS, HQ_TIERS, AGENCY_EVENTS, STAFF_LABELS, STAFF_ROLES, brandOffers, brandBlock, brandSlots, declineBrand, buildCenter, eventBlock, eventTakings, followers, holdEvent, signBrand, centerBlock, dealClients, hireStaffer, hiredStaffer, hqBlock, fireStaffer, buyoutCost, contractFee, staffContract, termDiscount, STAFF_TERMS, rosterLimit, staffMarket, staffWages, upgradeHq, type AgencyEventKind, type StaffRole, type World } from "../../season";
+  maxPayout, CENTER_TIERS, HQ_TIERS, AGENCY_EVENTS, STAFF_LABELS, STAFF_ROLES, brandOffers, brandBlock, brandSlots, declineBrand, buildCenter, eventBlock, eventTakings, followers, holdEvent, signBrand, centerBlock, dealClients, hireStaffer, hiredStaffer, hqBlock, fireStaffer, buyoutCost, contractFee, staffContract, termDiscount, STAFF_TERMS, rosterLimit, staffMarket, staffWages, upgradeHq, US_REGIONS, hqRegionOf, setHqRegion, type AgencyEventKind, type StaffRole, type World } from "../../season";
 import { money } from "../format";
 import type { Game } from "../useGame";
 import { StaffPortrait, StaffRoleIcon } from "../components/StaffPortrait";
@@ -138,6 +138,14 @@ function HqPanel({ world, game }: { world: World; game: Game }) {
             {i === tier + 1 && <span className="hq-unlock">Unlocks at reputation {t.reputation}</span>}
           </article>
         ))}
+      </div>
+      <div className="hq-location" style={{ margin: "12px 0" }}>
+        <span className="small"><strong>Where the HQ sits</strong> · intel on players in your quarter takes a week, elsewhere in the USA two weeks, overseas three.</span>
+        <div className="btn-row" role="radiogroup" aria-label="HQ location" style={{ marginTop: 6 }}>
+          {US_REGIONS.map((r) => (
+            <button key={r} role="radio" aria-checked={hqRegionOf(world) === r} className={`btn btn-small${hqRegionOf(world) === r ? " btn-primary" : ""}`} onClick={() => game.act((w) => setHqRegion(w, r))}>{r}</button>
+          ))}
+        </div>
       </div>
       {next && (
         <div className="btn-row">

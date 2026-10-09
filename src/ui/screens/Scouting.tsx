@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { ScoutTripsPanel } from "../components/ScoutTrips";
-import { EYE_LABELS, REPORTS_PER_WEEK, STATUS_LABELS, approachBlock, knownTraits, pointsList, queueScouting, rankMap, scoutEye, weeklyScoutCost, type TourStatus, type World, knownArchetype } from "../../season";
+import { EYE_LABELS, intelCap, STATUS_LABELS, approachBlock, knownTraits, pointsList, queueScouting, rankMap, scoutEye, weeklyScoutCost, type TourStatus, type World, knownArchetype } from "../../season";
 import { PlayerName, useOpenPlayer } from "../components/PlayerLink";
 import { Stars } from "../components/Stars";
 import { TraitChips } from "../components/Traits";
@@ -46,7 +46,7 @@ export function Scouting({ world, game }: { world: World; game: Game }) {
         <section className="panel scout-market-panel">
           <div className="panel-head">
             <h2>Available scouts</h2>
-            <span className="secondary small">{money(weeklyScoutCost(world))}/week · each files {REPORTS_PER_WEEK} reports a week</span>
+            <span className="secondary small">{money(weeklyScoutCost(world))}/week · each works {intelCap("North")} players at once in a region, {intelCap("overseas")} overseas</span>
           </div>
           <div className="scout-card-grid">
               {a.scouts.map((s) => {
@@ -127,7 +127,12 @@ export function Scouting({ world, game }: { world: World; game: Game }) {
         {rows.length > show && <button className="linkish" style={{ marginTop: 8 }} onClick={() => setShow(show + 50)}>Show 50 more</button>}
       </section>
       <section className="panel scouting-queue-panel">
-        <div className="panel-head"><h2>Scouting queue</h2><span className="muted small">{a.scoutingQueue.length} waiting</span></div>
+        <div className="panel-head"><h2>Scouting queue</h2><span className="muted small">{a.scoutingQueue.length} waiting · {(a.intelJobs ?? []).length} in progress</span></div>
+        {(a.intelJobs ?? []).map((j) => (
+          <p key={j.id} className="small" style={{ margin: "4px 0" }}>
+            <strong>{world.players[j.playerId]?.player.name ?? "Retired player"}</strong> · {j.region === "overseas" ? "overseas" : j.region === "unknown" ? "elsewhere in the USA" : `${j.region} quarter`} · {j.weeksLeft} of {j.totalWeeks} weeks to go
+          </p>
+        ))}
         {a.hiredScouts.length === 0 && <p className="bad-text small">No scouts hired: nobody is working through this queue.</p>}
         {a.scoutingQueue.length === 0 ? <div className="queue-empty"><span>＋</span><strong>Nothing queued</strong><p>Pick a player from the reports and press Scout.</p></div> : <div className="queue-paper-list">{a.scoutingQueue.map((id) => <article key={id}><span className="queue-pin">●</span><Portrait player={world.players[id]!.player} size={42} title={world.players[id]!.player.name} /><div><strong><PlayerName id={id}>{world.players[id]?.player.name ?? "Retired player"}</PlayerName></strong><small>Waiting for a report</small></div><button className="linkish small" onClick={() => game.act((w) => (w.agency.scoutingQueue = w.agency.scoutingQueue.filter((x) => x !== id)))}>×</button></article>)}</div>}
       </section>

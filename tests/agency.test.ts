@@ -201,8 +201,8 @@ describe("scouting", () => {
     hireScout(w, best.id);
     const targets = Object.values(w.players).filter((wp) => !wp.client).slice(0, 3).map((wp) => wp.player.id);
     for (const id of targets) queueScouting(w, id);
-    playWeek(w);
-    playWeek(w);
+    // Intel takes one to three weeks by distance, so four weeks covers the farthest player.
+    for (let i = 0; i < 4; i++) playWeek(w);
     for (const id of targets) {
       expect(w.agency.knowledge[id]!.accuracy).toBeGreaterThan(0.5);
       for (const k of VISIBLE_ATTRIBUTES) {
@@ -212,7 +212,7 @@ describe("scouting", () => {
         expect(v.high).toBeGreaterThanOrEqual(truth);
       }
     }
-    expect(w.agency.ledger.scouts).toBe(best.weeklyFee * 2);
+    expect(w.agency.ledger.scouts).toBe(best.weeklyFee * 4);
   });
 
   it("reveals hidden traits only from a good enough report", () => {

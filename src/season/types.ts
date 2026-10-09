@@ -452,6 +452,17 @@ export interface AgencyLedger {
   invested?: number;
 }
 
+/** A scout out gathering intel on one player: he reports when the weeks run out. */
+export interface IntelJob {
+  id: string;
+  playerId: string;
+  scoutId: string;
+  /** Where the player is (see intel.ts: a US quarter, "overseas" or "unknown"). */
+  region: string;
+  weeksLeft: number;
+  totalWeeks: number;
+}
+
 export interface Agency {
   name: string;
   bank: number;
@@ -462,6 +473,10 @@ export interface Agency {
   hiredScouts: string[];
   /** Players waiting to be scouted, in order. */
   scoutingQueue: string[];
+  /** Intel being gathered right now: a scout is out on each player (see intel.ts). */
+  intelJobs?: IntelJob[];
+  /** Where the HQ is: its quarter of the USA sets how long intel takes (North if not chosen). */
+  hqRegion?: "North" | "South" | "East" | "West";
   knowledge: Record<string, Knowledge>;
   ledger: AgencyLedger;
   /** Player id → absolute week before which he won't hear another offer. */
