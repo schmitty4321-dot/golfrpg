@@ -496,6 +496,7 @@ select, input[type="text"], input[type="number"] {
 .modal.tracer.tracer-cinematic { width: min(1280px, calc(100vw - 28px)); max-width: none; padding: 14px; background: #f5f2e8; }
 .illustrated-replay { overflow: hidden; color: #f8f5e8; background: #043e2d; border-radius: 12px; box-shadow: 0 22px 70px rgba(1, 29, 19, 0.28); }
 .illustrated-stage { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: #063e2d; }
+.illustrated-replay.display-only .illustrated-stage { aspect-ratio: 1774 / 887; }
 .illustrated-stage > img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .illustrated-stage::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgba(1, 35, 24, 0.34), transparent 35%, transparent 78%, rgba(1, 32, 23, 0.08)); }
 .illustrated-hole-card { position: absolute; z-index: 2; top: 4.5%; left: 2.2%; width: min(330px, 25%); padding: 18px 20px 15px; border: 1px solid rgba(224, 194, 91, 0.9); border-radius: 13px; background: rgba(1, 51, 37, 0.91); box-shadow: 0 14px 36px rgba(0, 25, 17, 0.28); }

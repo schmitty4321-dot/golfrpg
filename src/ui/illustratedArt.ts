@@ -11,6 +11,8 @@ export interface ArtEntry {
   width: number;
   height: number;
   matrix: ArtMatrix;
+  /** Finished presentation art that is shown without dynamic tracer overlays until calibrated. */
+  displayOnly?: boolean;
   /** The visible playing line through the illustration, keyed by fraction of hole yardage. */
   route?: (Pt & { at: number })[];
   /**

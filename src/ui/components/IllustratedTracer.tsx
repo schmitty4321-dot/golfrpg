@@ -26,11 +26,11 @@ export function IllustratedTracer({ trace, step, courseName }: { trace: HoleTrac
   const note = trace.layout.real ? holeNote(trace.layout.real.courseId, trace.layout.real.hole) : undefined;
 
   return (
-    <section className="illustrated-replay" aria-label={`Illustrated replay of ${courseName}, hole ${trace.layout.real?.hole ?? 1}`}>
+    <section className={`illustrated-replay${art.displayOnly ? " display-only" : ""}`} aria-label={`Illustrated replay of ${courseName}, hole ${trace.layout.real?.hole ?? 1}`}>
       {/* The frame takes the painting's shape (Waialae is 16:9, La Quinta and Torrey 2:1). */}
       <div className="illustrated-stage" style={{ aspectRatio: `${art.width} / ${art.height}` }}>
         <img src={`${import.meta.env.BASE_URL}${art.image}`} alt={`Elevated illustrated view of ${courseName} Hole ${trace.layout.real?.hole ?? 1}`} />
-        {!art.meta?.framed && <div className="illustrated-hole-card">
+        {!art.displayOnly && !art.meta?.framed && <div className="illustrated-hole-card">
           <span>Hole {trace.layout.real?.hole ?? 1}</span>
           <strong>{note?.name ?? "Playing line"}</strong>
           {note?.meaning && <em className="illustrated-hole-meaning">{note.meaning}</em>}
@@ -42,7 +42,7 @@ export function IllustratedTracer({ trace, step, courseName }: { trace: HoleTrac
           </dl>
         </div>}
         {/* Cropped exactly like the painting (object-fit: cover), so the lines stay on it when the frame is squeezed. */}
-        <svg className="illustrated-arcs" viewBox={`0 0 ${art.width} ${art.height}`} preserveAspectRatio="xMidYMid slice" aria-hidden>
+        {!art.displayOnly && <svg className="illustrated-arcs" viewBox={`0 0 ${art.width} ${art.height}`} preserveAspectRatio="xMidYMid slice" aria-hidden>
           {revealed.map(({ shot, start, end }, index) => {
             const color = SHOT_COLORS[(shot.stroke - 1) % SHOT_COLORS.length]!;
             if (shot.kind === "penalty") {
@@ -67,7 +67,7 @@ export function IllustratedTracer({ trace, step, courseName }: { trace: HoleTrac
               </g>
             );
           })}
-        </svg>
+        </svg>}
         {finalShot !== undefined ? <div className="illustrated-live-caption">{finalShot.text}</div> : null}
       </div>
       {/* The hole's story sits under the painting, where it never covers the shots. */}

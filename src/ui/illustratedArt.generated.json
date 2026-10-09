@@ -10545,5 +10545,455 @@
       "rows": 88,
       "rle": "r2364f1r336f1r1f1r1f1r4f4r6f2r167f9r168f3r1f1r1f2r7f1r31f2r2f11r1f1r28f1r75f1r9f7r6f1r29f4r1f13r1f2r13f2r9f1r4f1r83f1r4f3r7f1r16s3r5f4r1f2r3f6r4f1r85f1r18f1r1f2r13f2r24s4r4f11r1f1r2f2r8w12r69f1r36f2r25s5r2f14r6w18r65f2r23f1r13f1r26s5r1f14r5w24r62f1r64s4r4f12r5w34r53f1r30f3r33s5r1f14r1f2r2w35r50f1r62f2r1s4r3f18r2w39r92f1r12f5r5f21r4w41r94s2r4f9r1f12r5f2r8w54r78s7r1f21r16w56r75s2r2s5r1f3r1f12r19w58r73s3r1s4r3f14r20w59r73s5r2f18r18w62r77f17r1f2r18w62r66f27r1f3r13f1r5w61r69f27r21w60r69f24r1f3r1f1r18w60r69f22r25w61r68f24r23w62r13f1r1f1r49f30r18w64r11f8r42s4f29r17w66r6f3r1f3r49s3r1f27r15w69r60s5r1f27r4s2r3w75r59s2r3f29r4s1r2w77r59f34r3s2r1w78r13f2r43f35r2s3w79r5f8r45f32r1f2r3s1r2w78r1f1r1f1r2f2r4f1r44f32r1f4r6w77r13f3r37f36r1f5r6w76r16s4r28f4r1f9r1f21r3f1r3f1r1f3r7w74r16s3r26f1r2f3r4f29r10f3r9w44r4w23r45f2r1f2r8f24r13f4r10w40r7w21r46f1r1f5r5f24r13f8r9w37r10w18r48f7r2f25r23f1r8w34r12w5r6w6r50f32r23f4r9w25r2w2r14w3r8w5r50f33r24f4r8w23r4w1r3w1r10w1r2w1r8w4r24s1r28f32r1f1r1f2r17f5r10w20r17w2r12w1r27s2r1f2r2f1r21f34r1f1r18f1r2f5r5f1r5w16r17w2r39s4f11r14f1r3f22r8f1r23f7r11w15r1w2r7w1r5w2r40s3r1f2r24f22r34f2r4f3r10w14r9w3r3w3r40s3r24f26r40f4r6f1r4w2r3w6r10w4r2w2r41s1r23f1r1f28r37f8r14w5r10w5r7w5r53f39r22f1r7f1r2f9r12w1r2w1r11w5r7w8r45f1r1f42r32f13r24w5r6w8r41f1r2f31r1f6r1f4r34f16r23w1r3w3r2w5r32s1r7f2r2f1r2f40r37f16r1f1r24w1r1w1r3w5r5w1r26s1r5f2r2f4r2f20r1f18r37f15r35w3r29s4r4f1r5f6r1f15r6f19r33f16r36w4r27s5r1f1r6f5r1f3r1f13r6f19r34f13r39w4r26s4r4f1r1f24r9f26r27f5r1f2r1f3r41w2r2w1r32f1r1f22r10f18r2f1r2f3r30f2r4f3r43w1r1w1r32f23r14f13r49f1r76f4r2f2r2f1r2f11r15f8r94w1r24s3r6f4r5f2r1f14r15f7r11f1r83w2r21s4r2f1r3f4r1f8r1f9r20f5r118s4r1f9r2f15r23f1r1f1r1f1r9f1r107s4r1f9r3f5r1f9r29f3r91f2r18s4r1f10r1f16r24f2r6f2r7f2r80f1r1f3r16s4r1f10r1f9r1f7r23f2r7f1r2f9r83f1r1f1r13s4r1f12r9f7r24f1r12f6r87f1r11s5r1f4r12f13r23f1r14f7r95s5r1f30r24f1r15f6r94s5r1f6r1f24r25f1r15f1r3f5r89s5r1f6r2f8r2f18r23f1r2f1r15f15r77s5r1f41r19f1r2f1r16f17r73s5r1f44r1f1r18f2r15f21r69s5f8r1f1r2f36r17f2r18f1r1f8r77s4r4f6r7f34r1f1r13f1r22f5r58s2r21s3r4f5r2f9r1f30r14f2r22f5r56s5r13"
     }
+  },
+  "pga-west-stadium:1": {
+    "image": "art-demo/pga-west-stadium/hole-01.png",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        0,
+        0
+      ]
+    },
+    "displayOnly": true,
+    "meta": {
+      "number": 1,
+      "par": 4,
+      "yards": 445,
+      "tourAverage": 3.903,
+      "course": "PGA West (Stadium Course)"
+    }
+  },
+  "pga-west-stadium:2": {
+    "image": "art-demo/pga-west-stadium/hole-02.png",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        0,
+        0
+      ]
+    },
+    "displayOnly": true,
+    "meta": {
+      "number": 2,
+      "par": 4,
+      "yards": 371,
+      "tourAverage": 3.758,
+      "course": "PGA West (Stadium Course)"
+    }
+  },
+  "pga-west-stadium:3": {
+    "image": "art-demo/pga-west-stadium/hole-03.png",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        0,
+        0
+      ]
+    },
+    "displayOnly": true,
+    "meta": {
+      "number": 3,
+      "par": 4,
+      "yards": 471,
+      "tourAverage": 4.04,
+      "course": "PGA West (Stadium Course)"
+    }
+  },
+  "pga-west-stadium:4": {
+    "image": "art-demo/pga-west-stadium/hole-04.png",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        0,
+        0
+      ]
+    },
+    "displayOnly": true,
+    "meta": {
+      "number": 4,
+      "par": 3,
+      "yards": 170,
+      "tourAverage": 2.877,
+      "course": "PGA West (Stadium Course)"
+    }
+  },
+  "pga-west-stadium:5": {
+    "image": "art-demo/pga-west-stadium/hole-05.png",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        0,
+        0
+      ]
+    },
+    "displayOnly": true,
+    "meta": {
+      "number": 5,
+      "par": 5,
+      "yards": 535,
+      "tourAverage": 4.678,
+      "course": "PGA West (Stadium Course)"
+    }
+  },
+  "pga-west-stadium:6": {
+    "image": "art-demo/pga-west-stadium/hole-06.png",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        0,
+        0
+      ]
+    },
+    "displayOnly": true,
+    "meta": {
+      "number": 6,
+      "par": 3,
+      "yards": 227,
+      "tourAverage": 3.115,
+      "course": "PGA West (Stadium Course)"
+    }
+  },
+  "pga-west-stadium:7": {
+    "image": "art-demo/pga-west-stadium/hole-07.png",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        0,
+        0
+      ]
+    },
+    "displayOnly": true,
+    "meta": {
+      "number": 7,
+      "par": 4,
+      "yards": 346,
+      "tourAverage": 3.863,
+      "course": "PGA West (Stadium Course)"
+    }
+  },
+  "pga-west-stadium:8": {
+    "image": "art-demo/pga-west-stadium/hole-08.png",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        0,
+        0
+      ]
+    },
+    "displayOnly": true,
+    "meta": {
+      "number": 8,
+      "par": 5,
+      "yards": 559,
+      "tourAverage": 4.449,
+      "course": "PGA West (Stadium Course)"
+    }
+  },
+  "pga-west-stadium:9": {
+    "image": "art-demo/pga-west-stadium/hole-09.png",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        0,
+        0
+      ]
+    },
+    "displayOnly": true,
+    "meta": {
+      "number": 9,
+      "par": 4,
+      "yards": 452,
+      "tourAverage": 4.101,
+      "course": "PGA West (Stadium Course)"
+    }
+  },
+  "pga-west-stadium:10": {
+    "image": "art-demo/pga-west-stadium/hole-10.png",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        0,
+        0
+      ]
+    },
+    "displayOnly": true,
+    "meta": {
+      "number": 10,
+      "par": 4,
+      "yards": 405,
+      "tourAverage": 3.965,
+      "course": "PGA West (Stadium Course)"
+    }
+  },
+  "pga-west-stadium:11": {
+    "image": "art-demo/pga-west-stadium/hole-11.png",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        0,
+        0
+      ]
+    },
+    "displayOnly": true,
+    "meta": {
+      "number": 11,
+      "par": 5,
+      "yards": 591,
+      "tourAverage": 4.722,
+      "course": "PGA West (Stadium Course)"
+    }
+  },
+  "pga-west-stadium:12": {
+    "image": "art-demo/pga-west-stadium/hole-12.png",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        0,
+        0
+      ]
+    },
+    "displayOnly": true,
+    "meta": {
+      "number": 12,
+      "par": 4,
+      "yards": 363,
+      "tourAverage": 3.806,
+      "course": "PGA West (Stadium Course)"
+    }
+  },
+  "pga-west-stadium:13": {
+    "image": "art-demo/pga-west-stadium/hole-13.png",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        0,
+        0
+      ]
+    },
+    "displayOnly": true,
+    "meta": {
+      "number": 13,
+      "par": 3,
+      "yards": 214,
+      "tourAverage": 3.229,
+      "course": "PGA West (Stadium Course)"
+    }
+  },
+  "pga-west-stadium:14": {
+    "image": "art-demo/pga-west-stadium/hole-14.png",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        0,
+        0
+      ]
+    },
+    "displayOnly": true,
+    "meta": {
+      "number": 14,
+      "par": 4,
+      "yards": 389,
+      "tourAverage": 3.855,
+      "course": "PGA West (Stadium Course)"
+    }
+  },
+  "pga-west-stadium:15": {
+    "image": "art-demo/pga-west-stadium/hole-15.png",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        0,
+        0
+      ]
+    },
+    "displayOnly": true,
+    "meta": {
+      "number": 15,
+      "par": 4,
+      "yards": 468,
+      "tourAverage": 4.11,
+      "course": "PGA West (Stadium Course)"
+    }
+  },
+  "pga-west-stadium:16": {
+    "image": "art-demo/pga-west-stadium/hole-16.png",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        0,
+        0
+      ]
+    },
+    "displayOnly": true,
+    "meta": {
+      "number": 16,
+      "par": 5,
+      "yards": 600,
+      "tourAverage": 4.683,
+      "course": "PGA West (Stadium Course)"
+    }
+  },
+  "pga-west-stadium:17": {
+    "image": "art-demo/pga-west-stadium/hole-17.png",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        0,
+        0
+      ]
+    },
+    "displayOnly": true,
+    "meta": {
+      "number": 17,
+      "par": 3,
+      "yards": 165,
+      "tourAverage": 3.159,
+      "course": "PGA West (Stadium Course)"
+    }
+  },
+  "pga-west-stadium:18": {
+    "image": "art-demo/pga-west-stadium/hole-18.png",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0,
+        0,
+        0
+      ],
+      "y": [
+        0,
+        0,
+        0
+      ]
+    },
+    "displayOnly": true,
+    "meta": {
+      "number": 18,
+      "par": 4,
+      "yards": 439,
+      "tourAverage": 4,
+      "course": "PGA West (Stadium Course)"
+    }
   }
 }
