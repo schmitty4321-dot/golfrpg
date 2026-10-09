@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
+import { RECRUITING_OPENS } from "../src/season";
 import { commissionGrace, firstCall, marketRate, spentThisWeek, publicRead, acceptChance, hoursFor, proProspects, rivalInterest, rivalMoves, rivalRecruitingWeek, MAX_READ, PRO_AGE, agencyList, createWorld, dealbreaker, groupRange, hoursLeft, interestIn, prospects, readOf, recruit, recruitBlock, signingDay, weeklyHours } from "../src/season";
 
 describe("recruiting", () => {
   it("spends a weekly budget of hours, refilled each week", () => {
     const w = createWorld({ seed: 101, scenario: "agency" });
+    w.week = RECRUITING_OPENS;
     const id = prospects(w)[0]!;
     const total = weeklyHours(w);
     recruit(w, id, "event");
@@ -16,6 +18,7 @@ describe("recruiting", () => {
 
   it("builds interest, and the read sharpens but is never exact", () => {
     const w = createWorld({ seed: 102, scenario: "agency" });
+    w.week = RECRUITING_OPENS;
     const id = prospects(w)[1]!;
     const before = interestIn(w, id);
     recruit(w, id, "call");
@@ -29,6 +32,7 @@ describe("recruiting", () => {
 
   it("a prospect turning pro names three agencies, and signs on signing day with the top one", () => {
     const w = createWorld({ seed: 103, scenario: "agency" });
+    w.week = RECRUITING_OPENS;
     w.agency.reputation = 70;
     const id = prospects(w).find((x) => w.players[x]!.player.age + 1 >= PRO_AGE && dealbreaker(w, x) === null)!;
     const wp = w.players[id]!;
@@ -44,6 +48,7 @@ describe("recruiting", () => {
 
   it("the rival agencies work the prospects every week", () => {
     const w = createWorld({ seed: 104, scenario: "agency" });
+    w.week = RECRUITING_OPENS;
     const top = prospects(w)[0]!;
     const before = Object.values(rivalInterest(w, top)).reduce((a, b) => a + b, 0);
     for (let i = 0; i < 8; i++) { rivalRecruitingWeek(w); w.week += 1; }
@@ -54,6 +59,7 @@ describe("recruiting", () => {
 
   it("pros share the same hours, with their own activities, a public read, and interest that helps an offer", () => {
     const w = createWorld({ seed: 105, scenario: "agency" });
+    w.week = RECRUITING_OPENS;
     w.agency.reputation = 50;
     const pro = proProspects(w, 120).slice(40).find((id) => !w.players[id]!.agent || w.players[id]!.agent!.untilSeason <= w.season)!;
     // Pros have their own activities, and their public numbers give a read before any scouting.
@@ -72,6 +78,7 @@ describe("recruiting", () => {
 
   it("a keen pro whose deal is up takes your call first, and will pay a little over his going rate", () => {
     const w = createWorld({ seed: 105, scenario: "agency" });
+    w.week = RECRUITING_OPENS;
     w.agency.reputation = 50;
     const pro = proProspects(w, 120).slice(40).find((id) => w.players[id]!.agent && w.players[id]!.agent!.untilSeason <= w.season && dealbreaker(w, id) === null)!;
     const wp = w.players[pro]!;
@@ -99,6 +106,7 @@ describe("recruiting", () => {
 
   it("this week's recruiting hours are counted separately for amateurs and pros, and reset each week", () => {
     const w = createWorld({ seed: 105, scenario: "agency" });
+    w.week = RECRUITING_OPENS;
     w.agency.reputation = 50;
     const amateur = prospects(w)[0]!;
     const pro = proProspects(w, 120).slice(40)[0]!;
