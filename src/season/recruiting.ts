@@ -311,7 +311,29 @@ function sharpen(world: World, id: string, by: number): void {
 }
 
 /** Why an action can't be taken now, or null. */
+/** Recruiting runs from week 10 to week 32. Weeks 1 to 9 are for watching: results, cards and the board. */
+export const RECRUITING_OPENS = 10;
+export const RECRUITING_CLOSES = 32;
+
+/** Why recruiting is shut this week, or null when it's open. */
+export function recruitingWindow(world: World): string | null {
+  if (world.week < RECRUITING_OPENS) return `Recruiting opens in week ${RECRUITING_OPENS}. Until then, watch the results and build your board.`;
+  if (world.week > RECRUITING_CLOSES) return `Recruiting closed after week ${RECRUITING_CLOSES}.`;
+  return null;
+}
+
+/** The desk's countdown: weeks until recruiting starts, then weeks until it ends. */
+export function recruitingCountdown(world: World): string {
+  const plural = (n: number) => `${n} week${n === 1 ? "" : "s"}`;
+  if (world.week < RECRUITING_OPENS) return `${plural(RECRUITING_OPENS - world.week)} until recruiting starts`;
+  if (world.week < RECRUITING_CLOSES) return `${plural(RECRUITING_CLOSES - world.week)} until recruiting ends`;
+  if (world.week === RECRUITING_CLOSES) return "Last week of recruiting: it closes after this week";
+  return "Recruiting is closed for the season. Signing day is at the end of the season.";
+}
+
 export function actionBlock(world: World, id: string, action: RecruitAction): string | null {
+  const closed = recruitingWindow(world);
+  if (closed) return closed;
   if (hoursLeft(world) < hoursFor(world, id, action)) return "Not enough hours left this week.";
   const p = world.agency.prospects?.[id];
   const now = absWeek(world.season, world.week);
@@ -393,6 +415,8 @@ export function recruit(world: World, id: string, action: RecruitAction): string
 /** A junior showcase: once a season, a first look at every high-school prospect. */
 export const SHOWCASE_HOURS = 10;
 export function showcaseBlock(world: World): string | null {
+  const closed = recruitingWindow(world);
+  if (closed) return closed;
   if (recruitingOf(world).showcaseSeason === world.season) return "Already held this season.";
   if (hoursLeft(world) < SHOWCASE_HOURS) return "Not enough hours left this week.";
   return null;

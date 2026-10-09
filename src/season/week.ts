@@ -28,6 +28,7 @@ import { sponsorBonus, sponsorWeek } from "./sponsors";
 import { recordEvent } from "./history";
 import { beginRebuild, endOfWeek } from "./staff";
 import { manageStaff } from "./managers";
+import { amateurWeek } from "./amateurResults";
 import { familiarityWith, recordFamiliarity } from "./familiarity";
 import { takePracticeRound, takePracticeTrip } from "./practice";
 import { caddiePay, payJet, travelMode } from "./team";
@@ -521,6 +522,8 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
   // Sponsor buzz from the press fades week by week.
   for (const wp of clients(world)) if (wp.client!.buzz) wp.client!.buzz = Math.round(wp.client!.buzz * 0.9 * 1000) / 1000 || 0;
 
+  // The amateurs play their weekly event: one finish order for the whole field.
+  amateurWeek(world);
   world.news = world.news.slice(0, 40);
   world.week++;
   // The inbox for the coming week: press conferences about this one, then a dilemma or two.

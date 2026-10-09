@@ -167,6 +167,33 @@ export interface Coach {
 }
 
 /** A development director: runs one client's coaching staff when you let him (see managers.ts). */
+/** One amateur's season to date, from the weekly events (see amateurResults.ts). */
+export interface AmateurRecord {
+  events: number;
+  wins: number;
+  top10: number;
+  top20: number;
+  best: number;
+  lastFinish?: number;
+  /** Sum over the events of his share of the field: 1 for the winner, 0 for the last place. */
+  share: number;
+}
+
+/** A weekly amateur event: how many played, and the finish order, best first. */
+export interface AmateurEvent {
+  season: number;
+  week: number;
+  field: number;
+  finishes: string[];
+}
+
+/** The amateur standing after a week: best first. */
+export interface AmateurStanding {
+  season: number;
+  week: number;
+  order: string[];
+}
+
 export interface Manager {
   id: string;
   name: string;
@@ -643,6 +670,13 @@ export interface World {
   coaches: Coach[];
   /** Development directors available to hire, one client each (older saves get them on load). */
   managers?: Manager[];
+  /** Each amateur's season to date, from the weekly events (see amateurResults.ts). */
+  amateurRecords?: Record<string, AmateurRecord>;
+  /** The latest weekly amateur event: its finish order, best first. */
+  amateurEvent?: AmateurEvent;
+  /** The amateur standing after the latest event, and after the one before (for the movement arrows). */
+  amateurStanding?: AmateurStanding;
+  amateurStandingPrev?: AmateurStanding;
   /** Caddies available to hire (older saves get them on load). */
   caddies?: Caddie[];
   history: History;

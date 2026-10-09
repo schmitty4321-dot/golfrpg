@@ -53,6 +53,7 @@ export * from "./brandGoals";
 export * from "./staffSkills";
 export * from "./managerFx";
 export * from "./managers";
+export * from "./amateurResults";
 export * from "./schools";
 export * from "./recruiting";
 export * from "./extensions";

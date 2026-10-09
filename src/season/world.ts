@@ -28,6 +28,7 @@ import { MAX_POTENTIAL, archetypeCeiling, newDevelopment, overall } from "./deve
 import { asSetUp, nextCourseSetup } from "./courseSetup";
 import { generateCoaches, offseason, OFFSEASON_WEEKS } from "./staff";
 import { generateManagers } from "./managers";
+import { resetAmateurSeason } from "./amateurResults";
 import { rivalSeasonEnd } from "./rivals";
 import { EUROPE, ensureRyderCup } from "./ryderCup";
 import { STAFF_LABELS, contractFee, hiredStaffer, staffContract, staffSeasonEnd, stafferFee } from "./market";
@@ -556,6 +557,7 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
       if (i < 10) world.news.unshift(`Top amateur ${wp.player.name} turns professional.`);
     }
   });
+  resetAmateurSeason(world);
   const usedNames = new Set(Object.values(world.players).map((wp) => wp.player.name));
   const generation = nextGeneration(world);
   for (let i = 0; i < AMATEUR_CLASS_SIZE; i++) {
