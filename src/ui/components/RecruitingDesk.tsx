@@ -30,6 +30,8 @@ import {
   commissionGrace,
   firstCall,
   FIRST_CALL,
+  recruitMark,
+  type RecruitMark,
   marketRate,
   rankMap,
   readOf,
@@ -53,6 +55,16 @@ import { TraitChips } from "./Traits";
 
 const readWords = (r: number) => (r <= 0 ? "Not scouted" : r < READ_TIERS.skills ? "A glimpse" : r < READ_TIERS.ceiling ? "Rough read" : r < READ_TIERS.details ? "Good read" : "Detailed read");
 const range = (x: { low: number; high: number }) => (x.low === x.high ? `${x.low}` : `${x.low}–${x.high}`);
+
+/** The mark on a prospect you've worked on: a ring while you recruit him, a filled pill once he's keen. Nothing for the rest. */
+function RecruitBadge({ state, pro }: { state: RecruitMark; pro: boolean }) {
+  if (state === "none") return null;
+  if (state === "recruiting") {
+    return <span className="recruit-mark recruiting" role="img" aria-label="Recruiting" title="You've worked on him: his interest is building">◉</span>;
+  }
+  const label = pro ? "First call" : "Keen";
+  return <span className="recruit-mark keen" role="img" aria-label={label} title={`You've recruited him: his interest is at the first-call level (${FIRST_CALL})`}>● {label}</span>;
+}
 
 /** The recruiting desk: this week's hours, how prospects see the agency, the prospects, and last season's class. */
 export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
@@ -101,7 +113,7 @@ export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
               return (
                 <tr key={id} className={open === id ? "row-current" : undefined}>
                   <td><Stars value={stars(world, id)} /></td>
-                  <td><PlayerName id={id}>{wp.player.name}</PlayerName>{wp.academy ? <span className="sponsor-tag">Academy</span> : null}{firstCall(world, id) ? <span className="sponsor-tag" title="His deal is up and he's keen on you: he'll hear you out before the other agencies bid">First call</span> : null}</td>
+                  <td><RecruitBadge state={recruitMark(world, id)} pro={tab === "pro"} /><PlayerName id={id}>{wp.player.name}</PlayerName>{wp.academy ? <span className="sponsor-tag">Academy</span> : null}{firstCall(world, id) ? <span className="sponsor-tag" title="His deal is up and he's keen on you: he'll hear you out before the other agencies bid">First call</span> : null}</td>
                   <td className="num">{wp.player.age}</td>
                   <td className="small">{tab === "pro" ? <>#{ranks.get(id)} · {wp.agent && wp.agent.untilSeason > world.season ? `${wp.agent.agency} to S${wp.agent.untilSeason}` : wp.agent ? `${wp.agent.agency}, final season` : "Free agent"}</> : schoolLabel(world, wp)}</td>
                   <td className="small">{readWords(readOf(world, id))}</td>

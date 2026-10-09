@@ -177,6 +177,10 @@ main { max-width: 1240px; margin: 0 auto; padding: 20px; display: grid; gap: 16p
 .good-text { color: var(--good-text); }
 .bad-text { color: var(--critical-text); }
 
+/* Recruited prospects: a ring while you're recruiting him, a filled pill once he's keen. */
+.recruit-mark { margin-right: 6px; color: var(--accent); font-size: 12px; }
+.recruit-mark.keen { margin-right: 8px; padding: 1px 7px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-size: 11px; font-weight: 600; white-space: nowrap; }
+
 .badge {
   display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 999px;
   font-size: 11px; font-weight: 650; letter-spacing: 0.02em; background: var(--surface-2); color: var(--text-2); white-space: nowrap;
