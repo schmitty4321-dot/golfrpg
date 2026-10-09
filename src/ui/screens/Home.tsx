@@ -1,10 +1,9 @@
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import { coursePar, courseYards, familiarityLabel } from "../../engine";
 import { ChallengeBanner } from "../components/Challenge";
 import { ShotOfTheWeek } from "../components/Highlights";
 import { InboxPanel } from "../components/Inbox";
 import {
-  agencyProfit,
   FULL_CARD,
   REGION_NAMES,
   seasonWeeks,
@@ -30,22 +29,22 @@ import {
   practiceTripCost,
   PRACTICE_TRIP_FATIGUE,
   eventsInWeek,
+  buildFields,
+  planWeek,
+  rankMap,
   pointsList,
-  rosterLimit,
   type ClientChoice,
   type ClientChoices,
   type EntryOption,
   type World,
-  absWeek,
 } from "../../season";
 import { TIER_LABELS, fitWord, formWord, millions, money, signed } from "../format";
 import type { Go } from "../nav";
 import { GoalsPanel } from "../components/Goals";
 import { loadTempo, saveTempo, type Game, type WeekTempo } from "../useGame";
-import { COACH_ROLES, STAFF_LABELS, STAFF_ROLES, extensionWindow, hiredStaffer, hoursLeft, prospects, proProspects, rankMap, spentThisWeek, weeklyHours } from "../../season";
 import { RoundPlanPicker, TEMPO_LABELS } from "../components/WeekTempo";
 import { TournamentEmblem } from "../components/TournamentLogo";
-import { PlayerName } from "../components/PlayerLink";
+import { Portrait } from "../components/Portrait";
 
 const ACCESS_TONE: Record<EntryOption["access"], string> = {
   invited: "var(--good)",
@@ -77,11 +76,7 @@ export function Home({ world, game, go, week }: { world: World; game: Game; go: 
   const last = game.state.reports[game.state.reports.length - 1];
   return (
     <main>
-      {!seasonOver && <WeeklyChecklist world={world} go={go} />}
-      <h3 className="section-label">Play</h3>
-      <WeekHero world={world} game={game} week={week} />
-      <AgencyStrip world={world} />
-      <Alerts world={world} go={go} />
+      <WeekCommandCenter world={world} game={game} go={go} />
       <ChallengeBanner world={world} />
       <InboxPanel world={world} game={game} />
       <div className="grid-2">
@@ -122,212 +117,66 @@ export function Home({ world, game, go, week }: { world: World; game: Game; go: 
   );
 }
 
-/** This week's sheet: what needs doing, each line a link to the screen that does it. */
-function WeeklyChecklist({ world, go }: { world: World; go: Go }) {
-  const spent = spentThisWeek(world);
-  const left = hoursLeft(world);
-  const now = absWeek(world.season, world.week);
-  const ranks = rankMap(world);
-  const clients = world.clientIds.map((id) => ({ id, wp: world.players[id]!, c: world.players[id]!.client! }));
-  const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
+const VENUE_BANNERS: Record<string, string> = {
+  waialae: "/art/week-venues/waialae.png",
+  "pga-west-stadium": "/art/week-venues/pga-west-stadium.png",
+  "torrey-pines-south": "/art/week-venues/torrey-pines-south.png",
+  "tpc-scottsdale": "/art/week-venues/tpc-scottsdale.png",
+  "pebble-beach": "/art/week-venues/pebble-beach.png",
+};
 
-  const lapsing = [
-    ...clients.flatMap(({ c }) => c.offers.filter((o) => o.expiresAbsWeek - now <= 1)),
-    ...(world.agency.brandOffers ?? []).filter((b) => b.expiresAbsWeek !== undefined && b.expiresAbsWeek - now <= 1),
-  ];
-  const talks = clients.filter(({ id, c }) => c.contract.untilSeason <= world.season && extensionWindow(world, id).open);
-  const unset = clients.filter(({ c }) => !c.roundPlan);
-  // The caddie's rule before any standings exist: a top-25 player keeps his game, anyone else needs to attack.
-  const caddie = (id: string) => ((ranks.get(id) ?? 999) <= 25 ? "Steady" : "Attack");
-  const tired = clients.filter(({ wp }) => wp.player.condition < 60 || !!wp.injury);
-  const openRoles = STAFF_ROLES.filter((r) => !hiredStaffer(world, r));
-  const openCoaches = clients.reduce((n, { c }) => n + COACH_ROLES.filter((r) => !c.staff[r]).length, 0);
+const DECISION_ART = {
+  amateurs: "/art/scouting/north-america.png",
+  pros: "/art/finance/contracts-credit.png",
+  sponsor: "/art/sponsors/watch.webp",
+  extension: "/art/finance/contracts-credit.png",
+  plans: "/art/scenes/balanced.webp",
+  condition: "/art/scenes/fitness.webp",
+  staff: "/art/facilities/hq-2.webp",
+} as const;
 
-  const items: { title: string; done: boolean; detail: string; cta: string; run: () => void }[] = [
-    {
-      title: "Recruit amateurs",
-      done: spent.amateur > 0,
-      detail: spent.amateur > 0 ? `${spent.amateur} hour${spent.amateur === 1 ? "" : "s"} spent on amateurs.` : `${prospects(world).length} on your board · ${left} of ${weeklyHours(world)} hours left.`,
-      cta: "Recruiting",
-      run: () => go("recruiting"),
-    },
-    {
-      title: "Recruit pros",
-      done: spent.pro > 0,
-      detail: spent.pro > 0 ? `${spent.pro} hour${spent.pro === 1 ? "" : "s"} spent on pros.` : `${proProspects(world).length} you could approach, on the same hours.`,
-      cta: "Recruiting",
-      run: () => go("recruiting"),
-    },
-    {
-      title: "Sponsor deals expiring",
-      done: lapsing.length === 0,
-      detail: lapsing.length ? `${plural(lapsing.length, "deal")} lapse${lapsing.length === 1 ? "s" : ""} this week or next.` : "Nothing lapsing soon.",
-      cta: "Partnerships",
-      run: () => go("partnerships"),
-    },
-    {
-      title: "Extension talks",
-      done: talks.length === 0,
-      detail: talks.length ? `${talks.map(({ wp }) => wp.player.name.split(" ").pop()).join(", ")}: final season, talks are open.` : "No talks open this week.",
-      cta: "Roster",
-      run: () => go("agency"),
-    },
-    {
-      title: "Round plans",
-      done: unset.length === 0,
-      detail: unset.length
-        ? `${plural(unset.length, "client")} without a plan. Caddie suggests ${caddie(unset[0]!.id)} for ${unset[0]!.wp.player.name.split(" ").pop()}.`
-        : "Every client has a plan.",
-      cta: "Plans below",
-      run: () => document.querySelector(".week-round-plans")?.scrollIntoView({ block: "center" }),
-    },
-    {
-      title: "Condition",
-      done: tired.length === 0,
-      detail: tired.length ? tired.map(({ wp }) => (wp.injury ? `${wp.player.name.split(" ").pop()} injured` : `${wp.player.name.split(" ").pop()} at ${Math.round(wp.player.condition)}%`)).join(" · ") + ": a rest week would help." : "Everyone's fit enough to play.",
-      cta: "Roster",
-      run: () => go("agency"),
-    },
-    {
-      title: "Open staff spots",
-      // Ticked only when nothing is open: the agency roles and every client's coach slots.
-      done: openRoles.length === 0 && openCoaches === 0,
-      detail: openRoles.length ? `${openRoles.map((r) => STAFF_LABELS[r].label.toLowerCase()).join(", ")} empty${openCoaches ? ` · ${plural(openCoaches, "coach slot")} unfilled` : ""}.` : openCoaches ? `${plural(openCoaches, "coach slot")} unfilled.` : "Every agency role is filled.",
-      cta: "HQ",
-      run: () => go("hq"),
-    },
-  ];
-  return (
-    <section className="panel weekly-checklist" aria-label="This week">
-      <div className="panel-head">
-        <h2>This week</h2>
-        <span className="secondary small">{items.filter((i) => i.done).length} of {items.length} clear</span>
-      </div>
-      <ol className="checklist">
-        {items.map((it) => (
-          <li key={it.title} className={it.done ? "done" : undefined}>
-            <span className="check-mark" aria-hidden>{it.done ? "✓" : ""}</span>
-            <span className="check-body">
-              <strong>{it.title}</strong>
-              <span className="muted small">{it.detail}</span>
-            </span>
-            <button className="btn btn-small" onClick={it.run}>{it.cta} ›</button>
-          </li>
-        ))}
-      </ol>
-    </section>
-  );
-}
-
-/** The top of the dashboard: this week's main event and which clients are in it. */
-function WeekHero({ world, game, week }: { world: World; game: Game; week: WeekChoices }) {
+/** The week's event, strongest entrants and seven decisions that must be cleared. */
+function WeekCommandCenter({ world, game, go }: { world: World; game: Game; go: Go }) {
   const weeks = seasonWeeks(world);
-  const a = world.agency;
   if (world.week > weeks) {
-    return (
-      <section className="hero">
-        <div className="hero-body">
-          <div className="hero-kicker">{a.name} · Season {world.season}</div>
-          <h1 className="hero-title">The season is over</h1>
-          <div className="hero-meta">Close it to hand out cards, settle contracts and see how your agency did.</div>
-        </div>
-        <button className="btn btn-primary hero-play" onClick={() => void game.closeSeason()}>Close the season <span aria-hidden>▸</span></button>
-      </section>
-    );
+    return <section className="hero week-command-season-over"><div className="hero-body"><div className="hero-kicker">{world.agency.name} · Season {world.season}</div><h1 className="hero-title">The season is over</h1><div className="hero-meta">Close it to hand out cards, settle contracts and see how your agency did.</div></div><button className="btn btn-primary hero-play" onClick={() => void game.closeSeason()}>Close the season <span aria-hidden>▸</span></button></section>;
   }
   const events = eventsInWeek(world);
   const main = events[0];
   if (!main) return null;
   const course = courseById(world, main.courseId);
-  // Where each client is headed with the choices made so far ("his call" = his own pick).
-  const going = (eventId: string) =>
-    world.clientIds.filter((id) => {
-      const c = week.choices[id] ?? defaultWeekChoice(world, id);
-      return c.kind === "enter" && c.eventId === eventId;
-    });
-  const here = going(main.id);
-  return (
-    <section className="hero">
-      <div className="hero-logo"><TournamentEmblem event={main} course={course} size={84} /></div>
-      <div className="hero-body">
-        <div className="hero-kicker">{a.name} · Week {world.week} of {weeks}</div>
-        <h1 className="hero-title">{main.name}</h1>
-        <div className="hero-meta">
-          <span>{TIER_LABELS[main.tier]}</span>
-          <span>{course.name}{course.info ? `, ${course.info.city}` : ""}</span>
-          <span>par {coursePar(course)}, {courseYards(course).toLocaleString("en-US")} yds</span>
-          <span>Purse {millions(main.purse)}</span>
-        </div>
-        <div className="hero-clients">
-          {world.clientIds.length === 0
-            ? "You have no clients yet"
-            : here.length === 0
-              ? "None of your clients is in this event"
-              : <>{here.map((id, i) => <Fragment key={id}>{i ? ", " : ""}<PlayerName id={id}>{world.players[id]!.player.name}</PlayerName></Fragment>)} {here.length === 1 ? "is" : "are"} in the field</>}
-          {events.length > 1 && <span className="hero-also"> · also this week: {events.slice(1).map((e) => e.name).join(", ")}</span>}
-        </div>
-      </div>
-    </section>
-  );
+  const field = buildFields(world, planWeek(world, new Map())).find((x) => x.event.id === main.id)?.field ?? [];
+  const ranks = rankMap(world);
+  const featured = field.map((id) => world.players[id]!).filter(Boolean).sort((x, y) => (ranks.get(x.player.id) ?? 9999) - (ranks.get(y.player.id) ?? 9999)).slice(0, 4);
+  const amateurs = Object.values(world.players).filter((wp) => wp.career.status === "amateur" && !wp.client).length;
+  const pros = Object.values(world.players).filter((wp) => !wp.client && wp.career.status !== "amateur").length;
+  const offers = world.clientIds.reduce((sum, id) => sum + world.players[id]!.client!.offers.length, 0);
+  const expiring = world.clientIds.filter((id) => world.players[id]!.client!.contract.untilSeason <= world.season).length;
+  const tired = world.clientIds.filter((id) => world.players[id]!.player.condition < 80).length;
+  const clear = [amateurs === 0, pros === 0, offers === 0, expiring === 0, world.clientIds.length === 0, tired === 0, false].filter(Boolean).length;
+  const scrollPlans = () => document.getElementById("weekly-player-plans")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const decisions = [
+    { key: "amateurs", icon: "◉", title: "Recruit amateurs", copy: "Find and evaluate the next generation of talent.", status: `${amateurs} on your board`, action: "Search amateurs", run: () => go("amateurs") },
+    { key: "pros", icon: "♟", title: "Recruit pros", copy: "Identify professionals who may be open to representation.", status: `${pros} approachable`, action: "View prospects", run: () => go("scouting") },
+    { key: "sponsor", icon: "◆", title: "Sponsor deal expiring", copy: "Review offers before the commercial window closes.", status: offers ? `${offers} offer${offers === 1 ? "" : "s"} waiting` : "No offers waiting", action: "Review deals", run: () => go("agency"), urgent: offers > 0 },
+    { key: "extension", icon: "▤", title: "Extension talks", copy: "Discuss contract extensions with eligible clients.", status: `${expiring} contract${expiring === 1 ? "" : "s"} end this season`, action: "Open talks", run: () => go("agency") },
+    { key: "plans", icon: "⚑", title: "Round plans", copy: "Set the approach each client takes into this week's event.", status: `${world.clientIds.length} client${world.clientIds.length === 1 ? "" : "s"} to review`, action: "Set plans", run: scrollPlans },
+    { key: "condition", icon: "♥", title: "Player condition", copy: "Check fitness, fatigue and training before travel.", status: `${world.clientIds.length - tired} good · ${tired} tired`, action: "Review players", run: () => go("training") },
+    { key: "staff", icon: "♜", title: "Open staff spots", copy: "Strengthen the team around your clients.", status: "Review coaches and support staff", action: "Hire staff", run: () => go("hq") },
+  ] as const;
+  return <section className="week-command-center">
+    <div className="week-event-masthead">
+      <img src={VENUE_BANNERS[main.courseId] ?? "/art/player-command/hero.png"} alt={`Illustrated view of ${course.name}`} />
+      <div className="week-event-shade" />
+      <div className="week-event-copy"><span>Week {world.week} of {weeks} · {TIER_LABELS[main.tier]}</span><h1>{main.name}</h1><p>{course.name}{course.info ? ` · ${course.info.city}` : ""}</p><dl><div><dt>Purse</dt><dd>{millions(main.purse)}</dd></div><div><dt>Course</dt><dd>Par {coursePar(course)} · {courseYards(course).toLocaleString("en-US")} yds</dd></div></dl></div>
+      <div className="week-featured-field"><small>Top players in the field</small><div>{featured.map((wp) => <article key={wp.player.id}><Portrait player={wp.player} size={76} title={wp.player.name} /><b>#{ranks.get(wp.player.id) ?? "—"}</b><span>{wp.player.name}</span></article>)}</div></div>
+      <div className="week-ready"><strong>{clear} of 7</strong><span>clear</span></div>
+    </div>
+    <div className="week-decisions-heading"><div><span>WEEKLY COMMAND CENTER</span><h2>Seven decisions before Thursday</h2><p>Clear the board, then play the week.</p></div></div>
+    <div className="week-decision-grid">{decisions.map((d) => <article className={`week-decision-card ${"urgent" in d && d.urgent ? "urgent" : ""}`} key={d.key}><img src={DECISION_ART[d.key]} alt="" /><div className="week-decision-copy"><span className="week-decision-icon">{d.icon}</span><h3>{d.title}</h3><p>{d.copy}</p><strong>{d.status}</strong><button className="btn btn-primary" onClick={d.run}>{d.action} <span aria-hidden>›</span></button></div></article>)}</div>
+    <div className="week-complete-strip"><strong>Completed this week — {clear}</strong><span>✓ Decisions already clear stay out of your way.</span></div>
+  </section>;
 }
-
-function AgencyStrip({ world }: { world: World }) {
-  const a = world.agency;
-  const season = agencyProfit(a.ledger);
-  return (
-    <section className="panel agency-strip">
-      <div className="stat-row">
-        <div className="stat" style={{ minWidth: 140 }}>
-          <span className="stat-label">Reputation</span>
-          <span className="stat-value">{Math.round(a.reputation)}</span>
-          <div className="meter" aria-hidden><span style={{ width: `${a.reputation}%` }} /></div>
-        </div>
-        <div className="stat">
-          <span className="stat-label">Clients</span>
-          <span className="stat-value">{world.clientIds.length} / {rosterLimit(a.reputation, a.hq)}</span>
-        </div>
-        <div className="stat">
-          <span className="stat-label">Bank</span>
-          <span className="stat-value">{money(a.bank)}</span>
-        </div>
-        <div className="stat">
-          <span className="stat-label">Season profit</span>
-          <span className={`stat-value ${season >= 0 ? "good-text" : "bad-text"}`}>{season < 0 ? `−${money(-season)}` : money(season)}</span>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Alerts({ world, go }: { world: World; go: Go }) {
-  // Each line follows the client's name, which links to his page.
-  const items: { id: string; text: string; tab: "agency" | "training" | "partnerships"; tone: string }[] = [];
-  for (const id of world.clientIds) {
-    const wp = world.players[id]!;
-    const m = wp.client!;
-    if (m.contract.untilSeason <= world.season) items.push({ id, text: `'s contract ends this season. Extend it or he leaves.`, tab: "agency", tone: "var(--critical)" });
-    if (m.offers.length) {
-      const left = Math.min(...m.offers.map((x) => x.expiresAbsWeek)) - absWeek(world.season, world.week);
-      items.push({ id, text: ` has ${m.offers.length} sponsor offer${m.offers.length === 1 ? "" : "s"} waiting (the first lapses ${left <= 0 ? "this week" : `in ${left} week${left === 1 ? "" : "s"}`}).`, tab: "partnerships", tone: "var(--good)" });
-    }
-    if (m.happiness < 40) items.push({ id, text: ` is unhappy (${Math.round(m.happiness)}).`, tab: "agency", tone: "var(--serious)" });
-  }
-  if (items.length === 0) return null;
-  return (
-    <section className="panel">
-      <div className="panel-head"><h2>Needs your attention</h2></div>
-      <ul className="news">
-        {items.map((it, i) => (
-          <li key={i} className="access" style={{ color: "var(--text)" }}>
-            <span className="dot" style={{ background: it.tone }} aria-hidden />
-            <span><PlayerName id={it.id}>{world.players[it.id]!.player.name}</PlayerName>{it.text} <button className="linkish" onClick={() => go(it.tab)}>Open</button></span>
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
-
 function ThisWeek({ world, game, week }: { world: World; game: Game; week: WeekChoices }) {
   const { choices, setChoices } = week;
   const remaining = seasonWeeks(world) - world.week + 1;
@@ -343,12 +192,21 @@ function ThisWeek({ world, game, week }: { world: World; game: Game; week: WeekC
     saveTempo(t);
   };
   return (
-    <section className="panel">
+    <section className="panel" id="weekly-player-plans">
       <div className="panel-head">
         <h2>Week {world.week}: where does everyone play?</h2>
         <span className="muted small">{remaining} weeks left</span>
       </div>
-      <div className="btn-row" style={{ marginBottom: 14 }}>
+      <div className="week-round-plans" aria-label="Round plans">
+        {world.clientIds.map((id) => {
+          const wp = world.players[id]!;
+          return <div key={id}><strong>{wp.player.name}</strong><RoundPlanPicker plan={wp.client!.roundPlan ?? "steady"} onPick={(p) => game.act((w) => (w.players[id]!.client!.roundPlan = p))} /></div>;
+        })}
+      </div>
+      {world.clientIds.map((id) => (
+        <ClientWeek key={`${id}-${world.week}`} world={world} game={game} id={id} choice={choices[id] ?? defaultWeekChoice(world, id)} onChoose={(c) => set(id, c)} />
+      ))}
+      <div className="btn-row" style={{ marginTop: 14 }}>
         <button className="btn btn-primary" onClick={() => play(1)}>Play week {world.week}</button>
         <div className="tabs tempo-tabs" role="radiogroup" aria-label="How to play the week">
           {(Object.keys(TEMPO_LABELS) as WeekTempo[]).map((k) => (
@@ -361,15 +219,6 @@ function ThisWeek({ world, game, week }: { world: World; game: Game; week: WeekC
         <button className="btn" onClick={() => play(Math.min(4, remaining))} title="Your clients pick their own schedules after this week">Auto 4 weeks</button>
         <button className="btn" onClick={() => play(remaining)} title="Your clients pick their own schedules after this week">Auto to season end</button>
       </div>
-      <div className="week-round-plans" aria-label="Round plans">
-        {world.clientIds.map((id) => {
-          const wp = world.players[id]!;
-          return <div key={id}><strong><PlayerName id={id}>{wp.player.name}</PlayerName></strong><RoundPlanPicker plan={wp.client!.roundPlan ?? "steady"} onPick={(p) => game.act((w) => (w.players[id]!.client!.roundPlan = p))} /></div>;
-        })}
-      </div>
-      {world.clientIds.map((id) => (
-        <ClientWeek key={`${id}-${world.week}`} world={world} game={game} id={id} choice={choices[id] ?? defaultWeekChoice(world, id)} onChoose={(c) => set(id, c)} />
-      ))}
     </section>
   );
 }
@@ -385,7 +234,7 @@ function ClientWeek({ world, game, id, choice, onChoose }: { world: World; game:
     <article className="event-card">
       <div className="panel-head" style={{ marginBottom: 0 }}>
         <div>
-          <h2 style={{ fontSize: 16 }}><PlayerName id={id}>{wp.player.name}</PlayerName></h2>
+          <h2 style={{ fontSize: 16 }}>{wp.player.name}</h2>
           <div className="secondary small">
             {STATUS_LABELS[wp.career.status]} · condition {Math.round(wp.player.condition)}% · form {formWord(wp.player.form).toLowerCase()}
             {wp.injury ? ` · injured (${wp.injury.weeksLeft} wk)` : ""}
@@ -455,7 +304,7 @@ function DayPlanner({ world, id, choice, entered, onChoose }: { world: World; id
   if (choice.kind === "enter" && !event) return null;
   const { days, travel } = weekDays(world, wp, event?.region ?? null);
   const allowed = event ? EVENT_WEEK_ACTIVITIES : OFF_WEEK_ACTIVITIES;
-  const plan = fitPlan(choice.days ?? (choice.kind === "enter" && choice.practice ? ["practice"] : undefined), days.length - travel, allowed, !!event);
+  const plan = fitPlan(choice.days ?? (choice.kind === "enter" && choice.practice ? ["practice"] : undefined), days.length - travel, allowed);
   const set = (i: number, a: DayActivity) => {
     const next = [...plan];
     next[i] = a;
@@ -480,11 +329,7 @@ function DayPlanner({ world, id, choice, entered, onChoose }: { world: World; id
             <label key={d} className={`planner-day act-${plan[i - travel]}`}>
               <span className="planner-dname">{d}</span>
               <select value={plan[i - travel]} onChange={(e) => set(i - travel, e.target.value as DayActivity)} aria-label={`${wp.player.name}, ${d}`}>
-                {allowed.map((a) => {
-                  // Before an event, each activity but rest fills one day only.
-                  const taken = !!event && a !== "rest" && plan.some((x, j) => x === a && j !== i - travel);
-                  return <option key={a} value={a} disabled={taken}>{ACTIVITIES[a].short}{taken ? " (done)" : ""}</option>;
-                })}
+                {allowed.map((a) => <option key={a} value={a}>{ACTIVITIES[a].short}</option>)}
               </select>
             </label>
           ),
@@ -549,7 +394,7 @@ function LastWeek({ world, report, go }: { world: World; report: Game["state"]["
         ))}
         {report.results.map((r) => (
           <li key={r.event.id}>
-            <PlayerName id={r.result.leaderboard[0]!.player.id}>{r.result.leaderboard[0]!.player.name}</PlayerName> won {r.event.name}.{" "}
+            {r.result.leaderboard[0]!.player.name} won {r.event.name}.{" "}
             <button className="linkish" onClick={() => go("tournament", r.event.id)}>Leaderboard</button>
           </li>
         ))}
@@ -586,7 +431,7 @@ function CardRace({ world }: { world: World }) {
             const gap = line === null || r < 0 ? null : wp.career.seasonPoints - line;
             return (
               <tr key={id}>
-                <td><PlayerName id={id}>{wp.player.name}</PlayerName></td>
+                <td>{wp.player.name}</td>
                 <td className="num">{r >= 0 ? `#${r + 1}` : "—"}</td>
                 <td className="num">{Math.round(wp.career.seasonPoints)}</td>
                 <td className={`num ${gap === null ? "" : gap >= 0 ? "good-text" : "bad-text"}`}>{gap === null ? "—" : `${gap >= 0 ? "+" : "−"}${Math.round(Math.abs(gap))}`}</td>
