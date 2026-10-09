@@ -63,6 +63,17 @@ import { TraitChips } from "./Traits";
 const readWords = (r: number) => (r <= 0 ? "Not scouted" : r < READ_TIERS.skills ? "A glimpse" : r < READ_TIERS.ceiling ? "Rough read" : r < READ_TIERS.details ? "Good read" : "Detailed read");
 const range = (x: { low: number; high: number }) => (x.low === x.high ? `${x.low}` : `${x.low}–${x.high}`);
 
+/** Interest as five segments, coloured by tier (red cold, amber warm, green leaning in). No exact number. */
+function InterestSegments({ value }: { value: number }) {
+  const filled = Math.round(value / 20);
+  const color = value >= FIRST_CALL ? "#639922" : value >= 30 ? "#EF9F27" : "#E24B4A";
+  return (
+    <span className="interest-segs" role="img" aria-label={`Interest ${filled} of 5`}>
+      {[0, 1, 2, 3, 4].map((i) => <i key={i} style={i < filled ? { background: color } : undefined} />)}
+    </span>
+  );
+}
+
 /** What the hours show instead of a number while recruiting is shut. */
 const hoursShutNote = (world: World): string => (world.week < RECRUITING_OPENS ? `Doesn't start until week ${RECRUITING_OPENS}` : "Recruiting is closed for the season");
 
@@ -159,7 +170,7 @@ export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
       </div>
       <div className="table-wrap">
         <table>
-          <thead><tr><th>Stars</th><th className="num">#</th><th>{tab === "pro" ? "Player" : "Prospect"}</th><th className="num">Age</th><th>{tab === "pro" ? "World · contract" : "School"}</th><th>Your read</th><th>Season</th><th>Interest (0-100)</th><th>Most interested rival</th><th>His list</th><th /></tr></thead>
+          <thead><tr><th>Stars</th><th className="num">#</th><th>{tab === "pro" ? "Player" : "Prospect"}</th><th className="num">Age</th><th>{tab === "pro" ? "World · contract" : "School"}</th><th>Your read</th><th>Season</th><th>Interest</th><th>Most interested rival</th><th>His list</th><th /></tr></thead>
           <tbody>
             {list.map((id) => {
               const wp = world.players[id]!;
@@ -175,7 +186,7 @@ export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
                   <td className="small">{tab === "pro" ? <>#{ranks.get(id)} · {wp.agent && wp.agent.untilSeason > world.season ? `${wp.agent.agency} to S${wp.agent.untilSeason}` : wp.agent ? `${wp.agent.agency}, final season` : "Free agent"}</> : schoolLabel(world, wp)}</td>
                   <td className="small">{readWords(readOf(world, id))}</td>
                   <td className="small">{tab === "pro" ? "–" : seasonShort(world, id)}</td>
-                  <td style={{ minWidth: 110 }}><span className="meter"><span style={{ width: `${interest}%` }} /></span><span className="small muted">{Math.round(interest)}</span></td>
+                  <td><InterestSegments value={interest} /></td>
                   <td className="small">{(() => { const [a, v] = Object.entries(rivalInterest(world, id)).sort((x, y) => y[1] - x[1])[0] ?? []; return a ? <>{a} <span className="muted">({Math.round(v!)})</span></> : "—"; })()}</td>
                   <td className="small">{pos ? (pos <= 3 ? <span className="good-text">You're #{pos}</span> : <span className="bad-text">Not in his top 3</span>) : narrowing(wp) ? "Deciding this season" : "—"}</td>
                   <td><button className="btn btn-small" onClick={() => setOpen(open === id ? null : id)}>{open === id ? "Close" : "Card"}</button></td>

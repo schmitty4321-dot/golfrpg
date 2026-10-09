@@ -113,8 +113,10 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
                 <br />
                 {wp.client ? "Your client" : wp.agent ? `${wp.agent.agency} (until end of season ${wp.agent.untilSeason})${wp.agent.deal ? " · development deal" : ""}` : "Free agent"}
                 {!wp.client && (
-                  <div style={{ marginTop: 8 }}>
-                    <button className="btn btn-small" onClick={() => game.act((w) => toggleShortlist(w, id))}>{onShortlist(world, id) ? "On your board ✓" : "Add to board"}</button>
+                  <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-start" }}>
+                    <button className="btn btn-small" onClick={() => game.act((w) => toggleShortlist(w, id))}>{onShortlist(world, id) ? "On your watch list ✓" : "Add to watch list"}</button>
+                    <button className="btn btn-small" disabled={queued} onClick={() => game.act((w) => queueScouting(w, id))}>{queued ? "Scout is gathering intel" : known ? "Scout again for a sharper report" : "Have a scout gather intel"}</button>
+                    {world.agency.hiredScouts.length === 0 && <span className="muted small">Hire a scout to start gathering intel.</span>}
                   </div>
                 )}
                 {archetype && <div style={{ marginTop: 8 }}><ArchetypePill id={archetype} tier={masteryTier(wp, ARCHETYPE_KEY)} /></div>}
@@ -183,12 +185,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
               </div>
               {!known ? (
                 <p className="empty">
-                  Your agency has no report on him: only his results are public.{" "}
-                  {!wp.client && (
-                    <button className="linkish" disabled={queued} onClick={() => game.act((w) => queueScouting(w, id))}>
-                      {queued ? "Queued for scouting" : "Add to the scouting queue"}
-                    </button>
-                  )}
+                  Your agency has no report on him: only his results are public.{queued ? " A scout is on his way to gather intel." : ""}
                 </p>
               ) : (
                 <>
@@ -196,13 +193,6 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
                   <StatBoxes view={view} />
                   {!hidden && <p className="muted small">A more accurate report (60%+) would reveal his ceiling, how far each skill can grow, his work ethic and other hidden traits.</p>}
                   {potential !== null && <p className="muted small" style={{ marginBottom: 0 }}>Potential is an estimate from his overall ceiling{wp.client ? ", judged by his coaches" : ", judged by your scouts"}.</p>}
-                  {!wp.client && (
-                    <p className="small" style={{ marginBottom: 0 }}>
-                      <button className="linkish" disabled={queued} onClick={() => game.act((w) => queueScouting(w, id))}>
-                        {queued ? "Queued for another report" : "Scout him again for a sharper report"}
-                      </button>
-                    </p>
-                  )}
                 </>
               )}
             </section>

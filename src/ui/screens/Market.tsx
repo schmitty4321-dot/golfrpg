@@ -48,7 +48,7 @@ export function Recruiting({ world, game }: { world: World; game: Game }) {
       <section className="panel">
         <div className="panel-head"><h2>Recruitment board</h2><span className="muted small">Add players from their profile · {board.length} on the board</span></div>
         {board.length === 0 ? (
-          <p className="empty">Nobody on the board yet. Open any player (from Scouting, a leaderboard or the standings) and press "Add to board".</p>
+          <p className="empty">Nobody on your watch list yet. Open any player (from Scouting, a leaderboard or the standings) and press "Add to watch list".</p>
         ) : (
           <div className="table-wrap">
             <table>
