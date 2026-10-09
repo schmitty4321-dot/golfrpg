@@ -156,7 +156,7 @@ function WeekCommandCenter({ world, game, go }: { world: World; game: Game; go: 
   const clear = [amateurs === 0, pros === 0, offers === 0, expiring === 0, world.clientIds.length === 0, tired === 0, false].filter(Boolean).length;
   const scrollPlans = () => document.getElementById("weekly-player-plans")?.scrollIntoView({ behavior: "smooth", block: "start" });
   const decisions = [
-    { key: "amateurs", icon: "◉", title: "Recruit amateurs", copy: "Find and evaluate the next generation of talent.", status: `${amateurs} on your board`, action: "Search amateurs", run: () => go("amateurs") },
+    { key: "amateurs", icon: "◉", title: "Recruit amateurs", copy: "Find and evaluate the next generation of talent.", status: `${amateurs} on your board`, action: "Search amateurs", run: () => go("amateurResults") },
     { key: "pros", icon: "♟", title: "Recruit pros", copy: "Identify professionals who may be open to representation.", status: `${pros} approachable`, action: "View prospects", run: () => go("scouting") },
     { key: "sponsor", icon: "◆", title: "Sponsor deal expiring", copy: "Review offers before the commercial window closes.", status: offers ? `${offers} offer${offers === 1 ? "" : "s"} waiting` : "No offers waiting", action: "Review deals", run: () => go("agency"), urgent: offers > 0 },
     { key: "extension", icon: "▤", title: "Extension talks", copy: "Discuss contract extensions with eligible clients.", status: `${expiring} contract${expiring === 1 ? "" : "s"} end this season`, action: "Open talks", run: () => go("agency") },
