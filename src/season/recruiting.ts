@@ -214,6 +214,18 @@ export function interestBonus(world: World, id: string): number {
 export const FIRST_CALL = 60;
 
 /**
+ * The mark on a prospect on the desk: none if you haven't worked on him, recruiting once you have,
+ * and keen once his interest reaches the first-call level (amateurs and pros alike).
+ */
+export type RecruitMark = "none" | "recruiting" | "keen";
+
+export function recruitMark(world: World, id: string): RecruitMark {
+  const p = world.agency.prospects?.[id];
+  if (!p) return "none";
+  return p.interest >= FIRST_CALL ? "keen" : "recruiting";
+}
+
+/**
  * First call: a pro this keen on you, whose deal is up (or who has no agent),
  * hears you out before the winter market, so rival bids and his current
  * agency don't count against you.

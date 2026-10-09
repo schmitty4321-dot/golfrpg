@@ -30,6 +30,8 @@ import {
   commissionGrace,
   firstCall,
   FIRST_CALL,
+  recruitMark,
+  type RecruitMark,
   marketRate,
   rankMap,
   readOf,
@@ -41,6 +43,8 @@ import {
   showcaseBlock,
   stars,
   weeklyHours,
+  spentThisWeek,
+  AMATEUR_CLASS_SIZE,
   type RecruitAction,
   type World,
 } from "../../season";
@@ -53,6 +57,52 @@ import { TraitChips } from "./Traits";
 
 const readWords = (r: number) => (r <= 0 ? "Not scouted" : r < READ_TIERS.skills ? "A glimpse" : r < READ_TIERS.ceiling ? "Rough read" : r < READ_TIERS.details ? "Good read" : "Detailed read");
 const range = (x: { low: number; high: number }) => (x.low === x.high ? `${x.low}` : `${x.low}–${x.high}`);
+
+/** The desk's summary bar: hours this week, who you're working on, who's keen, and the amateur class places. */
+function RecruitSummary({ world }: { world: World }) {
+  const spent = spentThisWeek(world);
+  const left = hoursLeft(world);
+  const total = weeklyHours(world);
+  const worked = Object.keys(world.agency.prospects ?? {}).filter((id) => world.players[id]);
+  const recruiting = worked.filter((id) => recruitMark(world, id) === "recruiting");
+  const keen = worked.filter((id) => recruitMark(world, id) === "keen");
+  const keenAmateurs = keen.filter((id) => !isPro(world, id)).length;
+  const keenPros = keen.length - keenAmateurs;
+  return (
+    <div className="recruit-summary" aria-label="Recruiting summary">
+      <div>
+        <span className="small muted">Hours left this week</span>
+        <strong>{left}<span className="small muted"> of {total}</span></strong>
+        <span className="small muted">Amateurs {spent.amateur} h · Pros {spent.pro} h spent</span>
+      </div>
+      <div>
+        <span className="small muted">Recruits you're working on</span>
+        <strong>{worked.length}</strong>
+        <span className="small muted">{recruiting.length} recruiting · {keen.length} keen</span>
+      </div>
+      <div>
+        <span className="small muted">Keen</span>
+        <strong>{keen.length}</strong>
+        <span className="small muted">{keenAmateurs} amateurs · {keenPros} pros</span>
+      </div>
+      <div>
+        <span className="small muted">Class places</span>
+        <strong>{keenAmateurs}<span className="small muted"> of {AMATEUR_CLASS_SIZE}</span></strong>
+        <span className="small muted">Amateurs keen · commit on signing day</span>
+      </div>
+    </div>
+  );
+}
+
+/** The mark on a prospect you've worked on: a ring while you recruit him, a filled pill once he's keen. Nothing for the rest. */
+function RecruitBadge({ state, pro }: { state: RecruitMark; pro: boolean }) {
+  if (state === "none") return null;
+  if (state === "recruiting") {
+    return <span className="recruit-mark recruiting" role="img" aria-label="Recruiting" title="You've worked on him: his interest is building">◉</span>;
+  }
+  const label = pro ? "First call" : "Keen";
+  return <span className="recruit-mark keen" role="img" aria-label={label} title={`You've recruited him: his interest is at the first-call level (${FIRST_CALL})`}>● {label}</span>;
+}
 
 /** The recruiting desk: this week's hours, how prospects see the agency, the prospects, and last season's class. */
 export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
@@ -74,6 +124,7 @@ export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
         <div><h2>Recruiting desk</h2><span className="muted small">One budget of hours for amateurs and pros: scout them and build their interest. Amateurs choose on signing day; pros weigh it when you make an offer.</span></div>
         <div className="recruit-hours"><strong>{left}</strong><span>of {total} hours left this week</span></div>
       </div>
+      <RecruitSummary world={world} />
       <div className="meter" style={{ marginBottom: 12 }}><span style={{ width: `${Math.round((left / total) * 100)}%` }} /></div>
       <div className="recruit-grades">
         <span className="recruit-label">How prospects see you</span>
@@ -101,7 +152,7 @@ export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
               return (
                 <tr key={id} className={open === id ? "row-current" : undefined}>
                   <td><Stars value={stars(world, id)} /></td>
-                  <td><PlayerName id={id}>{wp.player.name}</PlayerName>{wp.academy ? <span className="sponsor-tag">Academy</span> : null}{firstCall(world, id) ? <span className="sponsor-tag" title="His deal is up and he's keen on you: he'll hear you out before the other agencies bid">First call</span> : null}</td>
+                  <td><RecruitBadge state={recruitMark(world, id)} pro={tab === "pro"} /><PlayerName id={id}>{wp.player.name}</PlayerName>{wp.academy ? <span className="sponsor-tag">Academy</span> : null}{firstCall(world, id) ? <span className="sponsor-tag" title="His deal is up and he's keen on you: he'll hear you out before the other agencies bid">First call</span> : null}</td>
                   <td className="num">{wp.player.age}</td>
                   <td className="small">{tab === "pro" ? <>#{ranks.get(id)} · {wp.agent && wp.agent.untilSeason > world.season ? `${wp.agent.agency} to S${wp.agent.untilSeason}` : wp.agent ? `${wp.agent.agency}, final season` : "Free agent"}</> : schoolLabel(world, wp)}</td>
                   <td className="small">{readWords(readOf(world, id))}</td>
