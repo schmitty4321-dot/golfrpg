@@ -24,12 +24,12 @@ import {
   queueScouting,
   rankMap,
   scoutedAttribute,
+  ratingsFullyKnown,
   type LiveEvent, type World, type WorldPlayer, knownArchetype, followers, onShortlist, toggleShortlist } from "../../season";
 import { Stars } from "./Stars";
 import { TendenciesPanel } from "./TendenciesPanel";
 import { PortraitCard } from "./Portrait";
-import { StatBoxes, StatLegend } from "./StatBoxes";
-import { SkillRadar } from "./SkillRadar";
+import { StatBoxes, StatLegend, type StatView } from "./StatBoxes";
 import { CareerEvolution, RollingSgChart, SgPercentiles } from "./StatCharts";
 import { DevelopmentTab } from "./DevelopmentTab";
 import { TraitChip, TraitList } from "./Traits";
@@ -95,9 +95,11 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
   const ceiling = potential === null ? null : ceilingStars(potential);
   const traits = knownTraits(world, id);
   const archetype = knownArchetype(world, id);
-  const view = (key: AttributeKey) => {
-    const v = scoutedAttribute(world, id, key)!;
-    return { ...v, ...(potential === null ? {} : { potential: attributePotential(wp.player, key, potential, v.value) }) };
+  // Ratings come into view trip by trip (see scouting.ts). Only a client's potential is shown here.
+  const view = (key: AttributeKey): StatView | null => {
+    const v = scoutedAttribute(world, id, key);
+    if (!v) return null;
+    return { ...v, ...(wp.client && potential !== null ? { potential: attributePotential(wp.player, key, potential, v.value) } : {}) };
   };
 
   return (
@@ -163,16 +165,6 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
               <button aria-current={tab === "equipment" ? "page" : undefined} onClick={() => setTab("equipment")}>Equipment</button>
             </nav>
           </aside>
-          {known && (
-            <section className="panel pp-radar">
-              <div className="panel-head">
-                <h2>Skill radar</h2>
-                <StatLegend potential={potential !== null} />
-              </div>
-              <SkillRadar view={view} />
-              <p className="muted small" style={{ margin: 0 }}>Group averages on the 1-20 scale. The dashed ring is a tour-average player (12).</p>
-            </section>
-          )}
           </div>
 
           <div className="pp-main">
@@ -183,7 +175,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
                 <h2>Skills</h2>
                 <span className="muted small">
                   {known && <StatLegend potential={potential !== null} />}{" "}
-                  {wp.client ? "Known exactly" : known ? `Scouted to ${Math.round(k!.accuracy * 100)}% · ${k!.reports} report${k!.reports === 1 ? "" : "s"}` : "Not scouted"}
+                  {wp.client ? "Known exactly" : known ? `${k!.reports} scout trip${k!.reports === 1 ? "" : "s"}` : "Not scouted"}
                 </span>
               </div>
               {!known ? (
@@ -192,9 +184,9 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
                 </p>
               ) : (
                 <>
-                  <OverallRatings current={GOLF_SKILLS.reduce((t, k) => t + view(k).value, 0) / GOLF_SKILLS.length} potential={potential} />
+                  {(wp.client || ratingsFullyKnown(world, id)) && <OverallRatings current={GOLF_SKILLS.reduce((t, k) => t + (view(k)?.value ?? 0), 0) / GOLF_SKILLS.length} potential={potential} />}
                   <StatBoxes view={view} />
-                  {!hidden && <p className="muted small">A more accurate report (60%+) would reveal his ceiling, how far each skill can grow, his work ethic and other hidden traits.</p>}
+                  {!wp.client && <p className="muted small">Each scouting trip reveals ten more ratings. A second trip shows his archetype, and each trip from the third adds a trait.</p>}
                   {potential !== null && <p className="muted small" style={{ marginBottom: 0 }}>Potential is an estimate from his overall ceiling{wp.client ? ", judged by his coaches" : ", judged by your scouts"}.</p>}
                 </>
               )}
@@ -205,7 +197,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
                 <div className="panel-head"><h2>Traits</h2><span className="muted small">What sets him apart, on the course and off it</span></div>
                 <TraitList
                   ids={traits}
-                  hiddenNote={wp.client ? undefined : "Scouts spot each trait with a chance equal to their report's accuracy, so there may be more."}
+                  hiddenNote={wp.client ? undefined : "Each scouting trip from the third adds one trait."}
                 />
               </section>
             )}

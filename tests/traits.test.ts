@@ -127,16 +127,20 @@ describe("golf effects", () => {
 });
 
 describe("season effects", () => {
-  it("shows a client's traits and only some of a half-scouted player's", () => {
+  it("shows a client's traits, and a scouted player's one trait per trip from the third", () => {
     const w = fresh();
     const client = w.clientIds[0]!;
     expect(knownTraits(w, client)).toEqual(traitsOf(w.players[client]!.player));
-    const others = Object.values(w.players).filter((x) => !x.client && traitsOf(x.player).length >= 2).slice(0, 40);
-    for (const x of others) w.agency.knowledge[x.player.id] = { accuracy: 0.5, reports: 1, absWeek: 0 };
-    const seen = others.reduce((s, x) => s + knownTraits(w, x.player.id).length, 0);
-    const total = others.reduce((s, x) => s + traitsOf(x.player).length, 0);
-    expect(seen).toBeGreaterThan(0);
-    expect(seen).toBeLessThan(total);
+    const x = Object.values(w.players).find((p) => !p.client && traitsOf(p.player).length >= 3)!;
+    const id = x.player.id;
+    const at = (trips: number) => {
+      w.agency.knowledge[id] = { accuracy: 0.5, reports: trips, absWeek: 0 };
+      return knownTraits(w, id).length;
+    };
+    expect(at(1)).toBe(0);
+    expect(at(2)).toBe(0);
+    expect(at(3)).toBe(1);
+    expect(at(4)).toBe(2);
   });
 
   it("fitness, injuries, contracts and sponsors follow the traits", () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createWorld, hireScout, intelRegionOf, intelWeeks, queueScouting, scoutingWeek, setHqRegion, type World, type WorldPlayer } from "../src/season";
+import { createWorld, hireScout, intelRegionOf, intelWeeks, queueScouting, ratingsFullyKnown, revealedRatings, scoutedAttribute, scoutingWeek, setHqRegion, type World, type WorldPlayer } from "../src/season";
 
 /** A fresh world with the best scout hired, and the first six non-client players picked out. */
 function setup(): { w: World; ps: WorldPlayer[] } {
@@ -72,5 +72,19 @@ describe("intel by distance", () => {
     expect(w.agency.knowledge[ps[0]!.player.id]!.accuracy).toBeGreaterThan(0);
     expect(w.agency.intelJobs!.map((j) => j.playerId)).toEqual([ps[2]!.player.id]);
     expect(w.agency.scoutingQueue).toEqual([]);
+  });
+});
+
+describe("ratings come into view by trip", () => {
+  it("reveals ten ratings a trip, and all of them by the third", () => {
+    const { w, ps } = setup();
+    const id = ps[0]!.player.id;
+    w.agency.knowledge[id] = { accuracy: 0.5, reports: 1, absWeek: 0 };
+    expect(revealedRatings(w, id)).toHaveLength(10);
+    expect(scoutedAttribute(w, id, revealedRatings(w, id)[0]!)).not.toBeNull();
+    w.agency.knowledge[id] = { accuracy: 0.8, reports: 3, absWeek: 0 };
+    expect(ratingsFullyKnown(w, id)).toBe(true);
+    w.agency.knowledge[id] = { accuracy: 0.5, reports: 1, absWeek: 0 };
+    expect(ratingsFullyKnown(w, id)).toBe(false);
   });
 });
