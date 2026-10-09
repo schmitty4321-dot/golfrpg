@@ -13,6 +13,7 @@ import type { AttributeKey } from "../engine";
 import { activeTargets, burnoutInjury, fatigueWeek, peakView, type PeakView } from "./progression";
 import { hasSkill } from "./staffSkills";
 import { owns } from "./investments";
+import { feeMultiplier } from "./managerFx";
 
 export const COACH_ROLES: CoachRole[] = ["swing", "shortGame", "putting", "mental", "fitness"];
 
@@ -79,10 +80,16 @@ export function releaseCoach(world: World, clientId: string, role: CoachRole): v
   if (c) world.news.unshift(`${c.name} is no longer ${wp.player.name}'s ${ROLE_LABELS[role].toLowerCase()}.`);
 }
 
+/** A client's coaches' retainers (less what his development director haggles off) plus the director's own fee. */
 export const weeklyStaffCost = (world: World, clientId: string): number => {
   const m = world.players[clientId]?.client;
   if (!m) return 0;
-  return COACH_ROLES.reduce((s, r) => s + (world.coaches.find((c) => c.id === m.staff[r])?.weeklyFee ?? 0), 0);
+  const dir = world.managers?.find((d) => d.id === m.manager);
+  const coaches = COACH_ROLES.reduce((s, r) => {
+    const c = world.coaches.find((x) => x.id === m.staff[r]);
+    return s + (c ? Math.round(c.weeklyFee * (dir ? feeMultiplier(dir, c) : 1)) : 0);
+  }, 0);
+  return coaches + (dir?.weeklyFee ?? 0);
 };
 
 // ---------------------------------------------------------------- swing rebuild

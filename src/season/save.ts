@@ -7,6 +7,7 @@ import { assignRivalAgents, emptyFinances, newAgency, newManagement } from "./ag
 import { newDevelopment } from "./development";
 import { generateScouts } from "./scouting";
 import { coachFee, generateCoaches } from "./staff";
+import { generateManagers } from "./managers";
 import { AMATEUR_CLASS_SIZE, generateAmateur } from "./amateurs";
 import { buildDevTour } from "./calendar";
 import { newHistory } from "./history";
@@ -43,6 +44,8 @@ export function deserializeWorld(json: string): World {
   const generatedCoaches = generateCoaches(world.seed);
   const coachIds = new Set(world.coaches.map((c) => c.id));
   world.coaches.push(...generatedCoaches.filter((c) => !coachIds.has(c.id)));
+  // Saves from before development directors: the market opens with the full pool.
+  world.managers ??= generateManagers(world.seed);
   ensureRivals(world);
   addMatchPlay(world);
   ensureRyderCup(world);
