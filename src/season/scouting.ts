@@ -1,4 +1,4 @@
-import { ALL_ATTRIBUTES, clamp, createRng, type ArchetypeId, type AttributeKey } from "../engine";
+import { ALL_ATTRIBUTES, VISIBLE_ATTRIBUTES, clamp, createRng, type ArchetypeId, type AttributeKey } from "../engine";
 import { mixSeed } from "./entries";
 import { absWeek, type Scout, type World } from "./types";
 import { hasSkill } from "./staffSkills";
@@ -104,6 +104,8 @@ export function scoutedAttribute(world: World, playerId: string, key: AttributeK
   const wp = world.players[playerId];
   const k = world.agency.knowledge[playerId];
   if (!wp || !k || k.accuracy <= 0) return null;
+  // Only the ratings the trips have revealed so far; the rest stay hidden.
+  if (!revealedRatings(world, playerId).includes(key)) return null;
   const truth = wp.player.attributes[key];
   if (k.accuracy >= 0.999) return { value: truth, low: truth, high: truth };
   const rng = createRng(mixSeed(world.seed, Number(playerId.replace(/\D/g, "")) || 7, ALL_ATTRIBUTES.indexOf(key), k.reports));
@@ -114,13 +116,34 @@ export function scoutedAttribute(world: World, playerId: string, key: AttributeK
 
 /** Hidden traits come into view once a report is good enough. */
 export const HIDDEN_REVEAL_ACCURACY = 0.6;
-/** A report this good shows a player's archetype. Your clients are always fully known. */
-export const ARCHETYPE_REVEAL_ACCURACY = 0.4;
+/** Ratings a scouting trip reveals: ten more each trip, in the same order for every scout. */
+export const RATINGS_PER_TRIP = 10;
+/** The trip that shows a player's archetype. */
+export const ARCHETYPE_TRIP = 2;
 
-/** A player's archetype, if your agency knows it. */
+/** How many scouting trips (reports) your agency has on a player. Clients count as fully known. */
+export const scoutTrips = (world: World, playerId: string): number => world.agency.knowledge[playerId]?.reports ?? 0;
+
+/** The ratings your scouting has revealed so far, in the order they come into view. */
+export function revealedRatings(world: World, playerId: string): AttributeKey[] {
+  const trips = scoutTrips(world, playerId);
+  if (trips === 0) return [];
+  const rng = createRng(mixSeed(world.seed, Number(playerId.replace(/\D/g, "")) || 7, 4401));
+  const order = [...VISIBLE_ATTRIBUTES];
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = rng.int(0, i);
+    [order[i], order[j]] = [order[j]!, order[i]!];
+  }
+  return order.slice(0, Math.min(order.length, RATINGS_PER_TRIP * trips));
+}
+
+/** Whether every rating is in view (after three trips). */
+export const ratingsFullyKnown = (world: World, playerId: string): boolean => revealedRatings(world, playerId).length === VISIBLE_ATTRIBUTES.length;
+
+/** A player's archetype, if your agency knows it (from the second trip). */
 export function knownArchetype(world: World, playerId: string): ArchetypeId | null {
   const a = world.players[playerId]?.player.archetype;
-  return a && (world.agency.knowledge[playerId]?.accuracy ?? 0) >= ARCHETYPE_REVEAL_ACCURACY ? a : null;
+  return a && scoutTrips(world, playerId) >= ARCHETYPE_TRIP ? a : null;
 }
 
 /** The known archetypes among some players, for lists and leaderboards. */

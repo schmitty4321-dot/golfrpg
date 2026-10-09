@@ -21,6 +21,7 @@ import {
   releaseClient,
   rosterLimit,
   scoutedAttribute,
+  revealedRatings,
   serializeWorld,
   signClient,
   sponsorBonus,
@@ -205,7 +206,7 @@ describe("scouting", () => {
     for (let i = 0; i < 4; i++) playWeek(w);
     for (const id of targets) {
       expect(w.agency.knowledge[id]!.accuracy).toBeGreaterThan(0.5);
-      for (const k of VISIBLE_ATTRIBUTES) {
+      for (const k of revealedRatings(w, id)) {
         const v = scoutedAttribute(w, id, k)!;
         const truth = w.players[id]!.player.attributes[k];
         expect(v.low).toBeLessThanOrEqual(truth);

@@ -34,8 +34,10 @@ export function knownTraits(world: World, id: string): string[] {
   if (!wp) return [];
   const all = traitsOf(wp.player);
   if (wp.client) return [...all];
-  const accuracy = world.agency.knowledge[id]?.accuracy ?? 0;
-  return all.filter((t) => (traceSeed(id, t, "seen") % 1000) / 1000 < accuracy);
+  // A trip from the third shows one more trait; the order is fixed for each player.
+  const shown = Math.max(0, (world.agency.knowledge[id]?.reports ?? 0) - 2);
+  const order = [...all].sort((a, b) => traceSeed(id, a, "order") - traceSeed(id, b, "order"));
+  return order.slice(0, shown);
 }
 
 /** Region of an event this season (or null if it has gone from the schedule). */
