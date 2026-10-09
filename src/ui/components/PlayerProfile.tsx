@@ -83,6 +83,9 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
   const chance = block ? 0 : acceptChance(world, id, offer);
   const bid = block ? null : competingBid(world, id);
   const queued = world.agency.scoutingQueue.includes(id);
+  // A scout out on him: the weeks left until his report (see intel.ts).
+  const job = (world.agency.intelJobs ?? []).find((j) => j.playerId === id);
+  const pending = queued || !!job;
   // His ceiling: the coaches' estimate for a client, the scouts' once a report is good enough.
   const potential = wp.client
     ? abilityView(world, id).potential
@@ -115,7 +118,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
                 {!wp.client && (
                   <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-start" }}>
                     <button className="btn btn-small" onClick={() => game.act((w) => toggleShortlist(w, id))}>{onShortlist(world, id) ? "On your watch list ✓" : "Add to watch list"}</button>
-                    <button className="btn btn-small" disabled={queued} onClick={() => game.act((w) => queueScouting(w, id))}>{queued ? "Scout is gathering intel" : known ? "Scout again for a sharper report" : "Have a scout gather intel"}</button>
+                    <button className="btn btn-small" disabled={pending} onClick={() => game.act((w) => queueScouting(w, id))}>{job ? `Scout is gathering intel · ${job.weeksLeft} wk${job.weeksLeft === 1 ? "" : "s"} left` : queued ? "Waiting for a scout" : known ? "Scout again for a sharper report" : "Have a scout gather intel"}</button>
                     {world.agency.hiredScouts.length === 0 && <span className="muted small">Hire a scout to start gathering intel.</span>}
                   </div>
                 )}
@@ -185,7 +188,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
               </div>
               {!known ? (
                 <p className="empty">
-                  Your agency has no report on him: only his results are public.{queued ? " A scout is on his way to gather intel." : ""}
+                  Your agency has no report on him: only his results are public.{pending ? " A scout is on his way to gather intel." : ""}
                 </p>
               ) : (
                 <>

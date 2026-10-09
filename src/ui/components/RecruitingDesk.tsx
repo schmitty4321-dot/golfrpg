@@ -33,6 +33,7 @@ import {
   recruitMark,
   recruitingCountdown,
   RECRUITING_OPENS,
+  onShortlist,
   standingMove,
   standingOrder,
   type RecruitMark,
@@ -62,6 +63,13 @@ import { TraitChips } from "./Traits";
 
 const readWords = (r: number) => (r <= 0 ? "Not scouted" : r < READ_TIERS.skills ? "A glimpse" : r < READ_TIERS.ceiling ? "Rough read" : r < READ_TIERS.details ? "Good read" : "Detailed read");
 const range = (x: { low: number; high: number }) => (x.low === x.high ? `${x.low}` : `${x.low}–${x.high}`);
+
+/**
+ * A row's colour on the desk: recruiting time spent beats the watch list, which beats
+ * a scouted player. Each player shows one colour, the most active state.
+ */
+const rowTone = (world: World, id: string): string | undefined =>
+  world.agency.prospects?.[id] ? "tone-recruiting" : onShortlist(world, id) ? "tone-watch" : (world.agency.knowledge[id]?.accuracy ?? 0) > 0 ? "tone-scouted" : undefined;
 
 /** Interest as five segments, coloured by tier (red cold, amber warm, green leaning in). No exact number. */
 function InterestSegments({ value }: { value: number }) {
@@ -168,6 +176,11 @@ export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
         <button role="tab" aria-selected={tab === "amateur"} onClick={() => { setTab("amateur"); setOpen(null); }}>Amateurs</button>
         <button role="tab" aria-selected={tab === "pro"} onClick={() => { setTab("pro"); setOpen(null); }}>Pros</button>
       </div>
+      <div className="tone-legend small muted" aria-label="Row colours">
+        <span className="tone-chip tone-recruiting">Recruiting</span>
+        <span className="tone-chip tone-watch">On your watch list</span>
+        <span className="tone-chip tone-scouted">Scouted</span>
+      </div>
       <div className="table-wrap">
         <table>
           <thead><tr><th>Stars</th><th className="num">#</th><th>{tab === "pro" ? "Player" : "Prospect"}</th><th className="num">Age</th><th>{tab === "pro" ? "World · contract" : "School"}</th><th>Your read</th><th>Season</th><th>Interest</th><th>Most interested rival</th><th>His list</th><th /></tr></thead>
@@ -178,7 +191,7 @@ export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
               const mine = world.agency.prospects?.[id];
               const pos = narrowing(wp) && mine ? agencyList(world, id).findIndex((a) => a.you) + 1 : 0;
               return (
-                <tr key={id} className={open === id ? "row-current" : undefined}>
+                <tr key={id} className={[open === id ? "row-current" : "", rowTone(world, id) ?? ""].join(" ").trim() || undefined}>
                   <td><Stars value={stars(world, id)} /></td>
                   <td className="num">{tab === "pro" ? "–" : <>{(rankOf.get(id) ?? 0) + 1} <MoveArrow move={standingMove(world, id)} /></>}</td>
                   <td><RecruitBadge state={recruitMark(world, id)} pro={tab === "pro"} /><PlayerName id={id}>{wp.player.name}</PlayerName>{wp.academy ? <span className="sponsor-tag">Academy</span> : null}{firstCall(world, id) ? <span className="sponsor-tag" title="His deal is up and he's keen on you: he'll hear you out before the other agencies bid">First call</span> : null}</td>

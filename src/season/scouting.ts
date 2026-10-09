@@ -2,12 +2,10 @@ import { ALL_ATTRIBUTES, clamp, createRng, type ArchetypeId, type AttributeKey }
 import { mixSeed } from "./entries";
 import { absWeek, type Scout, type World } from "./types";
 import { hasSkill } from "./staffSkills";
+import { intelCap, intelRegionOf, intelWeeks } from "./intel";
 
 const FIRST = ["Walt", "Rosa", "Des", "Marty", "Yuki", "Ingrid", "Bo", "Carmen", "Olly", "Freddie", "Priya", "Sven"];
 const LAST = ["Hollis", "Okafor", "Brennan", "Lukas", "Sato", "Varga", "Dunmore", "Reyes", "Whitlow", "Ahn", "Nakamura", "Pell"];
-
-/** Players each scout can report on per week. */
-export const REPORTS_PER_WEEK = 2;
 
 export function generateScouts(seed: number): Scout[] {
   const rng = createRng(seed ^ 0x5c0);
@@ -45,22 +43,46 @@ export function queueScouting(world: World, playerId: string): void {
 export const weeklyScoutCost = (world: World): number =>
   Math.round(world.agency.hiredScouts.reduce((s, id) => s + (world.agency.scouts.find((x) => x.id === id)?.weeklyFee ?? 0), 0) * (hasSkill(world, "scouting-reports") ? 0.5 : 1));
 
-/** Weekly: each hired scout files reports on the next players in the queue. */
+/**
+ * Weekly: intel jobs move on a week, and a finished job files its report. Then
+ * the queue goes out to scouts with room (best scout first). A player takes a
+ * scout for as long as he's far from your HQ (see intel.ts); a player with no
+ * free scout waits in the queue.
+ */
 export function scoutingWeek(world: World): string[] {
   const done: string[] = [];
   const now = absWeek(world.season, world.week);
-  // Scouts away on a trip don't work the queue at home.
+  const jobs = (world.agency.intelJobs ??= []);
+  for (const job of [...jobs]) {
+    job.weeksLeft--;
+    if (job.weeksLeft > 0) continue;
+    jobs.splice(jobs.indexOf(job), 1);
+    if (!world.players[job.playerId]) continue;
+    const scout = world.agency.scouts.find((s) => s.id === job.scoutId);
+    const k = world.agency.knowledge[job.playerId];
+    world.agency.knowledge[job.playerId] = { accuracy: reportAccuracy(scout?.quality ?? 6, k?.accuracy ?? 0), reports: (k?.reports ?? 0) + 1, absWeek: now };
+    done.push(job.playerId);
+  }
+  // Scouts away on a trip don't take new work at home.
   const away = new Set((world.agency.trips ?? []).map((t) => t.scoutId));
-  const scouts = world.agency.hiredScouts.filter((id) => !away.has(id)).map((id) => world.agency.scouts.find((s) => s.id === id)!).sort((a, b) => b.quality - a.quality);
-  for (const scout of scouts) {
-    for (let i = 0; i < REPORTS_PER_WEEK; i++) {
-      const id = world.agency.scoutingQueue.shift();
-      if (!id) break;
-      if (!world.players[id]) continue;
-      const k = world.agency.knowledge[id];
-      world.agency.knowledge[id] = { accuracy: reportAccuracy(scout.quality, k?.accuracy ?? 0), reports: (k?.reports ?? 0) + 1, absWeek: now };
-      done.push(id);
+  const scouts = world.agency.hiredScouts
+    .filter((id) => !away.has(id))
+    .map((id) => world.agency.scouts.find((s) => s.id === id))
+    .filter((s): s is Scout => !!s)
+    .sort((a, b) => b.quality - a.quality);
+  const queue = world.agency.scoutingQueue;
+  for (const id of [...queue]) {
+    const wp = world.players[id];
+    if (!wp) {
+      queue.splice(queue.indexOf(id), 1);
+      continue;
     }
+    const region = intelRegionOf(wp);
+    const scout = scouts.find((s) => jobs.filter((j) => j.scoutId === s.id && j.region === region).length < intelCap(region));
+    if (!scout) continue;
+    const weeks = intelWeeks(world, wp);
+    jobs.push({ id: `intel-${now}-${id}`, playerId: id, scoutId: scout.id, region, weeksLeft: weeks, totalWeeks: weeks });
+    queue.splice(queue.indexOf(id), 1);
   }
   if (done.length) world.news.unshift(`Scouting: new report${done.length === 1 ? "" : "s"} on ${done.map((id) => world.players[id]!.player.name).join(", ")}.`);
   return done;
