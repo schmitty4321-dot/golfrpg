@@ -1138,1621 +1138,453 @@
     }
   },
   "pga-west-stadium:1": {
-    "image": "art-demo/pga-west-stadium/hole-01.webp?v=4",
+    "image": "art-demo/pga-west-stadium/hole-01.png",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        -2.149974,
-        2.957051,
-        251
+        0,
+        0,
+        0
       ],
       "y": [
-        -0.658823,
-        -1.046275,
-        685
+        0,
+        0,
+        0
       ]
     },
-    "route": [
-      {
-        "at": 0,
-        "x": 251,
-        "y": 685
-      },
-      {
-        "at": 0.585,
-        "x": 998,
-        "y": 359
-      },
-      {
-        "at": 0.932,
-        "x": 1469,
-        "y": 251
-      },
-      {
-        "at": 1,
-        "x": 1560,
-        "y": 226
-      }
-    ],
-    "targets": {
-      "green": [
-        {
-          "x": 1499,
-          "y": 243
-        }
-      ],
-      "holed": [
-        {
-          "x": 1556,
-          "y": 239
-        }
-      ],
-      "bunker": [
-        {
-          "x": 1190,
-          "y": 450
-        },
-        {
-          "x": 1620,
-          "y": 285
-        }
-      ]
-    },
+    "displayOnly": true,
     "meta": {
       "number": 1,
       "par": 4,
       "yards": 445,
       "tourAverage": 3.903,
-      "course": "PGA West (Stadium Course)",
-      "name": "Prelude",
-      "framed": true
-    },
-    "mask": {
-      "cell": 10,
-      "cols": 177,
-      "rows": 88,
-      "rle": "r3567s3r3s1r5s1r4s1r1s1r4s2r14w1r5s1r17s1r7s1r3s1r2s2r27s1r66s1r2s1r1s1r1s1r1s2r8s3r2s1r1s1r2s3r21s1r13s1r110s1r18s1r13s1r21s1r56s1r3f1r110s1r67f3r2f6r161f1r6f16r159f19r3f1r52s1r55s1r40f1r4f2r2f9r161f1r11f2r7s1r57s1r44f1r1f1r43f4r1f2r9f2r1f1r2s11r80s1r1s1r19s1r27f3r3f1r2f2r2f2r2f7r7f4r1s11r111f3r2f1r12f12r1f3r1f11r6f1r2f1r113s1r7f3r3f19r2f19r6f2r8f1r48s1r1s1r20s1r45f6r2f3r1f27r7f1r1f4r2f1r92s1r1s2r3s1r13f1r1f1r4f43r81s1r49f7r1f4r1f33r131f47r2f1r2f1r109f1r10f51r1f2r105s1r16f54r123f40r3f8r23s1r89f1r6f15r1f15r17f8r2f1r17s1r97f28r1f2r19f1r1f1r4f2r95s1r11s1r11f1r1f20r27f4r121f2r2f20r1f5r9s3r11f4r29s1r83f1r3f26r1f3r2f1r8s4r14f1r27s1r86f32r5s11r129f25r1f1r1f5r5s9r4f1r2f12r76s1r28f29r2f7r2s14r6f7r27s1r6s1r55s1r7s1r10f23r1f4r2f4r3f2s14r118f27r2f4r2f4r2f1r2f1r1s12r100f1r2f1r16f31r2f4r1f3r4f1r5s1r43s1r58f2r2f7r12f35r2f3r7f5r89s1r7f2r3f5r3f5r5f1r1f7r2f7r1f32r8f1r75s1r2s1r5s2r8f3r4f6r2f1r3f2r1f7r2f6r2f6r3f5r2f14r13f7r39s1r50f2r1f1r4f3r11f10r2f14r3f5r2f4r21f7r40s1r31s2r14f3r11f5r3f7r3f14r2f5r3f4r23f11r14s1r29s1r39f3r13f35r2f5r28f2r1f2r51s1r16s1r2s1r11f1r3f3r13f6r2f15r1f16r71s1r7s2r41f4r11f3r3f25r2f9r79s1r44f4r11f37r96s1r9s1r12f1r7f4r7f4r1f11r2f6r2f11r74s1r22s1r25f3r8f1r1f3r2f1r6f1r4f19r4f1r97s1r39f3r9f1r3f12r92s1r47f1r11f1r96s2r60s1r7f1r14f2r127s1r3s2r9f8r17f1r76s1r61s2r1s1r5f17r15f1r106s2r3s1r19s1r3s1r7f15r2f1r2f1r1f1r113s1r3s2r18s2r4s1r9f15r18s1r117s1r22f19r11s1r3s1r1s1r136f1r1f20r2f1r15s2r108s2r16s2r5f23r12s1r5s1r3s1r104s2r8s1r7s3r4f24r24s1r23f1r96s2r5f2r2f14r2f3r15s1r40f3r64s2r12s1r1s1r6s2r4f1r5f12r4f2r39s1r20f2r60s1r24s1r4f1r2f2r1f18r68f1r54s1r25s1r6f2r3f10r27s1r3s1r23s1r19f1r3f1r13s1r5s5r24s1r38f5r12f1r75s1r12s1r5s3r33s2r14s3r34s3r7s1r15s1r1s1r57s1r1s2r27s1r7s1r14s6r8f4r20s1r50s1r14s1r20s1r50s6r34s2r16s1r47s1r20s3r28s1r20s3r1s1r9s1r45s1r32s1r89s4r1s2r1s1r1s1r81s1r2s1r15s1r1s1r44s1r7s1r11s4r20s1r66s6r29s1r31s2r27s2r62s2r21s1r1s1r20s5r28s1r9s2r21s1r87s2r11s1r6s1r6s1r38s1r1s2r19s1r1s1r55s1r39s2r3s1r1s1r74s1r49s1r65s1r34s1r114s1r29s2r30"
+      "course": "PGA West (Stadium Course)"
     }
   },
   "pga-west-stadium:2": {
-    "image": "art-demo/pga-west-stadium/hole-02.webp?v=4",
+    "image": "art-demo/pga-west-stadium/hole-02.png",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        -4.955581,
-        3.512756,
-        256
+        0,
+        0,
+        0
       ],
       "y": [
-        2.590259,
-        -1.331276,
-        770
+        0,
+        0,
+        0
       ]
     },
-    "route": [
-      {
-        "at": 0,
-        "x": 256,
-        "y": 770
-      },
-      {
-        "at": 0.644,
-        "x": 1135,
-        "y": 445
-      },
-      {
-        "at": 0.875,
-        "x": 1424,
-        "y": 274
-      },
-      {
-        "at": 1,
-        "x": 1604,
-        "y": 252
-      }
-    ],
-    "targets": {
-      "green": [
-        {
-          "x": 1484,
-          "y": 267
-        }
-      ],
-      "holed": [
-        {
-          "x": 1604,
-          "y": 287
-        }
-      ],
-      "bunker": [
-        {
-          "x": 640,
-          "y": 545
-        },
-        {
-          "x": 735,
-          "y": 500
-        },
-        {
-          "x": 820,
-          "y": 410
-        },
-        {
-          "x": 915,
-          "y": 370
-        },
-        {
-          "x": 1450,
-          "y": 320
-        },
-        {
-          "x": 1690,
-          "y": 275
-        }
-      ]
-    },
+    "displayOnly": true,
     "meta": {
       "number": 2,
       "par": 4,
       "yards": 371,
       "tourAverage": 3.758,
-      "course": "PGA West (Stadium Course)",
-      "name": "Craters",
-      "framed": true
-    },
-    "mask": {
-      "cell": 10,
-      "cols": 177,
-      "rows": 88,
-      "rle": "r3591w2r47s1r25s1r6s1r19s1r120s1r2s2r24s1r27s1r74s1r1s1r1s1r3s2r12s2r124s9r1s2r1s2r6s1r9s1r13s1r2s2r25s1r4s1r5s1r9s1r94s1r1s1r9s1r15s1r1s1r3s1r19s1r36s1r3s1r1s1r4s1r66s1r18s1r73s1r4s1r20f1r74s2r49s2r39f3r6f5r131s5r28f3r3f8r3f1r88s3r3s1r24s2r2s4r18f1r17f17r1f4r60s1r1s1r2s1r46s1r31f1r13f18r5s2r31s1r2s2r62s1r14s3r24f2r14f14r5s2r96s1r20s1r3s1r20f2r19f2r10f2r1f1r111s2r12f2r15f1r2s1r1s1r29f1r51f1r16s1r5s1r27s1r3s5r1f4r11f2r9f2r7s1r14f1r1f1r3f1r74s1r1s3r1s1r36f1r1f1r12f2r2f3r1f2r1f3r4f5r17f1r2f4r1f1r67s3r2s1r3s1r10s1r12s1r2s1r22f3r3f1r6f1r2f5r8f3r17f1r68s1r25s2r2s4r17f3r4f2r8f1r1f7r1f4r95s2r21s9r4s3r12f2r10f1r3f4r4f1r6f3r10f3r110s4r1s2r11f4r1f1r14f1r3f2r2f4r5f4r26s1r54s1r1s1r28s3r17f1r7f2r14f1r3f1r7f3r3f2r1f1r1f2r86s2r16s7r5f1r5f4r3f4r4f1r12f2r3f1r9f2r6f2r107s6r9f1r4f11r13f2r9f6r105s1r6s10r13f2r8f2r34f3r97s6r2s1r5s1r13f5r1f1r4f4r22f1r47s1r59s12r13f3r13f3r4f5r15f1r36s1r4s1r29s1r27s1r5s1r1s11r18f2r18f3r5f2r4f1r40s2r53s3r2s1r10s11r6f2r13f4r16f1r4f10r37s3r30s3r22s1r8s1r1s1r3s9r2s1r7f2r3f2r3f1r26f7r41s1r37s1r18s1r16s11r9f1r3f6r24f3r14f4r31s1r31s1r27s10r4s8r13f5r2f3r12f2r7f2r50s1r56s12r3s12r12f5r5f4r6f1r6f2r3f2r81s1r24s20r1f1r5f4r8f3r5f3r3f4r12f2r48s1r6s1r45s1r6s1r1s10r16f10r4f4r4f4r4f4r110s1r7s7r15f3r4f5r5f2r5f4r6f4r57s4r30s2r20s10r16f2r2f6r6f3r4f4r4f2r67s2r28s1r2s1r17s10r22f3r5f2r6f3r5f6r69s1r23s2r2s1r7s1r11s12r10f1r3f4r7f3r5f4r5f2r2f1r1f7r87s1r24s11r14f3r7f2r5f4r4f4r3f4r2f4r82s3r30s6r11f1r2f1r15f4r12f1r1f1r76s1r4s5r1s2r1s1r5s1r21s2r14f3r2f4r5f4r100s3r6s3r1s2r49f2r24f1r86s1r8s2r2s2r49f1r16f2r127f1r35f3r16f1r89s3r1s1r17f2r12f2r29f4r63s1r38s7r19f1r1f5r8f7r1f5r8f3r6f3r6f2r94s7r2s1r4s1r3s1r7f9r6f1r2f4r1f10r1f5r4f5r7f3r8f1r85s9r6s1r7s1r3f4r22f6r1f3r5f5r6f2r6f4r91s4r15s2r4f1r26f2r7f5r2f8r5f4r77s3r1s4r7s8r10s1r6s1r29f2r2f2r2f2r1f3r4f7r1f2r71s1r3s1r1s2r1s6r9s9r5s1r8s1r32f10r1f3r6f1r6f1r38s1r35s6r14s12r2s1r15s1r45f1r28s1r6s1r8s2r1s1r32s3r15s7r27s3r4f3r72s2r7s1r39s1r8s6r13f1r15s3r6s1r30f2r4f1r46s2r1s1r41s7r43s1r44s3r31s1r30s1r7s1r4s9r42s2r3s2r60s4r55s5r35f1r15s1r33s2r12s1r15s1r1s2r47s1r1s1r2s5r38f1r14s2r7s1r13s1r8s2r1s1r1s1r8s2r1s1r11s2r40s1r12s7r41f2r7s1r36s2r14s2r48s2r13s1r1s5r53s4r4s2r6s1r19s1r13s1r1s1r7s1r34s1r1s2r1s4r2s1r7s1r2s6r56s3r12s11r24s1r4s1r8s3r28s7r2s2r8s6r62s1r1s3r5s3r1s6r31s3r33s4r1s5r2s1r9s4r15f1r18f1r22s6r5s12r3s2r18s1r9s5r39s1r15s3r33f1r24s2r2s6r2s1r2s3r3s1r5s6r20s1r2s11r29s2r46f1r5f1r30s1r10s2r10s11r3s2r12s7r38s6r5s1r1s2r49f1r39s14r1s4r5s13r31s13r98s1r4s25r39s8r100s2r5s18r1s1r43s2r22s1r3s2r2s1r83s14r46s1r1s1r15"
+      "course": "PGA West (Stadium Course)"
     }
   },
   "pga-west-stadium:3": {
-    "image": "art-demo/pga-west-stadium/hole-03.webp?v=4",
+    "image": "art-demo/pga-west-stadium/hole-03.png",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        -1.358928,
-        2.779251,
-        282
+        0,
+        0,
+        0
       ],
       "y": [
-        -3.911039,
-        -0.983384,
-        681
+        0,
+        0,
+        0
       ]
     },
-    "route": [
-      {
-        "at": 0,
-        "x": 282,
-        "y": 681
-      },
-      {
-        "at": 0.633,
-        "x": 1065,
-        "y": 334
-      },
-      {
-        "at": 0.941,
-        "x": 1472,
-        "y": 242
-      },
-      {
-        "at": 1,
-        "x": 1546,
-        "y": 212
-      }
-    ],
-    "targets": {
-      "green": [
-        {
-          "x": 1497,
-          "y": 232
-        }
-      ],
-      "holed": [
-        {
-          "x": 1540,
-          "y": 230
-        }
-      ],
-      "bunker": [
-        {
-          "x": 700,
-          "y": 435
-        },
-        {
-          "x": 1330,
-          "y": 265
-        },
-        {
-          "x": 1420,
-          "y": 290
-        },
-        {
-          "x": 1590,
-          "y": 275
-        }
-      ]
-    },
+    "displayOnly": true,
     "meta": {
       "number": 3,
       "par": 4,
       "yards": 471,
       "tourAverage": 4.04,
-      "course": "PGA West (Stadium Course)",
-      "name": "Crescent",
-      "framed": true
-    },
-    "mask": {
-      "cell": 10,
-      "cols": 177,
-      "rows": 88,
-      "rle": "r3567s2r4s1r2s1r2s1r4s1r1s1r5s1r16w1r21s2r118s2r7s3r3s1r1s1r2s3r21s1r66f1r171f1r1f1r4f7r1f2r162f4r2f14r160f12r1f4r1f1r132f2r3f1r13s3r5f10r70s1r28s1r33f1r13s7r5s1r8f2r8s3r86s1r1s1r42f4r9s5r3s3r11f1r2s1r3s4r1s2r39s1r2s1r78f1r6f12r22f3r1s12r37s1r77f1r4f8r1f15r9s2r9f1r12f1r2f3r30s1r77f29r148f31r9f8r1f1r21s1r102f1r3f37r9f4r126f13r1f24r9f5r126f38r7f2r1f1r1f1r67s1r58f34r1f11r26s1r96f3r1f37r4f4r2f3r122f3r2f36r6f2r2f2r120f7r3f34r10f2r84s1r23s4r13f1r2f37r9f3r96s1r11s4r5f1r1f2r7f33r12f1r79s1r18s1r9s8r6f3r7f30r2f1r89s1r1s1r17s1r11s6r8f3r5f4r1f20r1f5r14f7r63s2r6s1r13s1r4s1r12s4r5f1r3f4r1f34r14f7r97s11r9f31r1f6r13f1r55s1r49s11r11f33r54s1r65s8r6f3r6f31r55s1r55s1r4s11r6f3r3f36r23f4r93s8r14f24r1f13r98s2r3f5r28f41r18f1r2f2r73s1r9f6r1f2r16f1r2f15r2f25r1f2r107f9r3f4r1f30r3f10r4f1r100f4r19f24r1f19r38s1r1s1r1s1r51s2r16f9r10f23r3f8r2f7r45s1r17s1r35s1r16f12r3f47r38s1r4s1r5s1r68f1r9f13r2f8r4f7r4f4r41s1r13s1r78f32r1f6r86s1r51f18r4f8r92s2r54f36r103s1r40f21r5f7r119s1r26f1r2f17r3f14r8f1r76s2r2s2r24s1r28f23r4f5r86s1r33s1r14s1r11f2r2f32r57s1r23s3r1s1r10s2r48f23r4f3r107f8r20f1r15f2r1f1r1f23r81s1r20f16r2f2r33f4r4f14r1f1r2f1r29s1r47s1r11s2r5f14r2f1r2f3r16f2r20f6r3f4r1f1r35s1r56s1r6f16r6f2r18f1r1f3r21f5r2f1r37s1r61f19r27f1r29f8r8f3r21s1r52s1r6f20r3f1r59f5r4f1r55s1r25f22r1f3r8s1r4s2r44f2r27s1r1s1r52s1r5f20r1f2r15s2r74s1r5s2r54f2r2f14r1f3r19s1r134f2r3f12r3f2r105s1r48f1r1f20r28s1r62s1r16s1r48f18r35s1r127f7r8f1r88s1r95s1r86s2r13s1r16s2r36f2r88s1r11s1r173s2r1s2r27s1r35s2r6s1r93s1r1s1r4s1r5s1r61s4r1s2r93s5r6s1r4s1r23s1r4s1r37s1r24s2r52s1r163s1r2s2r23s1r1s1r1s1r98s1r45s1r1s1r12s1r64s1r90s1r71s1r87s3r22s1r18s1r126s1r8s1r22s1r52s1r11s1r23"
+      "course": "PGA West (Stadium Course)"
     }
   },
   "pga-west-stadium:4": {
-    "image": "art-demo/pga-west-stadium/hole-04.webp?v=4",
+    "image": "art-demo/pga-west-stadium/hole-04.png",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        7.299767,
-        6.241176,
-        306
+        0,
+        0,
+        0
       ],
       "y": [
-        -25.386936,
-        -3.188235,
-        714
+        0,
+        0,
+        0
       ]
     },
-    "route": [
-      {
-        "at": 0,
-        "x": 306,
-        "y": 714
-      },
-      {
-        "at": 0.909,
-        "x": 1274,
-        "y": 338
-      },
-      {
-        "at": 1,
-        "x": 1367,
-        "y": 292
-      }
-    ],
-    "targets": {
-      "green": [
-        {
-          "x": 1305,
-          "y": 323
-        }
-      ],
-      "holed": [
-        {
-          "x": 1368,
-          "y": 320
-        }
-      ],
-      "bunker": [
-        {
-          "x": 1460,
-          "y": 430
-        }
-      ]
-    },
+    "displayOnly": true,
     "meta": {
       "number": 4,
       "par": 3,
       "yards": 170,
       "tourAverage": 2.877,
-      "course": "PGA West (Stadium Course)",
-      "name": "Sand Pit",
-      "framed": true
-    },
-    "mask": {
-      "cell": 10,
-      "cols": 177,
-      "rows": 88,
-      "rle": "r3566s3r1s1r1s1r10s2r6s1r3s1r1s1r19s1r12s1r7s1r113s1r8s1r6s1r1s4r145s1r48s1r673s5r156s1r51f1r162f2r1f1r2f1r22f1r20f5r1f6r45s1r71f2r39s1r3f26r3f3r78f4r11f1r53f1r4f20r1f9r3f3r1f1r17s1r50f2r71f18r1f12r122s1r20f18r2f11r128f5r2f1r6f40r1f2r5f2r84s1r24f11r5f39r2f4r6f2r1f1r12s1r90f8r9f38r20f2r100f8r9f38r122f1r2f2r1f2r10f25r10f3r5s2r14f2r119f1r3f15r1f2r12f2r1s6r14f2r4s1r99f9r9f13r20s5r17f1r1f2r101f9r17f2r1f1r5s2r13s6r26s1r29s1r65f13r16f1r1s6r2s1r5s2r1s8r15f2r105f17r11f1r1s9r3s3r3s8r63s1r57f5r1f2r3f5r3f4r8s9r1s15r112f3r27f1r1f4r5s23r115f3r24f1r1f1r3f5r2s19r118f1r29f2r1f1r1f4r1s19r3s4r74s1r43f5r19f6r1f3r2s21r76s2r41f10r16f11r3s17r25s1r53s1r43f8r16f12r6s7r84s1r50f2r16f14r78s1r1s1r66f1r17f1r2f1r1f1r1f9r80s1r7s1r4s1r3s1r74f9r34s1r34s1r6s1r12s1r134s1r174s1r23s1r22s1r17s2r113s1r20s1r3s1r3s1r168s1r41s1r119s1r174s1r169s1r136s1r41s1r24s1r33s1r117s1r29s1r28s1r2s1r129s1r2s1r20s1r22s2r2s1r88s1r1s1r39f1r15f1r6s1r19s1r2s1r71s1r7s1r30s2r17f1r19f2r26s1r1s1r1s1r63s1r8s1r37s2r5f13r5f2r31s1r3s1r3s3r73s1r25s1r2s1r2s1r8f19r2f5r4f2r30s2r2s1r80s1r27f19r1f2r1f10r35s2r65s2r2s1r35f19r3f8r4f1r16s1r20s1r69s1r29f26r1f1r1f5r40s1r89s1r12f25r7f2r40s4r1s3r74s1r17f1r2f24r11f1r38s1r3s1r2s1r90f1r4f22r16s1r133f9r1f9r2f4r9f1r57s1r84f3r3f11r4f2r64s1r4s1r87f2r1f1r1f2r3f7r74s2r14s1r79f6r69s1r80s3r5f1r53s1r32s3r28s1r9s1r40s1r4s1r24f1r67s1r84s3r168s1r5s1r1s1r121s1r112s1r33s1r79s1r22s1r74s1r2s1r62s1r35s1r3s1r69s2r2s1r98s1r2s1r44s1r1s1r45s1r81s1r46s1r3s1r28s1r13s1r131s1r45s1r46"
+      "course": "PGA West (Stadium Course)"
     }
   },
   "pga-west-stadium:5": {
-    "image": "art-demo/pga-west-stadium/hole-05.webp?v=4",
+    "image": "art-demo/pga-west-stadium/hole-05.png",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        -1.331751,
-        2.535098,
-        304
+        0,
+        0,
+        0
       ],
       "y": [
-        -0.898302,
-        -1.053556,
-        752
+        0,
+        0,
+        0
       ]
     },
-    "route": [
-      {
-        "at": 0,
-        "x": 304,
-        "y": 752
-      },
-      {
-        "at": 0.524,
-        "x": 968,
-        "y": 409
-      },
-      {
-        "at": 0.811,
-        "x": 1361,
-        "y": 295
-      },
-      {
-        "at": 0.928,
-        "x": 1519,
-        "y": 242
-      },
-      {
-        "at": 1,
-        "x": 1617,
-        "y": 210
-      }
-    ],
-    "targets": {
-      "green": [
-        {
-          "x": 1552,
-          "y": 231
-        }
-      ],
-      "holed": [
-        {
-          "x": 1613,
-          "y": 226
-        }
-      ],
-      "water": [
-        {
-          "x": 600,
-          "y": 420
-        },
-        {
-          "x": 450,
-          "y": 350
-        },
-        {
-          "x": 1450,
-          "y": 450
-        },
-        {
-          "x": 1550,
-          "y": 380
-        }
-      ],
-      "bunker": [
-        {
-          "x": 1400,
-          "y": 238
-        },
-        {
-          "x": 1640,
-          "y": 268
-        }
-      ]
-    },
+    "displayOnly": true,
     "meta": {
       "number": 5,
       "par": 5,
       "yards": 535,
       "tourAverage": 4.678,
-      "course": "PGA West (Stadium Course)",
-      "name": "Double Trouble",
-      "framed": true
-    },
-    "mask": {
-      "cell": 10,
-      "cols": 177,
-      "rows": 88,
-      "rle": "r3567s3r3s1r2s1r2s1r4s1r1s1r52s1r2s2r98s1r4s1r3s1r7s4r3s2r3s3r21s1r13s2r235f8r2f1r152s2r12f15r155f6r1f12r1f1r4f1r142f24r6s2r121s1r16f23r11s4r1f1r52s1r15s1r62f14r1f9r13s5r57s1r69f22r1f6r1f2r3s3r140f29r1f2r112s1r33f7r1f19r5f1r4s1r79w1r3w1r43f1r2f1r3f1r2f2r3f2r3f15r1f1r12s1r76w9r33f2r1f3r3f7r1f5r1f12r73s1r20w1r2w13r30f17r2f8r1f1r2f1r92s2r3w17r24f24r1f7r27w2r2w6r2w1r2w1r44s1r9s1r4w18r23f1r7f17r1f2r1f1r19s1r10w18r55w20r33f12r1f1r2f1r8s1r17w4r3w19r51w1r2w21r35f2r1f6r2f1r2f1r4s1r3s1r12w32r34s1r2s1r4w3r4w26r29f1r9f8r2f1r18w31r1s1r28s1r3s1r6w1r2w35r37f3r1f5r1f1r15w34r38w45r25f13r1f8r2f1r10w33r22s1r16w47r27f4r1f6r1f11r11w30r16s1r6s1r6w1r8w49r3w1r20f5r2f18r13w3r2w23r19s2r7w2r7w55r4w1r15f4r2f19r9s1r8w23r8s1r12s1r5w3r6w56r2w2r17f1r2f20r18w24r21s1r1w1r2w3r5w62r12f1r5f15r24w29r18w1r1w3r1w1r2s1w64r15f15r26w29r6s1r11s1r1w2r5w11r5s1r3w43r12f17r2f2r24w30r27w10r11w40r13f16r27w20r4w10r2w1r23w9r16w31r2w2r10f2r1f17r23w23r6w14r10s1r13w5r18w29r16f18r21w26r10w10r24s1r2w1r19w29r18f16r13s1r2w30r12w10r45w25r2s1r20f8r2f7r10s1r2w32r13w9r46w9r3w9r16f1r9f17r11w34r13w8r47w3r2w3r5w3r3w1r24f15r15w35r5s1r7w5r2s1r23s1r22w3r4w2r18s1r5f2r1f1r4f16r1f2r14w35r6w2r6w3s1r22s1r33s1r27f21r1f3r1f1r4s1r9w33r7w3r4w3r84f26r7s1r10w32r7w4r2w3r67s1r7f6r2f5r2f9r1f9r15w2r3w32r7w8r16s1r2s1r1s1r47f2r2f35r17w3r1w29r2w1r8w6r59f3r7f2r1f23r1f4r1f7r18w33r9w2r1w4r1w1r32s1r27f9r6f16r1f17r17w33r13w2r56f1r2f1r1f11r2f10r2f4r1f5r1f7r2f1r1f2r16w1r1w29r2w1r51s1r3s1r26f36r29w26r90f32r30w25r62s1r27f14r1f14r2f1r30w1r5w19r34s1r52f2r6f16r1f5r4f1r27s1r9w18r26s1r45s1r16f2r6f4r1f8r5f3r41w18r75s1r4s1r6f1r5f3r4f3r1f6r1f2r2f3r1f1r38s1w19r31s1r29s1r11s1r14f7r5f4r2f2r2f3r36s1r1s1r6s1r4s1r5w14r26s1r27s1r10f1r1f1r18f4r5f7r44s1r17w13r28s1r30f11r3f1r13f6r4f7r4f3r32s2r20w12r56f1r2f13r2f1r15f1r1f8r3f2r1f3r1f6r5f2r18s2r23w12r52f2r4f11r2f1r1f1r33f11r4f2r18s1r24w12r21s1r15s1r11f2r2f12r3f1r1f2r27f1r1f9r3f2r1f2r21s1r29w12r42f23r2f1r22f4r15f6r49s1r1w2r4w7r38f25r42f11r4f2r18s1r30w6r10s1r26f3r3f20r1f1r46f1r3f1r1f3r52w6r4w1r31f17r3f3r58f5r53w7r31f15r4f3r18s1r7s1r35f3r1f1r52w5r37f1r1f4r3f6r2f1r3s1r14s2r98w4r36f1r11f2r14s2r7s1r102s1r60s1r5s1r216f1r102s1r165s1r135s1r35s2r10s2r59s1r103s1r1s1r2s1r12s1r2s1r155"
+      "course": "PGA West (Stadium Course)"
     }
   },
   "pga-west-stadium:6": {
-    "image": "art-demo/pga-west-stadium/hole-06.webp?v=4",
+    "image": "art-demo/pga-west-stadium/hole-06.png",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        1.475258,
-        4.942731,
-        305
+        0,
+        0,
+        0
       ],
       "y": [
-        -20.513636,
-        -2.568282,
-        728
+        0,
+        0,
+        0
       ]
     },
-    "route": [
-      {
-        "at": 0,
-        "x": 305,
-        "y": 728
-      },
-      {
-        "at": 0.915,
-        "x": 1334,
-        "y": 311
-      },
-      {
-        "at": 1,
-        "x": 1427,
-        "y": 265
-      }
-    ],
-    "targets": {
-      "green": [
-        {
-          "x": 1365,
-          "y": 296
-        }
-      ],
-      "holed": [
-        {
-          "x": 1420,
-          "y": 296
-        }
-      ],
-      "water": [
-        {
-          "x": 900,
-          "y": 550
-        },
-        {
-          "x": 1100,
-          "y": 500
-        },
-        {
-          "x": 700,
-          "y": 480
-        }
-      ],
-      "bunker": [
-        {
-          "x": 1610,
-          "y": 340
-        },
-        {
-          "x": 1250,
-          "y": 282
-        }
-      ]
-    },
+    "displayOnly": true,
     "meta": {
       "number": 6,
       "par": 3,
       "yards": 227,
       "tourAverage": 3.115,
-      "course": "PGA West (Stadium Course)",
-      "name": "Amen",
-      "framed": true
-    },
-    "mask": {
-      "cell": 10,
-      "cols": 177,
-      "rows": 88,
-      "rle": "r3567s2r4s1r5s1r3s2r7s1r14w1r5s1r15s1r7s2r3s2r107s1r9s1r6s1r2s1r1s1r21s1r97s1r257s1r147s1r424f1r18f1r9f1r79s1r61f2r11f3r167s4r4f12r1f7r117f1r5f1r12f6r9f18r1f10r6f1r16s1r49s1r21s1r11f1r7f3r6f1r2f17r5f30r53s2r45f2r10f1r2f7r1f7r1f43r2f1r94f2r5f1r12f1r2f4r6f1r1f1r4f40r1f2r1s5r83f1r13f8r3f2r2f6r8f2r1f41r3s3r4s2r97f2r5f3r1f8r10f2r4f1r1f12r15f1r6s9r109f3r2f6r22f1r15f4r6s13r112f3r24f3r10f3r1f3r2s11r6f1r149f2r25f1r150f3r11f1r99w1r4w7r8w1r44f1r37s1r54s1r7w8r2w3r2w8r14w3r66s1r53s1r15w25r9w9r6w1r3w1r111w1r8w29r4w14r4w3r1w3r2w5r110w51r1w17r38s1r3s1r4s1r61w49r2w21r5w1r2w2r3w3r17s2r68s1r1w4r2w42r3w21r2w2r9w6r16s1r33s1r1s1r35w1r4w42r1w21r2w3r3w1r5w8r85s1r5w62r3w4r8w10r75s2r12w62r3w4r3w1r3w14r69s1r2s2r2s1r6w73r2w20r4w1r66s1r9w74r1w22r2w4r57s1r10s1r4w106r34s1r20s1r7s2r5w106r54s1r2s1r2s1r9w106r55s1r5s1r8w106r43s1r22w1r3w108r7s2r4s2r43s1w1r4w113r30s1r3s1r28w114r43s1r1s1r11s1r3w116r25s1r34s1r1w112r12s1r45s1r1s2r1s1r2w110r42s1r25w109r11s1r40s1r14s1r2s1w107r11s1r41s2r2s1r15w22r2w34r2w44r41s3r9s1r17s1r2w1r2w17r4w32r5w42r30s2r10s2r7f1r21s1r4w16r5w30r7w42r11s1r19s2r12f1r1f3r28w2r3s1w8r6w29r8w43r19s1r19f1r1f11r33w5r8w28r9w43r4s1r24s2r5f6r1f13r5f1r23w4r8w16r2w10r9w41r2w1r31f27r1f4r22w3r8w15r4w8r10w29r2w9r10s1r12s1r4s2r7f20r4f2r1f2r14s2r8w1r9w15r5w6r11w28r4w8r22s1r1s3r3f4r1f25r5f1r13s1r10w1r8w15r7w5r12w27r5w7r22s1r4f4r1f27r24s2r2s1r11w14r8w5r12w26r5s1r35f30r5f1r21s1r11s1w1r3w2r4w4r9w5r12w14r3w9r14s2r1s1r24f2r2f22r23s1r30w3r9w4r13w13r5w7r18s1r15f1r13f15r2f2r57w1r12w2r12s1w13r6w4r1s1r48f3r3f7r4f2r8s1r13s1r50w1r10w13r6w1r38s1r20f8r4f3r18s3r51w1r9w14r19s1r31s3r14f1r25s1r42s1r21s1r2w13r17s1r35s1r1s1r2s1r77s3r5s1r17s1r1w1r2w9r55s1r13s3r92s1r4w7r8s1r63s1r75s1r9s1r13w1r76s7r79s3r66s1r12s1r2s2r3s6r1s1r1s1r126s1r108s2r13s3r155s1r2s2r45s1r65s1r2s1r1s4r1s1r52s1r46s1r70s11r69s1r19s1r39"
+      "course": "PGA West (Stadium Course)"
     }
   },
   "pga-west-stadium:7": {
-    "image": "art-demo/pga-west-stadium/hole-07.webp?v=4",
+    "image": "art-demo/pga-west-stadium/hole-07.png",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        6.965431,
-        3.29969,
-        448
+        0,
+        0,
+        0
       ],
       "y": [
-        0.180731,
-        -1.571519,
-        736
+        0,
+        0,
+        0
       ]
     },
-    "route": [
-      {
-        "at": 0,
-        "x": 448,
-        "y": 736
-      },
-      {
-        "at": 0.57,
-        "x": 1028,
-        "y": 354
-      },
-      {
-        "at": 0.942,
-        "x": 1470,
-        "y": 253
-      },
-      {
-        "at": 1,
-        "x": 1533,
-        "y": 220
-      }
-    ],
-    "targets": {
-      "green": [
-        {
-          "x": 1491,
-          "y": 242
-        }
-      ],
-      "holed": [
-        {
-          "x": 1537,
-          "y": 237
-        }
-      ],
-      "water": [
-        {
-          "x": 1300,
-          "y": 550
-        },
-        {
-          "x": 1450,
-          "y": 450
-        },
-        {
-          "x": 1100,
-          "y": 700
-        }
-      ],
-      "bunker": [
-        {
-          "x": 1640,
-          "y": 260
-        }
-      ]
-    },
+    "displayOnly": true,
     "meta": {
       "number": 7,
       "par": 4,
       "yards": 346,
       "tourAverage": 3.863,
-      "course": "PGA West (Stadium Course)",
-      "name": "Black Hole",
-      "framed": true
-    },
-    "mask": {
-      "cell": 10,
-      "cols": 177,
-      "rows": 88,
-      "rle": "r3568s2r1s1r1s1r8s1r1s3r4s2r16w1r27s3r1s1r109s1r9s1r4s1r2s5r21s1r1s1r41s1r112s1r12s1r12s1r39s1r17f1r113s1r62f2r1f5r7f2r1f1r160f10r161f17r7s3r73s1r82f1r2f2r10s7r58s1r93f1r1f1r154f8r73s1r82f1r6f10r16s1r14w1r62s1r38s1r27f11r19s1r9w4r2w3r2w4r2w2r80s2r26f2r9f13r18w1r2w1r3w21r4w1r1w1r96f1r6f1r2f2r2f17r5f1r8w30r2w3r89f3r2f1r1f1r10f9r22s1r3w36r89f5r2f3r6f3r33w36r33s1r58f4r8f8r28w37r77f1r18f1r4f5r32w39r77f8r12f2r4f2r33w36r39s1r41f2r3f1r15f2r3f5r1f7r20w34r5s1r37s1r42f1r19f19r5s1r6w1r4w34r108f20r1f1r7w2r3w29r3w1r102f1r3f6r24w6r1w28r87f3r2f8r42w34r74f1r14f11r29f1r13w34r89f5r1f4r5f26r8s1r3w35r48s1r42f1r1f4r6f10r2f13r13w36r96f2r1f27r13w38r60s1r36f24r2f2r13w39r60s2r35f22r13w1r3w42r79f2r12f27r1f1r9w47r42s1r33f1r1f1r1f3r12f16r13s1r4w46r83f1r12f7r25w1r1w46r22s1r63f2r1f8r33w47r18s1r1s1r30s1r3s1r31f5r37w48r22s1r30s1r34f6r35w49r24s1r33f2r1f1r1f1r25f3r27f1r8w50r10s1r29s1r21f9r5f2r5f1r4f12r17f2r6s1w52r61f7r1f2r7f1r1f5r1f31r8w52r3w1r58f10r11f5r1f25r9s1r1w52r2s1w1r59f10r8f6r5f7r1f11r9s1r4w53r11s1r52f10r5f9r1f5r4f5r4f3r13w50r70f2r1f7r1f25r4f2r13w51r50s1r14f6r1f34r19w51r67f2r2f3r5f19r28w51r69f1r2f3r4f14r31w1r2w50r75f1r2f2r1f1r1f2r3f6r6f1r17s1r1w2r1w2r3w49r21s2r24s1r11s1r27f1r1f8r1f15r8w2r5w43r26s1r2s1r1s1r3s1r19s1r2s1r49f9r10w2r5w42r22s1r8s3r14s5r74w3r4w42r26s1r23s1r1s1r72s1r2w4r2w43r62s1r62s1r1w50r28s2r15s1r14s1r3f11r51w50r29s1r33f19r44w51r64f23r38w51r62f23r3f1r1f3r30s1r1w51r63f23r6f1r34w47r64f2r2f23r3f1r35w45r65f1r4f22r40w44r52s1r11f1r1f21r2f2r41s1w3r4w36r55s5r5f1r1f19r4f2r42s2r6w35r19w2r3w2r6w1r22s5r7f21r4f1r49w36r8w4r5w6r9w2r21s2r1s2r2f1r7f8r63w34r11w3r2w9r6w4r28s1r13f1r64w33r18w9r6w3r5s1r11s1r90w31r21w8r5w5r7s1r14s1r86w28r23w8r3w7r8s2r1s1r97w26r25w20r5s1r52s3r45w26r24s1r1w19r44s1r63w25r27w3r1w13"
+      "course": "PGA West (Stadium Course)"
     }
   },
   "pga-west-stadium:8": {
-    "image": "art-demo/pga-west-stadium/hole-08.webp?v=4",
+    "image": "art-demo/pga-west-stadium/hole-08.png",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        0.754741,
-        2.474409,
-        256
+        0,
+        0,
+        0
       ],
       "y": [
-        1.067171,
-        -0.921595,
-        718
+        0,
+        0,
+        0
       ]
     },
-    "route": [
-      {
-        "at": 0,
-        "x": 256,
-        "y": 718
-      },
-      {
-        "at": 0.499,
-        "x": 929,
-        "y": 418
-      },
-      {
-        "at": 0.77,
-        "x": 1312,
-        "y": 300
-      },
-      {
-        "at": 0.948,
-        "x": 1564,
-        "y": 224
-      },
-      {
-        "at": 1,
-        "x": 1636,
-        "y": 198
-      }
-    ],
-    "targets": {
-      "green": [
-        {
-          "x": 1588,
-          "y": 215
-        }
-      ],
-      "holed": [
-        {
-          "x": 1632,
-          "y": 215
-        }
-      ],
-      "bunker": [
-        {
-          "x": 590,
-          "y": 555
-        },
-        {
-          "x": 745,
-          "y": 425
-        },
-        {
-          "x": 1070,
-          "y": 465
-        },
-        {
-          "x": 1400,
-          "y": 355
-        },
-        {
-          "x": 1490,
-          "y": 420
-        },
-        {
-          "x": 1400,
-          "y": 520
-        },
-        {
-          "x": 1160,
-          "y": 300
-        },
-        {
-          "x": 1500,
-          "y": 260
-        }
-      ]
-    },
+    "displayOnly": true,
     "meta": {
       "number": 8,
       "par": 5,
       "yards": 559,
       "tourAverage": 4.449,
-      "course": "PGA West (Stadium Course)",
-      "name": "Links",
-      "framed": true
-    },
-    "mask": {
-      "cell": 10,
-      "cols": 177,
-      "rows": 88,
-      "rle": "r3567s2r4s1r2s1r2s1r4s1r1s1r22w1r32s1r3s2r43f1r59s2r8s2r3s1r1s1r2s3r89f2r6f1r3f5r147s1r14s1r6f1r1f7r167f10r152f1r11f8r10s1r136f1r3f2r8s3r5f2r16s2r53s1r82f2r3f4r9f2r3f1r8s2r127s1r8f1r15f9r5f1r1s1r1s4r5s1r33f5r2f3r85f1r4f1r10f14r4f1r4s1r1s2r7f1r2f1r103s1r28f3r2f10r144s2r7s2r7f16r3f1r107s1r21s2r6s1r2s8r8f13r5f2r107s1r12f2r3f3r1f1r4f1r7f1r12f12r121s1r6s1r3f1r5f2r1f4r4f3r4f17r6f1r3s1r94s1r16s1r5s1r17f1r5f1r3f20r9s3r10f1r112f3r1f2r10f23r3f2r6s3r101f1r13f1r11f4r8f2r2f17r1f1r5f1r1s7r98f4r7f1r8s3r6f5r4f1r2f16r2f2r13s4r2f4r110f1r2s7r4f3r1f22r1f2r1f3r4f2r2f4r7f1r53s1r19s1r35f2r2f28r1f4r2f1r1f8r2f1r21s1r107f2r1f18r1f12r1f3r15f1r13s3r92s2r13f29r2f5r17f2r3s1r8s3r65s1r34s1r10f20r2f4r2f3r1f2r16f1r4s5r2s8r93s5r8f1r1f15r17f4r22s6r3s1r96s3r6f2r1f2r2f7r19f2r1f2r1f5r20s4r3s3r81s1r17f1r4f3r2f5r5f1r2s1r5s3r10f1r3f1r1f2r3f2r13f1r108f1r3f12r2f1r2s7r1s4r9f5r1f1r1f7r88f2r18f7r3f9r1f8r8s8r14f2r1f1r4f4r80s1r7f5r1f6r9f6r1f19r2f1r3f2r1s5r118f3r6f4r4f16r3f9r3f1r20f1r112f1r10f22r2f10r1f8r113s1r19f2r3f44r3f4r5f1r1s4r1s1r27s1r62f5r5s1r7f1r4f2r1f7r1f3r1f27r7f3r6s5r75s1r14f1r1f4s4r1s1r10f16r3f24r2f1r2f9r7s1r29s1r30s1r35f1r2s2r9f44r1f2r11f1r2f3r2s5r75s1r19s4r9f7r1f19r1f8r2f2r14f1r5f2r1s5r5s1r3s1r71s1r3s2r10s8r4f33r24f1r6s12r3s1r86s7r2f35r25f3r1f1r9s1r3s4r43s1r18s1r29f6r1f31r29f3r11s3r1s3r87f40r31f2r10s2r90f1r2f1r1f13r1f4r1f17r69s1r81f24r139f1r22f12r1f1r4f1r1f1r105s1r13s1r15f1r18f3r2f3r15f3r291s1r8f3r142s1r37f1r78s3r25s1r33s1r30f2r1f5r74s2r67f10r18f1r1f1r10f2r97s1r27s1r6f16r2f2r147s1r5f16r2f3r1f1r155f14r3f3r1f1r143s1r6f23r1f1r84s1r48s1r19f20r78s1r9s1r67f17r1f1r49s1r104f1r3f12r1f1r1f2r52s1r101f1r1f14r4f2r158f1r3f14r163f4r21s1r51s1r179s1r4s1r28s1r54s1r166s1r164s1r15s1r2s3r47s1r74s1r33s1r105s1r29s1r8s1r144s1r21s1r155s1r135s1r63s1r176s1r49"
+      "course": "PGA West (Stadium Course)"
     }
   },
   "pga-west-stadium:9": {
-    "image": "art-demo/pga-west-stadium/hole-09.webp?v=4",
+    "image": "art-demo/pga-west-stadium/hole-09.png",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        4.1992,
-        3.05738,
-        257
+        0,
+        0,
+        0
       ],
       "y": [
-        0.746007,
-        -1.091987,
-        708
+        0,
+        0,
+        0
       ]
     },
-    "route": [
-      {
-        "at": 0,
-        "x": 257,
-        "y": 708
-      },
-      {
-        "at": 0.553,
-        "x": 969,
-        "y": 369
-      },
-      {
-        "at": 0.933,
-        "x": 1502,
-        "y": 270
-      },
-      {
-        "at": 1,
-        "x": 1590,
-        "y": 232
-      }
-    ],
-    "targets": {
-      "green": [
-        {
-          "x": 1531,
-          "y": 257
-        }
-      ],
-      "holed": [
-        {
-          "x": 1588,
-          "y": 249
-        }
-      ],
-      "water": [
-        {
-          "x": 1500,
-          "y": 480
-        },
-        {
-          "x": 1380,
-          "y": 520
-        }
-      ],
-      "bunker": [
-        {
-          "x": 1100,
-          "y": 415
-        },
-        {
-          "x": 1420,
-          "y": 265
-        },
-        {
-          "x": 1430,
-          "y": 320
-        },
-        {
-          "x": 1645,
-          "y": 300
-        }
-      ]
-    },
+    "displayOnly": true,
     "meta": {
       "number": 9,
       "par": 4,
       "yards": 452,
       "tourAverage": 4.101,
-      "course": "PGA West (Stadium Course)",
-      "name": "Reflection",
-      "framed": true
-    },
-    "mask": {
-      "cell": 10,
-      "cols": 177,
-      "rows": 88,
-      "rle": "r3571s1r10s2r5s2r31s1r13s2r158s1r1s2r313s1r99f1r171f1r15f2r4f1r156s2r1s2r4f9r1f5r154s4r3f17r135s1r5f1r11s4r4f16r146f5r7f12r52s1r84f4r4f2r6f2r13f5r7s5r115f1r8f1r1f3r1f10r3f1r7s1r1s2r18s3r3s1r111f3r1f2r4f11r1f6r10s3r1s3r7f4r3s7r50s1r58f4r1f4r3f3r2f1r1f6r1f2r1f1r4s1r3s9r6f7r1f1r102f3r1f4r6f21r4f2r138f2r3f1r1f6r1f4r4f5r149f23r1f1r26s4r119f6r1f10r2f7r1f1r2f1r25s1r121f22r39w1r6w5r72s2r26f1r3f20r1f1r23w2r13w14r3w1r72s1r21f3r1f17r3f1r1f1r3s1r1s1r17w2r4w1r5w22r65s1r5s1r18f3r1f7r1f6r2f3r9s3r9f1r8w2r2w4r2w24r63s3r5s1r15f6r2f13r6f1r7s5r6f1r8w3r2w30r11s1r76f6r1f12r4f1r4s3r2s4r2s2r11w5r2w22r4w3r81f1r11f3r1f10r8s13r3f1r8w29r6w2r73f2r5f1r4f15r1f6r11s10r1f2r7w31r7w2r50s1r1s1r1s1r1s1r25f2r1f8r1f12r10f2r15w35r7w4r27s1r49f28r5f1r16s1r2w35r8w4r6w1r2s1r16s3r50f26r1f3r19w37r8w5r5w1r20s1r43f1r1f1r2f27r3f1r5f2r7s1r5w38r8w5r2w2r66f31r23w41r1w1r4s1w6r25s1r15s1r12s1r10f1r4f1r1f27r1f2r4f1r14w44r8w4r57f1r1f4r1f3r2f28r6f4r5s1r6w36r3w8r2w2r51s1r14f13r2f22r7f2r13w36r5w11r50s1r16f3r4f3r3f4r3f16r4f1r3f1r10w39r5w11r1w1r52f2r8f3r3f2r8f4r2f3r4f10r6f1r10w39r7w10r37s3r14f7r4f16r4f6r2f4r3f2r17w40r9w9r18s1r52f2r1f2r1f4r1f15r1f6r1f1r12w36r2w2r11w8r6s1r35s1r33f32r1f1r8w34r7w1r10w5r5s1r39s2r33f30r8f1r2w33r6w1r11w4r5s1r36s1r8s2r35f1r1f20r9f1r3w32r17w3r6s1r4s1r44s1r1s1r34f18r2f3r10w30r17w3r6s1r5s1r24s1r55f16r18w29r16s1w3r90f4r1f2r2f1r10f5r13w29r11w2r2w5r32s1r73f1r1f1r6f1r14w1r4w21r12w2r2w5r55s1r56f1r23w20r12w2r2w5r53s1r58f4r10s1r9w21r10w3r2w5r39s2r9s1r2f11r1f2r38f2r10f1r3f1r5s2r8w18r12w3r2w2r22s1r32f13r2f2r1f3r46f3r1f3r2s1r10w15r75f12r3f5r4s1r35f1r1f2r6f3r1f3r2s1r6s1r3w2r3w4r13w2r14s1r33s2r11f19r1f2r1f1r40f2r10f5r17w2r33s1r27s1r4s2r8f22r60f3r2s2r44s1r40f20r1f1r68f1r3s1r40s2r38f25r112s1r20s1r14f24r30s1r19f2r66s1r33f23r23s1r1s1r27f1r1f3r59s3r32f1r2f21r4s1r16s1r16s1r24f1r88f1r3f14r2f4r22s3r35f1r4f4r85f3r1f11r4f3r24s1r40f1r6f1r82f18r81f1r81f2r1f2r2f2r123s1r89s3r31s1r186f1r35s1r141f1r16s1r65s2r120s2r54s1r210s1r330s1r150"
+      "course": "PGA West (Stadium Course)"
     }
   },
   "pga-west-stadium:10": {
-    "image": "art-demo/pga-west-stadium/hole-10.webp?v=4",
+    "image": "art-demo/pga-west-stadium/hole-10.png",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        -7.769423,
-        2.806694,
-        340
+        0,
+        0,
+        0
       ],
       "y": [
-        0.003012,
-        -1.219535,
-        712
+        0,
+        0,
+        0
       ]
     },
-    "route": [
-      {
-        "at": 0,
-        "x": 340,
-        "y": 712
-      },
-      {
-        "at": 0.627,
-        "x": 1079,
-        "y": 359
-      },
-      {
-        "at": 0.931,
-        "x": 1461,
-        "y": 252
-      },
-      {
-        "at": 1,
-        "x": 1543,
-        "y": 216
-      }
-    ],
-    "targets": {
-      "green": [
-        {
-          "x": 1488,
-          "y": 240
-        }
-      ],
-      "holed": [
-        {
-          "x": 1538,
-          "y": 243
-        }
-      ],
-      "water": [
-        {
-          "x": 700,
-          "y": 450
-        },
-        {
-          "x": 500,
-          "y": 550
-        },
-        {
-          "x": 850,
-          "y": 330
-        }
-      ],
-      "bunker": [
-        {
-          "x": 1300,
-          "y": 262
-        },
-        {
-          "x": 1420,
-          "y": 395
-        },
-        {
-          "x": 1580,
-          "y": 285
-        }
-      ]
-    },
+    "displayOnly": true,
     "meta": {
       "number": 10,
       "par": 4,
       "yards": 405,
       "tourAverage": 3.965,
-      "course": "PGA West (Stadium Course)",
-      "name": "Quarry",
-      "framed": true
-    },
-    "mask": {
-      "cell": 10,
-      "cols": 177,
-      "rows": 88,
-      "rle": "r3563s1r10s1r43s1r255s1r159f1r9f2r160f1r7f4r1f5r54f1r4f1r1f1r98f7r1f6r168f10r1f1r1f7r43f2r15f1r39s1r9w1r30f1r1s4r8f2r1f12r47f1r2f2r57w1r5w4r44f1r30s1r60s1r1s1r21s1r11w6r26f1r3f9r2f2r9f1r4s1r1s1r1s1r73s2r13s1r20w4r28f18r12s9r9f2r61s1r15s1r3w5r43f16r11f1r90w1r6w1r3w5r7w1r20f4r3f2r2f10r2f1r2f6r91w5r5w1r4w12r29f13r1f15r30f2r50s1r8w8r2w3r2w12r31f27r28f5r55w30r28f1r1f1r1f28r21f5r57w34r20f2r1f1r1f1r2f27r29f1r34s1r16s1r6w34r24f26r84s1r9w33r25f23r36s1r32s1r26s1w31r20f3r1f6r1f21r5s3r17f6r2s1r22s1r7s1r1s1r26w32r23f4r1f2r2f14r10s5r16f4r27s1r1s1r4s1r26w36r21f5r1f18r8f2r1s9r9f2r22s1r16s1r8w1r9w2r2w29r2w8r24f25r3f2r1s10r9f1r1f1r38s1r3w7r4w36r4w3r28f26r2f1r5s6r10f4r31s1r8w9r2w37r28f1r3f24r1f1r2f8r58s1r2w47r31f7r1f3r1f17r2f5r2f1r60w47r27f34r1f6r2f1r59w47r26f1r4f34r1f3r2f2r7f1r1f2r45w49r21f7r2f33r2f4r1f1r51s1r2w52r21f2r2f6r2f25r1f8r40s1r17w43r3w6r22f2r1f1r3f2r1f30r56s1r5w43r37f4r1f23r1f6r61w44r20s1r20f30r1f4r41s1r14w45r41f6r1f28r1f4r26s1r9s1r3s1r9w46r31f2r8f40r47w49r37f4r4f34r39w1r8w51r25f2r5f7r8f22r47w6r2w53r19f3r1f3r1f13r1f3r6f15r51w6r2w53r18f3r4f18r5f1r6f3r58w6r2w53r26f8r2f9r1f4r5f3r4f5r49w5r3w51r28f23r4f4r42s1r16w5r3w50r28f6r3f6r3f7r1f4r32s1r28w6r1w49r29f5r3f7r4f13r60w55r2s1r17f2r4f6r6f6r4f4r29s1r40w42r4w8r27f6r5f6r3f6r70w31r5w3r8w1r2w4r29f12r5f6r4f5r62w30r7w1r15w1r30f10r5f6r4f5r5f1r1f1r55w30r53f4r1f18r1f6r64w13r4w4s1r3w2r63f1r2f16r68w6r2w4r25f14r42f2r1f5r76w5r4w3r14s2r7f18r1f3r37f1r2f5r75w4r27f2r1f15r2f2r4f1r38f3r1f5r72w3r27f18r43s1r7f6r30s1r1s1r38s1r28f22r14s2r36f4r3f1r23s5r64f21r58f1r2f1r92f1r3f19r26s1r66s1r3s1r1s1r25s1r26f3r1f18r34s1r46s1r17s3r51f1r1f1r3f12r2f3r13s1r67s1r72f1r1f15r3f2r22s1r9s1r23s2r28s1r71f10r1f3r1f1r36s1r9s1r154s1r41s1r24s1r47s1r62s1r131s1r48s1r128s1r16s1r30s2r85s1r40s1r135s1r22s2r51s1r101s1r183s1r14s1r3s1r51s1r122s1r2s1r68s1r102"
+      "course": "PGA West (Stadium Course)"
     }
   },
   "pga-west-stadium:11": {
-    "image": "art-demo/pga-west-stadium/hole-11.webp?v=4",
+    "image": "art-demo/pga-west-stadium/hole-11.png",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        8.563729,
-        2.24394,
-        262
+        0,
+        0,
+        0
       ],
       "y": [
-        -11.227053,
-        -0.845644,
-        696
+        0,
+        0,
+        0
       ]
     },
-    "route": [
-      {
-        "at": 0,
-        "x": 262,
-        "y": 696
-      },
-      {
-        "at": 0.541,
-        "x": 979,
-        "y": 363
-      },
-      {
-        "at": 0.77,
-        "x": 1312,
-        "y": 340
-      },
-      {
-        "at": 0.953,
-        "x": 1548,
-        "y": 214
-      },
-      {
-        "at": 1,
-        "x": 1610,
-        "y": 185
-      }
-    ],
-    "targets": {
-      "green": [
-        {
-          "x": 1569,
-          "y": 204
-        }
-      ],
-      "holed": [
-        {
-          "x": 1606,
-          "y": 201
-        }
-      ],
-      "bunker": [
-        {
-          "x": 530,
-          "y": 580
-        },
-        {
-          "x": 660,
-          "y": 480
-        },
-        {
-          "x": 760,
-          "y": 410
-        },
-        {
-          "x": 1370,
-          "y": 410
-        },
-        {
-          "x": 1525,
-          "y": 240
-        },
-        {
-          "x": 1630,
-          "y": 235
-        }
-      ]
-    },
+    "displayOnly": true,
     "meta": {
       "number": 11,
       "par": 5,
       "yards": 591,
       "tourAverage": 4.722,
-      "course": "PGA West (Stadium Course)",
-      "name": "Eternity",
-      "framed": true
-    },
-    "mask": {
-      "cell": 10,
-      "cols": 177,
-      "rows": 88,
-      "rle": "r3508f2r10f3r1f1r59s1r1s1r2s1r20s1r1s1r67f1r2f2r11f2r1f7r1f2r142f1r18f10r40s1r105f5r4f4r11f4r131f1r1f2r18f1r2f1r7f1r15s3r125f3r5f2r2f3r7f1r5f1r4f1r2s5r6s2r130f2r4f21r2f1r1f1r154f18r4f2r1f1r135f3r1f2r10f27r127f4r6f2r1f4r1f28r139f3r3f30r137f7r3f29r131f3r6f2r2f1r3f28r85s1r46f3r1f40r131f40r2f1r2f1r131f4r5f3r1f22r12f2r68s1r58f8r2f26r14f2r66s1r7s1r39f1r1f2r9f35r2f1r6f1r4f2r110f7r8f37r6f1r1f1r24s1r60s1r35f2r2f1r2f32r1f4r9f1r126f3r1f31r4f4r8f1r114s2r11f33r12s1r111s3r1s2r5f3r8f30r10f1r1s2r111s4r7f7r4f2r2f29r1f1r5f1r1s4r29s1r86f6r1f1r2f48r121f2r1f35r5f5r4f1r124f32r2f1r3f2r1f2r114s5r4s2r8f3r1f23r2f1r14f1r49s1r64s6r6f1r2f27r134s6r10f17r1f3r2f3r73s1r63s6r4f13r3f3r2f3r1f1r1f3r129s2r5s5r7f11r2f4r2f5r1f9r66s1r53s10r19f4r2f11r1f9r134f5r11f22r2f2r135f2r2f6r3f24r2f3r28s1r21s1r70f1r4s2r1s2r5f36r2f2r100s1r19f1r1f1r1s8r11f19r2f4r7f2r101s1r13f1r10s5r6f3r5f12r1f3r125f3r3f1r11s4r1s1r4f23r62s2r63f3r1f1r2s4r5s7r7f19r131f1r3s11r12f17r136f1r2s5r1s2r9f7r2f5r2f3r127f1r26f1r3f14r1f3r7f1r105s1r1s1r17f3r5f1r3f7r1f15r1f7r3f2r2f1r143f18r4f1r120s1r1s1r27f1r10f1r1f6r1f2r306f8r165f16r146s1r9f21r5s2r27f4r3f3r101s2r4f1r3f21r46f4r3f1r92s1r6f1r1f22r15s1r111s1r25f4r2f17r19s1r111s3r17f1r1f3r3f16r3f1r19s1r5s1r61s1r44s1r18f2r1f10r4f4r39s1r11f1r3f1r106f8r3f2r3f1r133s1r5s2r5s1r16f1r5f1r6f1r26s1r11s1r103s1r3s1r58s2r47s1r94f1r21s1r11s1r54s1r110s1r64s1r115s1r61s1r69s1r44s1r241s1r111s1r43s1r17s1r32s1r177s1r27s1r1s2r43s1r103s1r27s1r46s2r242s1r57s1r118s1r32s1r24"
+      "course": "PGA West (Stadium Course)"
     }
   },
   "pga-west-stadium:12": {
-    "image": "art-demo/pga-west-stadium/hole-12.webp?v=4",
+    "image": "art-demo/pga-west-stadium/hole-12.png",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        -4.818412,
-        2.844292,
-        470
+        0,
+        0,
+        0
       ],
       "y": [
-        2.752762,
-        -1.452133,
-        709
+        0,
+        0,
+        0
       ]
     },
-    "route": [
-      {
-        "at": 0,
-        "x": 470,
-        "y": 709
-      },
-      {
-        "at": 0.643,
-        "x": 1094,
-        "y": 397
-      },
-      {
-        "at": 0.938,
-        "x": 1378,
-        "y": 250
-      },
-      {
-        "at": 1,
-        "x": 1436,
-        "y": 216
-      }
-    ],
-    "targets": {
-      "green": [
-        {
-          "x": 1397,
-          "y": 239
-        }
-      ],
-      "holed": [
-        {
-          "x": 1429,
-          "y": 235
-        }
-      ],
-      "bunker": [
-        {
-          "x": 680,
-          "y": 475
-        },
-        {
-          "x": 760,
-          "y": 420
-        },
-        {
-          "x": 880,
-          "y": 365
-        },
-        {
-          "x": 1280,
-          "y": 280
-        },
-        {
-          "x": 1520,
-          "y": 285
-        }
-      ]
-    },
+    "displayOnly": true,
     "meta": {
       "number": 12,
       "par": 4,
       "yards": 363,
       "tourAverage": 3.806,
-      "course": "PGA West (Stadium Course)",
-      "name": "Moat",
-      "framed": true
-    },
-    "mask": {
-      "cell": 10,
-      "cols": 177,
-      "rows": 88,
-      "rle": "r4034f2r65s1r5s1r43s1r53f8r3f2r2s2r63s1r84f1r6f21r1f6r43f1r109f18r62s1r15s4r65s2r4f1r6f3r1f9r83s1r13s1r52s4r4s1r2f1r7f1r4f2r4s2r149s4r5s1r5f7r1s6r137f2r11s2r1s5r3f9r2s5r2s3r110f2r3f3r13f4r22f4r29s1r97f3r1f14r1f10r48s1r100f9r1f32r114s1r8f3r2f1r7f37r2f1r125f4r12f8r2f8r1f18r120f4r4s5r7f38r121f1r1f2r3s4r7f39r123s9r5f37r2f2r107f9r12s3r1f20r1f14r1f6r110f6r15f1r5f19r1f4r3f1r9f1r26s1r88f2r15f4r5f34r1f5r21s3r48s1r40s4r12f5r3f36r117s5r13f1r3f33r126s4r1f4r1f1r2f37r7f2r67s1r52f1r1f1r4f49r40s1r56s1r12s3r9f50r115s3r10f37r2f5r42s1r2s1r68s10r7f1r2f42r1f7r37s4r22s1r41s12r9f43r48s1r67s7r12f36r14f2r101f1r7s8r1f39r123f2r15f34r126f4r6f2r4f30r133f4r7f24r2f4r60s1r74f5r6f13r2f15r115s1r17f7r5f5r4f4r5f4r4f4r4f1r14f1r42s2r28s1r40f9r4f13r4f5r4f4r93s2r43f1r2f1r1f16r3f5r5f9r14f1r54s1r25s1r44f23r3f4r2f4r1f3r1f5r2f5r126f27r4f12r3f5r39s1r86f18r2f14r4f4r1f4r38s1r4s1r8s1r85f2r1f13r5f15r3f9r44s2r26s1r63f12r1f25r145f4r2f1r1f1r1f10r60s1r54s1r46f1r51s1r23s3r16s1r33s1r98s1r29s2r50f1r93s2r28s2r1s1r45f1r1f11r146s1r2s2r10f3r2f14r1f1r78s1r1s1r62s1r4f1r3f19r1f3r1f3r6s1r142f18r4f1r3f1r16s1r3f1r55s1r70f26r58s1r70s1r5s2r12f27r146f28r18s1r128f2r2f22r143f1r5f3r3f20r78s1r55s1r11f1r2f17r1f8r26s1r44s1r76f2r1f14r5f5r74s1r55s1r29f13r78s1r93f2r130s1r26s1r11f1r40s2r84s1r12s2r14s2r58s1r14s2r295s1r62s1r122s1r52s1r110s1r22s1r145s1r14s2r6s3r60s1r5s1r88s2r154"
+      "course": "PGA West (Stadium Course)"
     }
   },
   "pga-west-stadium:13": {
-    "image": "art-demo/pga-west-stadium/hole-13.webp?v=4",
+    "image": "art-demo/pga-west-stadium/hole-13.png",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        10.269236,
-        5.224299,
-        312
+        0,
+        0,
+        0
       ],
       "y": [
-        19.713744,
-        -2.518692,
-        702
+        0,
+        0,
+        0
       ]
     },
-    "route": [
-      {
-        "at": 0,
-        "x": 312,
-        "y": 702
-      },
-      {
-        "at": 0.912,
-        "x": 1330,
-        "y": 316
-      },
-      {
-        "at": 1,
-        "x": 1430,
-        "y": 283
-      }
-    ],
-    "targets": {
-      "green": [
-        {
-          "x": 1363,
-          "y": 305
-        }
-      ],
-      "holed": [
-        {
-          "x": 1426,
-          "y": 298
-        }
-      ],
-      "water": [
-        {
-          "x": 900,
-          "y": 450
-        },
-        {
-          "x": 1100,
-          "y": 520
-        },
-        {
-          "x": 700,
-          "y": 420
-        }
-      ],
-      "bunker": [
-        {
-          "x": 1530,
-          "y": 330
-        },
-        {
-          "x": 1560,
-          "y": 380
-        }
-      ]
-    },
+    "displayOnly": true,
     "meta": {
       "number": 13,
       "par": 3,
       "yards": 214,
       "tourAverage": 3.229,
-      "course": "PGA West (Stadium Course)",
-      "name": "Second Thoughts",
-      "framed": true
-    },
-    "mask": {
-      "cell": 10,
-      "cols": 177,
-      "rows": 88,
-      "rle": "r3580s1r1s1r2s1r3s1r2s1r8s1r85s1r1s1r19s1r37s1r3s1r5s1r11s1r4s1r11s3r1s1r4s1r35s1r123s1r748s1r163s1r190s1r25f2r8f1r98s3r66f12r1f3r158f1r2f17r1f2r129w3r3w2r5w1r7f22r1f1r128w7r3w3r11f1r1f24r3s4r72s1r38w1r8w8r1w4r2w1r5f1r6f19r1f2r2s6r109w3r6w14r12f1r14f1r3f1r123w3r5w15r32f2r6f2r112w3r4w19r33f3r105s1r9w3r4w20r33f2r3s3r108w4r4w24r30f1r1s8r105w4r4w27r32s4r106w4r3w34r2w1r24s2r96w1r2w1r7w5r1w38r24s2r3s1r79w5r5w11r2w45r22s2r5s1r63s1r12w8r5w58r21s1r83w10r3w58r103w74r5w2r86s1r8w75r5w3r20s1r50s1r9s1r8w1r2w76r5w2r67s1r22w80r90w1r4w82r90w88r88w91r83w95r37s1r43w102r27s2r6s1r38w103r27s3r44w103r28s3r43w104r62s1r14w102r61s1r16w99r57s2r4s1r15s1r2w96r57s2r11f2r1f2r7w1r4w2r4w81r72f1r8f1r15w16r8w55r101w1r2w6r12w55r75f3r12f2r15w2r20w41r4w1r74f1r11f1r4f5r14w1r26w34r81f1r11f3r1f2r46w32r77f1r1f7r17f3r40w30r62s1r13f18r2f1r2f1r4f4r40w23r78f3r1f17r3f4r1f2r47w20r1s1r2s1r29s1r36s1r8f24r56w17r32s1r1s2r29s1r10f27r3f2r2f1r51s1r1w12r34s3r37f29r8f2r53w10r68f1r4f5r2f23r3f1r7f4r55w3r73f4r4f21r12f4r56s1r19s1r57f22r2f3r12f3r61s1r14s3r59f17r4f2r157f1r3f8r1f5r90s1r23s3r52f3r7f5r1f1r5f3r4f5r89s1r71f4r6f1r1f3r15f3r5s1r142f7r1f6r165f11r1f1r22f1r144f12r170f13r19f4r142f11r169f1r3f6r173f6r32f1r53s1r86f7r33f1r139f6r32f1r55"
+      "course": "PGA West (Stadium Course)"
     }
   },
   "pga-west-stadium:14": {
-    "image": "art-demo/pga-west-stadium/hole-14.webp?v=4",
+    "image": "art-demo/pga-west-stadium/hole-14.png",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        7.550241,
-        3.366215,
-        326
+        0,
+        0,
+        0
       ],
       "y": [
-        -0.321317,
-        -1.229929,
-        684
+        0,
+        0,
+        0
       ]
     },
-    "route": [
-      {
-        "at": 0,
-        "x": 326,
-        "y": 684
-      },
-      {
-        "at": 0.54,
-        "x": 963,
-        "y": 359
-      },
-      {
-        "at": 0.938,
-        "x": 1480,
-        "y": 256
-      },
-      {
-        "at": 1,
-        "x": 1556,
-        "y": 225
-      }
-    ],
-    "targets": {
-      "green": [
-        {
-          "x": 1505,
-          "y": 246
-        }
-      ],
-      "holed": [
-        {
-          "x": 1551,
-          "y": 240
-        }
-      ],
-      "bunker": [
-        {
-          "x": 1360,
-          "y": 310
-        }
-      ]
-    },
+    "displayOnly": true,
     "meta": {
       "number": 14,
       "par": 4,
       "yards": 389,
       "tourAverage": 3.855,
-      "course": "PGA West (Stadium Course)",
-      "name": "Cavern",
-      "framed": true
-    },
-    "mask": {
-      "cell": 10,
-      "cols": 177,
-      "rows": 88,
-      "rle": "r3573s1r5s1r4s1r1s1r20w1r5s1r15s2r12s1r107s1r9s2r3s1r4s2r10s1r11s1r421f1r7f2r159f20r155f24r86s1r69f20r1f3r38s1r121f11r1f2r85f1r24s1r31f2r3f1r3s3r11f4r5f3r2f1r39f1r100f1r4s6r13f3r147f2r8s4r139f5r5f1r2f1r1f2r7f3r2f1r4s4r11f1r22s1r97f2r2f2r2f16r2f1r8f1r2s6r10f4r5f1r112f24r10f2r2s8r7f4r6f1r48s1r56f1r1f30r14f1r3s7r3f5r54s1r63f27r4f1r11f1r6f5r60s1r59f3r4f25r17f1r2f2r123f4r1f26r1f2r3f1r131s1r1f47r2f1r126f5r1f46r125f1r2f56r28s1r77f11r2f1r1f54r114f4r2f43r1f2r12f2r92f2r19f2r3f37r53s1r44s1r38f43r3f1r109f1r22f51r4f3r31s1r85f37r5f2r123f1r3f3r1f33r42s1r86f1r1f2r1f42r132f43r4f3r117f3r2f1r2f54r124f59r3f1r97s1r15f3r2f55r1f1r121f11r4f29r134f19r7f3r2f1r145f4r2f10r152f1r1f3r3f7r1f12r68s1r56s1r18s1r1f1r4f31r5f2r10f1r126f1r2f43r1f1r2f2r6f2r50s1r36s1r7s1r28f40r3f2r7f1r108f2r12f9r1f30r102s2r35f6r3f27r108s1r35f12r4f5r4f6r154f1r16f1r8f1r3f1r5f3r2f1r160f1r6f2r2f1r1f6r1f1r2f2r85f1r78f12r10s1r60s1r3s1r8f4r2f1r2f2r19f2r53f2r2f1r77s1r6f17r1f1r2f2r15f1r133f1r1f17r4f6r2f1r127s1r8s1r4f1r3f28r19f1r25f4r54s1r21s1r5s1r15f29r2f1r19f1r29f1r2f1r87f29r143f2r1f25r79s1r64s1r5f3r2f21r1f1r1f2r132s2r1s1r15f15r2f3r4f2r18s2r38f3r89f14r5f6r22s1r38f1r22s1r69f3r4f1r2f2r1f5r50f1r177f2r4f1r67s1r33f1r2f1r136s1r19s1r58s1r1s1r50s1r64s2r58s1r134s1r14s2r75s1r11s1r74s1r15s1r61s5r38s1r55s1r78s1r2s2r93s1r75s1r102s2r8s1r14s1r154s1r22s1r302"
+      "course": "PGA West (Stadium Course)"
     }
   },
   "pga-west-stadium:15": {
-    "image": "art-demo/pga-west-stadium/hole-15.webp?v=4",
+    "image": "art-demo/pga-west-stadium/hole-15.png",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        1.308667,
-        2.638047,
-        314
+        0,
+        0,
+        0
       ],
       "y": [
-        3.608055,
-        -1.091274,
-        728
+        0,
+        0,
+        0
       ]
     },
-    "route": [
-      {
-        "at": 0,
-        "x": 314,
-        "y": 728
-      },
-      {
-        "at": 0.614,
-        "x": 1058,
-        "y": 361
-      },
-      {
-        "at": 0.934,
-        "x": 1476,
-        "y": 251
-      },
-      {
-        "at": 1,
-        "x": 1562,
-        "y": 225
-      }
-    ],
-    "targets": {
-      "green": [
-        {
-          "x": 1505,
-          "y": 242
-        }
-      ],
-      "holed": [
-        {
-          "x": 1556,
-          "y": 239
-        }
-      ],
-      "bunker": [
-        {
-          "x": 700,
-          "y": 520
-        },
-        {
-          "x": 860,
-          "y": 430
-        },
-        {
-          "x": 1300,
-          "y": 520
-        },
-        {
-          "x": 1400,
-          "y": 420
-        },
-        {
-          "x": 1180,
-          "y": 315
-        },
-        {
-          "x": 1460,
-          "y": 280
-        },
-        {
-          "x": 1640,
-          "y": 270
-        }
-      ]
-    },
+    "displayOnly": true,
     "meta": {
       "number": 15,
       "par": 4,
       "yards": 468,
       "tourAverage": 4.11,
-      "course": "PGA West (Stadium Course)",
-      "name": "Turning Home",
-      "framed": true
-    },
-    "mask": {
-      "cell": 10,
-      "cols": 177,
-      "rows": 88,
-      "rle": "r3568s1r4s1r2s1r2s1r4s1r1s1r20w1r1w1r19s3r6s1r4s1r2s2r103s2r8s2r3s1r1s1r2s3r21s1r61s1r117s1r60f4r6f1r101s1r43s1r23f8r4f1r165f15r159f2r1f13r1f2r48s1r106f1r5f1r1f10r4s1r90s1r36s1r4s1r15f1r6s2r12f4r3s4r3f1r51s1r89f2r1f2r2s2r6s1r4f1r1f5r5f4r115f2r27f1r6s8r1f2r1f1r153f2r1f3r19f1r58f1r29s1r33s1r3f1r4f1r2s4r8f17r5f1r126f1r12f1r2s4r2f18r1f7r129f4r12f27r1f1r1f1r129f3r1f5r10f22r4f1r1f1r76s2r51f2r3f11r1f28r134f2r2f7r1f6r1f8r1f8r71s1r67f1r2f1r1f14r1f18r129s1r10f32r11s1r122s5r1s1r3f3r1f25r2f2r9s3r51s2r2s1r59s4r2s2r4f14r1f3r1f15r1f3r7s5r52s1r63s6r9f19r1f12r9s4r114s7r4f13r2f29r1s2r1s6r112s5r5f1r2f20r2f11r5f1r3f2r121f2r1f6r3f19r1f4r2f6r138f19r1f4r2f13r5s7r40s1r92f16r2f2r3f5r11s2r1s1r114s2r17f4r1f5r1f4r1f7r1f4r12s4r39s1r75s11r3f5r2f4r2f5r2f9r10s1r1s1r2s3r112s2r1s7r5f13r2f4r3f3r3f3r6s10r114s8r5f2r2f2r3f5r3f3r4f3r2f4r7s7r116s7r10f9r3f4r3f3r3f4r6f2r1s5r48s1r65s4r1s1r2s1r12f13r3f4r4f2r13s1r7s1r108s10r3f4r5f4r2f12r3f3r123s1r3s11r7f2r3f4r4f4r3f18r7s2r114s5r1s2r11f6r2f4r4f4r3f13s9r114s2r1s1r1s3r3f1r5f14r1f4r4f3r12s7r115s6r2f12r3f4r2f6r3f4r14s5r107s2r1s1r17f14r3f6r2f4r16s1r1s5r110f9r6f4r2f23r16s6r115f2r5f7r3f26r13s2r103s2r22f13r1f21r131f1r6f6r2f29r73s1r66f6r2f28r68s1r42s1r25f6r2f8r3f13r1f2r114s1r1s1r28f1r5f3r1f13r1f2r120s2r29f2r12f3r163f1r137f1r2f2r161s3r4f21r14s2r84s1r42s1r4s1r3f7r2f17r1f1r1f2r139s2r3f26r3f1r147f28r75s4r60s1r4f32r27s1r15f1r27s1r2s1r2s5r14s1r45f33r2f1r21s1r58s1r59f6r2f19r2f4r142f6r4f17r4f2r29s1r44s1r10s1r17s1r40f4r1f15r1f9r87s1r53s2r6f16r4f6r144s1r12f6r1f2r2f7r24s1r120s4r24f4r148s2r10f2r295s1r55s1r101s1r193s1r175s2r142s1r249"
+      "course": "PGA West (Stadium Course)"
     }
   },
   "pga-west-stadium:16": {
-    "image": "art-demo/pga-west-stadium/hole-16.webp?v=4",
+    "image": "art-demo/pga-west-stadium/hole-16.png",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        1.045932,
-        2.335701,
-        312
+        0,
+        0,
+        0
       ],
       "y": [
-        -0.405236,
-        -0.913082,
-        708
+        0,
+        0,
+        0
       ]
     },
-    "route": [
-      {
-        "at": 0,
-        "x": 312,
-        "y": 708
-      },
-      {
-        "at": 0.528,
-        "x": 1034,
-        "y": 426
-      },
-      {
-        "at": 0.812,
-        "x": 1446,
-        "y": 361
-      },
-      {
-        "at": 0.948,
-        "x": 1590,
-        "y": 224
-      },
-      {
-        "at": 1,
-        "x": 1655,
-        "y": 183
-      }
-    ],
-    "targets": {
-      "green": [
-        {
-          "x": 1612,
-          "y": 210
-        }
-      ],
-      "holed": [
-        {
-          "x": 1649,
-          "y": 207
-        }
-      ],
-      "bunker": [
-        {
-          "x": 600,
-          "y": 450
-        },
-        {
-          "x": 1420,
-          "y": 270
-        }
-      ]
-    },
+    "displayOnly": true,
     "meta": {
       "number": 16,
       "par": 5,
       "yards": 600,
       "tourAverage": 4.683,
-      "course": "PGA West (Stadium Course)",
-      "name": "San Andreas Fault",
-      "framed": true
-    },
-    "mask": {
-      "cell": 10,
-      "cols": 177,
-      "rows": 88,
-      "rle": "r3567s2r4s1r2s1r7s3r25w1r11s1r15s2r2s6r2s1r44f5r2f1r56s2r2s2r4s1r6s2r22s1r11s1r6s1r18s1r11f1r20f14r164f6r1f7r2f1r116s1r17f3r4s2r16f2r2f1r145f3r2s2r2s2r20f3r3f2r70s1r71s4r1s2r21f1r6f1r141s1r1s3r1s2r160f3r7s8r62s1r6s1r90f2r7s7r17f2r60s1r71f4r2f1r7s3r2s9r142f1r2f3r3f2r3f1r9s11r1s1r132f2r1f3r1f2r1f7r2f2r9f2r10s7r131f12r2f2r12f2r39s1r96f2r8f16r1f1r18f1r118f18r2f1r2f3r1f10r5f2r5f1r9f2r85s1r31f43r15f5r1f4r3f6r85f3r15f24r1f10r2f1r15f17r85f1r5f2r4f2r8f10r1f3r1f3r4f2r2f8r1f6r1f1r12f13r74s1r9f1r4f1r2f9r7f20r1f5r1f16r13f1r2f1r2f3r1f1r45s1r51f6r1f42r1f7r2f5r4f4r85f2r20f38r6f8r4f5r4f1r16f1r79s1r12f18r1f19r7f3r2f5r2f3r101s3r1s1r12f25r2f6r10f5r1f10r103s6r13f29r12f3r1f8r94f2r9s7r13f27r13f2r1f2r1f4r97f1r1s6r1s9r10f28r16f9r23s1r78s17r4f30r18f4r106s13r2f1r3f30r16f4r105f1s8r1f1r3f1r4f30r23f2r118f32r3f1r37s2r79s1r8f3r10f30r26f1r16s1r77f4r1f1r3f2r1f6r5f34r2f8r113f2r1f13r1f42r3f2r106f3r9f6r2f25r2f24r13f6r53s1r8s1r23f6r2f7r8f14r3f12r2f20r9f1r5f1r82s1r9f2r1f8r7f21r1f37r103f8r5f48r3f4r16f1r19s1r57s2r15f10r2f1r2f35r130f3r1f10r1f22r7f1r135f4r1f3r4f17r166f2r1f14r4f1r83s4r23s1r49f13r1f8r75s2r1s2r77f3r1f15r69s3r2s3r33s1r51f5r27f1r50s3r39s1r10s1r44f1r2f2r105s3r10f6r1f1r50f1r1f4r103s1r8f9r4f2r48f5r109f7r21s1r1s2r32f1r1f6r54s4r43f10r4f5r16s1r37f8r49s1r46f25r1f1r133s2r1s1r18f16r3f1r2f1r141s1r11f17r2f1r5f1r143f4r1f21r107s1r33s1r6f4r2f1r2f17r15s1r123s1r10f1r4f1r4f11r2f3r154f16r4f2r156f18r1f1r20s1r25s1r34s2r172s1r68s1r39s1r72s3r38s1r2s1r174s1r209s2r10s1r167s2r114s1r61s3r111s1r44s1r21s1r176s1r116s2r29s1r4s4r137s5r33s1r147s1r21"
+      "course": "PGA West (Stadium Course)"
     }
   },
   "pga-west-stadium:17": {
-    "image": "art-demo/pga-west-stadium/hole-17.webp?v=4",
+    "image": "art-demo/pga-west-stadium/hole-17.png",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        9.190816,
-        6.30303,
-        320
+        0,
+        0,
+        0
       ],
       "y": [
-        -28.168312,
-        -2.890909,
-        682
+        0,
+        0,
+        0
       ]
     },
-    "route": [
-      {
-        "at": 0,
-        "x": 320,
-        "y": 682
-      },
-      {
-        "at": 0.891,
-        "x": 1245,
-        "y": 357
-      },
-      {
-        "at": 1,
-        "x": 1360,
-        "y": 325
-      }
-    ],
-    "targets": {
-      "green": [
-        {
-          "x": 1283,
-          "y": 346
-        }
-      ],
-      "holed": [
-        {
-          "x": 1354,
-          "y": 342
-        }
-      ],
-      "water": [
-        {
-          "x": 800,
-          "y": 500
-        },
-        {
-          "x": 1000,
-          "y": 620
-        },
-        {
-          "x": 700,
-          "y": 400
-        },
-        {
-          "x": 1400,
-          "y": 500
-        }
-      ]
-    },
+    "displayOnly": true,
     "meta": {
       "number": 17,
       "par": 3,
       "yards": 165,
       "tourAverage": 3.159,
-      "course": "PGA West (Stadium Course)",
-      "name": "Alcatraz",
-      "framed": true
-    },
-    "mask": {
-      "cell": 10,
-      "cols": 177,
-      "rows": 88,
-      "rle": "r3568s1r4s1r1s1r8s1r1s1r44s2r9s1r2s1r105s1r9s2r3s1r5s2r6s1r14s1r392s1r161s1r26s1r182s1r185s1r115s1r136s2r46s2r2s2r22w1r3w1r4w1r88f1r66w9r6w8r14w1r3w2r93s1r38w12r2w1r2w7r11s1w11r92s1r2s2r13s1r8w1r11w11r27w6r22s1r54s1r1s1r7s1r9s1r20w6r9w8r1s1r41w5r11s1r46s1r9s2r11s1r9w4r6w2r2w7r8w4r2s1r9f14r5f1r16w5r4w2r6s1r57w2r13w11r3w13r6s1w1r14f20r16s3r1w4r2w4r1w2r58s1r1w1r14w24r1s1w1r3w1r16f19r23s1w8r4s1r52s1r1w1r12w1r5w24r3s1r16f21r1f2r14s1r7s1w5r2s1r8w1r33s1r16w2r6w1r4w29r18f30r9s1r11s1r5s1r6w3r46w1r2w4r4w3r2w29r19f28r6f1r2s5r1s2r1s1r3s1r12w4r26s1r18w44r19f3r1f23r25s1r9s1r1w5r46w43r10s1r16f14r4f2r36w5r47w42r15s1r26f1r41w4r47s1r1w41r83w4r48s1r2w39r16s1r34s1r8s3r19w5r48s1r4w37r62s2r9s1r8w5r42s1r5s3r1s1r1w37r31s2r1s1r37s1r7w6r53s1w39r25s1r7s1r37s1r5w7r45s1r8w40r19s1r10s1r42w10r43s1r3s1r5w42r1w1r17s1r15s1r27s1r7w11r37s4r12w42r35s1r34w12r55s2w38r5w3r61w13r38s1r18s1w38r3w5r47w7r5w14r34s1r2s1r21w45r7w1r25w4r10w7r4w15r60w19r3w23r5w3r21w7r8w10r1w17r60w18r5w23r3w5r2w1r6w1r10w7r7w29r60s2w11r4w1r6w34r4w2r10w8r7w28r62w9r14w40r5w16r4w27r61s1w8r16w61r4w26r38s1r23w7r17w62r3w26r34s1r26w8r17w63r1w22r2w3r35s1r24w9r16w86r4w2r3s1r24s1r7s1r19s1r2s1r2w7r16w85r30s1r13s1r6s1r16s2w6r15w86r30s1r21f2r15s2w5r14w86r46f3r4f2r2f1r11s1r1s1w6r5w1r2w1r2w87r33s2r10f9r3f3r12s1r3w4r3w5r2w86r23s1r16f1r3f14r3f2r12s1r3w1r6w3r5w82r24s1r4s1r9f4r1f16r1f1r2f1r12s2r13s1r4w80r33f25r3f2r1f4r9s2r22w77r22s1r9f1r2f26r39s1r3s1r3w54r3w13r27f4r3f20r6f1r44s2r1w47r3w1r2s4w6r3w1r18s1r1s1r6f20r1f5r14s1r28s1r9s1r3w44r15w3r29f19r2f4r18s1r2s1r18s1r17s2r1w43r11s1r1s1r35f2r1f15r1f1r22s1r3s2r1s1r33s1r2w26r2w11r16s3r35f12r25s1r7s2r1s1r35w25r6w5r1s1r17s1r2s1r39f2r3f3r32s1r1s1r34s1w14r5w2r3w2r7w3r20s1r44f1r67s1r8w6r6s1r5s1r13w3r34s1r22s1r49s1r34w4r9s1r128s1r32s1r67s1r81s3r24s1r55s1r95s1r27s1r53s1r69s2r25s1r23s2r124s1r1s1r23s1r2s1r25s1r53s2r15s1r102s1r51s1r10s1r268s1r452"
+      "course": "PGA West (Stadium Course)"
     }
   },
   "pga-west-stadium:18": {
-    "image": "art-demo/pga-west-stadium/hole-18.webp?v=4",
+    "image": "art-demo/pga-west-stadium/hole-18.png",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        -0.823608,
-        2.666803,
-        350
+        0,
+        0,
+        0
       ],
       "y": [
-        -0.422497,
-        -1.125385,
-        706
+        0,
+        0,
+        0
       ]
     },
-    "route": [
-      {
-        "at": 0,
-        "x": 350,
-        "y": 706
-      },
-      {
-        "at": 0.649,
-        "x": 1086,
-        "y": 371
-      },
-      {
-        "at": 0.93,
-        "x": 1414,
-        "y": 248
-      },
-      {
-        "at": 1,
-        "x": 1497,
-        "y": 222
-      }
-    ],
-    "targets": {
-      "green": [
-        {
-          "x": 1442,
-          "y": 239
-        }
-      ],
-      "holed": [
-        {
-          "x": 1494,
-          "y": 237
-        }
-      ],
-      "water": [
-        {
-          "x": 700,
-          "y": 400
-        },
-        {
-          "x": 500,
-          "y": 500
-        },
-        {
-          "x": 900,
-          "y": 300
-        },
-        {
-          "x": 1200,
-          "y": 240
-        }
-      ],
-      "bunker": [
-        {
-          "x": 1290,
-          "y": 490
-        },
-        {
-          "x": 1420,
-          "y": 420
-        },
-        {
-          "x": 1400,
-          "y": 345
-        },
-        {
-          "x": 1530,
-          "y": 290
-        }
-      ]
-    },
+    "displayOnly": true,
     "meta": {
       "number": 18,
       "par": 4,
       "yards": 439,
       "tourAverage": 4,
-      "course": "PGA West (Stadium Course)",
-      "name": "Coliseum",
-      "framed": true
-    },
-    "mask": {
-      "cell": 10,
-      "cols": 177,
-      "rows": 88,
-      "rle": "r3606s1r424f1r145w1r8w6r2w3r4w3r5f3r1f7r108s1r22w30r6f19r115w2r2w33r4f16r12f1r95w5r3w40r4f15r97s1r6w1r2w50r5f3r3f3r11s4r91w41r2w1r16f2r1f7r6s4r81s1r4w1r9w37r2w1r9f17r1f2r3s8r84w1r2w2r7w37r3f1r8f3r1f18r92w8r2w38r7f26r9f1r86w44r7f2r1f2r4f1r2f4r2f7r100w44r11f21r93w1r4w46r13f19r2f1r1s3r18f1r65s1r4w49r9f23r7s1r19f4r65w49r9f26r4f1r1f1r14f1r68s1r1w50r5f35r2f2r70s1r10w50r6f38r82w46r9f36r60s1r22w48r9f31r13s2r71w51r11f24r2f1r1f2r4s2r5s2r63w1r6w53r11f26r2f1r1s6r1s7r49s1r11w4r3w54r8f28r1f4r2s9r64w60r7f20r17s5r9f3r46s1r5w1r2w58r5f18r28f1r6f1r52w1r3w58r9f18r10f1r4s2r6s2r6f1r19f2r33w4r3w54r1s1r10f12r11f2r5s4r5s3r62w4r3w53r12f1r2f23r8s6r55w2r7w61r11f2r3f3r1f11r2f9r4s9r4f1r47w4r3w62r13f20r1f3r1f1r1f2r1s13r4f1r47w5r2w62r14f18r1f4r3f2r1s10r33f1r11w2r8w4r3w63r8f1r4f8r2f16r32f2r24w2r7w6r1w62r3s1r8f2r2f25r4f6r6f2r1f1r38w2r3w2r2w68r8f1r2f39r5f3r1f2r41s1r7w1s1r1w58r2w1r13f31r3f1r69w56r16f23r1f5r5f2r70w55r13f25r4f2r7f1r72w53r14f30r79s1r3w45r20f1r1f28r13f7r62s1r2w41r24f34r1f1r1f4r1f1r54s2r1s2r12w27r3w9r26f13r4f4r1f7r7f1r77w24r5w8r33f14r2f5r45f3r4f1r34w4r2w16r7w8r31f5r3f10r37f1r53w1r6w2r5w8r7w8r36f10r34f1r61f3r10w2r2w1r9w3r3w2r16f7r6f4r1f12r7f1r72s1r7s1r5f7r2f3r24w1r14f1r3f1r15f1r2f3r4f1r7f1r1f1r72s2r2s1r6f15r4f1r18w1r3w1r9f1r21f1r20f1r71s1r1s1r4f24r15s1r5w1r8f4r31f1r77s1r11f25r4f3r23f2r3f1r2f1r25f3r12f1r47s1r11s1r8f27r4f3r62f1r1f3r1f1r72f36r139f6r2f23r1f1r1f1r20s1r120f5r4f23r25s1r115f1r2f1r1f2r2f17r1f6r2f1r22s1r64f1r2f1r50f1r1f2r4f17r3f3r1f2r88f2r61f4r2f9r5f1r1f1r25s1r41f2r2f1r12f1r56s1r25f6r38s1r26f4r7f2r68s2r89f1r84s2r4s1r43s1r529s1r95s1r281s1r258s2r109s1r59s1r5s1r2s1r91s1r19s1r53s5r18"
+      "course": "PGA West (Stadium Course)"
     }
   },
   "torrey-pines-south:1": {
@@ -2778,12 +1610,12 @@
         "y": 790
       },
       {
-        "at": 0.643,
+        "at": 0.6476,
         "x": 1090,
         "y": 410
       },
       {
-        "at": 0.982,
+        "at": 0.9925,
         "x": 1495,
         "y": 178
       },
@@ -2867,12 +1699,12 @@
         "y": 795
       },
       {
-        "at": 0.72,
+        "at": 0.6495,
         "x": 1050,
         "y": 385
       },
       {
-        "at": 0.979,
+        "at": 0.9954,
         "x": 1545,
         "y": 178
       },
@@ -2952,7 +1784,7 @@
         "y": 675
       },
       {
-        "at": 0.96,
+        "at": 0.9731,
         "x": 1330,
         "y": 320
       },
@@ -3034,12 +1866,12 @@
         "y": 775
       },
       {
-        "at": 0.592,
+        "at": 0.6176,
         "x": 1060,
         "y": 430
       },
       {
-        "at": 0.984,
+        "at": 0.9904,
         "x": 1500,
         "y": 168
       },
@@ -3129,12 +1961,12 @@
         "y": 800
       },
       {
-        "at": 0.639,
+        "at": 0.6344,
         "x": 1090,
         "y": 420
       },
       {
-        "at": 0.982,
+        "at": 0.9912,
         "x": 1515,
         "y": 170
       },
@@ -3214,17 +2046,17 @@
         "y": 813
       },
       {
-        "at": 0.514,
+        "at": 0.5523,
         "x": 900,
         "y": 430
       },
       {
-        "at": 0.9,
+        "at": 0.8843,
         "x": 1380,
         "y": 253
       },
       {
-        "at": 0.985,
+        "at": 0.9962,
         "x": 1530,
         "y": 168
       },
@@ -3316,12 +2148,12 @@
         "y": 790
       },
       {
-        "at": 0.628,
+        "at": 0.6269,
         "x": 1050,
         "y": 410
       },
       {
-        "at": 0.983,
+        "at": 0.9873,
         "x": 1520,
         "y": 165
       },
@@ -3393,7 +2225,7 @@
         "y": 753
       },
       {
-        "at": 0.955,
+        "at": 0.9772,
         "x": 1330,
         "y": 268
       },
@@ -3465,17 +2297,17 @@
         "y": 775
       },
       {
-        "at": 0.472,
+        "at": 0.5807,
         "x": 980,
         "y": 430
       },
       {
-        "at": 0.837,
+        "at": 0.8556,
         "x": 1380,
         "y": 250
       },
       {
-        "at": 0.985,
+        "at": 0.993,
         "x": 1575,
         "y": 150
       },
@@ -3559,12 +2391,12 @@
         "y": 773
       },
       {
-        "at": 0.639,
+        "at": 0.6612,
         "x": 1080,
         "y": 410
       },
       {
-        "at": 0.982,
+        "at": 0.9973,
         "x": 1470,
         "y": 183
       },
@@ -3644,7 +2476,7 @@
         "y": 760
       },
       {
-        "at": 0.964,
+        "at": 0.9739,
         "x": 1235,
         "y": 245
       },
@@ -3720,12 +2552,12 @@
         "y": 783
       },
       {
-        "at": 0.574,
+        "at": 0.6195,
         "x": 1000,
         "y": 460
       },
       {
-        "at": 0.984,
+        "at": 0.9977,
         "x": 1430,
         "y": 176
       },
@@ -3813,17 +2645,17 @@
         "y": 800
       },
       {
-        "at": 0.467,
+        "at": 0.6465,
         "x": 1090,
         "y": 470
       },
       {
-        "at": 0.829,
+        "at": 0.9041,
         "x": 1395,
         "y": 240
       },
       {
-        "at": 0.985,
+        "at": 0.9816,
         "x": 1470,
         "y": 153
       },
@@ -3907,12 +2739,12 @@
         "y": 813
       },
       {
-        "at": 0.664,
+        "at": 0.7748,
         "x": 1260,
         "y": 415
       },
       {
-        "at": 0.982,
+        "at": 0.976,
         "x": 1395,
         "y": 173
       },
@@ -4002,12 +2834,12 @@
         "y": 780
       },
       {
-        "at": 0.604,
+        "at": 0.7431,
         "x": 1150,
         "y": 380
       },
       {
-        "at": 0.983,
+        "at": 0.9917,
         "x": 1430,
         "y": 195
       },
@@ -4079,7 +2911,7 @@
         "y": 845
       },
       {
-        "at": 0.965,
+        "at": 0.9869,
         "x": 1345,
         "y": 223
       },
@@ -4169,12 +3001,12 @@
         "y": 775
       },
       {
-        "at": 0.655,
+        "at": 0.5842,
         "x": 930,
         "y": 420
       },
       {
-        "at": 0.982,
+        "at": 0.9943,
         "x": 1380,
         "y": 185
       },
@@ -4250,17 +3082,17 @@
         "y": 812
       },
       {
-        "at": 0.509,
+        "at": 0.5748,
         "x": 930,
         "y": 520
       },
       {
-        "at": 0.9,
+        "at": 0.8185,
         "x": 1280,
         "y": 380
       },
       {
-        "at": 0.985,
+        "at": 0.9987,
         "x": 1520,
         "y": 238
       },
@@ -4358,12 +3190,12 @@
         "y": 770
       },
       {
-        "at": 0.72,
+        "at": 0.5927,
         "x": 1000,
         "y": 470
       },
       {
-        "at": 0.98,
+        "at": 0.9809,
         "x": 1510,
         "y": 225
       },
@@ -4435,12 +3267,12 @@
         "y": 815
       },
       {
-        "at": 0.656,
+        "at": 0.5638,
         "x": 950,
         "y": 490
       },
       {
-        "at": 0.982,
+        "at": 0.9962,
         "x": 1490,
         "y": 265
       },
@@ -4516,17 +3348,17 @@
         "y": 760
       },
       {
-        "at": 0.52,
+        "at": 0.3943,
         "x": 720,
         "y": 520
       },
       {
-        "at": 0.9,
+        "at": 0.7713,
         "x": 1250,
         "y": 300
       },
       {
-        "at": 0.985,
+        "at": 0.9947,
         "x": 1575,
         "y": 200
       },
@@ -4602,7 +3434,7 @@
         "y": 760
       },
       {
-        "at": 0.956,
+        "at": 0.9665,
         "x": 1300,
         "y": 248
       },
@@ -4674,12 +3506,12 @@
         "y": 770
       },
       {
-        "at": 0.617,
+        "at": 0.5688,
         "x": 950,
         "y": 470
       },
       {
-        "at": 0.983,
+        "at": 0.9813,
         "x": 1505,
         "y": 210
       },
@@ -4751,12 +3583,12 @@
         "y": 753
       },
       {
-        "at": 0.671,
+        "at": 0.565,
         "x": 950,
         "y": 463
       },
       {
-        "at": 0.981,
+        "at": 0.9858,
         "x": 1495,
         "y": 215
       },
@@ -4848,7 +3680,7 @@
         "y": 730
       },
       {
-        "at": 0.963,
+        "at": 0.9463,
         "x": 1400,
         "y": 290
       },
@@ -4920,12 +3752,12 @@
         "y": 763
       },
       {
-        "at": 0.611,
+        "at": 0.5842,
         "x": 1000,
         "y": 500
       },
       {
-        "at": 0.983,
+        "at": 0.9986,
         "x": 1530,
         "y": 210
       },
@@ -5001,12 +3833,12 @@
         "y": 780
       },
       {
-        "at": 0.64,
+        "at": 0.61,
         "x": 1000,
         "y": 430
       },
       {
-        "at": 0.982,
+        "at": 0.9878,
         "x": 1520,
         "y": 220
       },
@@ -5098,12 +3930,12 @@
         "y": 753
       },
       {
-        "at": 0.678,
+        "at": 0.5523,
         "x": 950,
         "y": 480
       },
       {
-        "at": 0.981,
+        "at": 0.9947,
         "x": 1540,
         "y": 215
       },
@@ -5187,12 +4019,12 @@
         "y": 750
       },
       {
-        "at": 0.614,
+        "at": 0.5977,
         "x": 1000,
         "y": 440
       },
       {
-        "at": 0.983,
+        "at": 0.9939,
         "x": 1520,
         "y": 225
       },
@@ -5282,7 +4114,7 @@
         "y": 753
       },
       {
-        "at": 0.958,
+        "at": 0.9834,
         "x": 1250,
         "y": 265
       },
@@ -5368,17 +4200,17 @@
         "y": 790
       },
       {
-        "at": 0.52,
+        "at": 0.4177,
         "x": 700,
         "y": 470
       },
       {
-        "at": 0.9,
+        "at": 0.7335,
         "x": 1150,
         "y": 300
       },
       {
-        "at": 0.985,
+        "at": 0.9915,
         "x": 1530,
         "y": 200
       },
@@ -5472,12 +4304,12 @@
         "y": 778
       },
       {
-        "at": 0.592,
+        "at": 0.5191,
         "x": 900,
         "y": 520
       },
       {
-        "at": 0.984,
+        "at": 0.9866,
         "x": 1555,
         "y": 195
       },
@@ -5553,17 +4385,17 @@
         "y": 800
       },
       {
-        "at": 0.524,
+        "at": 0.4918,
         "x": 850,
         "y": 540
       },
       {
-        "at": 0.9,
+        "at": 0.7806,
         "x": 1250,
         "y": 360
       },
       {
-        "at": 0.985,
+        "at": 0.9894,
         "x": 1540,
         "y": 232
       },
@@ -5653,7 +4485,7 @@
         "y": 750
       },
       {
-        "at": 0.951,
+        "at": 0.9803,
         "x": 1310,
         "y": 320
       },
@@ -5729,12 +4561,12 @@
         "y": 760
       },
       {
-        "at": 0.72,
+        "at": 0.6771,
         "x": 1100,
         "y": 420
       },
       {
-        "at": 0.976,
+        "at": 0.982,
         "x": 1480,
         "y": 230
       },
@@ -5820,12 +4652,12 @@
         "y": 773
       },
       {
-        "at": 0.656,
+        "at": 0.5658,
         "x": 950,
         "y": 520
       },
       {
-        "at": 0.982,
+        "at": 0.9966,
         "x": 1500,
         "y": 195
       },
@@ -5919,12 +4751,12 @@
         "y": 760
       },
       {
-        "at": 0.72,
+        "at": 0.5423,
         "x": 950,
         "y": 500
       },
       {
-        "at": 0.979,
+        "at": 0.9886,
         "x": 1510,
         "y": 195
       },
@@ -5992,17 +4824,17 @@
         "y": 758
       },
       {
-        "at": 0.562,
+        "at": 0.4711,
         "x": 850,
         "y": 540
       },
       {
-        "at": 0.9,
+        "at": 0.8586,
         "x": 1350,
         "y": 263
       },
       {
-        "at": 0.984,
+        "at": 0.9944,
         "x": 1530,
         "y": 175
       },
@@ -6078,12 +4910,12 @@
         "y": 760
       },
       {
-        "at": 0.718,
+        "at": 0.6753,
         "x": 1000,
         "y": 520
       },
       {
-        "at": 0.98,
+        "at": 0.9973,
         "x": 1220,
         "y": 210
       },
@@ -6177,12 +5009,12 @@
         "y": 750
       },
       {
-        "at": 0.72,
+        "at": 0.4686,
         "x": 800,
         "y": 473
       },
       {
-        "at": 0.976,
+        "at": 0.9833,
         "x": 1440,
         "y": 175
       },
@@ -6300,7 +5132,7 @@
         "y": 700
       },
       {
-        "at": 0.959,
+        "at": 0.9902,
         "x": 1200,
         "y": 265
       },
@@ -6386,17 +5218,17 @@
         "y": 740
       },
       {
-        "at": 0.537,
+        "at": 0.4266,
         "x": 750,
         "y": 468
       },
       {
-        "at": 0.9,
+        "at": 0.7687,
         "x": 1100,
         "y": 233
       },
       {
-        "at": 0.985,
+        "at": 0.9956,
         "x": 1370,
         "y": 160
       },
@@ -6486,7 +5318,7 @@
         "y": 640
       },
       {
-        "at": 0.925,
+        "at": 0.9916,
         "x": 1200,
         "y": 320
       },
@@ -6592,12 +5424,12 @@
         "y": 743
       },
       {
-        "at": 0.678,
+        "at": 0.445,
         "x": 780,
         "y": 413
       },
       {
-        "at": 0.981,
+        "at": 0.9903,
         "x": 1540,
         "y": 213
       },
@@ -6683,12 +5515,12 @@
         "y": 720
       },
       {
-        "at": 0.575,
+        "at": 0.5192,
         "x": 850,
         "y": 480
       },
       {
-        "at": 0.984,
+        "at": 0.9929,
         "x": 1380,
         "y": 185
       },
@@ -6774,12 +5606,12 @@
         "y": 738
       },
       {
-        "at": 0.65,
+        "at": 0.5614,
         "x": 850,
         "y": 423
       },
       {
-        "at": 0.982,
+        "at": 0.9944,
         "x": 1340,
         "y": 158
       },
@@ -6865,12 +5697,12 @@
         "y": 760
       },
       {
-        "at": 0.72,
+        "at": 0.5993,
         "x": 1000,
         "y": 480
       },
       {
-        "at": 0.979,
+        "at": 0.993,
         "x": 1420,
         "y": 195
       },
@@ -6946,7 +5778,7 @@
         "y": 763
       },
       {
-        "at": 0.96,
+        "at": 0.9935,
         "x": 1380,
         "y": 248
       },
@@ -7026,12 +5858,12 @@
         "y": 760
       },
       {
-        "at": 0.652,
+        "at": 0.4947,
         "x": 850,
         "y": 500
       },
       {
-        "at": 0.982,
+        "at": 0.9869,
         "x": 1510,
         "y": 225
       },
@@ -7107,17 +5939,17 @@
         "y": 763
       },
       {
-        "at": 0.5,
+        "at": 0.3684,
         "x": 750,
         "y": 553
       },
       {
-        "at": 0.888,
+        "at": 0.6962,
         "x": 1150,
         "y": 283
       },
       {
-        "at": 0.985,
+        "at": 0.9948,
         "x": 1570,
         "y": 153
       },
@@ -7193,12 +6025,12 @@
         "y": 750
       },
       {
-        "at": 0.72,
+        "at": 0.4423,
         "x": 800,
         "y": 520
       },
       {
-        "at": 0.98,
+        "at": 0.9942,
         "x": 1490,
         "y": 185
       },
@@ -7274,12 +6106,12 @@
         "y": 728
       },
       {
-        "at": 0.72,
+        "at": 0.4534,
         "x": 800,
         "y": 478
       },
       {
-        "at": 0.98,
+        "at": 0.9861,
         "x": 1470,
         "y": 185
       },
@@ -7359,7 +6191,7 @@
         "y": 700
       },
       {
-        "at": 0.955,
+        "at": 0.9733,
         "x": 1370,
         "y": 270
       },
@@ -7457,17 +6289,17 @@
         "y": 758
       },
       {
-        "at": 0.534,
+        "at": 0.4449,
         "x": 800,
         "y": 563
       },
       {
-        "at": 0.9,
+        "at": 0.845,
         "x": 1300,
         "y": 333
       },
       {
-        "at": 0.985,
+        "at": 0.9941,
         "x": 1440,
         "y": 183
       },
@@ -10544,456 +9376,6 @@
       "cols": 177,
       "rows": 88,
       "rle": "r2364f1r336f1r1f1r1f1r4f4r6f2r167f9r168f3r1f1r1f2r7f1r31f2r2f11r1f1r28f1r75f1r9f7r6f1r29f4r1f13r1f2r13f2r9f1r4f1r83f1r4f3r7f1r16s3r5f4r1f2r3f6r4f1r85f1r18f1r1f2r13f2r24s4r4f11r1f1r2f2r8w12r69f1r36f2r25s5r2f14r6w18r65f2r23f1r13f1r26s5r1f14r5w24r62f1r64s4r4f12r5w34r53f1r30f3r33s5r1f14r1f2r2w35r50f1r62f2r1s4r3f18r2w39r92f1r12f5r5f21r4w41r94s2r4f9r1f12r5f2r8w54r78s7r1f21r16w56r75s2r2s5r1f3r1f12r19w58r73s3r1s4r3f14r20w59r73s5r2f18r18w62r77f17r1f2r18w62r66f27r1f3r13f1r5w61r69f27r21w60r69f24r1f3r1f1r18w60r69f22r25w61r68f24r23w62r13f1r1f1r49f30r18w64r11f8r42s4f29r17w66r6f3r1f3r49s3r1f27r15w69r60s5r1f27r4s2r3w75r59s2r3f29r4s1r2w77r59f34r3s2r1w78r13f2r43f35r2s3w79r5f8r45f32r1f2r3s1r2w78r1f1r1f1r2f2r4f1r44f32r1f4r6w77r13f3r37f36r1f5r6w76r16s4r28f4r1f9r1f21r3f1r3f1r1f3r7w74r16s3r26f1r2f3r4f29r10f3r9w44r4w23r45f2r1f2r8f24r13f4r10w40r7w21r46f1r1f5r5f24r13f8r9w37r10w18r48f7r2f25r23f1r8w34r12w5r6w6r50f32r23f4r9w25r2w2r14w3r8w5r50f33r24f4r8w23r4w1r3w1r10w1r2w1r8w4r24s1r28f32r1f1r1f2r17f5r10w20r17w2r12w1r27s2r1f2r2f1r21f34r1f1r18f1r2f5r5f1r5w16r17w2r39s4f11r14f1r3f22r8f1r23f7r11w15r1w2r7w1r5w2r40s3r1f2r24f22r34f2r4f3r10w14r9w3r3w3r40s3r24f26r40f4r6f1r4w2r3w6r10w4r2w2r41s1r23f1r1f28r37f8r14w5r10w5r7w5r53f39r22f1r7f1r2f9r12w1r2w1r11w5r7w8r45f1r1f42r32f13r24w5r6w8r41f1r2f31r1f6r1f4r34f16r23w1r3w3r2w5r32s1r7f2r2f1r2f40r37f16r1f1r24w1r1w1r3w5r5w1r26s1r5f2r2f4r2f20r1f18r37f15r35w3r29s4r4f1r5f6r1f15r6f19r33f16r36w4r27s5r1f1r6f5r1f3r1f13r6f19r34f13r39w4r26s4r4f1r1f24r9f26r27f5r1f2r1f3r41w2r2w1r32f1r1f22r10f18r2f1r2f3r30f2r4f3r43w1r1w1r32f23r14f13r49f1r76f4r2f2r2f1r2f11r15f8r94w1r24s3r6f4r5f2r1f14r15f7r11f1r83w2r21s4r2f1r3f4r1f8r1f9r20f5r118s4r1f9r2f15r23f1r1f1r1f1r9f1r107s4r1f9r3f5r1f9r29f3r91f2r18s4r1f10r1f16r24f2r6f2r7f2r80f1r1f3r16s4r1f10r1f9r1f7r23f2r7f1r2f9r83f1r1f1r13s4r1f12r9f7r24f1r12f6r87f1r11s5r1f4r12f13r23f1r14f7r95s5r1f30r24f1r15f6r94s5r1f6r1f24r25f1r15f1r3f5r89s5r1f6r2f8r2f18r23f1r2f1r15f15r77s5r1f41r19f1r2f1r16f17r73s5r1f44r1f1r18f2r15f21r69s5f8r1f1r2f36r17f2r18f1r1f8r77s4r4f6r7f34r1f1r13f1r22f5r58s2r21s3r4f5r2f9r1f30r14f2r22f5r56s5r13"
-    }
-  },
-  "pga-west-stadium:1": {
-    "image": "art-demo/pga-west-stadium/hole-01.png",
-    "width": 1774,
-    "height": 887,
-    "matrix": {
-      "x": [
-        0,
-        0,
-        0
-      ],
-      "y": [
-        0,
-        0,
-        0
-      ]
-    },
-    "displayOnly": true,
-    "meta": {
-      "number": 1,
-      "par": 4,
-      "yards": 445,
-      "tourAverage": 3.903,
-      "course": "PGA West (Stadium Course)"
-    }
-  },
-  "pga-west-stadium:2": {
-    "image": "art-demo/pga-west-stadium/hole-02.png",
-    "width": 1774,
-    "height": 887,
-    "matrix": {
-      "x": [
-        0,
-        0,
-        0
-      ],
-      "y": [
-        0,
-        0,
-        0
-      ]
-    },
-    "displayOnly": true,
-    "meta": {
-      "number": 2,
-      "par": 4,
-      "yards": 371,
-      "tourAverage": 3.758,
-      "course": "PGA West (Stadium Course)"
-    }
-  },
-  "pga-west-stadium:3": {
-    "image": "art-demo/pga-west-stadium/hole-03.png",
-    "width": 1774,
-    "height": 887,
-    "matrix": {
-      "x": [
-        0,
-        0,
-        0
-      ],
-      "y": [
-        0,
-        0,
-        0
-      ]
-    },
-    "displayOnly": true,
-    "meta": {
-      "number": 3,
-      "par": 4,
-      "yards": 471,
-      "tourAverage": 4.04,
-      "course": "PGA West (Stadium Course)"
-    }
-  },
-  "pga-west-stadium:4": {
-    "image": "art-demo/pga-west-stadium/hole-04.png",
-    "width": 1774,
-    "height": 887,
-    "matrix": {
-      "x": [
-        0,
-        0,
-        0
-      ],
-      "y": [
-        0,
-        0,
-        0
-      ]
-    },
-    "displayOnly": true,
-    "meta": {
-      "number": 4,
-      "par": 3,
-      "yards": 170,
-      "tourAverage": 2.877,
-      "course": "PGA West (Stadium Course)"
-    }
-  },
-  "pga-west-stadium:5": {
-    "image": "art-demo/pga-west-stadium/hole-05.png",
-    "width": 1774,
-    "height": 887,
-    "matrix": {
-      "x": [
-        0,
-        0,
-        0
-      ],
-      "y": [
-        0,
-        0,
-        0
-      ]
-    },
-    "displayOnly": true,
-    "meta": {
-      "number": 5,
-      "par": 5,
-      "yards": 535,
-      "tourAverage": 4.678,
-      "course": "PGA West (Stadium Course)"
-    }
-  },
-  "pga-west-stadium:6": {
-    "image": "art-demo/pga-west-stadium/hole-06.png",
-    "width": 1774,
-    "height": 887,
-    "matrix": {
-      "x": [
-        0,
-        0,
-        0
-      ],
-      "y": [
-        0,
-        0,
-        0
-      ]
-    },
-    "displayOnly": true,
-    "meta": {
-      "number": 6,
-      "par": 3,
-      "yards": 227,
-      "tourAverage": 3.115,
-      "course": "PGA West (Stadium Course)"
-    }
-  },
-  "pga-west-stadium:7": {
-    "image": "art-demo/pga-west-stadium/hole-07.png",
-    "width": 1774,
-    "height": 887,
-    "matrix": {
-      "x": [
-        0,
-        0,
-        0
-      ],
-      "y": [
-        0,
-        0,
-        0
-      ]
-    },
-    "displayOnly": true,
-    "meta": {
-      "number": 7,
-      "par": 4,
-      "yards": 346,
-      "tourAverage": 3.863,
-      "course": "PGA West (Stadium Course)"
-    }
-  },
-  "pga-west-stadium:8": {
-    "image": "art-demo/pga-west-stadium/hole-08.png",
-    "width": 1774,
-    "height": 887,
-    "matrix": {
-      "x": [
-        0,
-        0,
-        0
-      ],
-      "y": [
-        0,
-        0,
-        0
-      ]
-    },
-    "displayOnly": true,
-    "meta": {
-      "number": 8,
-      "par": 5,
-      "yards": 559,
-      "tourAverage": 4.449,
-      "course": "PGA West (Stadium Course)"
-    }
-  },
-  "pga-west-stadium:9": {
-    "image": "art-demo/pga-west-stadium/hole-09.png",
-    "width": 1774,
-    "height": 887,
-    "matrix": {
-      "x": [
-        0,
-        0,
-        0
-      ],
-      "y": [
-        0,
-        0,
-        0
-      ]
-    },
-    "displayOnly": true,
-    "meta": {
-      "number": 9,
-      "par": 4,
-      "yards": 452,
-      "tourAverage": 4.101,
-      "course": "PGA West (Stadium Course)"
-    }
-  },
-  "pga-west-stadium:10": {
-    "image": "art-demo/pga-west-stadium/hole-10.png",
-    "width": 1774,
-    "height": 887,
-    "matrix": {
-      "x": [
-        0,
-        0,
-        0
-      ],
-      "y": [
-        0,
-        0,
-        0
-      ]
-    },
-    "displayOnly": true,
-    "meta": {
-      "number": 10,
-      "par": 4,
-      "yards": 405,
-      "tourAverage": 3.965,
-      "course": "PGA West (Stadium Course)"
-    }
-  },
-  "pga-west-stadium:11": {
-    "image": "art-demo/pga-west-stadium/hole-11.png",
-    "width": 1774,
-    "height": 887,
-    "matrix": {
-      "x": [
-        0,
-        0,
-        0
-      ],
-      "y": [
-        0,
-        0,
-        0
-      ]
-    },
-    "displayOnly": true,
-    "meta": {
-      "number": 11,
-      "par": 5,
-      "yards": 591,
-      "tourAverage": 4.722,
-      "course": "PGA West (Stadium Course)"
-    }
-  },
-  "pga-west-stadium:12": {
-    "image": "art-demo/pga-west-stadium/hole-12.png",
-    "width": 1774,
-    "height": 887,
-    "matrix": {
-      "x": [
-        0,
-        0,
-        0
-      ],
-      "y": [
-        0,
-        0,
-        0
-      ]
-    },
-    "displayOnly": true,
-    "meta": {
-      "number": 12,
-      "par": 4,
-      "yards": 363,
-      "tourAverage": 3.806,
-      "course": "PGA West (Stadium Course)"
-    }
-  },
-  "pga-west-stadium:13": {
-    "image": "art-demo/pga-west-stadium/hole-13.png",
-    "width": 1774,
-    "height": 887,
-    "matrix": {
-      "x": [
-        0,
-        0,
-        0
-      ],
-      "y": [
-        0,
-        0,
-        0
-      ]
-    },
-    "displayOnly": true,
-    "meta": {
-      "number": 13,
-      "par": 3,
-      "yards": 214,
-      "tourAverage": 3.229,
-      "course": "PGA West (Stadium Course)"
-    }
-  },
-  "pga-west-stadium:14": {
-    "image": "art-demo/pga-west-stadium/hole-14.png",
-    "width": 1774,
-    "height": 887,
-    "matrix": {
-      "x": [
-        0,
-        0,
-        0
-      ],
-      "y": [
-        0,
-        0,
-        0
-      ]
-    },
-    "displayOnly": true,
-    "meta": {
-      "number": 14,
-      "par": 4,
-      "yards": 389,
-      "tourAverage": 3.855,
-      "course": "PGA West (Stadium Course)"
-    }
-  },
-  "pga-west-stadium:15": {
-    "image": "art-demo/pga-west-stadium/hole-15.png",
-    "width": 1774,
-    "height": 887,
-    "matrix": {
-      "x": [
-        0,
-        0,
-        0
-      ],
-      "y": [
-        0,
-        0,
-        0
-      ]
-    },
-    "displayOnly": true,
-    "meta": {
-      "number": 15,
-      "par": 4,
-      "yards": 468,
-      "tourAverage": 4.11,
-      "course": "PGA West (Stadium Course)"
-    }
-  },
-  "pga-west-stadium:16": {
-    "image": "art-demo/pga-west-stadium/hole-16.png",
-    "width": 1774,
-    "height": 887,
-    "matrix": {
-      "x": [
-        0,
-        0,
-        0
-      ],
-      "y": [
-        0,
-        0,
-        0
-      ]
-    },
-    "displayOnly": true,
-    "meta": {
-      "number": 16,
-      "par": 5,
-      "yards": 600,
-      "tourAverage": 4.683,
-      "course": "PGA West (Stadium Course)"
-    }
-  },
-  "pga-west-stadium:17": {
-    "image": "art-demo/pga-west-stadium/hole-17.png",
-    "width": 1774,
-    "height": 887,
-    "matrix": {
-      "x": [
-        0,
-        0,
-        0
-      ],
-      "y": [
-        0,
-        0,
-        0
-      ]
-    },
-    "displayOnly": true,
-    "meta": {
-      "number": 17,
-      "par": 3,
-      "yards": 165,
-      "tourAverage": 3.159,
-      "course": "PGA West (Stadium Course)"
-    }
-  },
-  "pga-west-stadium:18": {
-    "image": "art-demo/pga-west-stadium/hole-18.png",
-    "width": 1774,
-    "height": 887,
-    "matrix": {
-      "x": [
-        0,
-        0,
-        0
-      ],
-      "y": [
-        0,
-        0,
-        0
-      ]
-    },
-    "displayOnly": true,
-    "meta": {
-      "number": 18,
-      "par": 4,
-      "yards": 439,
-      "tourAverage": 4,
-      "course": "PGA West (Stadium Course)"
     }
   }
 }
