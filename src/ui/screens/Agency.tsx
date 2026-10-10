@@ -128,7 +128,7 @@ function ExtendForm({ world, game, id }: { world: World; game: Game; id: string 
             {m.contract.rookie ? " · rookie deal (the rate doesn't bother him while it runs)" : ""}
           </p>
           <p className="small secondary" style={{ margin: 0 }}>
-            {win.open ? (win.early ? "A season early: a loyalty discount if you settle now." : "His final season: the window is open, and the rivals are circling.") : win.reason}
+            {win.open ? "His final season: the window is open, and the rivals are circling." : win.reason}
           </p>
           <p className="small secondary" style={{ margin: "4px 0 0" }}>
             With you {years} season{years === 1 ? "" : "s"}

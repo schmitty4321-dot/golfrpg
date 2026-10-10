@@ -69,6 +69,8 @@ export interface EventRecord {
 
 export interface Career {
   status: TourStatus;
+  /** Where he stood as an amateur when he turned professional (season, place on the amateur standing, stars). */
+  proEntry?: { season: number; place: number | null; stars: number };
   /** Last season (inclusive) covered by a winner's exemption, if any. */
   exemptThrough: number | null;
   seasonPoints: number;

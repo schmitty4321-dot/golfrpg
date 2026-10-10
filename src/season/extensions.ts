@@ -117,20 +117,19 @@ export function talkItOver(world: World, id: string): string {
 /** The week of his final season extension talks open. */
 export const windowWeek = (world: World): number => Math.ceil(seasonWeeks(world) / 2);
 
-export type WindowState = { open: true; early: boolean } | { open: false; reason: string };
+export type WindowState = { open: true } | { open: false; reason: string };
 
-/** Whether you can talk extension with him now: from halfway through his final season, or a season early for a loyalty discount. */
+/** Whether you can talk extension with him now: only from halfway through his final season. */
 export function extensionWindow(world: World, id: string): WindowState {
   const c = world.players[id]?.client;
   if (!c) return { open: false, reason: "He isn't your client." };
   if (c.farewell) return { open: false, reason: "You've agreed to let him go at the end of his deal." };
   const until = c.contract.untilSeason;
-  if (until === world.season + 1) return { open: true, early: true };
   if (until <= world.season) {
-    if (world.week >= windowWeek(world)) return { open: true, early: false };
-    return { open: false, reason: `Talks open halfway through his final season (week ${windowWeek(world)}). Or extend a season early for a loyalty discount.` };
+    if (world.week >= windowWeek(world)) return { open: true };
+    return { open: false, reason: `Talks open halfway through his final season (week ${windowWeek(world)}).` };
   }
-  return { open: false, reason: `His deal runs to the end of season ${until}: you can talk a season before it ends.` };
+  return { open: false, reason: `His deal runs to the end of season ${until}: talks open in his final season.` };
 }
 
 // ---------------------------------------------------------------- leverage
@@ -198,10 +197,9 @@ export function tenure(world: World, wp: WorldPlayer): number {
 /** The longest deal he'll sign: four seasons for a long-time client, otherwise three. */
 export const maxYears = (world: World, wp: WorldPlayer): number => (tenure(world, wp) >= CAREER_SEASONS ? 4 : 3);
 
-/** Loyalty in an extension's score: a season early (+4), and a ladder career deal for a long-time client (+3). */
+/** Loyalty in an extension's score: a ladder career deal for a long-time client (+3). */
 export function loyaltyScore(world: World, wp: WorldPlayer, offer: Offer): number {
   let s = 0;
-  if (wp.client && wp.client.contract.untilSeason > world.season) s += 2;
   if (tenure(world, wp) >= CAREER_SEASONS && offer.extras?.structure === "ladder") s += 3;
   return s;
 }

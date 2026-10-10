@@ -145,6 +145,14 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
                   return <div key={key}><dt>{ATTRIBUTE_LABELS[key]}</dt><dd>{v.low === v.high ? v.value : `${v.low}-${v.high}`}</dd></div>;
                 })}
             </dl>
+            {wp.career.proEntry && (
+              <div>
+                <div className="pp-label">Turned pro</div>
+                <p className="small" style={{ margin: 0 }}>
+                  Season {wp.career.proEntry.season}: {wp.career.proEntry.place ? `place #${wp.career.proEntry.place} on the amateur standing` : "not on the amateur standing"} · {wp.career.proEntry.stars}★ when he turned pro
+                </p>
+              </div>
+            )}
             {traits.length > 0 && (
               <div>
                 <div className="pp-label">Traits</div>

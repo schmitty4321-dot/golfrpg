@@ -15,9 +15,13 @@ export function SchoolMark({ world, player, size = 30 }: { world: World; player:
   if (school.kind === "college") {
     return <img className="school-mark" src={schoolLogoPath(school.name)} width={size} height={size} alt={label} title={label} loading="lazy" />;
   }
+  // An international player with no US school: the world globe.
+  if (school.kind === "national") {
+    return <img className="school-mark" src="/school-logos/international.png" width={size} height={size} alt={label} title={label} loading="lazy" />;
+  }
   return (
     <span className="school-mark school-mark-generic" style={{ width: size, height: size }} aria-label={label} title={label}>
-      {school.kind === "high" ? "HS" : "◎"}
+      HS
     </span>
   );
 }

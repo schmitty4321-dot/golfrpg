@@ -3,6 +3,7 @@ import { clamp, createRng, generatePlayer, nationFromRoll, type AttributeKey, ty
 import { overall } from "./development";
 import { mixSeed } from "./entries";
 import type { World, WorldPlayer } from "./types";
+import { recordProEntry } from "./proEntry";
 
 /**
  * What each country's golf culture gives its amateurs. Where they come from
@@ -79,6 +80,7 @@ export function amateurRanking(world: World): string[] {
 export function turnPro(world: World, id: string): void {
   const wp = world.players[id];
   if (!wp || wp.career.status !== "amateur") return;
+  recordProEntry(world, wp);
   wp.career.status = "none";
   world.news.unshift(`${wp.player.name} turns professional${wp.client ? ` with ${world.agency.name}` : ""}.`);
 }

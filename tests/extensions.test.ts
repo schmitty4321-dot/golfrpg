@@ -30,7 +30,7 @@ const world = (): { w: World; id: string } => {
 };
 
 describe("contract extensions", () => {
-  it("talks open halfway through his final season, or a season early", () => {
+  it("talks open only halfway through his final season, never a season early", () => {
     const { w, id } = world();
     const c = w.players[id]!.client!;
     c.contract.untilSeason = w.season;
@@ -39,9 +39,9 @@ describe("contract extensions", () => {
     expect(closed.open).toBe(false);
     expect(startNegotiation(w, id, "extend")).toMatch(/halfway/);
     w.week = windowWeek(w);
-    expect(extensionWindow(w, id)).toEqual({ open: true, early: false });
+    expect(extensionWindow(w, id)).toEqual({ open: true });
     c.contract.untilSeason = w.season + 1;
-    expect(extensionWindow(w, id)).toEqual({ open: true, early: true });
+    expect(extensionWindow(w, id).open).toBe(false);
     c.contract.untilSeason = w.season + 2;
     expect(extensionWindow(w, id).open).toBe(false);
   });
@@ -90,7 +90,8 @@ describe("contract extensions", () => {
 
   it("staff cards: a boost lifts the next offer, an extra round adds to the talks", () => {
     const { w, id } = world();
-    w.players[id]!.client!.contract.untilSeason = w.season + 1;
+    w.players[id]!.client!.contract.untilSeason = w.season;
+    w.week = windowWeek(w);
     expect(startNegotiation(w, id, "extend")).toBeNull();
     const n = w.talks![id]!;
     const t = { commission: 0.12, years: 2, promises: [] };

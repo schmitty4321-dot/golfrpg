@@ -56,7 +56,7 @@ import {
 import type { Game } from "../useGame";
 import { GROUP_LABELS } from "./StatBoxes";
 import { PlayerName, useOpenPlayer } from "./PlayerLink";
-import { Portrait } from "./Portrait";
+import { CutoutPortrait, Portrait } from "./Portrait";
 import { Stars } from "./Stars";
 import { MoveArrow, SeasonLine, seasonShort } from "./AmateurBoards";
 import { TraitChips } from "./Traits";
@@ -193,7 +193,7 @@ export function RecruitingDesk({ world, game, watchList = false }: { world: Worl
               const wp = world.players[id]!;
               return (
                 <article key={id}>
-                  <Portrait player={wp.player} size={116} title={wp.player.name} />
+                  <CutoutPortrait player={wp.player} height={150} title={wp.player.name} />
                   <span><b>{wp.player.name}</b><em>{tab === "pro" ? `World #${ranks.get(id) ?? "–"}` : <><SchoolMark world={world} player={wp} size={18} /> {stars(world, id)}★</>}</em></span>
                 </article>
               );

@@ -1,13 +1,17 @@
 import {
+  classYear,
   recruitMark,
   recruitingWindow,
   schoolLabel,
+  schoolOf,
   stars,
   standingMove,
   standingOrder,
   toggleShortlist,
   type World,
 } from "../../season";
+import { PlayerName } from "./PlayerLink";
+import { SchoolMark } from "./SchoolMark";
 import { Stars } from "./Stars";
 import type { Game } from "../useGame";
 
@@ -59,8 +63,9 @@ export function AmateurResults({ world }: { world: World; game: Game }) {
     return (
       <tr key={id}>
         <td className="num">{place}</td>
-        <td>{wp.player.name}{board.has(id) && <span className="sponsor-tag">On board</span>}</td>
-        <td className="small">{schoolLabel(world, wp)}</td>
+        <td><PlayerName id={id}>{wp.player.name}</PlayerName>{board.has(id) && <span className="sponsor-tag">On board</span>}</td>
+        <td><SchoolMark world={world} player={wp} size={28} /></td>
+        <td className="small">{schoolOf(world, wp)?.kind === "college" ? classYear(wp.player.age) : "—"}</td>
         <td><Stars value={stars(world, id)} /></td>
         <td><MoveArrow move={standingMove(world, id)} /></td>
       </tr>
@@ -76,7 +81,7 @@ export function AmateurResults({ world }: { world: World; game: Game }) {
       </div>
       <div className="table-wrap">
         <table>
-          <thead><tr><th className="num">Place</th><th>Amateur</th><th>School</th><th>Stars</th><th>Standing</th></tr></thead>
+          <thead><tr><th className="num">Place</th><th>Amateur</th><th>School</th><th>Year</th><th>Rating</th><th>Standing</th></tr></thead>
           <tbody>{top}{below}</tbody>
         </table>
       </div>

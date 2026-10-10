@@ -14,6 +14,7 @@ import { addReputation, clients, marketRate, rosterCount, rosterLimit, signClien
 import { PRO_AGE, amateurRanking } from "./amateurs";
 import { isDiscovered } from "./discovery";
 import { mixSeed } from "./entries";
+import { standingOrder } from "./amateurResults";
 import { stafferQuality } from "./market";
 import { rankMap } from "./points";
 import { schoolOf } from "./schools";
@@ -107,13 +108,13 @@ export function proProspects(world: World, n = 60): string[] {
 
 export const isPro = (world: World, id: string): boolean => world.players[id]?.career.status !== "amateur";
 
-/** Stars: an amateur by the amateur ranking, a pro by the world ranking. */
+/** Stars: an amateur by his place on the amateur standing (it moves each week with his results), a pro by the world ranking. */
 export function stars(world: World, id: string): number {
   if (isPro(world, id)) {
     const r = rankMap(world).get(id) ?? 999;
     return r <= 10 ? 5 : r <= 30 ? 4 : r <= 75 ? 3 : r <= 150 ? 2 : 1;
   }
-  const i = amateurRanking(world).indexOf(id);
+  const i = standingOrder(world).indexOf(id);
   if (i < 0) return 1;
   return i < 5 ? 5 : i < 20 ? 4 : i < 45 ? 3 : i < 70 ? 2 : 1;
 }

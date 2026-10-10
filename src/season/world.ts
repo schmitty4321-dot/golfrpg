@@ -37,6 +37,7 @@ import { addDecision } from "./inbox";
 import { STANDARD_COMMISSION, addReputation, agencySeasonEnd, clients, assignRivalAgents, emptyFinances, newAgency, newManagement } from "./agency";
 import { generateScouts } from "./scouting";
 import { AMATEUR_CLASS_SIZE, PRO_AGE, amateurPotential, amateurRanking, generateAmateur } from "./amateurs";
+import { recordProEntry } from "./proEntry";
 import { closeSeasonRecord, considerForHallOfFame, newHistory } from "./history";
 import { databasePlayer, type DatabasePlayer } from "./editor";
 import { expireSponsors } from "./sponsors";
@@ -559,6 +560,7 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
       const committed = signingDay(world, wp);
       if (committed) world.news.unshift(committed);
       newPros.push(id);
+      recordProEntry(world, wp);
       wp.career.status = "none";
       if (i < 10) world.news.unshift(`Top amateur ${wp.player.name} turns professional.`);
     }
