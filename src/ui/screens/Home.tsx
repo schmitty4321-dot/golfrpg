@@ -44,7 +44,7 @@ import { GoalsPanel } from "../components/Goals";
 import { loadTempo, saveTempo, type Game, type WeekTempo } from "../useGame";
 import { RoundPlanPicker, TEMPO_LABELS } from "../components/WeekTempo";
 import { TournamentEmblem } from "../components/TournamentLogo";
-import { Portrait } from "../components/Portrait";
+import { CutoutPortrait } from "../components/Portrait";
 
 const ACCESS_TONE: Record<EntryOption["access"], string> = {
   invited: "var(--good)",
@@ -171,7 +171,7 @@ function WeekCommandCenter({ world, game, go, week }: { world: World; game: Game
   const temperature = 68 + ((world.week * 7 + main.courseId.length) % 13);
   const weather = course.windiness > .62 ? `${temperature}°  Breezy` : course.firmness < .42 ? `${temperature}°  Overcast` : `${temperature}°  Sunny`;
   const decisions = [
-    { key: "amateurs", icon: "◉", title: "Recruit amateurs", copy: "Find and evaluate the next generation of talent.", status: `${amateurs} on your board`, action: "Search amateurs", run: () => go("amateurResults") },
+    { key: "amateurs", icon: "◉", title: "Recruit amateurs", copy: "Find and evaluate the next generation of talent.", status: `${amateurs} on your board`, action: "Search amateurs", run: () => go("recruiting") },
     { key: "pros", icon: "♟", title: "Recruit pros", copy: "Identify professionals who may be open to representation.", status: `${pros} approachable`, action: "View prospects", run: () => go("scouting") },
     { key: "sponsor", icon: "◆", title: "Sponsor deal expiring", copy: "Review offers before the commercial window closes.", status: offers ? `${offers} offer${offers === 1 ? "" : "s"} waiting` : "No offers waiting", action: "Review deals", run: () => go("agency"), urgent: offers > 0 },
     { key: "extension", icon: "▤", title: "Extension talks", copy: "Discuss contract extensions with eligible clients.", status: `${expiring} contract${expiring === 1 ? "" : "s"} end this season`, action: "Open talks", run: () => go("agency") },
@@ -185,7 +185,7 @@ function WeekCommandCenter({ world, game, go, week }: { world: World; game: Game
       <div className="week-event-shade" />
       <div className="week-event-copy"><span>Week {world.week} of {weeks} · {TIER_LABELS[main.tier]}</span><h1>{main.name}</h1><p>{course.name}{course.info ? ` · ${course.info.city}` : ""}</p></div>
       <div className="week-event-facts"><MastheadFact kind="purse" label="Purse" value={money(main.purse)} /><MastheadFact kind="weather" label="Weather" value={weather} /><MastheadFact kind="course" label="Course" value={course.name} note={`Par ${coursePar(course)} · ${courseYards(course).toLocaleString("en-US")} yds`} /></div>
-      <div className="week-featured-field"><small>Top players in the field</small><div>{featured.map((wp) => <article key={wp.player.id}><Portrait player={wp.player} size={132} title={wp.player.name} /><b>#{ranks.get(wp.player.id) ?? "—"}</b><span>{wp.player.name}</span></article>)}</div></div>
+      <div className="week-featured-field"><small>Top players in the field</small><div>{featured.map((wp) => <article key={wp.player.id}><CutoutPortrait player={wp.player} height={190} title={wp.player.name} /><b>#{ranks.get(wp.player.id) ?? "—"}</b><span>{wp.player.name}</span></article>)}</div></div>
       <div className="week-event-actions"><div className="week-ready"><strong>{clear} of 7</strong><span>ready</span></div><button className="btn btn-primary" onClick={playWeek}>Play week {world.week} <span aria-hidden>›</span></button></div>
     </div>
     <div className="week-decisions-heading"><div><span>WEEKLY COMMAND CENTER</span><h2>Seven decisions before Thursday</h2><p>Clear the board, then play the week.</p></div></div>

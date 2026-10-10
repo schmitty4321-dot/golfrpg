@@ -8,6 +8,7 @@ import { newDevelopment } from "./development";
 import { generateScouts } from "./scouting";
 import { coachFee, generateCoaches } from "./staff";
 import { generateManagers } from "./managers";
+import { assignPortraits } from "../engine/portraits";
 import { AMATEUR_CLASS_SIZE, generateAmateur } from "./amateurs";
 import { buildDevTour } from "./calendar";
 import { newHistory } from "./history";
@@ -53,6 +54,8 @@ export function deserializeWorld(json: string): World {
   // Coaches are priced by the current fee curve (it changed in the 2026 finance model).
   // (A former client coaching for you keeps his friend's rate.)
   for (const c of world.coaches) c.weeklyFee = Math.round(coachFee(c.quality) * (c.formerClient ? LOYALTY_DISCOUNT : 1));
+  // Saves from before portrait numbers: each player keeps the face he's shown today.
+  assignPortraits(Object.values(world.players));
   return world;
 }
 

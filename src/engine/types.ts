@@ -9,6 +9,8 @@ export interface Player {
   name: string;
   nationality: string;
   age: number;
+  /** The player's portrait number (public/people), given once and kept for his career (see portraits.ts). */
+  portraitIndex?: number;
   attributes: Attributes;
   /** Hidden: the grass the player grew up putting on. */
   grassPreference: Grass;
