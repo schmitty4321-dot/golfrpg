@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { nationInfo } from "../../engine";
 import {
   ACTIONS,
@@ -141,6 +141,15 @@ function RecruitBadge({ state, pro }: { state: RecruitMark; pro: boolean }) {
 /** The recruiting desk: this week's hours, how prospects see the agency, the prospects, and last season's class. */
 export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
   const [open, setOpen] = useState<string | null>(null);
+  // The prospect card is a pop-up: Escape closes it.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
   const [note, setNote] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
   const [tab, setTab] = useState<"amateur" | "pro">("amateur");
@@ -246,7 +255,14 @@ export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
       </div>
       {tab === "amateur" && <p className="school-logo-credit small muted">College team marks via <a href="https://www.espn.com/college-sports/" target="_blank" rel="noreferrer">ESPN</a>; Augusta mark via <a href="https://commons.wikimedia.org/wiki/File:Augusta_Jaguars_logo.svg" target="_blank" rel="noreferrer">Wikimedia Commons</a>.</p>}
       {!showAll && pool.length > 30 && <button className="btn btn-small" style={{ marginTop: 8 }} onClick={() => setShowAll(true)}>Show all {pool.length}</button>}
-      {open && world.players[open] && <ProspectCard world={world} game={game} id={open} />}
+      {open && world.players[open] && (
+        <div className="prospect-modal-backdrop" onClick={() => setOpen(null)}>
+          <div className="prospect-modal" role="dialog" aria-modal="true" aria-label="Prospect card" onClick={(e) => e.stopPropagation()}>
+            <div className="prospect-modal-bar"><button className="btn btn-small" onClick={() => setOpen(null)}>Close</button></div>
+            <ProspectCard world={world} game={game} id={open} />
+          </div>
+        </div>
+      )}
       {ranking && (
         <div style={{ marginTop: 14 }}>
           <span className="recruit-label">Season {ranking.season} recruiting classes</span>
