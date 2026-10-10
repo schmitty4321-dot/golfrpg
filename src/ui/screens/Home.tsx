@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { coursePar, courseYards, familiarityLabel } from "../../engine";
 import { ChallengeBanner } from "../components/Challenge";
 import { ShotOfTheWeek } from "../components/Highlights";
@@ -126,14 +126,15 @@ const VENUE_BANNERS: Record<string, string> = {
 };
 
 const DECISION_ART = {
-  amateurs: "/art/scouting/north-america.png",
-  pros: "/art/finance/contracts-credit.png",
-  sponsor: "/art/sponsors/watch.webp",
-  extension: "/art/finance/contracts-credit.png",
-  plans: "/art/scenes/balanced.webp",
-  condition: "/art/scenes/fitness.webp",
-  staff: "/art/facilities/hq-2.webp",
+  amateurs: ["recruit-amateurs-a.png", "recruit-amateurs-b.png", "recruit-amateurs-c.png"],
+  pros: ["recruit-pros-a.png", "recruit-pros-b.png", "recruit-pros-c.png"],
+  sponsor: ["sponsor-expiring-a.png", "sponsor-expiring-b.png", "sponsor-expiring-c.png"],
+  extension: ["extension-talks-a.png", "extension-talks-b.png", "extension-talks-c.png"],
+  plans: ["round-plans-a.png", "round-plans-b.png", "round-plans-c.png"],
+  condition: ["player-condition-a.png", "player-condition-b.png", "player-condition-c.png"],
+  staff: ["open-staff-a.png", "open-staff-b.png", "open-staff-c.png"],
 } as const;
+const decisionArtUrl = (file: string) => `/art/week-decisions/options/${file}`;
 
 function MastheadFact({ kind, label, value, note }: { kind: "purse" | "weather" | "course"; label: string; value: string; note?: string }) {
   const icon = kind === "purse"
@@ -146,6 +147,11 @@ function MastheadFact({ kind, label, value, note }: { kind: "purse" | "weather" 
 
 /** The week's event, strongest entrants and seven decisions that must be cleared. */
 function WeekCommandCenter({ world, game, go, week }: { world: World; game: Game; go: Go; week: WeekChoices }) {
+  const [artFrame, setArtFrame] = useState(0);
+  useEffect(() => {
+    const timer = window.setInterval(() => setArtFrame((frame) => (frame + 1) % 3), 7000);
+    return () => window.clearInterval(timer);
+  }, []);
   const weeks = seasonWeeks(world);
   if (world.week > weeks) {
     return <section className="hero week-command-season-over"><div className="hero-body"><div className="hero-kicker">{world.agency.name} · Season {world.season}</div><h1 className="hero-title">The season is over</h1><div className="hero-meta">Close it to hand out cards, settle contracts and see how your agency did.</div></div><button className="btn btn-primary hero-play" onClick={() => void game.closeSeason()}>Close the season <span aria-hidden>▸</span></button></section>;
@@ -186,7 +192,11 @@ function WeekCommandCenter({ world, game, go, week }: { world: World; game: Game
       <div className="week-event-actions"><div className="week-ready"><strong>{clear} of 7</strong><span>ready</span></div><button className="btn btn-primary" onClick={playWeek}>Play week {world.week} <span aria-hidden>›</span></button></div>
     </div>
     <div className="week-decisions-heading"><div><span>WEEKLY COMMAND CENTER</span><h2>Seven decisions before Thursday</h2><p>Clear the board, then play the week.</p></div></div>
-    <div className="week-decision-grid">{decisions.map((d) => <article className={`week-decision-card ${"urgent" in d && d.urgent ? "urgent" : ""}`} key={d.key}><img src={DECISION_ART[d.key]} alt="" /><div className="week-decision-copy"><span className="week-decision-icon">{d.icon}</span><h3>{d.title}</h3><p>{d.copy}</p><strong>{d.status}</strong><button className="btn btn-primary" onClick={d.run}>{d.action} <span aria-hidden>›</span></button></div></article>)}</div>
+    <div className="week-decision-grid">{decisions.map((d, index) => {
+      const images = DECISION_ART[d.key];
+      const image = images[(artFrame + index) % images.length]!;
+      return <article className={`week-decision-card ${"urgent" in d && d.urgent ? "urgent" : ""}`} key={d.key}><img key={image} className="week-decision-rotating-art" src={decisionArtUrl(image)} alt="" /><div className="week-decision-copy"><span className="week-decision-icon">{d.icon}</span><h3>{d.title}</h3><p>{d.copy}</p><strong>{d.status}</strong><button className="btn btn-primary" onClick={d.run}>{d.action} <span aria-hidden>›</span></button></div></article>;
+    })}</div>
     <div className="week-complete-strip"><strong>Completed this week — {clear}</strong><span>✓ Decisions already clear stay out of your way.</span></div>
   </section>;
 }
