@@ -60,10 +60,41 @@ export interface HoleCall {
   energy?: "dig" | "conserve";
 }
 
-/** What the real course map says about a hole: fairway bunkers at driving distance, and how sharply the line of play bends (degrees). */
-export function holeFindings(course: Course, hole: Hole): { bunkersAtDrive: number; dogleg: number } {
+/**
+ * Holes whose picture shows no bend, checked by eye against the illustration. The course map's
+ * line can read a bend that isn't there (TPC Scottsdale 10 reads 48°), so these never ask about a dogleg.
+ */
+const STRAIGHT_HOLES = new Set(["tpc-scottsdale:6", "tpc-scottsdale:10", "tpc-scottsdale:14", "waialae:8", "waialae:13", "waialae:14", "waialae:15", "waialae:16", "waialae:18", "torrey-pines-south:6", "pebble-beach:1"]);
+
+/**
+ * Holes with water beside the line of play but none short of the green, checked by eye. These never
+ * ask about water short of the green.
+ */
+const WATER_ALONGSIDE = new Set(["tpc-scottsdale:11", "waialae:2"]);
+
+/**
+ * What the real course map says about a hole. `known` is false for a hole without a map, and then the
+ * map-based questions keep their stat-based rules. `water` and `guardedGreen` gate the carry and
+ * guarded-green questions: a hole with no water short of the green, or no bunker beside it, doesn't ask.
+ */
+export interface HoleFindings {
+  /** Fairway bunkers at his driving distance. */
+  bunkersAtDrive: number;
+  /** How sharply the line of play bends, in degrees. */
+  dogleg: number;
+  known: boolean;
+  water: boolean;
+  guardedGreen: boolean;
+}
+
+export function holeFindings(course: Course, hole: Hole): HoleFindings {
   const real = realHoleOf(course.id, hole.number);
-  if (!real || hole.par === 3) return { bunkersAtDrive: 0, dogleg: 0 };
+  if (!real) return { bunkersAtDrive: 0, dogleg: 0, known: false, water: false, guardedGreen: false };
+  const [gx = 0, gy = 0, gr = 0] = real.green;
+  // A bunker whose edge is within 30 yards of the green's edge guards it.
+  const guardedGreen = real.bunkers.some(([x = 0, y = 0, r = 0]) => Math.hypot(x - gx, y - gy) - r - gr <= 30);
+  const water = real.water.length > 0 && !WATER_ALONGSIDE.has(`${course.id}:${hole.number}`);
+  if (hole.par === 3) return { bunkersAtDrive: 0, dogleg: 0, known: true, water, guardedGreen };
   // A bunker that reaches within 25 yards of the line, 245-325 yards out.
   const bunkersAtDrive = real.bunkers.filter((b) => {
     const [x = 0, y = 0, r = 0] = b;
@@ -78,7 +109,8 @@ export function holeFindings(course: Course, hole: Hole): { bunkersAtDrive: numb
     const b = Math.atan2(p2[0] - p1[0], p2[1] - p1[1]);
     dogleg = Math.abs((((b - a) * 180) / Math.PI + 540) % 360 - 180);
   }
-  return { bunkersAtDrive, dogleg };
+  if (STRAIGHT_HOLES.has(`${course.id}:${hole.number}`)) dogleg = 0;
+  return { bunkersAtDrive, dogleg, known: true, water, guardedGreen };
 }
 
 /** The course's hardest and easiest holes against par, from the real tour's scoring (when most holes have it). */
@@ -135,6 +167,7 @@ export const reachInTwo = (p: Player): number => 300 + (p.attributes.drivingDist
 export function decisionsFor(hole: Hole, course: Course, player: Player, s: HoleSituation): Decision[] {
   const out: Decision[] = [];
   const fw = hole.fairwayWidth || 30;
+  const found = holeFindings(course, hole);
   if (hole.par > 3 && (hole.hazard >= 0.25 || fw <= 27 || (hole.par === 4 && hole.yards <= 360))) {
     out.push({
       kind: "tee",
@@ -156,7 +189,8 @@ export function decisionsFor(hole: Hole, course: Course, player: Player, s: Hole
       ],
     });
   }
-  if ((hole.hazard >= 0.3 && hole.hazard < 0.45) || hole.bunkers >= 3 || (hole.par === 3 && hole.hazard >= 0.2 && hole.hazard < 0.45)) {
+  // A guarded green needs a bunker beside it on the map, where there is one.
+  if (((hole.hazard >= 0.3 && hole.hazard < 0.45) || hole.bunkers >= 3 || (hole.par === 3 && hole.hazard >= 0.2 && hole.hazard < 0.45)) && (!found.known || found.guardedGreen)) {
     out.push({
       kind: "approach",
       question: "A guarded green: where does he aim?",
@@ -166,7 +200,8 @@ export function decisionsFor(hole: Hole, course: Course, player: Player, s: Hole
       ],
     });
   }
-  if (hole.hazard >= 0.45) {
+  // Water short of the green needs water on the map, where there is a map.
+  if (hole.hazard >= 0.45 && (!found.known || found.water)) {
     out.push({
       kind: "carry",
       question: "Water short of the green: does he take it on?",
@@ -271,7 +306,6 @@ export function decisionsFor(hole: Hole, course: Course, player: Player, s: Hole
     });
   }
   // What the course map and the tour's numbers say about this hole.
-  const found = holeFindings(course, hole);
   if (found.bunkersAtDrive >= 1) {
     out.push({
       kind: "bunkerCarry",
