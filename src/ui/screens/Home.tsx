@@ -123,6 +123,9 @@ const VENUE_BANNERS: Record<string, string> = {
   "torrey-pines-south": "/art/week-venues/torrey-pines-south.png",
   "tpc-scottsdale": "/art/week-venues/tpc-scottsdale.png",
   "pebble-beach": "/art/week-venues/pebble-beach.png",
+  "bay-hill": "/art/week-venues/bay-hill.webp",
+  "pga-national-champion": "/art/week-venues/pga-national-champion.webp",
+  riviera: "/art/week-venues/riviera.webp",
 };
 
 const DECISION_ART = {
