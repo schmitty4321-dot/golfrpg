@@ -60,6 +60,7 @@ import { Portrait } from "./Portrait";
 import { Stars } from "./Stars";
 import { MoveArrow, SeasonLine, seasonShort } from "./AmateurBoards";
 import { TraitChips } from "./Traits";
+import { SchoolMark } from "./SchoolMark";
 
 const readWords = (r: number) => (r <= 0 ? "Not scouted" : r < READ_TIERS.skills ? "A glimpse" : r < READ_TIERS.ceiling ? "Rough read" : r < READ_TIERS.details ? "Good read" : "Detailed read");
 const range = (x: { low: number; high: number }) => (x.low === x.high ? `${x.low}` : `${x.low}–${x.high}`);
@@ -153,13 +154,47 @@ export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
   const ranks = rankMap(world);
   const ranking = recruitingOf(world).lastRanking;
   const showcase = showcaseBlock(world);
+  const featured = pool.slice(0, 4);
   return (
-    <section className="panel">
-      <div className="panel-head">
+    <section className="panel recruiting-desk-panel">
+      <header className="recruiting-masthead">
+        <img src="/art/week-decisions/options/recruit-amateurs-b.png" alt="A golfer being evaluated on the practice range" />
+        <div className="recruiting-masthead-shade" />
+        <div className="recruiting-masthead-copy">
+          <span>RECRUITING COMMAND CENTER</span>
+          <h1>Build the next generation</h1>
+          <p>Scout the field, earn trust and make your agency the first call.</p>
+          <strong>{recruitingCountdown(world)}</strong>
+          <div className="recruiting-timeline" aria-label="Recruiting season timeline">
+            <i className="done" />
+            <i className={world.week >= RECRUITING_OPENS ? "done" : ""} />
+            <i className={world.week >= 32 ? "done" : ""} />
+            <div><b>Week {world.week}</b><span>Today</span></div>
+            <div><b>Week {RECRUITING_OPENS}</b><span>Recruiting opens</span></div>
+            <div><b>Week 32</b><span>Final pitches</span></div>
+          </div>
+        </div>
+        <div className="recruiting-featured">
+          <small>{tab === "pro" ? "PROS TO WATCH" : "TOP AMATEUR TARGETS"}</small>
+          <div>
+            {featured.map((id) => {
+              const wp = world.players[id]!;
+              return (
+                <article key={id}>
+                  <Portrait player={wp.player} size={116} title={wp.player.name} />
+                  <span><b>{wp.player.name}</b><em>{tab === "pro" ? `World #${ranks.get(id) ?? "–"}` : <><SchoolMark world={world} player={wp} size={18} /> {stars(world, id)}★</>}</em></span>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+        <div className="recruiting-hours-badge">
+          {total ? <><strong>{left}</strong><span>of {total} hours<br />left this week</span></> : <><strong>W{RECRUITING_OPENS}</strong><span>desk opens</span></>}
+        </div>
+      </header>
+      <div className="recruiting-intro">
         <div><h2>Recruiting desk</h2><span className="muted small">One budget of hours for amateurs and pros: scout them and build their interest. Amateurs choose on signing day; pros weigh it when you make an offer.</span></div>
-        <div className="recruit-hours">{total ? <><strong>{left}</strong><span>of {total} hours left this week</span></> : <span>{hoursShutNote(world)}</span>}</div>
       </div>
-      <p className="small" style={{ margin: "0 0 8px" }}><strong>{recruitingCountdown(world)}</strong></p>
       <RecruitSummary world={world} />
       <div className="meter" style={{ marginBottom: 12 }}><span style={{ width: `${total ? Math.round((left / total) * 100) : 0}%` }} /></div>
       <div className="recruit-grades">
@@ -183,7 +218,7 @@ export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
       </div>
       <div className="table-wrap">
         <table>
-          <thead><tr><th>Stars</th><th className="num">#</th><th>{tab === "pro" ? "Player" : "Prospect"}</th><th className="num">Age</th><th>{tab === "pro" ? "World · contract" : "School"}</th><th>Your read</th><th>Season</th><th>Interest</th><th>Most interested rival</th><th>His list</th><th /></tr></thead>
+          <thead><tr><th>Rating</th><th className="num">#</th><th>{tab === "pro" ? "Player" : "Prospect"}</th><th className="num">Age</th><th>{tab === "pro" ? "World · contract" : "School"}</th><th>Your read</th><th>Season</th><th>Interest</th><th>Most interested rival</th><th>His list</th><th /></tr></thead>
           <tbody>
             {list.map((id) => {
               const wp = world.players[id]!;
@@ -196,7 +231,7 @@ export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
                   <td className="num">{tab === "pro" ? "–" : <>{(rankOf.get(id) ?? 0) + 1} <MoveArrow move={standingMove(world, id)} /></>}</td>
                   <td><RecruitBadge state={recruitMark(world, id)} pro={tab === "pro"} /><PlayerName id={id}>{wp.player.name}</PlayerName>{wp.academy ? <span className="sponsor-tag">Academy</span> : null}{firstCall(world, id) ? <span className="sponsor-tag" title="His deal is up and he's keen on you: he'll hear you out before the other agencies bid">First call</span> : null}</td>
                   <td className="num">{wp.player.age}</td>
-                  <td className="small">{tab === "pro" ? <>#{ranks.get(id)} · {wp.agent && wp.agent.untilSeason > world.season ? `${wp.agent.agency} to S${wp.agent.untilSeason}` : wp.agent ? `${wp.agent.agency}, final season` : "Free agent"}</> : schoolLabel(world, wp)}</td>
+                  <td className="small">{tab === "pro" ? <>#{ranks.get(id)} · {wp.agent && wp.agent.untilSeason > world.season ? `${wp.agent.agency} to S${wp.agent.untilSeason}` : wp.agent ? `${wp.agent.agency}, final season` : "Free agent"}</> : <SchoolMark world={world} player={wp} />}</td>
                   <td className="small">{readWords(readOf(world, id))}</td>
                   <td className="small">{tab === "pro" ? "–" : seasonShort(world, id)}</td>
                   <td><InterestSegments value={interest} /></td>
@@ -209,6 +244,7 @@ export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
           </tbody>
         </table>
       </div>
+      {tab === "amateur" && <p className="school-logo-credit small muted">College team marks via <a href="https://www.espn.com/college-sports/" target="_blank" rel="noreferrer">ESPN</a>; Augusta mark via <a href="https://commons.wikimedia.org/wiki/File:Augusta_Jaguars_logo.svg" target="_blank" rel="noreferrer">Wikimedia Commons</a>.</p>}
       {!showAll && pool.length > 30 && <button className="btn btn-small" style={{ marginTop: 8 }} onClick={() => setShowAll(true)}>Show all {pool.length}</button>}
       {open && world.players[open] && <ProspectCard world={world} game={game} id={open} />}
       {ranking && (
