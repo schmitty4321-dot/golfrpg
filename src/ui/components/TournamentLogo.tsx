@@ -382,7 +382,7 @@ function Scene({ motif, color, id }: { motif: Motif; color: string; id: string }
           <path d="M54 28 L60 36 L56 35 L52 38 L48 35 Z M22 36 L27 42 L20 42 Z" fill="#f4f6f8" />
           <path d="M0 72 L20 60 L40 70 L62 58 L100 70 V100 H0 Z" fill="#3f6b88" />
           {fairway(80)}
-          {[14, 22, 84].map((x, i) => pine(x, 82, 18 + (i % 2) * 4))}
+          {[14, 22, 84].map((x, i) => <g key={x}>{pine(x, 82, 18 + (i % 2) * 4)}</g>)}
           {flag(56, 84, 14)}
         </>
       );
@@ -392,7 +392,7 @@ function Scene({ motif, color, id }: { motif: Motif; color: string; id: string }
           {sky("#bfdcef", "#eef6fb", g)}
           <path d={MAPLE} transform="translate(22 6) scale(1.9)" fill="#c8102e" />
           <path d="M0 68 H100 V100 H0 Z" fill="#3c86b8" />
-          {[10, 18, 26, 74, 82, 90].map((x, i) => pine(x, 70, 16 + (i % 3) * 4, "#1f4f36"))}
+          {[10, 18, 26, 74, 82, 90].map((x, i) => <g key={x}>{pine(x, 70, 16 + (i % 3) * 4, "#1f4f36")}</g>)}
           <path d="M20 80 Q30 77 40 80 M58 86 Q68 83 78 86" stroke="#e8f6fb" strokeWidth="1.3" fill="none" strokeLinecap="round" />
         </>
       );
@@ -401,7 +401,7 @@ function Scene({ motif, color, id }: { motif: Motif; color: string; id: string }
         <>
           {sky("#b6daee", "#ecf6fb", g)}
           <path d="M0 58 H100 V100 H0 Z" fill="#3c86b8" />
-          {[8, 16, 24, 32].map((x, i) => pine(x, 60, 18 + (i % 2) * 5, "#1f4f36"))}
+          {[8, 16, 24, 32].map((x, i) => <g key={x}>{pine(x, 60, 18 + (i % 2) * 5, "#1f4f36")}</g>)}
           <path d="M40 78 Q60 70 100 74 V100 H30 Z" fill="#6fbf5c" />
           {flag(70, 80, 20)}
           {ball(56, 82, 3)}

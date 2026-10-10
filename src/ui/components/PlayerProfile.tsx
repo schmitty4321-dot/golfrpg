@@ -139,7 +139,9 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
               {hidden && <div><dt>Home greens</dt><dd>{wp.player.grassPreference}</dd></div>}
               {hidden &&
                 (["windTolerance", "professionalism", "coachability", "ambition"] as AttributeKey[]).map((key) => {
-                  const v = scoutedAttribute(world, id, key)!;
+                  // Hidden until a scout's trip has revealed it.
+                  const v = scoutedAttribute(world, id, key);
+                  if (!v) return null;
                   return <div key={key}><dt>{ATTRIBUTE_LABELS[key]}</dt><dd>{v.low === v.high ? v.value : `${v.low}-${v.high}`}</dd></div>;
                 })}
             </dl>

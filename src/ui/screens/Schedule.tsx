@@ -1,6 +1,6 @@
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import { eventsInWeek, finaleWeek, isRyderCupSeason, lastRegularWeek, ryderCupWeek, seasonWeeks, yearOf, type TourEvent, type World } from "../../season";
-import { TIER_LABELS, millions, toPar } from "../format";
+import { TIER_LABELS, millions, money, toPar } from "../format";
 import type { Go } from "../nav";
 import type { Game } from "../useGame";
 import { TournamentEmblem } from "../components/TournamentLogo";
@@ -42,13 +42,13 @@ export function Schedule({ world, game, go }: { world: World; game: Game; go: Go
   const finale = finaleWeek(world);
   const ryder = isRyderCupSeason(world.season) ? ryderCupWeek(world) : null;
   const all = world.schedule;
-  const winners = new Map<string, { id: string; name: string; toPar: number; mine: boolean }>();
-  const mine = new Map<string, { id: string; text: string }[]>();
+  const winners = new Map<string, { id: string; name: string; toPar: number; earnings: number; mine: boolean }>();
+  const mine = new Map<string, { id: string; name: string; label: string; toPar: number; earnings: number; points: number; madeCut: boolean }[]>();
   for (const wp of Object.values(world.players)) {
     for (const r of wp.career.results) {
       if (r.season !== world.season) continue;
-      if (r.position === 1) winners.set(r.eventId, { id: wp.player.id, name: wp.player.name, toPar: r.toPar, mine: !!wp.client });
-      if (wp.client) mine.set(r.eventId, [...(mine.get(r.eventId) ?? []), { id: wp.player.id, text: `${wp.player.name.split(" ").slice(-1)[0]} ${r.label}` }]);
+      if (r.position === 1) winners.set(r.eventId, { id: wp.player.id, name: wp.player.name, toPar: r.toPar, earnings: r.earnings, mine: !!wp.client });
+      if (wp.client) mine.set(r.eventId, [...(mine.get(r.eventId) ?? []), { id: wp.player.id, name: wp.player.name, label: r.label, toPar: r.toPar, earnings: r.earnings, points: r.seasonPoints, madeCut: r.madeCut }]);
     }
   }
   const inSession = new Set(game.state.reports.flatMap((r) => r.results.map((x) => x.event.id)));
@@ -117,7 +117,7 @@ export function Schedule({ world, game, go }: { world: World; game: Game; go: Go
                       const win = winners.get(e.id);
                       const r = mine.get(e.id);
                       return (
-                        <div key={e.id} className={`schedule-event tier-${e.tier}`}>
+                        <div key={e.id} className={`schedule-event tier-${e.tier}${win || r ? " has-results" : ""}`}>
                           <TournamentEmblem event={e} course={course} size={34} />
                           <div className="schedule-event-main">
                             <div>
@@ -128,13 +128,20 @@ export function Schedule({ world, game, go }: { world: World; game: Game; go: Go
                             <span className="secondary small">
                               {course ? `${course.name}${course.info ? `, ${course.info.city}` : ""} · ` : ""}{millions(e.purse)} · {e.fieldSize} players{e.cutTop ? "" : ", no cut"}
                             </span>
-                            {(win || r) && (
-                              <span className="small">
-                                {win && <>Winner: <strong className={win.mine ? "good-text" : ""}><PlayerName id={win.id}>{win.name}</PlayerName></strong> ({toPar(win.toPar)})</>}
-                                {r && <span className="schedule-mine">{r.map((x, i) => <Fragment key={x.id}>{i ? " · " : ""}<PlayerName id={x.id}>{x.text}</PlayerName></Fragment>)}</span>}
-                              </span>
-                            )}
                           </div>
+                          {(win || r) && (
+                            <aside className="schedule-results" aria-label={`${e.name} results`}>
+                              {win && <p className="schedule-result-winner">Winner: <strong className={win.mine ? "good-text" : ""}><PlayerName id={win.id}>{win.name}</PlayerName></strong> ({toPar(win.toPar)}) · {money(win.earnings)}</p>}
+                              {r?.map((x) => (
+                                <div key={x.id} className="schedule-result-row">
+                                  <PlayerName id={x.id}>{x.name}</PlayerName>
+                                  <span>{x.label} · {toPar(x.toPar)}</span>
+                                  <span>{money(x.earnings)}</span>
+                                  <span>{x.points} pts</span>
+                                </div>
+                              ))}
+                            </aside>
+                          )}
                         </div>
                       );
                     })}
