@@ -1,7 +1,7 @@
 import { Fragment, useState } from "react";
 import { NegotiationTable } from "../components/Negotiation";
 import { APPAREL_LABELS, itemsOf, BRAND_ART, CAREER_SEASONS, STATUS_LABELS, WISHES, ageingNote, keepHim, letGoBlock, letHimGo, rivalBidFor, extensionWindow, knownWishes, leverage, pointsList, rankMap, rosterLimit, talkItOver, tenure, wishesOf, type World } from "../../season";
-import { Portrait } from "../components/Portrait";
+import { CutoutPortrait, Portrait } from "../components/Portrait";
 import { Nation } from "../components/Flag";
 import { PlayerName } from "../components/PlayerLink";
 import { TraitChips } from "../components/Traits";
@@ -9,6 +9,7 @@ import { traitsOf } from "../../engine";
 import { money } from "../format";
 import type { Game } from "../useGame";
 import { ArchetypeBadge } from "../components/Archetype";
+import { BrandMark } from "../components/BrandMark";
 
 const CATEGORY_LABELS = { equipment: "Equipment", apparel: "Apparel", watch: "Watch", financial: "Financial", automotive: "Automotive", beverage: "Beverage" } as const;
 
@@ -20,19 +21,43 @@ function mood(h: number): string {
   return "Unhappy";
 }
 
+const moodFace = (h: number) => h >= 75 ? "☺" : h >= 60 ? "●" : h >= 45 ? "–" : h >= 30 ? "!" : "×";
+
 export function Agency({ world, game }: { world: World; game: Game }) {
   const [extending, setExtending] = useState<string | null>(null);
   const ranks = rankMap(world);
   const pts = pointsList(world);
   const limit = rosterLimit(world.agency.reputation, world.agency.hq);
+  const clients = world.clientIds.map((id) => world.players[id]!).filter(Boolean);
+  const featured = [...clients].sort((a, b) => (ranks.get(a.player.id) ?? 999) - (ranks.get(b.player.id) ?? 999)).slice(0, 3);
+  const sponsorTotal = clients.reduce((sum, wp) => sum + wp.client!.sponsors.reduce((s, x) => s + x.annualValue, 0), 0);
+  const earningsTotal = clients.reduce((sum, wp) => sum + wp.client!.finances.prizeMoney + wp.client!.finances.endorsements, 0);
+  const cutTotal = clients.reduce((sum, wp) => sum + wp.client!.finances.commission, 0);
+  const nextRep = limit < 8 ? (limit - (world.agency.hq ?? 0) - 1) * 15 : 100;
 
   return (
-    <main>
-      <section className="panel">
-        <div className="panel-head">
-          <h2>Clients ({world.clientIds.length} of {limit})</h2>
-          <span className="muted small">Reputation {Math.round(world.agency.reputation)}: {limit < 8 ? `reach ${(limit - (world.agency.hq ?? 0) - 1) * 15} for another roster spot` : "full roster size"}</span>
+    <main className="roster-command-center">
+      <section className="roster-masthead">
+        <img className="roster-masthead-bg" src="/art/facilities/hq-3.webp" alt="Fairway Manager agency headquarters" />
+        <div className="roster-masthead-shade" />
+        <div className="roster-masthead-copy">
+          <span>ROSTER COMMAND CENTER</span>
+          <h1>Your players.<br />Your reputation.</h1>
+          <p>Manage careers, protect relationships and build long-term value.</p>
+          <strong>{world.clientIds.length} of {limit} roster spots filled</strong>
+          <div className="roster-reputation"><b>★</b><div><span>Reputation {Math.round(world.agency.reputation)}{limit < 8 ? ` — reach ${nextRep} for another roster spot` : " — full roster size"}</span><i><em style={{ width: `${limit < 8 ? Math.min(100, (world.agency.reputation / nextRep) * 100) : 100}%` }} /></i></div></div>
         </div>
+        <div className="roster-featured">
+          {featured.map((wp) => {
+            const expiring = wp.client!.contract.untilSeason <= world.season;
+            return <article key={wp.player.id} className={expiring ? "expiring" : undefined}><CutoutPortrait player={wp.player} height={225} title={wp.player.name} />{expiring && <b>FINAL SEASON</b>}<div><strong>{wp.player.name}</strong><span>{STATUS_LABELS[wp.career.status]}</span></div></article>;
+          })}
+        </div>
+        <div className="roster-capacity"><strong>{world.clientIds.length} / {limit}</strong><span>roster</span></div>
+      </section>
+
+      <section className="panel roster-panel">
+        <div className="roster-panel-heading"><h2>Clients</h2><div className="roster-summary"><div><span>♟</span><small>Roster</small><strong>{world.clientIds.length} of {limit}</strong></div><div><span>●</span><small>Combined earnings</small><strong>{money(earningsTotal)}</strong></div><div><span>◆</span><small>Sponsors</small><strong>{money(sponsorTotal)} / yr</strong></div><div><span>▥</span><small>Your cut</small><strong>{money(cutTotal)}</strong></div></div></div>
         {world.clientIds.length === 0 ? (
           <p className="empty">No clients. Use the Scouting tab to find players and make offers.</p>
         ) : (
@@ -48,20 +73,20 @@ export function Agency({ world, game }: { world: World; game: Game }) {
                   const expiring = m.contract.untilSeason <= world.season;
                   return (
                     <Fragment key={id}>
-                      <tr>
-                        <td>{wp.player.archetype && <ArchetypeBadge id={wp.player.archetype} size={18} />} <PlayerName id={id}>{wp.player.name}</PlayerName> <Nation nationality={wp.player.nationality} /> <span className="muted small">{wp.player.age}</span></td>
+                      <tr className={`roster-row ${expiring ? "roster-row-expiring" : ""}`}>
+                        <td><div className="roster-client"><Portrait player={wp.player} size={56} title={wp.player.name} /><div><strong><PlayerName id={id}>{wp.player.name}</PlayerName></strong><span><Nation nationality={wp.player.nationality} /> <span className="muted small">{wp.player.age}</span></span>{wp.player.archetype && <ArchetypeBadge id={wp.player.archetype} size={16} />}</div></div></td>
                         <td className="secondary small" style={{ whiteSpace: "normal", minWidth: 110 }}>{STATUS_LABELS[wp.career.status]}</td>
-                        <td className="num">{pts.indexOf(id) >= 0 ? `#${pts.indexOf(id) + 1}` : "—"}</td>
-                        <td className="num">#{ranks.get(id) ?? "—"}</td>
-                        <td>{mood(m.happiness)} <span className="muted small">{Math.round(m.happiness)}</span></td>
+                        <td className="num"><span className="roster-rank">{pts.indexOf(id) >= 0 ? `#${pts.indexOf(id) + 1}` : "—"}</span></td>
+                        <td className="num"><span className="roster-rank">#{ranks.get(id) ?? "—"}</span></td>
+                        <td><div className={`roster-mood mood-${mood(m.happiness).toLowerCase()}`}><b>{moodFace(m.happiness)}</b><div><span>{mood(m.happiness)} <small>{Math.round(m.happiness)}</small></span><i><em style={{ width: `${m.happiness}%` }} /></i></div></div></td>
                         <td><TraitChips ids={[...traitsOf(wp.player)]} /></td>
-                        <td className={expiring && !m.farewell ? "bad-text" : ""}>{Math.round(m.contract.commission * 100)}% · {m.farewell ? "farewell season" : expiring ? "ends this season" : `to S${m.contract.untilSeason}`}</td>
-                        <td className="num">{money(m.sponsors.reduce((s, x) => s + x.annualValue, 0))}</td>
-                        <td className="num">{money(m.finances.commission)}</td>
+                        <td className={expiring && !m.farewell ? "bad-text" : ""}><div className="roster-contract"><i><em style={{ width: `${Math.min(100, Math.max(8, ((world.season - m.contract.signedSeason + 1) / Math.max(1, m.contract.untilSeason - m.contract.signedSeason + 1)) * 100))}%` }} /></i><span>{Math.round(m.contract.commission * 100)}% · {m.farewell ? "farewell season" : expiring ? "ends this season" : `to S${m.contract.untilSeason}`}</span></div></td>
+                        <td className="num"><div className="roster-sponsors"><strong>{money(m.sponsors.reduce((s, x) => s + x.annualValue, 0))}</strong><span>{m.sponsors.slice(0, 3).map((s) => <BrandMark key={s.id} name={s.sponsor} category={s.category} />)}</span></div></td>
+                        <td className="num"><strong className="roster-cut">{money(m.finances.commission)}</strong></td>
                         <td>
                           <div className="btn-row">
-                            <button className="btn btn-small" onClick={() => setExtending(extending === id ? null : id)}>Extend</button>
-                            <button className="btn btn-small" onClick={() => confirm(`Release ${wp.player.name}? He'll leave the agency now.`) && game.act((w) => game.lib.releaseClient(w, id))}>Release</button>
+                            <button className="btn btn-primary btn-small" onClick={() => setExtending(extending === id ? null : id)}>Extend</button>
+                            <button className="roster-release" onClick={() => confirm(`Release ${wp.player.name}? He'll leave the agency now.`) && game.act((w) => game.lib.releaseClient(w, id))}>Release</button>
                           </div>
                         </td>
                       </tr>
