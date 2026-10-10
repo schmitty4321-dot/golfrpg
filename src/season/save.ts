@@ -9,6 +9,7 @@ import { generateScouts } from "./scouting";
 import { coachFee, generateCoaches } from "./staff";
 import { generateManagers } from "./managers";
 import { assignPortraits } from "../engine/portraits";
+import { ensureDiscovery } from "./discovery";
 import { AMATEUR_CLASS_SIZE, generateAmateur } from "./amateurs";
 import { buildDevTour } from "./calendar";
 import { newHistory } from "./history";
@@ -55,6 +56,7 @@ export function deserializeWorld(json: string): World {
   // (A former client coaching for you keeps his friend's rate.)
   for (const c of world.coaches) c.weeklyFee = Math.round(coachFee(c.quality) * (c.formerClient ? LOYALTY_DISCOUNT : 1));
   // Saves from before portrait numbers: each player keeps the face he's shown today.
+  ensureDiscovery(world);
   assignPortraits(Object.values(world.players));
   return world;
 }

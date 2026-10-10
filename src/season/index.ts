@@ -55,6 +55,7 @@ export * from "./managerFx";
 export * from "./managers";
 export * from "./amateurResults";
 export * from "./intel";
+export * from "./discovery";
 export * from "./schools";
 export * from "./recruiting";
 export * from "./extensions";

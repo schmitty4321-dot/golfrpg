@@ -139,7 +139,8 @@ function RecruitBadge({ state, pro }: { state: RecruitMark; pro: boolean }) {
 }
 
 /** The recruiting desk: this week's hours, how prospects see the agency, the prospects, and last season's class. */
-export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
+/** The recruiting desk. With `watchList`, it's the same table for the amateurs you're watching (no hours, summary or tabs). */
+export function RecruitingDesk({ world, game, watchList = false }: { world: World; game: Game; watchList?: boolean }) {
   const [open, setOpen] = useState<string | null>(null);
   // The prospect card is a pop-up: Escape closes it.
   useEffect(() => {
@@ -158,7 +159,9 @@ export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
   const g = grades(world);
   const order = standingOrder(world);
   const rankOf = new Map(order.map((id, i) => [id, i]));
-  const pool = tab === "pro" ? proProspects(world, 120) : [...prospects(world)].sort((a, b) => (rankOf.get(a) ?? 1e9) - (rankOf.get(b) ?? 1e9));
+  const pool = watchList
+    ? (world.agency.shortlist ?? []).filter((id) => world.players[id]?.career.status === "amateur" && !world.players[id]?.client).sort((a, b) => (rankOf.get(a) ?? 1e9) - (rankOf.get(b) ?? 1e9))
+    : tab === "pro" ? proProspects(world, 120) : [...prospects(world)].sort((a, b) => (rankOf.get(a) ?? 1e9) - (rankOf.get(b) ?? 1e9));
   const list = pool.slice(0, showAll ? 120 : 30);
   const ranks = rankMap(world);
   const ranking = recruitingOf(world).lastRanking;
@@ -166,7 +169,7 @@ export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
   const featured = pool.slice(0, 4);
   return (
     <section className="panel recruiting-desk-panel">
-      <header className="recruiting-masthead">
+      {!watchList && <header className="recruiting-masthead">
         <img src="/art/week-decisions/options/recruit-amateurs-b.png" alt="A golfer being evaluated on the practice range" />
         <div className="recruiting-masthead-shade" />
         <div className="recruiting-masthead-copy">
@@ -200,13 +203,13 @@ export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
         <div className="recruiting-hours-badge">
           {total ? <><strong>{left}</strong><span>of {total} hours<br />left this week</span></> : <><strong>W{RECRUITING_OPENS}</strong><span>desk opens</span></>}
         </div>
-      </header>
+      </header>}
       <div className="recruiting-intro">
-        <div><h2>Recruiting desk</h2><span className="muted small">One budget of hours for amateurs and pros: scout them and build their interest. Amateurs choose on signing day; pros weigh it when you make an offer.</span></div>
+        <div><h2>{watchList ? "Watch list" : "Recruiting desk"}</h2><span className="muted small">One budget of hours for amateurs and pros: scout them and build their interest. Amateurs choose on signing day; pros weigh it when you make an offer.</span></div>
       </div>
-      <RecruitSummary world={world} />
-      <div className="meter" style={{ marginBottom: 12 }}><span style={{ width: `${total ? Math.round((left / total) * 100) : 0}%` }} /></div>
-      <div className="recruit-grades">
+      {!watchList && <RecruitSummary world={world} />}
+      {!watchList && <div className="meter" style={{ marginBottom: 12 }}><span style={{ width: `${total ? Math.round((left / total) * 100) : 0}%` }} /></div>}
+      {!watchList && <div className="recruit-grades">
         <span className="recruit-label">How prospects see you</span>
         {(Object.keys(SELLING_POINTS) as (keyof typeof SELLING_POINTS)[]).map((k) => (
           <span key={k} className={`grade grade-${g[k]}`}><b>{g[k]}</b> {SELLING_POINTS[k]}</span>
@@ -214,12 +217,12 @@ export function RecruitingDesk({ world, game }: { world: World; game: Game }) {
         <button className="btn btn-small" disabled={!!showcase} title={showcase ?? undefined} onClick={() => game.act((w) => { const n = holdShowcase(w); setNote(`Junior showcase: a first look at ${n} high-school prospect${n === 1 ? "" : "s"}.`); })}>
           Junior showcase · {SHOWCASE_HOURS}h
         </button>
-      </div>
+      </div>}
       {note && <p className="small good-text">{note}</p>}
-      <div className="tabs" role="tablist" style={{ marginBottom: 8 }}>
+      {!watchList && <div className="tabs" role="tablist" style={{ marginBottom: 8 }}>
         <button role="tab" aria-selected={tab === "amateur"} onClick={() => { setTab("amateur"); setOpen(null); }}>Amateurs</button>
         <button role="tab" aria-selected={tab === "pro"} onClick={() => { setTab("pro"); setOpen(null); }}>Pros</button>
-      </div>
+      </div>}
       <div className="tone-legend small muted" aria-label="Row colours">
         <span className="tone-chip tone-recruiting">Recruiting</span>
         <span className="tone-chip tone-watch">On your watch list</span>

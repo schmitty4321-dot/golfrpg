@@ -12,6 +12,7 @@
 import { ATTRIBUTE_GROUPS, clamp, createRng, type AttributeKey } from "../engine";
 import { addReputation, clients, marketRate, rosterCount, rosterLimit, signClient, RIVAL_AGENCIES } from "./agency";
 import { PRO_AGE, amateurRanking } from "./amateurs";
+import { isDiscovered } from "./discovery";
 import { mixSeed } from "./entries";
 import { stafferQuality } from "./market";
 import { rankMap } from "./points";
@@ -92,7 +93,7 @@ const idHash = (id: string) => {
 const rngFor = (world: World, id: string, salt: number) => createRng(mixSeed(world.seed, idHash(id), salt));
 
 /** The prospects worth recruiting: the amateurs, best ranked first. */
-export const prospects = (world: World): string[] => amateurRanking(world).filter((id) => !world.players[id]?.client);
+export const prospects = (world: World): string[] => amateurRanking(world).filter((id) => !world.players[id]?.client && isDiscovered(world, id));
 
 /** Pros worth recruiting: the best ranked players you don't represent (under contract elsewhere or not). */
 export function proProspects(world: World, n = 60): string[] {

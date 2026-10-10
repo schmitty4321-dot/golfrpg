@@ -3,6 +3,7 @@ import { mixSeed } from "./entries";
 import { absWeek, type Scout, type World } from "./types";
 import { hasSkill } from "./staffSkills";
 import { intelCap, intelRegionOf, intelWeeks } from "./intel";
+import { isDiscovered } from "./discovery";
 
 const FIRST = ["Walt", "Rosa", "Des", "Marty", "Yuki", "Ingrid", "Bo", "Carmen", "Olly", "Freddie", "Priya", "Sven"];
 const LAST = ["Hollis", "Okafor", "Brennan", "Lukas", "Sato", "Varga", "Dunmore", "Reyes", "Whitlow", "Ahn", "Nakamura", "Pell"];
@@ -36,7 +37,7 @@ export function releaseScout(world: World, id: string): void {
 }
 
 export function queueScouting(world: World, playerId: string): void {
-  if (!world.players[playerId] || world.agency.scoutingQueue.includes(playerId) || world.clientIds.includes(playerId)) return;
+  if (!world.players[playerId] || world.agency.scoutingQueue.includes(playerId) || world.clientIds.includes(playerId) || !isDiscovered(world, playerId)) return;
   world.agency.scoutingQueue.push(playerId);
 }
 

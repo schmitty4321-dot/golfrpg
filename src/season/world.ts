@@ -302,6 +302,9 @@ export function createWorld(opts: CreateWorldOptions): World {
   ensureRyderCup(world);
   setObjectives(world);
   // Every player gets his portrait number now, and keeps it for his career.
+  // Your agency starts knowing the best amateurs and pros; scouts find the rest.
+  world.agency.discovered = {};
+  for (const id of amateurRanking(world).slice(0, 30)) world.agency.discovered[id] = true;
   assignPortraits(Object.values(world.players));
   return world;
 }

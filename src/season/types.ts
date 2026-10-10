@@ -477,6 +477,8 @@ export interface Agency {
   intelJobs?: IntelJob[];
   /** Where the HQ is: its quarter of the USA sets how long intel takes (North if not chosen). */
   hqRegion?: "North" | "South" | "East" | "West";
+  /** Players your agency knows exist, from the start pool (see discovery.ts). Scouting adds more. */
+  discovered?: Record<string, true>;
   knowledge: Record<string, Knowledge>;
   ledger: AgencyLedger;
   /** Player id → absolute week before which he won't hear another offer. */
