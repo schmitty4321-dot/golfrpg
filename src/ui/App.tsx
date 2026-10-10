@@ -44,6 +44,13 @@ export function App() {
   // Where each section was left, so coming back to it returns there.
   const [lastIn, setLastIn] = useState<Partial<Record<SectionId, Tab>>>({});
   const [choices, setChoices] = useState<ClientChoices>({});
+  // The live tournament view on This week; "Back to week" hides it while the event keeps running.
+  const [eventOpen, setEventOpen] = useState(true);
+  const liveNow = Boolean(game.state.live || game.state.liveWeek);
+  useEffect(() => {
+    // A new live event always opens on its own view.
+    if (liveNow) setEventOpen(true);
+  }, [liveNow]);
   // The client shown on the Player and Training tabs: the picked one if still signed, else the first.
   const clientId = world && picked && world.clientIds.includes(picked) ? picked : world?.clientIds[0];
   const [theme, setTheme] = useState<Theme>(() => {
@@ -80,13 +87,16 @@ export function App() {
   const nextTheme: Record<Theme, Theme> = { system: "dark", dark: "light", light: "system" };
   const inEvent = Boolean(game.state.live || game.state.liveWeek);
   // Keep a live tournament available on This week while allowing the other screens to be viewed.
-  const showEvent = inEvent && tab === "home";
+  const showEvent = inEvent && tab === "home" && eventOpen;
 
   const openSection = (s: SectionId) => {
     const section = SECTIONS.find((x) => x.id === s)!;
     // The Week section is the way back to a tournament that is still in progress.
     if (inEvent && s === "week") {
-      if (!showEvent) go("home");
+      if (!showEvent) {
+        setEventOpen(true);
+        go("home");
+      }
       return;
     }
     // Tapping the section you're in goes back to its first screen.
@@ -122,6 +132,8 @@ export function App() {
         </div>
       </header>}
       {world ? <div className="app-shell"><AppRail tab={tab} open={openSection} go={go} season={world.season} theme={theme} onTheme={() => setTheme(nextTheme[theme])} /><div className="app-main"><StatusStrip world={world} action={action} />{showEvent ? (
+        <>
+        <button className="btn btn-small" onClick={() => setEventOpen(false)}>Back to week</button>
         <EventScreen
           key={`${world.season}-${game.state.live?.week ?? world.week}`}
           world={world}
@@ -131,6 +143,7 @@ export function App() {
             go("home");
           }}
         />
+        </>
       ) : tab === "home" ? (
         <Home world={world} game={game} go={go} week={{ choices, setChoices }} />
       ) : tab === "agency" ? (
