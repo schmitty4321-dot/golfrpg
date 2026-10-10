@@ -44,7 +44,7 @@ import { GoalsPanel } from "../components/Goals";
 import { loadTempo, saveTempo, type Game, type WeekTempo } from "../useGame";
 import { RoundPlanPicker, TEMPO_LABELS } from "../components/WeekTempo";
 import { TournamentEmblem } from "../components/TournamentLogo";
-import { Portrait } from "../components/Portrait";
+import { CutoutPortrait } from "../components/Portrait";
 
 const ACCESS_TONE: Record<EntryOption["access"], string> = {
   invited: "var(--good)",
@@ -169,8 +169,9 @@ function WeekCommandCenter({ world, game, go }: { world: World; game: Game; go: 
       <img src={VENUE_BANNERS[main.courseId] ?? "/art/player-command/hero.png"} alt={`Illustrated view of ${course.name}`} />
       <div className="week-event-shade" />
       <div className="week-event-copy"><span>Week {world.week} of {weeks} · {TIER_LABELS[main.tier]}</span><h1>{main.name}</h1><p>{course.name}{course.info ? ` · ${course.info.city}` : ""}</p><dl><div><dt>Purse</dt><dd>{millions(main.purse)}</dd></div><div><dt>Course</dt><dd>Par {coursePar(course)} · {courseYards(course).toLocaleString("en-US")} yds</dd></div></dl></div>
-      <div className="week-featured-field"><small>Top players in the field</small><div>{featured.map((wp) => <article key={wp.player.id}><Portrait player={wp.player} size={76} title={wp.player.name} /><b>#{ranks.get(wp.player.id) ?? "—"}</b><span>{wp.player.name}</span></article>)}</div></div>
-      <div className="week-ready"><strong>{clear} of 7</strong><span>clear</span></div>
+      <div className="week-featured-field"><small>Top players in the field</small><div>{featured.map((wp) => <article key={wp.player.id}><CutoutPortrait player={wp.player} height={190} title={wp.player.name} /><div className="week-plate"><b>#{ranks.get(wp.player.id) ?? "—"}</b><span>{wp.player.name}</span></div></article>)}</div></div>
+      <div className="week-ready" aria-label={`${clear} of 7 decisions clear`}><strong>{clear}</strong><span>of 7</span><small>ready</small></div>
+      <button className="btn week-mast-play" onClick={scrollPlans}>Play week {world.week} ›</button>
     </div>
     <div className="week-decisions-heading"><div><span>WEEKLY COMMAND CENTER</span><h2>Seven decisions before Thursday</h2><p>Clear the board, then play the week.</p></div></div>
     <div className="week-decision-grid">{decisions.map((d) => <article className={`week-decision-card ${"urgent" in d && d.urgent ? "urgent" : ""}`} key={d.key}><img src={DECISION_ART[d.key]} alt="" /><div className="week-decision-copy"><span className="week-decision-icon">{d.icon}</span><h3>{d.title}</h3><p>{d.copy}</p><strong>{d.status}</strong><button className="btn btn-primary" onClick={d.run}>{d.action} <span aria-hidden>›</span></button></div></article>)}</div>

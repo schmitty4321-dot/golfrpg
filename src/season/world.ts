@@ -29,6 +29,7 @@ import { asSetUp, nextCourseSetup } from "./courseSetup";
 import { generateCoaches, offseason, OFFSEASON_WEEKS } from "./staff";
 import { generateManagers } from "./managers";
 import { resetAmateurSeason } from "./amateurResults";
+import { assignPortraits } from "../engine/portraits";
 import { rivalSeasonEnd } from "./rivals";
 import { EUROPE, ensureRyderCup } from "./ryderCup";
 import { STAFF_LABELS, contractFee, hiredStaffer, staffContract, staffSeasonEnd, stafferFee } from "./market";
@@ -300,6 +301,8 @@ export function createWorld(opts: CreateWorldOptions): World {
   // Every world has a Ryder Cup record, as a loaded save does.
   ensureRyderCup(world);
   setObjectives(world);
+  // Every player gets his portrait number now, and keeps it for his career.
+  assignPortraits(Object.values(world.players));
   return world;
 }
 
@@ -568,6 +571,8 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   let academyN = 0;
   academyIntake(world, rng, (age) => makeAmateur(generateAmateur(rng, `s${season}ac${++academyN}`, age, usedNames, generation), rng));
   mediaSeasonEnd(world);
+  // New amateurs (and academy players) get their portrait numbers here.
+  assignPortraits(Object.values(world.players));
 
   // Seasons off the main tour pile up; a card resets the count.
   for (const wp of Object.values(world.players)) {
