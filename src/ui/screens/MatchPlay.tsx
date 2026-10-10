@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { CircleDot, Trophy } from "lucide-react";
 import type { MatchResult } from "../../engine";
 import {
   AUTOMATIC,
@@ -14,6 +15,7 @@ import {
   scoreLine,
   selectTeam,
   venueFor,
+  worldRanking,
   yearOf,
   type RyderCupResult,
   type Team,
@@ -204,66 +206,78 @@ function RyderResult({ r, world, mine, compact }: { r: RyderCupResult; world: Wo
 
 export function MatchPlayScreen({ world }: { world: World }) {
   const event = world.schedule.find((e) => e.format === "matchplay");
-  const lb = world.lastBracket;
+  const lb = world.lastBracket?.season === world.season && world.lastBracket.eventId === event?.id ? world.lastBracket : undefined;
   const mine = (id: string) => world.clientIds.includes(id);
-  if (!lb) {
+  const projected = worldRanking(world)
+    .filter((r) => world.players[r.id]?.career.status !== "amateur")
+    .slice(0, 64)
+    .map((r, i) => ({ id: r.id, seed: i + 1 }));
+  const projectedGroups = Array.from({ length: 16 }, (_, group) => [0, 1, 2, 3].map((band) => projected[band * 16 + group]).filter(Boolean));
+
+  if (!lb && event && world.week < event.week) {
     return (
       <main>
-        <section className="panel">
-          <div className="panel-head"><h2>{event?.name ?? "Match Play Championship"}</h2></div>
-          <p style={{ margin: 0 }}>
-            {event ? `Week ${event.week}. ` : ""}The world's top 64 are drawn into 16 groups of four and play three round-robin matches; the group winners go into a knockout bracket, with sudden death for
-            matches level after 18. The draw and the bracket appear here once it has been played.
-          </p>
+        <section className="panel mp-hero">
+          <div>
+            <span className="mp-kicker">Week {event.week} · Field projection</span>
+            <h2>{event.name}</h2>
+            <p>The current top 64, arranged into their expected four-player ranking bands. The official draw may move players within each band.</p>
+          </div>
+          <div className="mp-countdown"><strong>{event.week - world.week}</strong><span>weeks to the draw</span></div>
         </section>
+        <section className="panel">
+          <div className="panel-head"><h2>Projected groups</h2><span className="muted small">Updated from this week's world ranking</span></div>
+          <div className="mp-projected-groups">
+            {projectedGroups.map((group, gi) => (
+              <article className="mp-projected-group" key={gi}>
+                <header><span>Group {gi + 1}</span><small>4 ranking bands</small></header>
+                {group.map((entry, pi) => {
+                  const player = world.players[entry!.id]!.player;
+                  return <div className={mine(entry!.id) ? "mp-projected-player mp-mine" : "mp-projected-player"} key={entry!.id}>
+                    <span className="mp-seed">{entry!.seed}</span>
+                    <PlayerName id={entry!.id}>{player.name}</PlayerName>
+                    <span className="mp-pot">Pot {pi + 1}</span>
+                  </div>;
+                })}
+              </article>
+            ))}
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  if (!lb) {
+    const firstRound = projectedGroups.map((g) => g[0]).filter(Boolean);
+    const groupOrder = [0, 15, 7, 8, 3, 12, 4, 11, 1, 14, 6, 9, 2, 13, 5, 10];
+    const roundOf16 = Array.from({ length: 8 }, (_, i) => ({ a: firstRound[groupOrder[i * 2]!], b: firstRound[groupOrder[i * 2 + 1]!], margin: "Projected group winners" }));
+    return (
+      <main>
+        <section className="panel mp-hero">
+          <div><span className="mp-kicker">Week {event?.week ?? world.week} · Championship week</span><h2>{event?.name ?? "Match Play Championship"}</h2><p>The bracket is ready. Group winners feed into Saturday's round of 16; later rounds fill as matches are played.</p></div>
+          <div className="mp-countdown mp-live"><CircleDot size={22} /><span>Draw week</span></div>
+        </section>
+        <BroadcastBracket
+          rounds={[{ name: "Round of 16", matches: roundOf16 }, { name: "Quarter-finals", matches: Array.from({ length: 4 }, () => ({ margin: "TBD" })) }, { name: "Semi-finals", matches: Array.from({ length: 2 }, () => ({ margin: "TBD" })) }, { name: "Final", matches: [{ margin: "TBD" }] }]}
+          world={world}
+          mine={mine}
+          title="Championship bracket"
+        />
       </main>
     );
   }
   const b = lb.bracket;
   const names = (id: string) => lb.names[id] ?? world.players[id]?.player.name ?? id;
   const label = (id: string) => <><PlayerName id={id}>{names(id)}</PlayerName>{b.seeds[id] && b.seeds[id] < 9999 ? ` (${b.seeds[id]})` : ""}</>;
-  const cell = (m: MatchResult, id: string | undefined, k: 0 | 1) =>
-    id ? (
-      <div key={k} className={`${m.winner === (k === 0 ? "a" : "b") ? "mp-win" : ""}${mine(id) ? " mp-mine" : ""}`}>{label(id)}</div>
-    ) : (
-      <div key={k} className="muted">bye</div>
-    );
+  const winnerOf = (m: MatchResult) => m.winner === "a" ? m.a[0] : m.winner === "b" ? m.b[0] : undefined;
+  const rounds = b.knockout.map((round) => ({ name: round.name, matches: round.matches.map((m) => ({ a: m.a[0], b: m.b[0], winner: winnerOf(m), margin: m.b.length ? m.margin : "Bye", seeds: b.seeds })) }));
   return (
     <main>
-      <section className="panel">
-        <div className="panel-head"><h2>{lb.name}</h2><span className="muted small">Season {lb.season}, week {lb.week} · {lb.venue}</span></div>
-        <p className="muted small" style={{ margin: 0 }}>Seeds are world rankings at the draw. Bold: the winner of each match.</p>
+      <section className="panel mp-hero">
+        <div><span className="mp-kicker">Season {lb.season} · Week {lb.week}</span><h2>{lb.name}</h2><p>{lb.venue} · Seeds are world rankings at the draw.</p></div>
+        <div className="mp-countdown mp-complete"><Trophy size={24} /><span>Champion crowned</span></div>
       </section>
-
-      <section className="panel">
-        <div className="panel-head"><h2>Knockout</h2></div>
-        <div className="mp-bracket">
-          {b.knockout.map((round) => (
-            <div key={round.name} className="mp-col">
-              <div className="mp-label">{round.name}</div>
-              <div className="mp-round">
-                {round.matches.map((m, i) => (
-                  <div key={i} className="mp-match">
-                    {cell(m, m.a[0], 0)}
-                    {cell(m, m.b[0], 1)}
-                    <div className="small muted">{m.b.length ? m.margin : ""}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-          {b.consolation && (
-            <div className="mp-col">
-              <div className="mp-label">Third place</div>
-              <div className="mp-match">
-                {cell(b.consolation, b.consolation.a[0], 0)}
-                {cell(b.consolation, b.consolation.b[0], 1)}
-                <div className="small muted">{b.consolation.margin}</div>
-              </div>
-            </div>
-          )}
-        </div>
-      </section>
+      <BroadcastBracket rounds={rounds} world={world} mine={mine} title="Knockout stage" consolation={b.consolation ? { a: b.consolation.a[0], b: b.consolation.b[0], winner: winnerOf(b.consolation), margin: b.consolation.margin, seeds: b.seeds } : undefined} names={names} />
 
       <section className="panel">
         <div className="panel-head"><h2>Groups</h2><span className="muted small">A win is a point, a half half a point; a tie at the top goes to sudden death</span></div>
@@ -298,4 +312,42 @@ export function MatchPlayScreen({ world }: { world: World }) {
       </section>
     </main>
   );
+}
+
+type BroadcastMatch = { a?: string; b?: string; winner?: string; margin: string; seeds?: Record<string, number> };
+type BroadcastRound = { name: string; matches: BroadcastMatch[] };
+
+function BroadcastBracket({ rounds, world, mine, title, consolation, names }: { rounds: BroadcastRound[]; world: World; mine: (id: string) => boolean; title: string; consolation?: BroadcastMatch; names?: (id: string) => string }) {
+  const playerName = (id: string) => names?.(id) ?? world.players[id]?.player.name ?? id;
+  const entrant = (id: string | undefined, match: BroadcastMatch, slot: "a" | "b") => {
+    if (!id) return <div className="mp-entrant mp-tbd"><span className="mp-seed">—</span><span>{slot === "b" && match.a ? "Opponent TBD" : "TBD"}</span></div>;
+    const rank = match.seeds?.[id];
+    return <div className={`mp-entrant${match.winner === id ? " mp-win" : ""}${mine(id) ? " mp-mine" : ""}`}>
+      <span className="mp-seed">{rank && rank < 9999 ? rank : "•"}</span><PlayerName id={id}>{playerName(id)}</PlayerName>{match.winner === id && <span className="mp-winner-tick">✓</span>}
+    </div>;
+  };
+  const final = rounds.at(-1)?.matches[0];
+  const champion = final?.winner;
+  return <section className="panel mp-knockout-panel">
+    <div className="panel-head"><h2>{title}</h2><span className="muted small">Follow the gold rails to the championship match</span></div>
+    <div className="mp-bracket-scroll">
+      <div className="mp-bracket-board" style={{ gridTemplateColumns: `repeat(${rounds.length}, minmax(205px, 1fr)) 190px` }}>
+        {rounds.map((round, ri) => <div className="mp-col" key={round.name}>
+          <div className="mp-round-head"><span>0{ri + 1}</span><strong>{round.name}</strong></div>
+          <div className="mp-round">
+            {round.matches.map((match, mi) => <div className="mp-match-wrap" key={mi}>
+              <article className="mp-match">{entrant(match.a, match, "a")}{entrant(match.b, match, "b")}<footer>{match.margin}</footer></article>
+            </div>)}
+          </div>
+        </div>)}
+        <aside className="mp-champion-card">
+          <Trophy size={38} strokeWidth={1.5} />
+          <span>Champion</span>
+          <strong>{champion ? playerName(champion) : "To be decided"}</strong>
+          {champion && <small>Last player standing</small>}
+        </aside>
+      </div>
+    </div>
+    {consolation && <div className="mp-third-place"><span>Third-place match</span><div>{entrant(consolation.a, consolation, "a")}{entrant(consolation.b, consolation, "b")}</div><strong>{consolation.margin}</strong></div>}
+  </section>;
 }
