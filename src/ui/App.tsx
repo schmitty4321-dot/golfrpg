@@ -9,7 +9,7 @@ import { Career } from "./screens/Career";
 import { Finances } from "./screens/Finances";
 import { Partnerships } from "./screens/Partnerships";
 import { Headquarters } from "./screens/Headquarters";
-import { Recruiting, Rivals, Trophies } from "./screens/Market";
+import { Recruiting, RecruitmentBoard, Rivals, Trophies } from "./screens/Market";
 import { AmateurResults } from "./components/AmateurBoards";
 import { RecruitingDesk } from "./components/RecruitingDesk";
 import { MatchPlayScreen, RyderCupScreen } from "./screens/MatchPlay";
@@ -193,6 +193,8 @@ export function App() {
         <RecruitingDesk world={world} game={game} watchList />
       ) : tab === "recruiting" ? (
         <Recruiting world={world} game={game} />
+      ) : tab === "recruitmentBoard" ? (
+        <RecruitmentBoard world={world} game={game} />
       ) : tab === "trophies" ? (
         <Trophies world={world} />
       ) : tab === "rivals" ? (

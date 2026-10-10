@@ -38,13 +38,21 @@ const crest = (name: string) => ({
 const rankIds = (world: World) => new Map([...rankMap(world)].map(([id, rank]) => [rank, id]));
 const styleIcon = (id: string) => id === "stars" ? "★" : id === "developer" ? "♠" : id === "boutique" ? "◆" : "♟";
 
-/** The recruitment board: players you're tracking, where they stand, and whether you can sign them. */
+/** The recruiting desk: the amateurs you can look at this week. */
 export function Recruiting({ world, game }: { world: World; game: Game }) {
+  return (
+    <main>
+      <RecruitingDesk world={world} game={game} />
+    </main>
+  );
+}
+
+/** The recruitment board: players you're tracking, where they stand, and whether you can sign them. */
+export function RecruitmentBoard({ world, game }: { world: World; game: Game }) {
   const ranks = rankMap(world);
   const board = (world.agency.shortlist ?? []).map((id) => world.players[id]).filter((wp) => wp && !wp.client);
   return (
     <main>
-      <RecruitingDesk world={world} game={game} />
       <section className="panel">
         <div className="panel-head"><h2>Recruitment board</h2><span className="muted small">Add players from their profile · {board.length} on the board</span></div>
         {board.length === 0 ? (

@@ -32,6 +32,7 @@ const TAB_ICONS: Record<Tab, ReactNode> = {
   amateurResults: <><path d="m3 9 9-5 9 5-9 5zM7 12v4c3 2 7 2 10 0v-4M20 10v6"/><circle cx="20" cy="18" r="1"/></>,
   recruiting: <><path d="M4 20h16M6 17l4-4 3 2 5-7"/><path d="m15 8 3-.5.5 3"/></>,
   scoutingBoard: <><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/><path d="m16 15 2 2 3-4"/></>,
+  recruitmentBoard: <><path d="M4 5h16v14H4zM4 10h16M9 5v14"/></>,
   rivals: <><path d="m4 20 6-6M14 10l6-6M5 4l15 15M4 4l16 16"/><path d="m4 4 5 1-4 4M20 20l-5-1 4-4"/></>,
   trophies: <><path d="M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3M12 14v4M8 20h8"/></>,
   achievements: <><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></>,
@@ -49,7 +50,7 @@ const TAB_ICONS: Record<Tab, ReactNode> = {
 const TAB_DESCRIPTIONS: Record<Tab, string> = {
   home: "Plans and decisions", tournament: "Live results and fields", calendar: "Full season view",
   agency: "Roster and contracts", player: "Detailed player profile", training: "Focus and development", team: "Caddie, travel and clubs",
-  hq: "Staff and facilities", partnerships: "Sponsors and relationships", scouting: "Find talent worldwide", recruiting: "Recruiting desk", amateurResults: "Track emerging players", scoutingBoard: "Players you are following",
+  hq: "Staff and facilities", partnerships: "Sponsors and relationships", scouting: "Find talent worldwide", recruiting: "Recruiting desk", amateurResults: "Track emerging players", scoutingBoard: "Players you are following", recruitmentBoard: "Players you are tracking",
   rivals: "Competing agencies", trophies: "Titles and legacy", achievements: "Agency milestones", finances: "Revenue, costs and forecasts",
   schedule: "Events and entry dates", standings: "Rankings across the tour", stats: "Performance and records", ryder: "International team golf",
   matchplay: "Brackets and results", history: "Past seasons and champions", career: "Back up your career", editor: "Edit the game world",
