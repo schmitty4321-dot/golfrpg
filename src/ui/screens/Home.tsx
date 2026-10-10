@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { coursePar, courseYards, familiarityLabel } from "../../engine";
 import { ChallengeBanner } from "../components/Challenge";
 import { ShotOfTheWeek } from "../components/Highlights";
@@ -147,11 +147,8 @@ function MastheadFact({ kind, label, value, note }: { kind: "purse" | "weather" 
 
 /** The week's event, strongest entrants and seven decisions that must be cleared. */
 function WeekCommandCenter({ world, game, go, week }: { world: World; game: Game; go: Go; week: WeekChoices }) {
-  const [artFrame, setArtFrame] = useState(0);
-  useEffect(() => {
-    const timer = window.setInterval(() => setArtFrame((frame) => (frame + 1) % 3), 7000);
-    return () => window.clearInterval(timer);
-  }, []);
+  // Hold one option while this page is open; leaving and returning mounts a fresh set.
+  const [artFrame] = useState(() => Math.floor(Math.random() * 3));
   const weeks = seasonWeeks(world);
   if (world.week > weeks) {
     return <section className="hero week-command-season-over"><div className="hero-body"><div className="hero-kicker">{world.agency.name} · Season {world.season}</div><h1 className="hero-title">The season is over</h1><div className="hero-meta">Close it to hand out cards, settle contracts and see how your agency did.</div></div><button className="btn btn-primary hero-play" onClick={() => void game.closeSeason()}>Close the season <span aria-hidden>▸</span></button></section>;
