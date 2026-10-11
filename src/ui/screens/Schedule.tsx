@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { MapPin, Trophy, Users } from "lucide-react";
 import { eventsInWeek, finaleWeek, isRyderCupSeason, lastRegularWeek, ryderCupWeek, seasonWeeks, yearOf, type TourEvent, type World } from "../../season";
 import { TIER_LABELS, millions, money, toPar } from "../format";
 import type { Go } from "../nav";
@@ -117,32 +118,44 @@ export function Schedule({ world, game, go }: { world: World; game: Game; go: Go
                       const win = winners.get(e.id);
                       const r = mine.get(e.id);
                       return (
-                        <div key={e.id} className={`schedule-event tier-${e.tier}${win || r ? " has-results" : ""}`}>
-                          <TournamentEmblem event={e} course={course} size={34} />
-                          <div className="schedule-event-main">
-                            <div>
-                              {inSession.has(e.id) ? <button className="linkish" onClick={() => go("tournament", e.id)}><strong>{e.name}</strong></button> : <strong>{e.name}</strong>}
-                              {" "}
+                        <article key={e.id} className={`schedule-event tier-${e.tier}${win || r ? " has-results" : " upcoming"}`}>
+                          <div className="schedule-event-identity">
+                            <div className="schedule-emblem"><TournamentEmblem event={e} course={course} size={82} /></div>
+                            <div className="schedule-event-main">
                               <span className={`badge${e.tier === "major" ? " badge-major" : ""}`}>{e.devFinals ? `Dev Finals ${e.devFinals}/4` : TIER_LABELS[e.tier]}</span>
+                              {inSession.has(e.id) ? <button className="linkish schedule-event-name" onClick={() => go("tournament", e.id)}>{e.name}</button> : <strong className="schedule-event-name">{e.name}</strong>}
+                              <span className="schedule-venue"><MapPin size={13} />{course ? `${course.name}${course.info ? ` · ${course.info.city}` : ""}` : "Venue TBA"}</span>
+                              <span className="schedule-event-facts"><b>{millions(e.purse)}</b> purse <i /> <Users size={13} /> {e.fieldSize} players{e.cutTop ? "" : " · no cut"}</span>
                             </div>
-                            <span className="secondary small">
-                              {course ? `${course.name}${course.info ? `, ${course.info.city}` : ""} · ` : ""}{millions(e.purse)} · {e.fieldSize} players{e.cutTop ? "" : ", no cut"}
-                            </span>
                           </div>
-                          {(win || r) && (
+                          {(win || r) ? (
                             <aside className="schedule-results" aria-label={`${e.name} results`}>
-                              {win && <p className="schedule-result-winner">Winner: <strong className={win.mine ? "good-text" : ""}><PlayerName id={win.id}>{win.name}</PlayerName></strong> ({toPar(win.toPar)}) · {money(win.earnings)}</p>}
-                              {r?.map((x) => (
-                                <div key={x.id} className="schedule-result-row">
-                                  <PlayerName id={x.id}>{x.name}</PlayerName>
-                                  <span>{x.label} · {toPar(x.toPar)}</span>
-                                  <span>{money(x.earnings)}</span>
-                                  <span>{x.points} pts</span>
-                                </div>
-                              ))}
+                              {win && <div className="schedule-champion">
+                                <span className="schedule-trophy"><Trophy size={24} /></span>
+                                <span><small>Champion</small><strong className={win.mine ? "good-text" : ""}><PlayerName id={win.id}>{win.name}</PlayerName></strong></span>
+                                <b>{toPar(win.toPar)}</b>
+                                <span className="schedule-winner-money"><strong>{money(win.earnings)}</strong><small>Winner’s share</small></span>
+                              </div>}
+                              {r?.length ? <div className="schedule-client-results">
+                                <span className="schedule-results-label">Your players</span>
+                                <div className="schedule-result-grid">{r.map((x) => (
+                                  <div key={x.id} className={`schedule-result-card${x.madeCut ? " made-cut" : " missed-cut"}`}>
+                                    <PlayerName id={x.id}>{x.name}</PlayerName>
+                                    <b className="schedule-finish">{x.label}</b>
+                                    <span className="schedule-score">{toPar(x.toPar)}</span>
+                                    <span className="schedule-result-money"><strong>{money(x.earnings)}</strong><small>{x.points} pts</small></span>
+                                  </div>
+                                ))}</div>
+                              </div> : <p className="schedule-no-clients">No clients in the field.</p>}
+                            </aside>
+                          ) : (
+                            <aside className="schedule-upcoming">
+                              <small>{w === world.week ? "This week" : `Week ${w}`}</small>
+                              <strong>{w === world.week ? "Tournament in progress" : "Upcoming event"}</strong>
+                              <span>{e.cutTop ? `Top ${e.cutTop} and ties make the cut` : "No-cut event"}</span>
                             </aside>
                           )}
-                        </div>
+                        </article>
                       );
                     })}
                   </div>

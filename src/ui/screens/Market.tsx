@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Binoculars, DoorOpen, FileSearch, LockKeyhole, UsersRound } from "lucide-react";
 import { LegacyPanel } from "../components/Legacy";
 import { createRng } from "../../engine";
 import {
@@ -51,18 +52,38 @@ export function Recruiting({ world, game }: { world: World; game: Game }) {
 export function RecruitmentBoard({ world, game }: { world: World; game: Game }) {
   const ranks = rankMap(world);
   const board = (world.agency.shortlist ?? []).map((id) => world.players[id]).filter((wp) => wp && !wp.client);
+  const scouted = board.filter((wp) => (world.agency.knowledge[wp!.player.id]?.accuracy ?? 0) > 0).length;
+  const attainable = board.filter((wp) => !approachBlock(world, wp!.player.id)).length;
+  const signingState = (block: string | null) => {
+    if (!block) return { label: "Available", tone: "available", Icon: DoorOpen };
+    if (block.includes("can manage")) return { label: "Roster full", tone: "blocked", Icon: LockKeyhole };
+    if (block.includes("bigger name")) return { label: "Reputation too low", tone: "warning", Icon: FileSearch };
+    if (block.includes("under contract")) return { label: "Under contract", tone: "warning", Icon: FileSearch };
+    if (block.includes("turned you down")) return { label: "Cooling off", tone: "blocked", Icon: LockKeyhole };
+    return { label: "Not available", tone: "blocked", Icon: LockKeyhole };
+  };
   return (
-    <main>
-      <section className="panel">
-        <div className="panel-head"><h2>Recruitment board</h2><span className="muted small">Add players from their profile · {board.length} on the board</span></div>
+    <main className="recruitment-war-room">
+      <section className="recruitment-board-hero">
+        <img src="/art/recruitment/scouting-war-room.png" alt="Rangefinder, player dossiers and a world scouting map in the agency war room" />
+        <div className="recruitment-board-hero-copy">
+          <span>Talent intelligence</span>
+          <h1>Scouting War Room</h1>
+          <p>Identify talent. Uncover opportunity. Build tomorrow’s roster.</p>
+        </div>
+      </section>
+      <section className="recruitment-board-metrics" aria-label="Recruitment board summary">
+        <div><span className="recruitment-metric-icon"><UsersRound /></span><strong>{board.length}</strong><span><b>On the board</b><small>Players currently tracked</small></span></div>
+        <div><span className="recruitment-metric-icon gold"><Binoculars /></span><strong>{scouted}</strong><span><b>Scouted</b><small>Players with completed reports</small></span></div>
+        <div><span className="recruitment-metric-icon"><DoorOpen /></span><strong>{attainable}</strong><span><b>Potentially attainable</b><small>Realistic signing opportunities</small></span></div>
+      </section>
+      <section className="panel recruitment-board-panel">
+        <div className="panel-head"><h2>Player dossiers</h2><span className="muted small">Add players from their profile · {board.length} on the board</span></div>
         {board.length === 0 ? (
           <p className="empty">Nobody on your watch list yet. Open any player (from Scouting, a leaderboard or the standings) and press "Add to watch list".</p>
         ) : (
-          <div className="table-wrap">
-            <table>
-              <thead><tr><th>Player</th><th className="num">Age</th><th>Status</th><th className="num">World</th><th>Represented by</th><th>Report</th><th>Ceiling</th><th>Can you sign him?</th><th /></tr></thead>
-              <tbody>
-                {board.map((wp) => {
+          <div className="recruitment-dossiers">
+            {board.map((wp) => {
                   const id = wp!.player.id;
                   const k = world.agency.knowledge[id];
                   const accuracy = k?.accuracy ?? 0;
@@ -71,22 +92,32 @@ export function RecruitmentBoard({ world, game }: { world: World; game: Game }) 
                     : null;
                   const block = approachBlock(world, id);
                   const chance = block ? 0 : acceptChance(world, id, { commission: 0.1, years: 2 });
+                  const state = signingState(block);
                   return (
-                    <tr key={id}>
-                      <td><PlayerName id={id}>{wp!.player.name}</PlayerName></td>
-                      <td className="num">{wp!.player.age}</td>
-                      <td>{STATUS_LABELS[wp!.career.status]}</td>
-                      <td className="num">{ranks.get(id) ? `#${ranks.get(id)}` : "—"}</td>
-                      <td>{wp!.agent ? `${wp!.agent.agency} (to S${wp!.agent.untilSeason})` : <strong>Free agent</strong>}</td>
-                      <td>{accuracy > 0 ? `${Math.round(accuracy * 100)}% sure · level ~${overall(wp!.player).toFixed(0)}` : <span className="muted">Not scouted</span>}</td>
-                      <td>{ceiling === null ? <span className="muted">—</span> : <Stars value={ceilingStars(ceiling)} />}</td>
-                      <td className="small">{block ?? `${Math.round(chance * 100)}% at 10%, 2 seasons`}{!block && competingBid(world, id) ? <><br /><span className="muted">vs {competingBid(world, id)!.agency}</span></> : null}</td>
-                      <td><button className="btn btn-small" onClick={() => game.act((w) => toggleShortlist(w, id))}>Remove</button></td>
-                    </tr>
+                    <article className="recruitment-dossier" key={id}>
+                      <div className="recruitment-player">
+                        <PlayerName id={id}>{wp!.player.name}</PlayerName>
+                        <span>World rank <strong>{ranks.get(id) ? `#${ranks.get(id)}` : "—"}</strong></span>
+                      </div>
+                      <div className="recruitment-facts">
+                        <span><small>Age</small><b>{wp!.player.age}</b></span>
+                        <span><small>Status</small><b>{STATUS_LABELS[wp!.career.status]}</b></span>
+                        <span><small>Represented by</small><b>{wp!.agent ? `${wp!.agent.agency} · S${wp!.agent.untilSeason}` : "Free agent"}</b></span>
+                      </div>
+                      <div className="recruitment-scouting">
+                        <span><Binoculars size={15} /><b>Scouting report</b><strong>{Math.round(accuracy * 100)}%</strong></span>
+                        <div className="recruitment-scout-bar"><i style={{ width: `${accuracy * 100}%` }} /></div>
+                        <small>{accuracy > 0 ? `Level ~${overall(wp!.player).toFixed(0)} · ${accuracy >= .6 ? "Detailed read" : "Early read"}` : "Not yet scouted."}</small>
+                      </div>
+                      <div className="recruitment-ceiling"><small>Ceiling</small>{ceiling === null ? <span className="muted">Unknown</span> : <Stars value={ceilingStars(ceiling)} />}</div>
+                      <div className={`recruitment-signing ${state.tone}`}>
+                        <state.Icon size={22} />
+                        <span><b>{state.label}</b><small>{block ?? `${Math.round(chance * 100)}% chance at 10% commission for 2 seasons`}{!block && competingBid(world, id) ? ` · Competing with ${competingBid(world, id)!.agency}` : ""}</small></span>
+                      </div>
+                      <button className="btn btn-small recruitment-remove" onClick={() => game.act((w) => toggleShortlist(w, id))}>Remove</button>
+                    </article>
                   );
                 })}
-              </tbody>
-            </table>
           </div>
         )}
         <p className="muted small" style={{ marginBottom: 0 }}>At each season's end the board tells you who became a free agent and whose deal is about to run out.</p>
