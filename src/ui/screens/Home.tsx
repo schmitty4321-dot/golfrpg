@@ -126,6 +126,7 @@ const VENUE_BANNERS: Record<string, string> = {
   "bay-hill": "/art/week-venues/bay-hill.webp",
   "pga-national-champion": "/art/week-venues/pga-national-champion.webp",
   riviera: "/art/week-venues/riviera.webp",
+  "augusta-national": "/art/week-venues/augusta-national.webp",
 };
 
 const DECISION_ART = {

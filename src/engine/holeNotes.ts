@@ -51,6 +51,26 @@ export const HOLE_NOTES: Record<string, Record<number, HoleNote>> = {
     17: { name: "Temptation", description: "A thrilling, drivable short par 4. Take dead aim at the green off the tee, but the lake hugs the left and wraps behind the green, and bunkers wait right." },
     18: { name: "The Cape", description: "A cape-style finishing hole. A big lake swallows the whole left side, so you decide how much water to cut off; a long bunker with grass islands guards the right." },
   },
+  "pga-west-stadium": {
+    1: { name: "Prelude", description: "" },
+    2: { name: "Craters", description: "" },
+    3: { name: "Eye of the Needle", description: "" },
+    4: { name: "Sand Pit", description: "" },
+    6: { name: "Amen", description: "" },
+    7: { name: "Black Hole", description: "" },
+    8: { name: "Camelback", description: "" },
+    9: { name: "Reflection", description: "" },
+    10: { name: "Quarry", description: "" },
+    11: { name: "Eternity", description: "" },
+    12: { name: "Water Work", description: "" },
+    13: { name: "Second Thoughts", description: "" },
+    14: { name: "Moat", description: "" },
+    15: { name: "Turning Home", description: "" },
+    5: { name: "Double Trouble", description: "True to its name, this par 5 demands navigation around water hugging the left side for most of the hole, before forcing players to deal with a second lake on the right as they approach the green." },
+    16: { name: "San Andreas Fault", description: "A massive par 5 monster where the entire left side of the green is flanked by a notoriously deep, menacing bunker that drops nearly 19 to 20 feet below the putting surface." },
+    17: { name: "Alcatraz", description: "The signature hole of PGA West. Inspired by the 17th at TPC Sawgrass, this terrifying island green is completely surrounded by water and jagged boulders." },
+    18: { name: "Coliseum", description: "The brutal finishing hole features a dramatic amphitheater design. It requires a highly intimidating tee shot with water lining the entire left side all the way to a heavily guarded green." },
+  },
 };
 
 export const holeNote = (courseId: string, hole: number): HoleNote | undefined => HOLE_NOTES[courseId]?.[hole];

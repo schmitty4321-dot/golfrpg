@@ -10849,5 +10849,741 @@
         "y": 160
       }
     ]
+  },
+  "augusta-national:1": {
+    "image": "art-demo/augusta-national/hole-01.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -0.635076,
+        3.100829,
+        150
+      ],
+      "y": [
+        0.529774,
+        -1.214705,
+        740
+      ]
+    },
+    "meta": {
+      "number": 1,
+      "par": 4,
+      "yards": 445,
+      "tourAverage": 4.179,
+      "difficulty": 6,
+      "course": "Augusta National Golf Club"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 150,
+        "y": 740
+      },
+      {
+        "at": 0.6875,
+        "x": 1086,
+        "y": 366
+      },
+      {
+        "at": 1,
+        "x": 1515,
+        "y": 205
+      }
+    ]
+  },
+  "augusta-national:2": {
+    "image": "art-demo/augusta-national/hole-02.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        2.497483,
+        2.572993,
+        150
+      ],
+      "y": [
+        -0.283056,
+        -0.958029,
+        720
+      ]
+    },
+    "meta": {
+      "number": 2,
+      "par": 5,
+      "yards": 585,
+      "tourAverage": 4.707,
+      "difficulty": 17,
+      "course": "Augusta National Golf Club"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 150,
+        "y": 720
+      },
+      {
+        "at": 0.5259,
+        "x": 910,
+        "y": 493
+      },
+      {
+        "at": 1,
+        "x": 1560,
+        "y": 195
+      }
+    ]
+  },
+  "augusta-national:3": {
+    "image": "art-demo/augusta-national/hole-03.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -3.452381,
+        3.542857,
+        200
+      ],
+      "y": [
+        0.119048,
+        -1.442857,
+        740
+      ]
+    },
+    "meta": {
+      "number": 3,
+      "par": 4,
+      "yards": 350,
+      "tourAverage": 3.9,
+      "difficulty": 14,
+      "course": "Augusta National Golf Club"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 200,
+        "y": 740
+      },
+      {
+        "at": 0.7142,
+        "x": 1091,
+        "y": 392
+      },
+      {
+        "at": 1,
+        "x": 1440,
+        "y": 235
+      }
+    ]
+  },
+  "augusta-national:4": {
+    "image": "art-demo/augusta-national/hole-04.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        12,
+        4.722689,
+        200
+      ],
+      "y": [
+        2,
+        -1.915966,
+        740
+      ]
+    },
+    "meta": {
+      "number": 4,
+      "par": 3,
+      "yards": 240,
+      "tourAverage": 3.224,
+      "difficulty": 4,
+      "course": "Augusta National Golf Club"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 200,
+        "y": 740
+      },
+      {
+        "at": 1,
+        "x": 1300,
+        "y": 280
+      }
+    ]
+  },
+  "augusta-national:5": {
+    "image": "art-demo/augusta-national/hole-05.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.578201,
+        2.532415,
+        250
+      ],
+      "y": [
+        -1.262763,
+        -1.195705,
+        760
+      ]
+    },
+    "meta": {
+      "number": 5,
+      "par": 4,
+      "yards": 495,
+      "tourAverage": 4.297,
+      "difficulty": 1,
+      "course": "Augusta National Golf Club"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 250,
+        "y": 760
+      },
+      {
+        "at": 0.623,
+        "x": 1000,
+        "y": 380
+      },
+      {
+        "at": 1,
+        "x": 1470,
+        "y": 185
+      }
+    ]
+  },
+  "augusta-national:6": {
+    "image": "art-demo/augusta-national/hole-06.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        10,
+        6.5,
+        150
+      ],
+      "y": [
+        1,
+        -2.055556,
+        700
+      ]
+    },
+    "meta": {
+      "number": 6,
+      "par": 3,
+      "yards": 180,
+      "tourAverage": 3.131,
+      "difficulty": 10,
+      "course": "Augusta National Golf Club"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 150,
+        "y": 700
+      },
+      {
+        "at": 1,
+        "x": 1320,
+        "y": 330
+      }
+    ]
+  },
+  "augusta-national:7": {
+    "image": "art-demo/augusta-national/hole-07.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -13.874144,
+        3.090753,
+        160
+      ],
+      "y": [
+        2.923801,
+        -1.327055,
+        790
+      ]
+    },
+    "meta": {
+      "number": 7,
+      "par": 4,
+      "yards": 450,
+      "tourAverage": 4.152,
+      "difficulty": 8,
+      "course": "Augusta National Golf Club"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 160,
+        "y": 790
+      },
+      {
+        "at": 0.65,
+        "x": 1050,
+        "y": 420
+      },
+      {
+        "at": 1,
+        "x": 1520,
+        "y": 200
+      }
+    ]
+  },
+  "augusta-national:8": {
+    "image": "art-demo/augusta-national/hole-08.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -6.531505,
+        2.36136,
+        200
+      ],
+      "y": [
+        0.926257,
+        -0.876565,
+        700
+      ]
+    },
+    "meta": {
+      "number": 8,
+      "par": 5,
+      "yards": 570,
+      "tourAverage": 4.624,
+      "difficulty": 18,
+      "course": "Augusta National Golf Club"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 200,
+        "y": 700
+      },
+      {
+        "at": 0.5335,
+        "x": 913,
+        "y": 462
+      },
+      {
+        "at": 1,
+        "x": 1520,
+        "y": 210
+      }
+    ]
+  },
+  "augusta-national:9": {
+    "image": "art-demo/augusta-national/hole-09.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -0.233918,
+        3.079922,
+        150
+      ],
+      "y": [
+        0.858918,
+        -1.204922,
+        740
+      ]
+    },
+    "meta": {
+      "number": 9,
+      "par": 4,
+      "yards": 460,
+      "tourAverage": 4.003,
+      "difficulty": 12,
+      "course": "Augusta National Golf Club"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 150,
+        "y": 740
+      },
+      {
+        "at": 0.6631,
+        "x": 1054,
+        "y": 429
+      },
+      {
+        "at": 1,
+        "x": 1490,
+        "y": 215
+      }
+    ]
+  },
+  "augusta-national:10": {
+    "image": "art-demo/augusta-national/hole-10.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.472633,
+        2.717062,
+        200
+      ],
+      "y": [
+        -1.101444,
+        -1.087894,
+        730
+      ]
+    },
+    "meta": {
+      "number": 10,
+      "par": 4,
+      "yards": 495,
+      "tourAverage": 4.166,
+      "difficulty": 7,
+      "course": "Augusta National Golf Club"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 200,
+        "y": 730
+      },
+      {
+        "at": 0.6231,
+        "x": 1000,
+        "y": 380
+      },
+      {
+        "at": 1,
+        "x": 1500,
+        "y": 210
+      }
+    ]
+  },
+  "augusta-national:11": {
+    "image": "art-demo/augusta-national/hole-11.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -5.188101,
+        2.402372,
+        250
+      ],
+      "y": [
+        -2.694745,
+        -1.018197,
+        760
+      ]
+    },
+    "meta": {
+      "number": 11,
+      "par": 4,
+      "yards": 520,
+      "tourAverage": 4.293,
+      "difficulty": 2,
+      "course": "Augusta National Golf Club"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 250,
+        "y": 760
+      },
+      {
+        "at": 0.5727,
+        "x": 1000,
+        "y": 540
+      },
+      {
+        "at": 1,
+        "x": 1500,
+        "y": 240
+      }
+    ]
+  },
+  "augusta-national:12": {
+    "image": "art-demo/augusta-national/hole-12.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        10,
+        6.818182,
+        250
+      ],
+      "y": [
+        -2,
+        -2.857143,
+        760
+      ]
+    },
+    "meta": {
+      "number": 12,
+      "par": 3,
+      "yards": 155,
+      "tourAverage": 3.152,
+      "difficulty": 9,
+      "course": "Augusta National Golf Club"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 250,
+        "y": 760
+      },
+      {
+        "at": 1,
+        "x": 1300,
+        "y": 320
+      }
+    ]
+  },
+  "augusta-national:13": {
+    "image": "art-demo/augusta-national/hole-13.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0.146849,
+        -0.151495,
+        900
+      ],
+      "y": [
+        -0.279096,
+        -1.248797,
+        780
+      ]
+    },
+    "meta": {
+      "number": 13,
+      "par": 5,
+      "yards": 545,
+      "tourAverage": 4.762,
+      "difficulty": 16,
+      "course": "Augusta National Golf Club"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 900,
+        "y": 780
+      },
+      {
+        "at": 0.5483,
+        "x": 885,
+        "y": 459
+      },
+      {
+        "at": 1,
+        "x": 830,
+        "y": 200
+      }
+    ]
+  },
+  "augusta-national:14": {
+    "image": "art-demo/augusta-national/hole-14.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -0.564554,
+        2.861704,
+        250
+      ],
+      "y": [
+        0.774801,
+        -1.168821,
+        740
+      ]
+    },
+    "meta": {
+      "number": 14,
+      "par": 4,
+      "yards": 440,
+      "tourAverage": 4.01,
+      "difficulty": 11,
+      "course": "Augusta National Golf Club"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 250,
+        "y": 740
+      },
+      {
+        "at": 0.6954,
+        "x": 1125,
+        "y": 399
+      },
+      {
+        "at": 1,
+        "x": 1500,
+        "y": 230
+      }
+    ]
+  },
+  "augusta-national:15": {
+    "image": "art-demo/augusta-national/hole-15.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        7.409091,
+        2.381818,
+        250
+      ],
+      "y": [
+        2.693182,
+        -0.936364,
+        750
+      ]
+    },
+    "meta": {
+      "number": 15,
+      "par": 5,
+      "yards": 550,
+      "tourAverage": 4.855,
+      "difficulty": 15,
+      "course": "Augusta National Golf Club"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 250,
+        "y": 750
+      },
+      {
+        "at": 0.5606,
+        "x": 1000,
+        "y": 500
+      },
+      {
+        "at": 1,
+        "x": 1560,
+        "y": 235
+      }
+    ]
+  },
+  "augusta-national:16": {
+    "image": "art-demo/augusta-national/hole-16.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        11,
+        6.567251,
+        200
+      ],
+      "y": [
+        1,
+        -2.263158,
+        680
+      ]
+    },
+    "meta": {
+      "number": 16,
+      "par": 3,
+      "yards": 170,
+      "tourAverage": 2.952,
+      "difficulty": 13,
+      "course": "Augusta National Golf Club"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 200,
+        "y": 680
+      },
+      {
+        "at": 1,
+        "x": 1290,
+        "y": 290
+      }
+    ]
+  },
+  "augusta-national:17": {
+    "image": "art-demo/augusta-national/hole-17.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.929353,
+        2.699175,
+        250
+      ],
+      "y": [
+        -2.522557,
+        -1.230562,
+        760
+      ]
+    },
+    "meta": {
+      "number": 17,
+      "par": 4,
+      "yards": 450,
+      "tourAverage": 4.238,
+      "difficulty": 3,
+      "course": "Augusta National Golf Club"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 250,
+        "y": 760
+      },
+      {
+        "at": 0.6257,
+        "x": 1000,
+        "y": 400
+      },
+      {
+        "at": 1,
+        "x": 1460,
+        "y": 210
+      }
+    ]
+  },
+  "augusta-national:18": {
+    "image": "art-demo/augusta-national/hole-18.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -1.532289,
+        2.723975,
+        200
+      ],
+      "y": [
+        -0.236032,
+        -1.290708,
+        780
+      ]
+    },
+    "meta": {
+      "number": 18,
+      "par": 4,
+      "yards": 465,
+      "tourAverage": 4.214,
+      "difficulty": 5,
+      "course": "Augusta National Golf Club"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 200,
+        "y": 780
+      },
+      {
+        "at": 0.6391,
+        "x": 1000,
+        "y": 450
+      },
+      {
+        "at": 1,
+        "x": 1420,
+        "y": 200
+      }
+    ]
   }
 }
