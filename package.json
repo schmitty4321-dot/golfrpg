@@ -15,13 +15,17 @@
     "worldcheck": "tsx scripts/worldcheck.ts",
     "realism": "tsx scripts/realism.ts",
     "art:calibrate": "node --experimental-strip-types scripts/art/calibrateIllustration.ts",
-    "audit:course": "tsx scripts/audit/courseAudit.ts"
+    "audit:course": "tsx scripts/audit/courseAudit.ts",
+    "electron": "electron .",
+    "package": "electron-builder --win portable"
   },
   "devDependencies": {
     "@types/node": "^26.6.3",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.1",
+    "electron": "^44.7.0",
+    "electron-builder": "^26.15.3",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vite": "^8.3.1",
@@ -31,5 +35,26 @@
     "lucide-react": "^0.468.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
+  },
+  "main": "electron/main.cjs",
+  "build": {
+    "appId": "com.fairwaymanager.game",
+    "productName": "Fairway Manager",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "electron/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    }
   }
 }

@@ -2,3 +2,6 @@ dist/
 node_modules/
 saves/
 public/art-demo/
+
+# Electron build output (the portable exe)
+release/
