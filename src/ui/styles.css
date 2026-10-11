@@ -1271,6 +1271,58 @@ select, input[type="text"], input[type="number"] {
 @media (max-width: 1050px) { .mp-projected-groups { grid-template-columns: repeat(2, minmax(220px, 1fr)); } }
 @media (max-width: 620px) { .mp-hero { align-items: flex-start; padding: 18px; } .mp-countdown { min-width: 84px; padding: 10px; } .mp-countdown strong { font-size: 24px; } .mp-projected-groups { grid-template-columns: minmax(0, 1fr); } .mp-third-place { grid-template-columns: 1fr; margin-inline: 0; } }
 
+/* Recruitment board: an illustrated scouting war room with dossier rows. */
+.recruitment-war-room { display: grid; gap: 12px; }
+.recruitment-board-hero { position: relative; min-height: 190px; overflow: hidden; border: 1px solid #786332; border-radius: 13px; background: #0e3024; box-shadow: 0 7px 24px rgba(12, 36, 27, .17); }
+.recruitment-board-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(5, 29, 21, .94) 0%, rgba(5, 29, 21, .74) 31%, rgba(5, 29, 21, .08) 66%); }
+.recruitment-board-hero > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 57%; }
+.recruitment-board-hero-copy { position: relative; z-index: 1; display: grid; align-content: center; justify-items: start; min-height: 190px; width: min(520px, 62%); padding: 24px 30px; color: #fff; }
+.recruitment-board-hero-copy > span { color: #e7c96e; font-size: 9px; font-weight: 850; letter-spacing: .18em; text-transform: uppercase; }
+.recruitment-board-hero-copy h1 { margin: 4px 0 6px; font: 700 clamp(31px, 4vw, 50px)/1 Georgia, serif; }
+.recruitment-board-hero-copy p { margin: 0; color: #dce8e0; font-size: 13px; }
+.recruitment-board-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.recruitment-board-metrics > div { display: grid; grid-template-columns: 43px auto minmax(0, 1fr); align-items: center; gap: 10px; min-height: 70px; padding: 11px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); box-shadow: 0 3px 10px rgba(20, 42, 30, .05); }
+.recruitment-board-metrics > div > strong { color: var(--accent); font: 700 28px Georgia, serif; }
+.recruitment-board-metrics > div > span:last-child { display: grid; }
+.recruitment-board-metrics b { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
+.recruitment-board-metrics small { color: var(--text-2); font-size: 9px; }
+.recruitment-metric-icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); }
+.recruitment-metric-icon.gold { background: color-mix(in srgb, var(--warning) 17%, var(--surface)); color: #9a701a; }
+.recruitment-metric-icon svg { width: 21px; }
+.recruitment-board-panel { overflow: hidden; }
+.recruitment-dossiers { display: grid; gap: 8px; }
+.recruitment-dossier { display: grid; grid-template-columns: minmax(150px, 1.1fr) minmax(260px, 1.7fr) minmax(190px, 1.3fr) 90px minmax(230px, 1.65fr) auto; align-items: stretch; min-height: 92px; overflow: hidden; border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 10px; background: var(--surface); box-shadow: 0 2px 8px rgba(21, 43, 31, .045); }
+.recruitment-dossier > div { padding: 11px 12px; border-right: 1px solid var(--border); }
+.recruitment-player { display: grid; align-content: center; gap: 6px; }
+.recruitment-player > a { overflow: hidden; color: var(--text); font: 700 18px/1.1 Georgia, serif; text-overflow: ellipsis; white-space: nowrap; }
+.recruitment-player > span { color: var(--text-2); font-size: 10px; }
+.recruitment-player > span strong { color: var(--accent); font-size: 16px; }
+.recruitment-facts { display: grid; grid-template-columns: 42px 95px minmax(0, 1fr); align-items: center; gap: 8px; }
+.recruitment-facts > span { display: grid; gap: 2px; min-width: 0; }
+.recruitment-facts small, .recruitment-ceiling > small { color: var(--muted); font-size: 8px; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; }
+.recruitment-facts b { overflow: hidden; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.recruitment-scouting { display: grid; align-content: center; gap: 5px; }
+.recruitment-scouting > span { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 5px; font-size: 9px; text-transform: uppercase; }
+.recruitment-scouting > span svg { color: var(--accent); }
+.recruitment-scouting > span strong { color: var(--text-2); }
+.recruitment-scouting > small { color: var(--text-2); font-size: 9px; }
+.recruitment-scout-bar { height: 7px; overflow: hidden; border: 1px solid var(--border); border-radius: 999px; background: var(--surface-2); }
+.recruitment-scout-bar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--accent), #58a878); }
+.recruitment-ceiling { display: grid; place-items: center; align-content: center; gap: 5px; }
+.recruitment-ceiling .stars { white-space: nowrap; }
+.recruitment-signing { display: grid; grid-template-columns: 30px minmax(0, 1fr); align-items: center; gap: 9px; padding: 10px 12px !important; }
+.recruitment-signing > svg { color: currentColor; }
+.recruitment-signing > span { display: grid; gap: 3px; }
+.recruitment-signing b { font-size: 10px; letter-spacing: .05em; text-transform: uppercase; }
+.recruitment-signing small { color: var(--text-2); font-size: 9px; line-height: 1.3; }
+.recruitment-signing.available { color: #186641; background: color-mix(in srgb, var(--good) 10%, var(--surface)); }
+.recruitment-signing.warning { color: #946710; background: color-mix(in srgb, var(--warning) 13%, var(--surface)); }
+.recruitment-signing.blocked { color: #474d49; background: var(--surface-2); }
+.recruitment-remove { align-self: center; margin: 10px; }
+@media (max-width: 1250px) { .recruitment-dossier { grid-template-columns: minmax(150px, 1fr) minmax(240px, 1.5fr) minmax(180px, 1.2fr) minmax(230px, 1.5fr) auto; } .recruitment-ceiling { display: none; } }
+@media (max-width: 900px) { .recruitment-board-metrics { grid-template-columns: 1fr; } .recruitment-dossier { grid-template-columns: 1fr 1.5fr; } .recruitment-dossier > div { border-bottom: 1px solid var(--border); } .recruitment-signing { grid-column: 1 / -1; } .recruitment-remove { justify-self: end; grid-column: 1 / -1; } }
+@media (max-width: 600px) { .recruitment-board-hero-copy { width: 100%; padding: 20px; } .recruitment-board-hero::after { background: rgba(5, 29, 21, .76); } .recruitment-board-hero-copy h1 { font-size: 32px; } .recruitment-dossier { grid-template-columns: 1fr; } .recruitment-dossier > div { border-right: 0; } .recruitment-signing, .recruitment-remove { grid-column: auto; } .recruitment-facts { grid-template-columns: 44px 1fr; } .recruitment-facts > span:last-child { grid-column: 1 / -1; } }
+
 /* Mastery medals and progress. */
 .tier-medal { display: inline-block; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 999px; margin-left: 4px; vertical-align: middle; color: #1d1d1b; }
 .tier-bronze { background: #d9a273; }
