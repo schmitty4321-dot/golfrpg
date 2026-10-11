@@ -56,5 +56,9 @@
         }
       ]
     }
+  },
+  "overrides": {
+    "roarr": "7.21.7",
+    "global-agent": "4.1.3"
   }
 }
