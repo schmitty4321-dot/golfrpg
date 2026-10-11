@@ -315,25 +315,54 @@ tr.mine td { font-weight: 600; }
 .schedule-filter { margin: 0; flex-wrap: wrap; }
 .schedule-progress { height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
 .schedule-progress > span { display: block; height: 100%; background: var(--accent); }
-.schedule-weeks { display: grid; gap: 8px; }
-.schedule-week { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 14px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
-.schedule-week.now { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; background: var(--accent-soft); }
-.schedule-week.past { opacity: 0.82; }
-.schedule-when { display: grid; align-content: start; gap: 2px; }
+.schedule-weeks { display: grid; gap: 20px; }
+.schedule-week { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 14px; padding-top: 2px; }
+.schedule-week + .schedule-week { padding-top: 18px; border-top: 1px solid var(--border); }
+.schedule-week.now .schedule-when strong { color: var(--accent); }
+.schedule-when { display: grid; align-content: start; gap: 2px; padding: 10px 0; }
+.schedule-when > strong { font-family: Georgia, serif; font-size: 20px; }
 .schedule-when .badge { width: fit-content; margin-top: 4px; }
-.schedule-events { display: grid; gap: 8px; }
-.schedule-event { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: start; }
-.schedule-event.has-results { grid-template-columns: auto minmax(0, 1fr) minmax(220px, 300px); }
-.schedule-event.tier-dev, .schedule-event.tier-opposite { opacity: 0.9; }
-.schedule-event-main { display: grid; gap: 2px; min-width: 0; }
-.schedule-results { display: grid; gap: 4px; align-content: start; padding: 8px 10px; border-radius: 8px; background: var(--surface-2); font-size: 13px; }
-.schedule-result-winner { margin: 0 0 4px; }
-.schedule-result-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 2px 8px; align-items: baseline; }
-.schedule-result-row > :first-child { grid-column: 1 / -1; }
-.schedule-result-row span { color: var(--text-2); }
+.schedule-events { display: grid; gap: 12px; }
+.schedule-event { display: grid; grid-template-columns: minmax(285px, 34%) minmax(0, 1fr); min-height: 150px; overflow: hidden; border: 1px solid var(--border); border-radius: 13px; background: var(--surface); box-shadow: 0 4px 14px rgba(25, 44, 32, .06); }
+.schedule-event.tier-dev, .schedule-event.tier-opposite { min-height: 132px; }
+.schedule-event-identity { display: grid; grid-template-columns: 94px minmax(0, 1fr); align-items: center; gap: 12px; padding: 16px; border-right: 1px solid var(--border); background: linear-gradient(135deg, color-mix(in srgb, var(--accent-soft) 38%, var(--surface)), var(--surface)); }
+.schedule-emblem { display: grid; place-items: center; width: 88px; height: 88px; border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--border)); border-radius: 50%; background: #fff; box-shadow: 0 3px 10px rgba(17, 52, 36, .12); }
+.schedule-event-main { display: grid; justify-items: start; gap: 5px; min-width: 0; }
+.schedule-event-main .badge { margin: 0 0 2px; font-size: 9px; }
+.schedule-event-name { max-width: 100%; overflow: hidden; color: var(--text); font: 700 20px/1.08 Georgia, serif; text-align: left; text-overflow: ellipsis; white-space: nowrap; }
+.schedule-venue, .schedule-event-facts { display: flex; align-items: center; gap: 4px; min-width: 0; color: var(--text-2); font-size: 11px; }
+.schedule-venue { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.schedule-venue svg, .schedule-event-facts svg { flex: none; color: var(--accent); }
+.schedule-event-facts b { color: var(--text); }
+.schedule-event-facts i { width: 1px; height: 12px; margin: 0 4px; background: var(--border); }
+.schedule-results { display: grid; align-content: center; gap: 9px; min-width: 0; padding: 12px; background: color-mix(in srgb, var(--surface-2) 45%, var(--surface)); }
+.schedule-champion { display: grid; grid-template-columns: 38px minmax(120px, 1fr) auto minmax(110px, auto); align-items: center; gap: 10px; min-height: 52px; padding: 7px 12px; border: 1px solid color-mix(in srgb, var(--warning) 48%, var(--border)); border-radius: 9px; background: linear-gradient(100deg, color-mix(in srgb, var(--warning) 15%, var(--surface)), var(--surface)); }
+.schedule-trophy { display: grid; place-items: center; width: 34px; height: 34px; color: #a97611; }
+.schedule-champion > span:nth-child(2), .schedule-winner-money { display: grid; }
+.schedule-champion small, .schedule-results-label { color: #8a6a22; font-size: 8px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.schedule-champion > b { color: var(--accent); font: 700 18px Georgia, serif; }
+.schedule-winner-money { padding-left: 12px; border-left: 1px solid color-mix(in srgb, var(--warning) 35%, var(--border)); text-align: right; }
+.schedule-winner-money small { color: var(--text-2); font-weight: 500; letter-spacing: 0; text-transform: none; }
+.schedule-client-results { display: grid; gap: 4px; }
+.schedule-result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 7px; }
+.schedule-result-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 8px; padding: 7px 9px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+.schedule-result-card.made-cut { background: color-mix(in srgb, var(--good) 7%, var(--surface)); }
+.schedule-result-card.missed-cut { color: var(--muted); background: var(--surface-2); }
+.schedule-result-card > a { overflow: hidden; color: inherit; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.schedule-finish { padding: 1px 6px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-size: 10px; }
+.missed-cut .schedule-finish { background: var(--muted); color: var(--surface); }
+.schedule-score { color: var(--text-2); font: 700 15px Georgia, serif; }
+.schedule-result-money { display: grid; justify-items: end; font-size: 10px; }
+.schedule-result-money small { color: var(--text-2); }
+.schedule-no-clients { margin: 0; color: var(--muted); font-size: 11px; }
+.schedule-upcoming { display: grid; align-content: center; justify-items: start; gap: 3px; padding: 20px 24px; background: linear-gradient(110deg, var(--surface), var(--accent-soft)); }
+.schedule-upcoming small { color: var(--accent); font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.schedule-upcoming strong { font: 700 18px Georgia, serif; }
+.schedule-upcoming span { color: var(--text-2); font-size: 11px; }
 .schedule-mine { margin-left: 8px; padding: 1px 7px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 600; }
 .schedule-note { width: fit-content; padding: 2px 8px; border-radius: 6px; background: var(--surface-2); color: var(--text-2); font-size: 12px; font-weight: 600; }
-@media (max-width: 620px) { .schedule-week { grid-template-columns: 1fr; gap: 6px; } .schedule-event.has-results { grid-template-columns: auto minmax(0, 1fr); } .schedule-results { grid-column: 1 / -1; } }
+@media (max-width: 980px) { .schedule-event { grid-template-columns: 1fr; } .schedule-event-identity { border-right: 0; border-bottom: 1px solid var(--border); } }
+@media (max-width: 620px) { .schedule-week { grid-template-columns: 1fr; gap: 6px; } .schedule-when { padding: 2px 0; } .schedule-event-identity { grid-template-columns: 68px minmax(0, 1fr); padding: 12px; } .schedule-emblem { width: 62px; height: 62px; } .schedule-emblem svg { width: 58px; height: 58px; } .schedule-event-name { font-size: 17px; } .schedule-champion { grid-template-columns: 32px minmax(0, 1fr) auto; } .schedule-winner-money { grid-column: 2 / -1; padding: 5px 0 0; border-top: 1px solid var(--border); border-left: 0; text-align: left; } .schedule-result-grid { grid-template-columns: 1fr; } }
 .week-summary .ws-clients { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; }
 .week-summary .ws-cols-1 { grid-template-columns: minmax(0, 1fr); }
 .week-summary .ws-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
