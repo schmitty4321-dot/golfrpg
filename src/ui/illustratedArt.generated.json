@@ -9384,24 +9384,36 @@
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        11,
+        3.953488,
+        360
       ],
       "y": [
-        0,
-        0,
-        0
+        -0.5,
+        -2.302326,
+        740
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 14,
       "par": 3,
       "yards": 215,
       "tourAverage": 3.082,
+      "difficulty": 8,
       "course": "Bay Hill Club & Lodge"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 360,
+        "y": 740
+      },
+      {
+        "at": 0,
+        "x": 1210,
+        "y": 245
+      }
+    ]
   },
   "bay-hill:15": {
     "image": "art-demo/bay-hill/hole-15.webp",
@@ -9409,24 +9421,41 @@
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        -0.055359,
+        2.628036,
+        270
       ],
       "y": [
-        0,
-        0,
-        0
+        0.038668,
+        -1.232648,
+        730
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 15,
       "par": 4,
       "yards": 467,
       "tourAverage": 4.152,
+      "difficulty": 6,
       "course": "Bay Hill Club & Lodge"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 270,
+        "y": 730
+      },
+      {
+        "at": 0.6021,
+        "x": 950,
+        "y": 410
+      },
+      {
+        "at": 1,
+        "x": 1400,
+        "y": 200
+      }
+    ]
   },
   "bay-hill:16": {
     "image": "art-demo/bay-hill/hole-16.webp",
@@ -9434,24 +9463,41 @@
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        0.154702,
+        2.610131,
+        260
       ],
       "y": [
-        0,
-        0,
-        0
+        -0.137723,
+        -1.104141,
+        740
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 16,
       "par": 5,
       "yards": 511,
       "tourAverage": 4.512,
+      "difficulty": 18,
       "course": "Bay Hill Club & Lodge"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 260,
+        "y": 740
+      },
+      {
+        "at": 0.5684,
+        "x": 1000,
+        "y": 430
+      },
+      {
+        "at": 1,
+        "x": 1560,
+        "y": 190
+      }
+    ]
   },
   "bay-hill:17": {
     "image": "art-demo/bay-hill/hole-17.webp",
@@ -9459,24 +9505,36 @@
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        6.25,
+        4.117647,
+        330
       ],
       "y": [
         0,
-        0,
-        0
+        -2.19457,
+        760
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 17,
       "par": 3,
       "yards": 221,
       "tourAverage": 3.18,
+      "difficulty": 5,
       "course": "Bay Hill Club & Lodge"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 330,
+        "y": 760
+      },
+      {
+        "at": 1,
+        "x": 1240,
+        "y": 275
+      }
+    ]
   },
   "bay-hill:18": {
     "image": "art-demo/bay-hill/hole-18.webp",
@@ -9484,24 +9542,41 @@
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        -1.27107,
+        3.070073,
+        150
       ],
       "y": [
-        0,
-        0,
-        0
+        0.073147,
+        -1.035726,
+        700
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 18,
       "par": 4,
       "yards": 458,
       "tourAverage": 4.27,
+      "difficulty": 1,
       "course": "Bay Hill Club & Lodge"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 150,
+        "y": 700
+      },
+      {
+        "at": 0.6769,
+        "x": 1091,
+        "y": 382
+      },
+      {
+        "at": 1,
+        "x": 1540,
+        "y": 230
+      }
+    ]
   },
   "bay-hill:1": {
     "image": "art-demo/bay-hill/hole-01.webp",
@@ -9509,24 +9584,41 @@
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        0.280583,
+        2.871213,
+        230
       ],
       "y": [
-        0,
-        0,
-        0
+        0.058558,
+        -1.266554,
+        760
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 1,
       "par": 4,
       "yards": 461,
       "tourAverage": 4.008,
+      "difficulty": 11,
       "course": "Bay Hill Club & Lodge"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 230,
+        "y": 760
+      },
+      {
+        "at": 0.5987,
+        "x": 1000,
+        "y": 430
+      },
+      {
+        "at": 1,
+        "x": 1510,
+        "y": 195
+      }
+    ]
   },
   "bay-hill:2": {
     "image": "art-demo/bay-hill/hole-02.webp",
@@ -9534,24 +9626,36 @@
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        11,
+        4.935065,
+        300
       ],
       "y": [
         0,
-        0,
-        0
+        -1.948052,
+        700
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 2,
       "par": 3,
       "yards": 231,
       "tourAverage": 3.09,
+      "difficulty": 7,
       "course": "Bay Hill Club & Lodge"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 300,
+        "y": 700
+      },
+      {
+        "at": 0,
+        "x": 1440,
+        "y": 250
+      }
+    ]
   },
   "bay-hill:3": {
     "image": "art-demo/bay-hill/hole-03.webp",
@@ -9559,24 +9663,41 @@
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        -0.970293,
+        2.630208,
+        300
       ],
       "y": [
-        0,
-        0,
-        0
+        0.779321,
+        -1.5625,
+        760
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 3,
       "par": 4,
       "yards": 434,
       "tourAverage": 4.004,
+      "difficulty": 12,
       "course": "Bay Hill Club & Lodge"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 300,
+        "y": 760
+      },
+      {
+        "at": 0.6962,
+        "x": 1003,
+        "y": 342
+      },
+      {
+        "at": 1,
+        "x": 1310,
+        "y": 160
+      }
+    ]
   },
   "bay-hill:4": {
     "image": "art-demo/bay-hill/hole-04.webp",
@@ -9584,24 +9705,41 @@
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        0.699153,
+        2.118644,
+        250
       ],
       "y": [
-        0,
-        0,
-        0
+        -2.478814,
+        -0.966102,
+        740
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 4,
       "par": 5,
       "yards": 590,
       "tourAverage": 4.586,
+      "difficulty": 16,
       "course": "Bay Hill Club & Lodge"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 250,
+        "y": 740
+      },
+      {
+        "at": 0.5012,
+        "x": 870,
+        "y": 440
+      },
+      {
+        "at": 1,
+        "x": 1500,
+        "y": 170
+      }
+    ]
   },
   "bay-hill:5": {
     "image": "art-demo/bay-hill/hole-05.webp",
@@ -9609,24 +9747,41 @@
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        1.214193,
+        2.890625,
+        290
       ],
       "y": [
-        0,
-        0,
-        0
+        -0.579427,
+        -1.40625,
+        740
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 5,
       "par": 4,
       "yards": 390,
       "tourAverage": 4.02,
+      "difficulty": 9,
       "course": "Bay Hill Club & Lodge"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 290,
+        "y": 740
+      },
+      {
+        "at": 0.7435,
+        "x": 1115,
+        "y": 338
+      },
+      {
+        "at": 1,
+        "x": 1400,
+        "y": 200
+      }
+    ]
   },
   "bay-hill:6": {
     "image": "art-demo/bay-hill/hole-06.webp",
@@ -9634,24 +9789,41 @@
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        2.507091,
+        1.825224,
+        250
       ],
       "y": [
-        0,
-        0,
-        0
+        0.932951,
+        -1.740906,
+        770
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 6,
       "par": 5,
       "yards": 555,
       "tourAverage": 4.787,
+      "difficulty": 15,
       "course": "Bay Hill Club & Lodge"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 250,
+        "y": 770
+      },
+      {
+        "at": 0.5191,
+        "x": 730,
+        "y": 600
+      },
+      {
+        "at": 1,
+        "x": 900,
+        "y": 160
+      }
+    ]
   },
   "bay-hill:7": {
     "image": "art-demo/bay-hill/hole-07.webp",
@@ -9659,24 +9831,36 @@
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        12,
+        4.673367,
+        420
       ],
       "y": [
-        0,
-        0,
-        0
+        0.5,
+        -2.41206,
+        740
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 7,
       "par": 3,
       "yards": 199,
       "tourAverage": 3.016,
+      "difficulty": 10,
       "course": "Bay Hill Club & Lodge"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 420,
+        "y": 740
+      },
+      {
+        "at": 0,
+        "x": 1350,
+        "y": 260
+      }
+    ]
   },
   "bay-hill:8": {
     "image": "art-demo/bay-hill/hole-08.webp",
@@ -9684,24 +9868,41 @@
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        0.19729,
+        2.733485,
+        270
       ],
       "y": [
-        0,
-        0,
-        0
+        -0.113509,
+        -1.161731,
+        720
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 8,
       "par": 4,
       "yards": 460,
       "tourAverage": 4.23,
+      "difficulty": 2,
       "course": "Bay Hill Club & Lodge"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 270,
+        "y": 720
+      },
+      {
+        "at": 0.6691,
+        "x": 1073,
+        "y": 379
+      },
+      {
+        "at": 1,
+        "x": 1470,
+        "y": 210
+      }
+    ]
   },
   "bay-hill:9": {
     "image": "art-demo/bay-hill/hole-09.webp",
@@ -9709,24 +9910,41 @@
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        0.049742,
+        2.568316,
+        300
       ],
       "y": [
-        0,
-        0,
-        0
+        0.101373,
+        -1.09495,
+        720
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 9,
       "par": 4,
       "yards": 480,
       "tourAverage": 4.213,
+      "difficulty": 3,
       "course": "Bay Hill Club & Lodge"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 300,
+        "y": 720
+      },
+      {
+        "at": 0.627,
+        "x": 1065,
+        "y": 394
+      },
+      {
+        "at": 1,
+        "x": 1520,
+        "y": 200
+      }
+    ]
   },
   "bay-hill:10": {
     "image": "art-demo/bay-hill/hole-10.webp",
@@ -9734,24 +9952,41 @@
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        -0.783513,
+        3.391069,
+        230
       ],
       "y": [
-        0,
-        0,
-        0
+        0.216616,
+        -1.431212,
+        730
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 10,
       "par": 4,
       "yards": 400,
       "tourAverage": 3.93,
+      "difficulty": 14,
       "course": "Bay Hill Club & Lodge"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 230,
+        "y": 730
+      },
+      {
+        "at": 0.6777,
+        "x": 1100,
+        "y": 370
+      },
+      {
+        "at": 1,
+        "x": 1510,
+        "y": 190
+      }
+    ]
   },
   "bay-hill:11": {
     "image": "art-demo/bay-hill/hole-11.webp",
@@ -9759,24 +9994,41 @@
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        -0.465725,
+        2.86747,
+        330
       ],
       "y": [
-        0,
-        0,
-        0
+        0.186124,
+        -1.253012,
+        760
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 11,
       "par": 4,
       "yards": 438,
       "tourAverage": 4.184,
+      "difficulty": 4,
       "course": "Bay Hill Club & Lodge"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 330,
+        "y": 760
+      },
+      {
+        "at": 0.6783,
+        "x": 1137,
+        "y": 407
+      },
+      {
+        "at": 1,
+        "x": 1520,
+        "y": 240
+      }
+    ]
   },
   "bay-hill:12": {
     "image": "art-demo/bay-hill/hole-12.webp",
@@ -9784,24 +10036,41 @@
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        -1.313153,
+        2.247387,
+        300
       ],
       "y": [
-        0,
-        0,
-        0
+        0.368031,
+        -1.027875,
+        740
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 12,
       "par": 5,
       "yards": 574,
       "tourAverage": 4.582,
+      "difficulty": 17,
       "course": "Bay Hill Club & Lodge"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 300,
+        "y": 740
+      },
+      {
+        "at": 0.5111,
+        "x": 960,
+        "y": 440
+      },
+      {
+        "at": 1,
+        "x": 1590,
+        "y": 150
+      }
+    ]
   },
   "bay-hill:13": {
     "image": "art-demo/bay-hill/hole-13.webp",
@@ -9809,23 +10078,776 @@
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        14.172485,
+        3.322382,
+        250
       ],
       "y": [
-        0,
-        0,
-        0
+        -5.560575,
+        -1.297741,
+        720
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 13,
       "par": 4,
       "yards": 382,
       "tourAverage": 3.934,
+      "difficulty": 13,
       "course": "Bay Hill Club & Lodge"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 250,
+        "y": 720
+      },
+      {
+        "at": 0.8091,
+        "x": 1280,
+        "y": 300
+      },
+      {
+        "at": 1,
+        "x": 1530,
+        "y": 220
+      }
+    ]
+  },
+  "tpc-sawgrass:15": {
+    "image": "art-demo/tpc-sawgrass/hole-15.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -4.135814,
+        2.433628,
+        300
+      ],
+      "y": [
+        1.629944,
+        -1.128319,
+        700
+      ]
+    },
+    "meta": {
+      "number": 15,
+      "par": 4,
+      "yards": 470,
+      "tourAverage": 4.067,
+      "difficulty": 12,
+      "course": "TPC Sawgrass (Stadium Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 300,
+        "y": 700
+      },
+      {
+        "at": 0.6509,
+        "x": 1016,
+        "y": 368
+      },
+      {
+        "at": 1,
+        "x": 1400,
+        "y": 190
+      }
+    ]
+  },
+  "tpc-sawgrass:16": {
+    "image": "art-demo/tpc-sawgrass/hole-16.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0.527954,
+        2.535616,
+        200
+      ],
+      "y": [
+        0.341594,
+        -1.035157,
+        750
+      ]
+    },
+    "meta": {
+      "number": 16,
+      "par": 5,
+      "yards": 523,
+      "tourAverage": 4.597,
+      "difficulty": 18,
+      "course": "TPC Sawgrass (Stadium Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 200,
+        "y": 750
+      },
+      {
+        "at": 0.561,
+        "x": 950,
+        "y": 470
+      },
+      {
+        "at": 1,
+        "x": 1520,
+        "y": 210
+      }
+    ]
+  },
+  "tpc-sawgrass:17": {
+    "image": "art-demo/tpc-sawgrass/hole-17.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        13.846154,
+        7.230769,
+        300
+      ],
+      "y": [
+        0,
+        -3.071429,
+        730
+      ]
+    },
+    "meta": {
+      "number": 17,
+      "par": 3,
+      "yards": 137,
+      "tourAverage": 3.095,
+      "difficulty": 9,
+      "course": "TPC Sawgrass (Stadium Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 300,
+        "y": 730
+      },
+      {
+        "at": 1,
+        "x": 1340,
+        "y": 300
+      }
+    ]
+  },
+  "tpc-sawgrass:18": {
+    "image": "art-demo/tpc-sawgrass/hole-18.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0.835189,
+        2.672606,
+        250
+      ],
+      "y": [
+        0.128285,
+        -1.269488,
+        760
+      ]
+    },
+    "meta": {
+      "number": 18,
+      "par": 4,
+      "yards": 462,
+      "tourAverage": 4.338,
+      "difficulty": 1,
+      "course": "TPC Sawgrass (Stadium Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 250,
+        "y": 760
+      },
+      {
+        "at": 0.6164,
+        "x": 1000,
+        "y": 430
+      },
+      {
+        "at": 1,
+        "x": 1450,
+        "y": 190
+      }
+    ]
+  },
+  "tpc-sawgrass:1": {
+    "image": "art-demo/tpc-sawgrass/hole-01.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0.653656,
+        2.730039,
+        380
+      ],
+      "y": [
+        -1.388102,
+        -1.303116,
+        740
+      ]
+    },
+    "meta": {
+      "number": 1,
+      "par": 4,
+      "yards": 423,
+      "tourAverage": 4.1,
+      "difficulty": 7,
+      "course": "TPC Sawgrass (Stadium Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 380,
+        "y": 740
+      },
+      {
+        "at": 0.7165,
+        "x": 1204,
+        "y": 346
+      },
+      {
+        "at": 1,
+        "x": 1530,
+        "y": 190
+      }
+    ]
+  },
+  "tpc-sawgrass:2": {
+    "image": "art-demo/tpc-sawgrass/hole-02.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        6.554006,
+        2.328055,
+        200
+      ],
+      "y": [
+        -6.05767,
+        -0.976129,
+        720
+      ]
+    },
+    "meta": {
+      "number": 2,
+      "par": 5,
+      "yards": 532,
+      "tourAverage": 4.677,
+      "difficulty": 17,
+      "course": "TPC Sawgrass (Stadium Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 200,
+        "y": 720
+      },
+      {
+        "at": 0.5735,
+        "x": 934,
+        "y": 410
+      },
+      {
+        "at": 1,
+        "x": 1480,
+        "y": 180
+      }
+    ]
+  },
+  "tpc-sawgrass:3": {
+    "image": "art-demo/tpc-sawgrass/hole-03.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        10,
+        6.187845,
+        250
+      ],
+      "y": [
+        0.909091,
+        -2.812657,
+        740
+      ]
+    },
+    "meta": {
+      "number": 3,
+      "par": 3,
+      "yards": 177,
+      "tourAverage": 3.097,
+      "difficulty": 8,
+      "course": "TPC Sawgrass (Stadium Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 250,
+        "y": 740
+      },
+      {
+        "at": 1,
+        "x": 1360,
+        "y": 230
+      }
+    ]
+  },
+  "tpc-sawgrass:4": {
+    "image": "art-demo/tpc-sawgrass/hole-04.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        2.86385,
+        3.474178,
+        230
+      ],
+      "y": [
+        0.694165,
+        -1.493964,
+        740
+      ]
+    },
+    "meta": {
+      "number": 4,
+      "par": 4,
+      "yards": 384,
+      "tourAverage": 4.067,
+      "difficulty": 11,
+      "course": "TPC Sawgrass (Stadium Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 230,
+        "y": 740
+      },
+      {
+        "at": 0.5817,
+        "x": 1000,
+        "y": 400
+      },
+      {
+        "at": 1,
+        "x": 1560,
+        "y": 170
+      }
+    ]
+  },
+  "tpc-sawgrass:5": {
+    "image": "art-demo/tpc-sawgrass/hole-05.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0.940736,
+        2.510917,
+        380
+      ],
+      "y": [
+        2.044916,
+        -1.113537,
+        680
+      ]
+    },
+    "meta": {
+      "number": 5,
+      "par": 4,
+      "yards": 471,
+      "tourAverage": 4.126,
+      "difficulty": 5,
+      "course": "TPC Sawgrass (Stadium Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 380,
+        "y": 680
+      },
+      {
+        "at": 0.6584,
+        "x": 1137,
+        "y": 344
+      },
+      {
+        "at": 1,
+        "x": 1530,
+        "y": 170
+      }
+    ]
+  },
+  "tpc-sawgrass:6": {
+    "image": "art-demo/tpc-sawgrass/hole-06.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        2.092846,
+        2.803146,
+        300
+      ],
+      "y": [
+        8.645358,
+        -1.390157,
+        740
+      ]
+    },
+    "meta": {
+      "number": 6,
+      "par": 4,
+      "yards": 393,
+      "tourAverage": 4.033,
+      "difficulty": 13,
+      "course": "TPC Sawgrass (Stadium Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 300,
+        "y": 740
+      },
+      {
+        "at": 0.5969,
+        "x": 1000,
+        "y": 420
+      },
+      {
+        "at": 1,
+        "x": 1450,
+        "y": 160
+      }
+    ]
+  },
+  "tpc-sawgrass:7": {
+    "image": "art-demo/tpc-sawgrass/hole-07.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        2.191445,
+        2.521038,
+        330
+      ],
+      "y": [
+        -1.651473,
+        -1.307854,
+        750
+      ]
+    },
+    "meta": {
+      "number": 7,
+      "par": 4,
+      "yards": 451,
+      "tourAverage": 4.105,
+      "difficulty": 6,
+      "course": "TPC Sawgrass (Stadium Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 330,
+        "y": 750
+      },
+      {
+        "at": 0.683,
+        "x": 1095,
+        "y": 354
+      },
+      {
+        "at": 1,
+        "x": 1450,
+        "y": 170
+      }
+    ]
+  },
+  "tpc-sawgrass:8": {
+    "image": "art-demo/tpc-sawgrass/hole-08.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        10.769231,
+        4.806867,
+        230
+      ],
+      "y": [
+        0,
+        -2.145923,
+        730
+      ]
+    },
+    "meta": {
+      "number": 8,
+      "par": 3,
+      "yards": 237,
+      "tourAverage": 3.164,
+      "difficulty": 3,
+      "course": "TPC Sawgrass (Stadium Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 230,
+        "y": 730
+      },
+      {
+        "at": 1,
+        "x": 1350,
+        "y": 230
+      }
+    ]
+  },
+  "tpc-sawgrass:9": {
+    "image": "art-demo/tpc-sawgrass/hole-09.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -1.066456,
+        2.328948,
+        150
+      ],
+      "y": [
+        0.696805,
+        -1.055138,
+        800
+      ]
+    },
+    "meta": {
+      "number": 9,
+      "par": 5,
+      "yards": 602,
+      "tourAverage": 4.792,
+      "difficulty": 15,
+      "course": "TPC Sawgrass (Stadium Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 150,
+        "y": 800
+      },
+      {
+        "at": 0.5168,
+        "x": 860,
+        "y": 470
+      },
+      {
+        "at": 1,
+        "x": 1530,
+        "y": 175
+      }
+    ]
+  },
+  "tpc-sawgrass:10": {
+    "image": "art-demo/tpc-sawgrass/hole-10.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -0.776238,
+        2.722772,
+        320
+      ],
+      "y": [
+        -0.754455,
+        -1.44802,
+        760
+      ]
+    },
+    "meta": {
+      "number": 10,
+      "par": 4,
+      "yards": 424,
+      "tourAverage": 4.131,
+      "difficulty": 4,
+      "course": "TPC Sawgrass (Stadium Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 320,
+        "y": 760
+      },
+      {
+        "at": 0.6391,
+        "x": 1000,
+        "y": 340
+      },
+      {
+        "at": 1,
+        "x": 1420,
+        "y": 175
+      }
+    ]
+  },
+  "tpc-sawgrass:11": {
+    "image": "art-demo/tpc-sawgrass/hole-11.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -0.991628,
+        2.400722,
+        180
+      ],
+      "y": [
+        -3.732237,
+        -1.064982,
+        800
+      ]
+    },
+    "meta": {
+      "number": 11,
+      "par": 5,
+      "yards": 558,
+      "tourAverage": 4.769,
+      "difficulty": 16,
+      "course": "TPC Sawgrass (Stadium Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 180,
+        "y": 800
+      },
+      {
+        "at": 0.5338,
+        "x": 820,
+        "y": 320
+      },
+      {
+        "at": 1,
+        "x": 1510,
+        "y": 210
+      }
+    ]
+  },
+  "tpc-sawgrass:12": {
+    "image": "art-demo/tpc-sawgrass/hole-12.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -6.836386,
+        2.890407,
+        250
+      ],
+      "y": [
+        -1.760323,
+        -1.667184,
+        780
+      ]
+    },
+    "meta": {
+      "number": 12,
+      "par": 4,
+      "yards": 369,
+      "tourAverage": 3.969,
+      "difficulty": 14,
+      "course": "TPC Sawgrass (Stadium Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 250,
+        "y": 780
+      },
+      {
+        "at": 0.7383,
+        "x": 1060,
+        "y": 380
+      },
+      {
+        "at": 1,
+        "x": 1310,
+        "y": 180
+      }
+    ]
+  },
+  "tpc-sawgrass:13": {
+    "image": "art-demo/tpc-sawgrass/hole-13.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        8.125,
+        6.253453,
+        260
+      ],
+      "y": [
+        0.3125,
+        -2.708909,
+        700
+      ]
+    },
+    "meta": {
+      "number": 13,
+      "par": 3,
+      "yards": 181,
+      "tourAverage": 3.092,
+      "difficulty": 10,
+      "course": "TPC Sawgrass (Stadium Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 260,
+        "y": 700
+      },
+      {
+        "at": 1,
+        "x": 1400,
+        "y": 210
+      }
+    ]
+  },
+  "tpc-sawgrass:14": {
+    "image": "art-demo/tpc-sawgrass/hole-14.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        -9.076923,
+        2.087179,
+        500
+      ],
+      "y": [
+        4.153846,
+        -1.107692,
+        700
+      ]
+    },
+    "meta": {
+      "number": 14,
+      "par": 4,
+      "yards": 481,
+      "tourAverage": 4.279,
+      "difficulty": 2,
+      "course": "TPC Sawgrass (Stadium Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 500,
+        "y": 700
+      },
+      {
+        "at": 0.6341,
+        "x": 1147,
+        "y": 358
+      },
+      {
+        "at": 1,
+        "x": 1520,
+        "y": 160
+      }
+    ]
   }
 }

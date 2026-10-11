@@ -11,13 +11,15 @@ import { writeFileSync, mkdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { REAL_COURSES } from "../../src/engine/realCourses";
 import { decisionsFor, holeFindings, type CallKind } from "../../src/engine/calls";
-import { traceHole, type HoleTrace } from "../../src/engine/tracer";
+import { realHoleOf, traceHole, type HoleTrace } from "../../src/engine/tracer";
 import { generatePlayer } from "../../src/engine/players";
 import { createRng } from "../../src/engine/rng";
 import type { Course, Player } from "../../src/engine/types";
 
 const args = process.argv.slice(2).filter((a) => !a.startsWith("--"));
 const write = process.argv.includes("--write");
+// --anchors adds the landing-spot table: the world anchors and calibrate command for each hole.
+const anchors = process.argv.includes("--anchors");
 const target = args[0] ?? "all";
 const rounds = Number(args[1] ?? 50);
 
@@ -97,7 +99,51 @@ function auditCourse(course: Course, n: number) {
   const problems = holeReports.filter((h) => !h.endsWith(": ok")).length;
   lines.push("");
   lines.push(`${problems} of ${course.holes.length} holes have something to check.`);
+  if (anchors) lines.push(anchorSection(course));
   return lines.join("\n");
+}
+
+/**
+ * The landing-spot step from the other courses, as data: each hole's tee, a landing point
+ * on its real line of play (about 270 yards on a par 4, 290 on a par 5, the front of the green
+ * on a par 3), and the green. Read those three points off the picture in pixels, then run the
+ * calibrate command below. Then respace the route (scripts/art/respaceRoutes.mjs) and
+ * remove displayOnly so the tracer draws the hole.
+ */
+function anchorSection(course: Course): string {
+  const out = ["", "## Landing anchors (world yards from the real map)", "", "| Hole | Par | Tee | Landing | Green | Calibrate command (replace the pixel values) |", "|---|---|---|---|---|---|"];
+  for (const hole of course.holes) {
+    const real = realHoleOf(course.id, hole.number);
+    if (!real) {
+      out.push(`| ${hole.number} | ${hole.par} | - | - | - | no real map |`);
+      continue;
+    }
+    const path = real.path;
+    const [gx = 0, gy = 0] = real.green;
+    const target = hole.par === 3 ? gy - 14 : hole.par === 4 ? Math.min(hole.yards - 150, 270) : Math.min(hole.yards - 200, 290);
+    // Walk the line of play to the point at the target distance from the tee.
+    let land = path[0]!;
+    let walked = 0;
+    for (let i = 1; i < path.length; i++) {
+      const a = path[i - 1]!;
+      const b = path[i]!;
+      const seg = Math.hypot(b[0]! - a[0]!, b[1]! - a[1]!);
+      if (walked + seg >= target) {
+        const t = seg ? (target - walked) / seg : 0;
+        land = [a[0]! + (b[0]! - a[0]!) * t, a[1]! + (b[1]! - a[1]!) * t];
+        break;
+      }
+      walked += seg;
+      land = b;
+    }
+    const f = (p: number[]) => `${Math.round(p[0]!)},${Math.round(p[1]!)}`;
+    const id = String(hole.number).padStart(2, "0");
+    const pic = art[`${course.id}:${hole.number}`] as { image?: string; width?: number; height?: number } | undefined;
+    const image = pic?.image?.split("?")[0] ?? `art-demo/${course.id}/hole-${id}.webp`;
+    const cmd = `npm run art:calibrate -- ${course.id} ${hole.number} public/${image} ${pic?.width ?? 1774} ${pic?.height ?? 887} "0,0:TEE_PX" "${f(land)}:LANDING_PX" "${f([gx, gy])}:GREEN_PX"`;
+    out.push(`| ${hole.number} | ${hole.par} | 0,0 | ${f(land)} | ${f([gx, gy])} | \`${cmd}\` |`);
+  }
+  return out.join("\n");
 }
 
 const courses = target === "all" ? REAL_COURSES.filter((c) => art[`${c.id}:1`]) : REAL_COURSES.filter((c) => c.id === target);
