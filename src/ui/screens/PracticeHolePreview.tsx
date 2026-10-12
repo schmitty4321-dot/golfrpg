@@ -213,7 +213,8 @@ export function PracticeHolePreview() {
   // Only the golfer whose shot is on screen shows his ball and shot info. He stays up after his shot lands, until the next golfer starts his swing.
   const [shown, setShown] = useState(0);
   const allHoled = balls.every((b) => b.holed);
-  const showGolfer = (i: number) => allHoled || i === shown;
+  // The column lists the golfer whose turn it is, so the next golfer is shown as soon as the shot before him lands.
+  const showGolfer = (i: number) => allHoled || i === turn;
   const shownBall = balls[shown]!;
   const player = PLAYERS[turn]!;
   const [log, setLog] = useState<string[]>([]);
@@ -356,7 +357,7 @@ export function PracticeHolePreview() {
         </div>
         <aside style={{ flex: "1 1 220px", minWidth: 220, border: "1px solid rgba(0, 0, 0, 0.12)", borderRadius: 8, padding: 12 }}>
           {PLAYERS.map((p, i) => showGolfer(i) ? (
-            <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 8, padding: "6px 8px", borderRadius: 6, background: !allHoled && shown === i ? "rgba(34, 238, 227, 0.2)" : "transparent", fontWeight: !allHoled && shown === i ? 700 : 400 }}>
+            <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 8, padding: "6px 8px", borderRadius: 6, background: !allHoled && turn === i ? "rgba(34, 238, 227, 0.2)" : "transparent", fontWeight: !allHoled && turn === i ? 700 : 400 }}>
               <span>{p.name}</span>
               <span style={{ fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{balls[i]!.holed ? `holed in ${balls[i]!.score}` : `${strokesBy(i)} ${strokesBy(i) === 1 ? "stroke" : "strokes"}`}</span>
             </div>
