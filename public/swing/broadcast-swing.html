@@ -61,7 +61,7 @@ const club=q('club'),shot=q('shot'),target=q('target');
 const lie=q('lie'),wind=q('wind'),cross=q('cross'),aim=q('aim');
 const lies={fairway:{name:'Fairway',carry:1,spin:1,window:0},light:{name:'Light rough',carry:.94,spin:.8,window:8},deep:{name:'Deep rough',carry:.78,spin:.45,window:22},fairwaySand:{name:'Fairway bunker',carry:.96,spin:.85,window:25},greenSand:{name:'Greenside bunker',carry:1,spin:.9,window:0},green:{name:'Green',carry:1,spin:1,window:0},tree:{name:'Trees',carry:.6,spin:.5,window:40},tee:{name:'Tee',carry:1,spin:1,window:0}};
 const clubs={driver:{name:'Driver',carry:250,window:60},iron:{name:'7 iron',carry:155,window:85},wedge:{name:'Wedge',carry:90,window:110}};
-const powerDuration=2200,curveDuration=420,strikeDuration=1200;
+const powerDuration=2000,curveDuration=382,strikeDuration=1091;
 let phase='ready',start=0,power=90,error=0,raf=0,last=null,elapsed=0,powerMark=null,accuracyMark=null,powerLocked=false;
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 function restore(s){const m=s?.modelContent;if(!m)return;shape.value=['-1','0','1'].includes(String(m.shape))?String(m.shape):'0';height.value=['-1','0','1'].includes(String(m.height))?String(m.height):'0';strength.value=clamp(Number(m.strength)||0,0,100);club.value=clubs[m.club]?m.club:'driver';shot.value=['normal','punch','flop'].includes(m.shot)?m.shot:'normal';target.value=clamp(Number(m.target)||90,10,110);lie.value=lies[m.lie]?m.lie:'fairway';wind.value=clamp(+m.wind||0,-20,20);cross.value=clamp(+m.crosswind||0,-20,20);aim.value=clamp(+m.aim||0,-40,40);normalize();}
