@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createRng, REAL_COURSES, generatePlayer } from "../../engine";
-import { clubCarry, playPracticeShot, puttPower, startPracticeHole, type PracticeHole, type PracticeStroke } from "../../engine/practiceHole";
+import { bestClub, clubCarry, playPracticeShot, puttPower, startPracticeHole, type PracticeHole, type PracticeStroke } from "../../engine/practiceHole";
 import { meterFactor, sweetSpotMs, type SwingClub, type SwingLie, type SwingShot } from "../../engine/swing";
 import { illustratedArtFor, pictureLieAt, projectArtPoint, type ArtMatrix } from "../illustratedArt";
 import { GreenTopDown } from "../components/GreenTopDown";
@@ -260,6 +260,10 @@ export function PracticeHolePreview() {
   const power = state.lie === "green" ? Math.round(puttPower(toTarget)) : Math.min(110, Math.round((toTarget / carry) * 100));
   const [swinging, setSwinging] = useState(false);
   const flying = progress < 1;
+  // When the next golfer's turn starts, his club is the one that fits the distance left (off the green).
+  useEffect(() => {
+    if (state.lie !== "green") setClub(bestClub(player, Math.hypot(state.layout.pin.x - state.ball.x, state.layout.pin.y - state.ball.y)));
+  }, [state.strokes.length, turn]);
   // At the start of each shot, and when the club changes, the target goes to the club's usual carry on the fairway.
   useEffect(() => {
     if (state.lie === "green") {

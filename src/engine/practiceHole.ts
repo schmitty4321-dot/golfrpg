@@ -67,6 +67,12 @@ function inPolygon(p: Pt, poly: Pt[]): boolean {
 }
 
 /** How far the player hits each club on a full swing, in yards carry (from the same skill numbers the tracer uses). */
+/** The full-swing club whose usual carry is nearest the distance left: the default club for a shot off the green. */
+export function bestClub(player: Player, yards: number): SwingClub {
+  const full: SwingClub[] = ["driver", "iron", "wedge"];
+  return full.reduce((best, c) => (Math.abs(clubCarry(player, c) - yards) < Math.abs(clubCarry(player, best) - yards) ? c : best), "wedge" as SwingClub);
+}
+
 export function clubCarry(player: Player, club: SwingClub): number {
   const a = player.attributes;
   if (club === "driver") return Math.round(255 + YARDS_PER_POINT * (a.drivingDistance - TOUR_AVERAGE));
