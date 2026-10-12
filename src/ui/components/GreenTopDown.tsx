@@ -26,13 +26,15 @@ interface Props {
   progress: number;
   showAim: boolean;
   onAim: (p: Pt) => void;
+  /** The last stroke was a gimme: the word GIMME shows over the hole. */
+  gimme: boolean;
 }
 
 /**
  * The green from above, in yards. The photo is turned so the way back to the tee points down the
  * screen, and scaled to the layout's green radius. Forward (away from the tee) is up the screen.
  */
-export function GreenTopDown({ layout, ball, aim, strokes, progress, showAim, onAim }: Props) {
+export function GreenTopDown({ layout, ball, aim, strokes, progress, showAim, onAim, gimme }: Props) {
   const svg = useRef<SVGSVGElement>(null);
   const g = layout.green;
   // Yards from the green centre to a point on the course, with forward pointing up the screen.
@@ -94,6 +96,7 @@ export function GreenTopDown({ layout, ball, aim, strokes, progress, showAim, on
         <line x1={pin.x} y1={pin.y} x2={pin.x} y2={pin.y - 3.5} stroke="#f4f5ef" strokeWidth={0.3} />
         <path d={`M ${pin.x} ${pin.y - 3.5} l 1.6 0.6 l -1.6 0.6 Z`} fill="#e53935" />
         <circle cx={pin.x} cy={pin.y} r={0.35} fill="#101010" />
+        {gimme && progress >= 1 && <text x={pin.x} y={pin.y - 2.2} textAnchor="middle" fontSize={3.2} fontWeight={700} fill="#ffffff" stroke="#000" strokeWidth={0.4} paintOrder="stroke">GIMME</text>}
         {/* The ball. */}
         {/* The ball rolls from where it was struck to where it comes to rest. No tracer line. */}
         <circle cx={rollAt.x} cy={rollAt.y} r={0.6} fill="#ffffff" stroke="#000" strokeWidth={0.25} />

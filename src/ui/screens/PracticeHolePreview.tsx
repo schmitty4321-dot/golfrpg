@@ -287,7 +287,7 @@ export function PracticeHolePreview() {
   // The overhead view: within 30 yards of the pin when the golfer's turn starts.
   // The overhead view stays up for the golfer on screen while he is within 30 yards, and while his ball is on the green.
   const shownToPin = Math.hypot(shownBall.ball.x - state.layout.pin.x, shownBall.ball.y - state.layout.pin.y);
-  const overhead = shownToPin <= 30 && (shown === turn || shownBall.lie === "green");
+  const overhead = shownToPin <= 30 && (shown === turn || shownBall.lie === "green" || shownBall.lie === "holed");
   const near = !overhead && camGolfer !== null;
 
   const dot = (p: Pt) => projectArtPoint(view.matrix, p);
@@ -325,6 +325,7 @@ export function PracticeHolePreview() {
     setTurn(nextToPlay(nextBalls, state.layout.pin, turn));
     setCamGolfer(!next.holed && Math.hypot(s.to.x - state.layout.pin.x, s.to.y - state.layout.pin.y) <= 30 ? turn : null);
     setLog((l) => [...l, `${player.name} · shot ${s.stroke}. ${s.penalty ? "Into the water, penalty, back to where it was struck" : s.lieBefore === "green" ? `${Math.round(s.yards * 3)} ft to ${LIE_LABEL[s.lieAfter] ?? s.lieAfter}` : `${Math.round(s.yards)} yds to ${LIE_LABEL[s.lieAfter] ?? s.lieAfter}`} · timing ${Math.round(strike.timingMs)} ms · power ${Math.round(strike.power)}%`]);
+    if (next.strokes.length === state.strokes.length + 2) setLog((l) => [...l, `${player.name} · gimme, holed in ${next.score}`]);
   };
   const reset = () => {
     setBalls([startPracticeHole(course, hole, 0), startPracticeHole(course, hole, 0)]);
@@ -355,7 +356,7 @@ export function PracticeHolePreview() {
         <div style={{ display: "flex", gap: 16, alignItems: "flex-start", flexWrap: "wrap" }}>
         <div className="practice-picture" ref={picture} style={{ position: "relative", touchAction: "none", flex: "3 1 380px", minWidth: 0 }}>
           {overhead ? (
-            <GreenTopDown layout={state.layout} ball={shownBall.ball} aim={aimAt} strokes={shownBall.strokes} progress={progress} showAim={showTarget} onAim={setTarget} />
+            <GreenTopDown gimme={!!shownBall.strokes[shownBall.strokes.length - 1]?.gimme} layout={state.layout} ball={shownBall.ball} aim={aimAt} strokes={shownBall.strokes} progress={progress} showAim={showTarget} onAim={setTarget} />
           ) : (<>
           <img src={`${base}${art.image}`} alt={`${course.name}, hole 1`} style={{ width: "100%", display: "block" }} />
           <svg viewBox={`0 0 ${view.width} ${view.height}`} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} aria-hidden>

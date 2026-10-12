@@ -29,6 +29,8 @@ export interface PracticeShot {
 
 export interface PracticeStroke {
   stroke: number;
+  /** The tap-in for a gimme: the last stroke, from a putt left within 5 feet. */
+  gimme?: boolean;
   club: SwingClub;
   from: Pt;
   to: Pt;
@@ -171,12 +173,14 @@ export function playPracticeShot(state: PracticeHole, player: Player, shot: Prac
     const left = holed ? 0 : Math.max(0, toPin - travel);
     const scale = toPin > 0 ? left / toPin : 0;
     const rest = holed ? pin : { x: pin.x + (from.x - pin.x) * scale, y: pin.y + (from.y - pin.y) * scale };
-    // A gimme: a ball left within 5 feet of the hole is holed without another putt.
-    const drop = holed || dist(rest, layout.pin) <= GIMME_YARDS;
-    const to = drop ? layout.pin : rest;
-    const lieAfter: BallLie = drop ? "holed" : "green";
-    const stroke: PracticeStroke = { stroke: state.score + 1, club: "wedge", from, to, lieBefore: "green", lieAfter, yards: toPin, penalty: false, quality: drop ? 1 : 0 };
-    return { ...state, ball: to, lie: lieAfter, strokes: [...state.strokes, stroke], score: state.score + 1, holed: drop };
+    // A putt left within 5 feet is a gimme: it is tapped in for one more stroke, and the golfer is done.
+    const gimme = !holed && dist(rest, layout.pin) <= GIMME_YARDS;
+    const lieAfter: BallLie = holed ? "holed" : "green";
+    const to = holed ? layout.pin : rest;
+    const stroke: PracticeStroke = { stroke: state.score + 1, club: "wedge", from, to, lieBefore: "green", lieAfter, yards: toPin, penalty: false, quality: holed ? 1 : 0 };
+    if (!gimme) return { ...state, ball: to, lie: lieAfter, strokes: [...state.strokes, stroke], score: state.score + 1, holed };
+    const tap: PracticeStroke = { stroke: state.score + 2, club: "putter", from: rest, to: layout.pin, lieBefore: "green", lieAfter: "holed", yards: dist(rest, layout.pin), penalty: false, quality: 1, gimme: true };
+    return { ...state, ball: layout.pin, lie: "holed", strokes: [...state.strokes, stroke, tap], score: state.score + 2, holed: true };
   }
 
   // Full swing: power scales the club's carry; the lie reduces it; timing and aim move it sideways.
