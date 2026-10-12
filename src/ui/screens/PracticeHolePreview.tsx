@@ -300,8 +300,8 @@ export function PracticeHolePreview() {
     setShown(0);
   };
 
-  // The top-down green is for putting: the golfer whose turn it is has his ball on the green and his last shot has landed.
-  const putting = state.lie === "green" && !flying && shown === turn;
+  // The overhead view shows within 30 yards of the hole: the golfer whose turn it is, once his last shot has landed.
+  const overhead = !flying && shown === turn && Math.hypot(state.ball.x - state.layout.pin.x, state.ball.y - state.layout.pin.y) <= 30;
   const strokesBy = (i: number) => balls[i]!.strokes.length;
   const marker = dot(aimAt);
   const ballPx = dot(shownBall.ball);
@@ -317,7 +317,7 @@ export function PracticeHolePreview() {
         </div>
         <div style={{ display: "flex", gap: 16, alignItems: "flex-start", flexWrap: "wrap" }}>
         <div className="practice-picture" ref={picture} style={{ position: "relative", touchAction: "none", flex: "3 1 380px", minWidth: 0 }}>
-          {putting ? (
+          {overhead ? (
             <GreenTopDown layout={state.layout} ball={state.ball} aim={aimAt} strokes={shownBall.strokes} progress={progress} showAim={showTarget} onAim={setTarget} />
           ) : (<>
           <img src={`${base}${art.image}`} alt={`${course.name}, hole 1`} style={{ width: "100%", display: "block" }} />

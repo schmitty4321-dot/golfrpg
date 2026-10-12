@@ -2,9 +2,6 @@ import { useRef } from "react";
 import type { PracticeStroke } from "../../engine/practiceHole";
 import type { HoleLayout, Pt } from "../../engine/tracer";
 
-/** How far from the green centre the top-down view reaches, in yards. */
-const REACH = 30;
-
 /**
  * The photo of Waialae hole 1's green from above. The sand and water are in the photo, so the
  * layout only places the green, the pin and the ball on it.
@@ -40,6 +37,9 @@ export function GreenTopDown({ layout, ball, aim, strokes, progress, showAim, on
   const g = layout.green;
   // Yards from the green centre to a point on the course, with forward pointing up the screen.
   const toView = (p: Pt) => ({ x: p.x - g.x, y: -(p.y - g.y) });
+  // The view is centred between the ball and the pin, sized to show both with room around them.
+  const mid = toView({ x: (ball.x + layout.pin.x) / 2, y: (ball.y + layout.pin.y) / 2 });
+  const span = Math.max(Math.hypot(ball.x - layout.pin.x, ball.y - layout.pin.y) / 2 + 12, 18);
 
   // Turn the photo so the way back to the tee points down (the screen's y runs down), and scale it to the green.
   const backAngle = (Math.atan2(PHOTO.back.y - PHOTO.centre.y, PHOTO.back.x - PHOTO.centre.x) * 180) / Math.PI;
@@ -56,7 +56,7 @@ export function GreenTopDown({ layout, ball, aim, strokes, progress, showAim, on
       const fx = (clientX - rect.left) / rect.width;
       const fy = (clientY - rect.top) / rect.height;
       // Back from the view to the course: x as is, screen y flipped (up is forward).
-      onAim({ x: g.x + (-REACH + fx * 2 * REACH), y: g.y - (-REACH + fy * 2 * REACH) });
+      onAim({ x: g.x + mid.x - span + fx * 2 * span, y: g.y - (mid.y - span + fy * 2 * span) });
     };
     const move = (ev: PointerEvent) => place(ev.clientX, ev.clientY);
     const up = () => {
@@ -78,12 +78,12 @@ export function GreenTopDown({ layout, ball, aim, strokes, progress, showAim, on
     <div style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", background: "#4f8a2f", borderRadius: 8, overflow: "hidden" }}>
       <svg
         ref={svg}
-        viewBox={`${-REACH} ${-REACH} ${2 * REACH} ${2 * REACH}`}
+        viewBox={`${mid.x - span} ${mid.y - span} ${2 * span} ${2 * span}`}
         onPointerDown={dragAim}
         style={{ width: "100%", height: "100%", display: "block", touchAction: "none", cursor: showAim ? "crosshair" : "default" }}
         aria-label="Top-down view of the green"
       >
-        <rect x={-REACH} y={-REACH} width={2 * REACH} height={2 * REACH} fill="#4f8a2f" />
+        <rect x={mid.x - span} y={mid.y - span} width={2 * span} height={2 * span} fill="#4f8a2f" />
         {/* The photo of the green, turned and scaled onto the layout. */}
         <image href={`${import.meta.env.BASE_URL}${PHOTO.src}`} x={0} y={0} width={PHOTO.width} height={PHOTO.height} transform={photoTransform} />
         {/* Shot lines: earlier shots in full, the latest flying in. */}
