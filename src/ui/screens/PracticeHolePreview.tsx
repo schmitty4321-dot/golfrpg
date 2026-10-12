@@ -250,7 +250,7 @@ export function PracticeHolePreview() {
     const s = next.strokes[next.strokes.length - 1] as PracticeStroke;
     setState(next);
     setTurn((t) => 1 - t);
-    setLog((l) => [...l, `${player.name.split(" (")[1]?.replace(")", "") ?? ""} ${s.stroke}. ${s.penalty ? "Into the water, penalty, back to where it was struck" : `${Math.round(s.yards)} yds to ${LIE_LABEL[s.lieAfter] ?? s.lieAfter}`} · timing ${Math.round(strike.timingMs)} ms · power ${Math.round(strike.power)}%`]);
+    setLog((l) => [...l, `${player.name} · shot ${s.stroke}. ${s.penalty ? "Into the water, penalty, back to where it was struck" : `${Math.round(s.yards)} yds to ${LIE_LABEL[s.lieAfter] ?? s.lieAfter}`} · timing ${Math.round(strike.timingMs)} ms · power ${Math.round(strike.power)}%`]);
   };
   const reset = () => {
     setState(startPracticeHole(course, hole, 0));
@@ -259,6 +259,8 @@ export function PracticeHolePreview() {
     setTurn(0);
   };
 
+  // Each golfer takes every other stroke, so his strokes are the ones at his turn's parity.
+  const strokesBy = (i: number) => state.strokes.filter((_, k) => k % 2 === i).length;
   const marker = dot(aimAt);
   const ballPx = dot(state.ball);
   return (
@@ -271,7 +273,8 @@ export function PracticeHolePreview() {
           </div>
           <a className="btn btn-small" href={window.location.pathname}>Return to game</a>
         </div>
-        <div className="practice-picture" ref={picture} style={{ position: "relative", touchAction: "none" }}>
+        <div style={{ display: "flex", gap: 16, alignItems: "flex-start", flexWrap: "wrap" }}>
+        <div className="practice-picture" ref={picture} style={{ position: "relative", touchAction: "none", flex: "3 1 380px", minWidth: 0 }}>
           <img src={`${base}${art.image}`} alt={`${course.name}, hole 1`} style={{ width: "100%", display: "block" }} />
           <svg viewBox={`0 0 ${art.width} ${art.height}`} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} aria-hidden>
           </svg>
@@ -291,6 +294,19 @@ export function PracticeHolePreview() {
           )}
           <YardsBox strokes={state.strokes} progress={progress} />
         </div>
+        <aside style={{ flex: "1 1 220px", minWidth: 220, border: "1px solid rgba(0, 0, 0, 0.12)", borderRadius: 8, padding: 12 }}>
+          {PLAYERS.map((p, i) => (
+            <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 8, padding: "6px 8px", borderRadius: 6, background: !state.holed && turn === i ? "rgba(34, 238, 227, 0.2)" : "transparent", fontWeight: !state.holed && turn === i ? 700 : 400 }}>
+              <span>{p.name}</span>
+              <span style={{ fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{strokesBy(i)} {strokesBy(i) === 1 ? "stroke" : "strokes"}</span>
+            </div>
+          ))}
+          <ol className="practice-log" style={{ listStyle: "none", padding: 0, margin: "10px 0 0", maxHeight: 420, overflowY: "auto" }}>
+            {log.map((line, i) => <li key={i} style={{ padding: "6px 0", borderTop: "1px solid rgba(0, 0, 0, 0.08)" }}>{line}</li>)}
+            {state.holed && <li style={{ padding: "6px 0", borderTop: "1px solid rgba(0, 0, 0, 0.08)" }}><strong>Holed in {state.score} (par {hole.par})</strong></li>}
+          </ol>
+        </aside>
+        </div>
         <div className="practice-controls">
           <div className="btn-row" aria-label="Club">
             {(["driver", "iron", "wedge"] as const).map((c) => (
@@ -301,10 +317,6 @@ export function PracticeHolePreview() {
           <BroadcastSwing lie={swingLie} club={playClub} shot="normal" speed={meterFactor(player, playClub)} targetPower={power} onStrike={onStrike} onSwingStart={() => setSwinging(true)} onSwingEnd={() => setSwinging(false)} onClubPick={setClub} />
           <button className="btn" onClick={reset}>Start the hole again</button>
         </div>
-        <ol className="practice-log">
-          {log.map((line, i) => <li key={i}>{line}</li>)}
-          {state.holed && <li><strong>Holed in {state.score} (par {hole.par})</strong></li>}
-        </ol>
       </section>
     </main>
   );
