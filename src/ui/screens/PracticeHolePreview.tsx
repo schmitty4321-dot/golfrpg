@@ -42,6 +42,57 @@ function BroadcastSwing({ lie, club, shot, aim, targetPower, onStrike }: {
   return <iframe ref={frame} src={`${import.meta.env.BASE_URL}swing/broadcast-swing.html`} title="Three-click swing" onLoad={() => setReady(true)} style={{ width: "100%", height: 400, border: 0 }} />;
 }
 
+
+/** Flight arc from a to b (SVG pixels): a quadratic curve bulging to one side, so a longer shot rises higher. */
+function arcPoint(a: { x: number; y: number }, b: { x: number; y: number }, t: number) {
+  const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+  const dx = b.x - a.x, dy = b.y - a.y;
+  const len = Math.hypot(dx, dy) || 1;
+  const bulge = len * 0.12;
+  const cx = mx + (-dy / len) * bulge, cy = my + (dx / len) * bulge;
+  return { x: (1 - t) * (1 - t) * a.x + 2 * (1 - t) * t * cx + t * t * b.x, y: (1 - t) * (1 - t) * a.y + 2 * (1 - t) * t * cy + t * t * b.y, cx, cy };
+}
+
+const SHOT_ANIMATION_MS = 1000;
+
+/** The shot lines on the picture. The newest stroke is drawn in flight, then settles where it landed. */
+function ShotLines({ strokes, dot, ball, width, height }: { strokes: PracticeStroke[]; dot: (p: { x: number; y: number }) => { x: number; y: number }; ball: { x: number; y: number }; width: number; height: number }) {
+  const [progress, setProgress] = useState(1);
+  const count = useRef(strokes.length);
+  useEffect(() => {
+    if (strokes.length === count.current) return;
+    count.current = strokes.length;
+    let frame = 0;
+    const began = performance.now();
+    const step = (now: number) => {
+      const t = Math.min(1, (now - began) / SHOT_ANIMATION_MS);
+      setProgress(t);
+      if (t < 1) frame = requestAnimationFrame(step);
+    };
+    setProgress(0);
+    frame = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frame);
+  }, [strokes.length]);
+
+  const last = strokes.length - 1;
+  return (
+    <svg viewBox={`0 0 ${width} ${height}`} style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} aria-hidden>
+      {strokes.map((s, i) => {
+        const a = dot(s.from), b = dot(s.to);
+        const color = s.penalty ? "#ff5a4a" : "#bce764";
+        if (i === last && progress < 1) {
+          const p = arcPoint(a, b, progress);
+          const route = `M ${a.x} ${a.y} Q ${arcPoint(a, b, 0.5).cx} ${arcPoint(a, b, 0.5).cy} ${b.x} ${b.y}`;
+          return <g key={i}><path d={route} fill="none" stroke={color} strokeWidth={6} strokeDasharray="1 1" pathLength={1} strokeDashoffset={1 - progress} /><circle cx={p.x} cy={p.y} r={12} fill="#fff" stroke="#000" strokeWidth={3} /></g>;
+        }
+        const route = `M ${a.x} ${a.y} Q ${arcPoint(a, b, 0.5).cx} ${arcPoint(a, b, 0.5).cy} ${b.x} ${b.y}`;
+        return <g key={i}><path d={route} fill="none" stroke={color} strokeWidth={6} strokeDasharray="14 10" /><circle cx={b.x} cy={b.y} r={14} fill={color} stroke="#fff" strokeWidth={3} /></g>;
+      })}
+      {progress >= 1 && <circle cx={ball.x} cy={ball.y} r={18} fill="#fff" stroke="#000" strokeWidth={4} />}
+    </svg>
+  );
+}
+
 export function PracticeHolePreview() {
   const hole = course.holes[0]!;
   const [state, setState] = useState<PracticeHole>(() => startPracticeHole(course, hole, 0));
@@ -80,13 +131,7 @@ export function PracticeHolePreview() {
         </div>
         <div className="practice-picture" style={{ position: "relative" }}>
           <img src={`${base}${art.image}`} alt={`${course.name}, hole 1`} style={{ width: "100%", display: "block" }} />
-          <svg viewBox={`0 0 ${art.width} ${art.height}`} style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} aria-hidden>
-            {state.strokes.map((s, i) => {
-              const a = dot(s.from), b = dot(s.to);
-              return <g key={i}><line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={s.penalty ? "#ff5a4a" : "#bce764"} strokeWidth={6} strokeDasharray="14 10" /><circle cx={b.x} cy={b.y} r={14} fill={s.penalty ? "#ff5a4a" : "#bce764"} stroke="#fff" strokeWidth={3} /></g>;
-            })}
-            {(() => { const p = dot(state.ball); return <circle cx={p.x} cy={p.y} r={18} fill="#fff" stroke="#000" strokeWidth={4} />; })()}
-          </svg>
+          <ShotLines strokes={state.strokes} dot={dot} ball={dot(state.ball)} width={art.width} height={art.height} />
         </div>
         <div className="practice-controls">
           <div className="btn-row" aria-label="Club">

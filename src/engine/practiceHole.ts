@@ -128,7 +128,7 @@ export function playPracticeShot(state: PracticeHole, player: Player, shot: Prac
   const lieCarry = state.lie === "rough" ? 0.94 : state.lie === "bunker" ? 0.9 : 1;
   const carry = clubCarry(player, club) * Math.min(shot.power, 110) / 100 * lieCarry * (shot.shot === "flop" ? 0.5 : shot.shot === "punch" ? 0.8 : 1);
   const forward = toPin > 0 ? { x: (pin.x - from.x) / toPin, y: (pin.y - from.y) / toPin } : { x: 0, y: 1 };
-  const right = { x: -forward.y, y: forward.x };
+  const right = { x: forward.y, y: -forward.x };
   // Late strikes push right, early strikes pull left, outside the window; aim and shape add to the line.
   const outside = Math.max(0, Math.abs(shot.timingMs) - window);
   const sideways = (Math.sign(shot.timingMs) * outside) / 600 * 75 + shot.aim + (shot.shape ?? 0) * (shot.strength ?? 0.5) * carry * 0.03;
