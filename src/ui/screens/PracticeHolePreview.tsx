@@ -9,7 +9,15 @@ import { pointAt, projectAlong, type HoleLayout } from "../../engine/tracer";
 // (public/swing/broadcast-swing.html), shown in a frame below the picture. The landing target is a marker
 // on the picture: drag it, and the swing's power and the tracer both work towards it.
 const course = REAL_COURSES.find((c) => c.id === "waialae")!;
-const player = generatePlayer(createRng(19), { tier: "tour", nationality: "USA" });
+// Two golfers who take turns: an excellent player and a poor one, to see how the meter differs.
+function golferAt(seed: number, level: number, label: string) {
+  const p = generatePlayer(createRng(seed), { tier: "tour", nationality: "USA" });
+  const skills = ["drivingDistance", "drivingAccuracy", "longIrons", "fairwayWoods", "midIrons", "wedges", "distanceControl", "chipping", "pitching", "bunkerPlay"];
+  for (const k of skills) (p.attributes as unknown as Record<string, number>)[k] = level;
+  p.name = `${p.name} (${label})`;
+  return p;
+}
+const PLAYERS = [golferAt(19, 20, "excellent"), golferAt(23, 4, "poor")];
 const LIE_LABEL: Record<string, string> = { tee: "Tee", fairway: "Fairway", rough: "Rough", bunker: "Bunker", tree: "Trees", green: "Green", water: "Water", holed: "Holed" };
 const SWING_LIE: Record<string, SwingLie> = { tee: "tee", fairway: "fairway", rough: "light", bunker: "fairwaySand", tree: "tree", green: "green" };
 
@@ -185,6 +193,8 @@ export function PracticeHolePreview() {
   const progress = useFlight(state.strokes.length);
   const [club, setClub] = useState<SwingClub>("driver");
   const [target, setTarget] = useState<Pt | null>(null);
+  const [turn, setTurn] = useState(0);
+  const player = PLAYERS[turn]!;
   const [log, setLog] = useState<string[]>([]);
   const picture = useRef<HTMLDivElement>(null);
   const art = illustratedArtFor("waialae", 1)!;
@@ -203,7 +213,7 @@ export function PracticeHolePreview() {
   // At the start of each shot, and when the club changes, the target goes to the club's usual carry on the fairway.
   useEffect(() => {
     setTarget(fairwayTarget(state.layout, state.ball, clubCarry(player, playClub)));
-  }, [playClub, state.strokes.length]);
+  }, [playClub, state.strokes.length, turn]);
   // The target and its yardage show only between shots: not during a swing, not in flight.
   const showTarget = !flying && !swinging && !state.holed;
 
@@ -237,12 +247,14 @@ export function PracticeHolePreview() {
     const next = playPracticeShot(state, player, { club: playClub, power: strike.power, timingMs: strike.timingMs, aim: 0, target: aimAt });
     const s = next.strokes[next.strokes.length - 1] as PracticeStroke;
     setState(next);
-    setLog((l) => [...l, `${s.stroke}. ${s.penalty ? "Into the water, penalty, back to where it was struck" : `${Math.round(s.yards)} yds to ${LIE_LABEL[s.lieAfter] ?? s.lieAfter}`} · timing ${Math.round(strike.timingMs)} ms · power ${Math.round(strike.power)}%`]);
+    setTurn((t) => 1 - t);
+    setLog((l) => [...l, `${player.name.split(" (")[1]?.replace(")", "") ?? ""} ${s.stroke}. ${s.penalty ? "Into the water, penalty, back to where it was struck" : `${Math.round(s.yards)} yds to ${LIE_LABEL[s.lieAfter] ?? s.lieAfter}`} · timing ${Math.round(strike.timingMs)} ms · power ${Math.round(strike.power)}%`]);
   };
   const reset = () => {
     setState(startPracticeHole(course, hole, 0));
     setLog([]);
     setTarget(null);
+    setTurn(0);
   };
 
   const marker = dot(aimAt);
