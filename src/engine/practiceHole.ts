@@ -117,8 +117,9 @@ export function lieAt(layout: HoleLayout, p: Pt, picture?: PictureLie): BallLie 
   const shown = picture?.(p);
   if (shown === "water") return "water";
   if (shown === undefined && layout.water.some((poly) => inPolygon(p, poly))) return "water";
-  if (dist(p, layout.green) <= layout.green.r) return "green";
+  // Sand the picture shows is a bunker even inside the green's circle, so it is checked first.
   if (shown === "bunker") return "bunker";
+  if (dist(p, layout.green) <= layout.green.r) return "green";
   if (shown === undefined && layout.bunkers.some((b) => dist(p, b) <= b.r)) return "bunker";
   // Under or among trees: the map's tree zones.
   if (layout.trees.some((t) => dist(p, t) <= t.r)) return "tree";
