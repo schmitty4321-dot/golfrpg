@@ -328,6 +328,9 @@ export function PracticeHolePreview() {
   };
 
   const strokesBy = (i: number) => balls[i]!.strokes.length;
+  // The corner of the picture: the hole, the shot for the golfer on screen, and what is left to the hole (not on the tee).
+  const shotNo = shownBall.strokes.length + (shown === turn ? 1 : 0);
+  const leftYds = Math.hypot(shownBall.ball.x - state.layout.pin.x, shownBall.ball.y - state.layout.pin.y);
   const marker = dot(aimAt);
   const ballPx = dot(shownBall.ball);
   return (
@@ -378,6 +381,11 @@ export function PracticeHolePreview() {
           )}
           <YardsBox strokes={shownBall.strokes} progress={progress} />
           </>)}
+          <div style={{ position: "absolute", left: 8, bottom: 8, zIndex: 3, padding: "6px 10px", borderRadius: 6, background: "rgba(10, 20, 15, 0.8)", color: "#fff", fontSize: 14, lineHeight: 1.45, fontVariantNumeric: "tabular-nums", pointerEvents: "none" }}>
+            <div><strong>Hole {hole.number}</strong> · Par {hole.par} · {hole.yards} yds</div>
+            <div>{PLAYERS[shown]!.name.split(" (")[0]} · shot {shotNo}</div>
+            {shownBall.lie !== "tee" && <div>{Math.round(leftYds)} yds to the hole</div>}
+          </div>
         </div>
         <aside style={{ flex: "1 1 220px", minWidth: 220, border: "1px solid rgba(0, 0, 0, 0.12)", borderRadius: 8, padding: 12 }}>
           {PLAYERS.map((p, i) => showGolfer(i) ? (
