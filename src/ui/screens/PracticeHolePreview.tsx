@@ -370,7 +370,7 @@ export function PracticeHolePreview() {
         <div style={{ display: "flex", gap: 16, alignItems: "flex-start", flexWrap: "wrap" }}>
         <div className="practice-picture" ref={picture} style={{ position: "relative", touchAction: "none", flex: "3 1 380px", minWidth: 0 }}>
           {overhead ? (
-            <GreenTopDown gimme={!!shownBall.strokes[shownBall.strokes.length - 1]?.gimme} layout={state.layout} ball={shownBall.ball} aim={aimAt} strokes={shownBall.strokes} progress={progress} showAim={showTarget} onAim={setTarget} />
+            <GreenTopDown art={art} gimme={!!shownBall.strokes[shownBall.strokes.length - 1]?.gimme} layout={state.layout} ball={shownBall.ball} aim={aimAt} strokes={shownBall.strokes} progress={progress} showAim={showTarget} onAim={setTarget} />
           ) : (<>
           <img src={`${base}${art.image}`} alt={`${course.name}, hole 1`} style={{ width: "100%", display: "block" }} />
           <svg viewBox={`0 0 ${view.width} ${view.height}`} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} aria-hidden>

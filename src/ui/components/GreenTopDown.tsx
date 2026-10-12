@@ -1,6 +1,7 @@
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import type { PracticeStroke } from "../../engine/practiceHole";
 import type { Circle, HoleLayout, Pt } from "../../engine/tracer";
+import { pictureLieAt, type ArtEntry } from "../illustratedArt";
 
 /**
  * The photo of Waialae hole 1's green from above. The sand and water are in the photo, so the
@@ -31,6 +32,10 @@ export function photoPoint(green: Circle, p: Pt): Pt {
   const uy = vx * Math.sin(a) + vy * Math.cos(a);
   return { x: PHOTO.centre.x + ux / k, y: PHOTO.centre.y + uy / k };
 }
+
+/** How far beyond the green the sand and water are drawn, and the step between samples, in yards. */
+const OUTSIDE_REACH = 60;
+const OUTSIDE_STEP = 1;
 
 export interface PhotoSand {
   w: number;
@@ -67,6 +72,8 @@ export function loadPhotoSand(src: string): Promise<PhotoSand> {
 
 interface Props {
   layout: HoleLayout;
+  /** The hole picture: its sand and water show in the overhead view wherever the photo of the green does not reach. */
+  art: ArtEntry;
   ball: Pt;
   aim: Pt;
   strokes: PracticeStroke[];
@@ -81,7 +88,7 @@ interface Props {
  * The green from above, in yards. The photo is turned so the way back to the tee points down the
  * screen, and scaled to the layout's green radius. Forward (away from the tee) is up the screen.
  */
-export function GreenTopDown({ layout, ball, aim, strokes, progress, showAim, onAim, gimme }: Props) {
+export function GreenTopDown({ layout, art, ball, aim, strokes, progress, showAim, onAim, gimme }: Props) {
   const svg = useRef<SVGSVGElement>(null);
   const g = layout.green;
   // Yards from the green centre to a point on the course, with forward pointing up the screen.
@@ -95,6 +102,21 @@ export function GreenTopDown({ layout, ball, aim, strokes, progress, showAim, on
   const turn = 90 - backAngle;
   const scale = g.r / PHOTO.radiusPx;
   const photoTransform = `rotate(${turn}) scale(${scale}) translate(${-PHOTO.centre.x} ${-PHOTO.centre.y})`;
+
+  // Sand and water near the green, from the hole picture, wherever the photo of the green does not reach.
+  const outside = useMemo(() => {
+    const out: { x: number; y: number; kind: "bunker" | "water" }[] = [];
+    for (let dx = -OUTSIDE_REACH; dx <= OUTSIDE_REACH; dx += OUTSIDE_STEP) {
+      for (let dy = -OUTSIDE_REACH; dy <= OUTSIDE_REACH; dy += OUTSIDE_STEP) {
+        const p = { x: g.x + dx, y: g.y + dy };
+        const q = photoPoint(g, p);
+        if (q.x >= 0 && q.y >= 0 && q.x < PHOTO.width && q.y < PHOTO.height) continue;
+        const kind = pictureLieAt(art, p);
+        if (kind === "bunker" || kind === "water") out.push({ x: dx, y: -dy, kind });
+      }
+    }
+    return out;
+  }, [art, g.x, g.y, g.r]);
 
   const dragAim = (e: React.PointerEvent) => {
     if (!showAim) return;
@@ -137,6 +159,10 @@ export function GreenTopDown({ layout, ball, aim, strokes, progress, showAim, on
         aria-label="Top-down view of the green"
       >
         <rect x={mid.x - span} y={mid.y - span} width={2 * span} height={2 * span} fill="#4f8a2f" />
+        {/* Sand and water from the hole picture, beyond the photo of the green: a landing there sits on the same sand. */}
+        {outside.map((h, i) => (
+          <rect key={i} x={h.x - OUTSIDE_STEP / 2} y={h.y - OUTSIDE_STEP / 2} width={OUTSIDE_STEP} height={OUTSIDE_STEP} fill={h.kind === "bunker" ? "#e8d7a0" : "#3d86c6"} />
+        ))}
         {/* The photo of the green, turned and scaled onto the layout. */}
         <image href={`${import.meta.env.BASE_URL}${PHOTO.src}`} x={0} y={0} width={PHOTO.width} height={PHOTO.height} transform={photoTransform} />
         {/* The pin. */}
