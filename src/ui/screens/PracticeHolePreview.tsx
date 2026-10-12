@@ -3,6 +3,7 @@ import { createRng, REAL_COURSES, generatePlayer } from "../../engine";
 import { clubCarry, playPracticeShot, startPracticeHole, type PracticeHole, type PracticeStroke } from "../../engine/practiceHole";
 import { sweetSpotMs, type SwingClub, type SwingLie, type SwingShot } from "../../engine/swing";
 import { illustratedArtFor, projectArtPoint, type ArtMatrix } from "../illustratedArt";
+import { pointAt, projectAlong, type HoleLayout } from "../../engine/tracer";
 
 // Development review of a practice hole, played shot by shot. The swing is the broadcast three-click
 // (public/swing/broadcast-swing.html), shown in a frame below the picture. The landing target is a marker
@@ -16,6 +17,13 @@ interface SwingStrike { power: number; timingMs: number }
 interface SwingElement extends HTMLElement { golfSwing?: { configure: (options: Record<string, unknown>) => boolean } }
 type Pt = { x: number; y: number };
 
+/** The usual target for a club: its carry from the ball, along the line of play (the middle of the fairway), short of the pin. */
+function fairwayTarget(layout: HoleLayout, ball: Pt, carry: number): Pt {
+  const toPin = projectAlong(layout.path, layout.pin);
+  const along = Math.min(toPin, projectAlong(layout.path, ball) + carry);
+  return pointAt(layout.path, along, 0);
+}
+
 /** Picture pixels back to course yards: the inverse of the picture's projection. */
 function unprojectArtPoint(m: ArtMatrix, px: number, py: number): Pt {
   const [a, b, c] = m.x;
@@ -27,8 +35,8 @@ function unprojectArtPoint(m: ArtMatrix, px: number, py: number): Pt {
 }
 
 /** The broadcast swing, in its own frame so its script and styles run as they were written. */
-function BroadcastSwing({ lie, club, shot, targetPower, onStrike, onSwingStart, onSwingEnd }: {
-  lie: SwingLie; club: SwingClub; shot: SwingShot; targetPower: number; onStrike: (s: SwingStrike) => void; onSwingStart: () => void; onSwingEnd: () => void;
+function BroadcastSwing({ lie, club, shot, targetPower, onStrike, onSwingStart, onSwingEnd, onClubPick }: {
+  lie: SwingLie; club: SwingClub; shot: SwingShot; targetPower: number; onStrike: (s: SwingStrike) => void; onSwingStart: () => void; onSwingEnd: () => void; onClubPick: (c: SwingClub) => void;
 }) {
   const frame = useRef<HTMLIFrameElement>(null);
   const [ready, setReady] = useState(false);
@@ -73,10 +81,18 @@ function BroadcastSwing({ lie, club, shot, targetPower, onStrike, onSwingStart, 
     };
   }, [ready]);
 
+  // The club the player picks in the frame goes back to the page, so the page and the frame agree.
   useEffect(() => {
-    // Aim comes from the target on the picture, so the swing's own aim stays straight.
-    swing()?.golfSwing?.configure({ lie, club, shot, aim: 0, target: Math.max(10, Math.min(110, targetPower)), wind: 0, crosswind: 0, shape: 0, strength: 50, height: 0 });
-  }, [ready, lie, club, shot, targetPower]);
+    const doc = frame.current?.contentDocument;
+    const pick = doc?.getElementById("gb-club") as HTMLSelectElement | null | undefined;
+    const onPick = () => { if (pick) onClubPick(pick.value as SwingClub); };
+    pick?.addEventListener("input", onPick);
+    return () => pick?.removeEventListener("input", onPick);
+  }, [ready]);
+  // Only the settings the page owns are sent, and only when they change: a re-send would overwrite the player's own picks.
+  useEffect(() => { swing()?.golfSwing?.configure({ lie, shot }); }, [ready, lie, shot]);
+  useEffect(() => { swing()?.golfSwing?.configure({ club }); }, [ready, club]);
+  useEffect(() => { swing()?.golfSwing?.configure({ target: Math.max(10, Math.min(110, targetPower)), aim: 0 }); }, [ready, targetPower]);
 
   return <iframe ref={frame} src={`${import.meta.env.BASE_URL}swing/broadcast-swing.html`} title="Three-click swing" onLoad={() => setReady(true)} style={{ width: "100%", height: 400, border: 0 }} />;
 }
@@ -200,6 +216,10 @@ export function PracticeHolePreview() {
   const power = Math.min(110, Math.round((toTarget / carry) * 100));
   const [swinging, setSwinging] = useState(false);
   const flying = progress < 1;
+  // At the start of each shot, and when the club changes, the target goes to the club's usual carry on the fairway.
+  useEffect(() => {
+    setTarget(fairwayTarget(state.layout, state.ball, clubCarry(player, playClub)));
+  }, [playClub, state.strokes.length]);
   // The target and its yardage show only between shots: not during a swing, not in flight.
   const showTarget = !flying && !swinging && !state.holed;
 
@@ -287,7 +307,7 @@ export function PracticeHolePreview() {
             <button className="btn btn-small" onClick={() => setTarget(null)} disabled={flying || target === null}>Move target to the pin</button>
           </div>
           <span className="secondary small">Drag the yellow target on the picture. Power to reach it: {power}%.</span>
-          <BroadcastSwing lie={swingLie} club={playClub} shot={lie === "green" ? "splash" : "normal"} targetPower={power} onStrike={onStrike} onSwingStart={() => setSwinging(true)} onSwingEnd={() => setSwinging(false)} />
+          <BroadcastSwing lie={swingLie} club={playClub} shot={lie === "green" ? "splash" : "normal"} targetPower={power} onStrike={onStrike} onSwingStart={() => setSwinging(true)} onSwingEnd={() => setSwinging(false)} onClubPick={setClub} />
           <button className="btn" onClick={reset}>Start the hole again</button>
         </div>
         <ol className="practice-log">
