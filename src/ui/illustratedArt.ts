@@ -263,6 +263,24 @@ function suits(t: Terrain, j: number, lie: Lie): boolean {
   }
 }
 
+/**
+ * What the painting shows at a point on the course, read from its terrain mask: a bunker,
+ * water, or other open ground. Undefined when the point is off the picture. Lone sand
+ * or water specks aren't a bunker or a lake, so they read as open ground.
+ */
+export function pictureLieAt(art: ArtEntry, p: Pt): "bunker" | "water" | "open" | undefined {
+  const t = terrainOf(art);
+  if (!t) return undefined;
+  const px = projectArtPoint(art.matrix, p);
+  const col = Math.floor(px.x / t.cell);
+  const row = Math.floor(px.y / t.cell);
+  if (col < 0 || row < 0 || col >= t.cols || row >= t.rows) return undefined;
+  const j = row * t.cols + col;
+  if (t.kind[j] === 3) return "water";
+  if (t.kind[j] === 2 && col > 0 && col < t.cols - 1 && row > 0 && row < t.rows - 1 && sandAround(t, j) >= 2) return "bunker";
+  return "open";
+}
+
 const KIND_OF: Partial<Record<Lie, number>> = { fairway: 1, bunker: 2, water: 3 };
 const TERRAIN_LIES = new Set<Lie>(["fairway", "rough", "trees", "ob", "bunker", "water"]);
 /** How far (in cells) a ball is moved to find its terrain before the replay gives up and leaves it be (water anywhere in the picture will do). */

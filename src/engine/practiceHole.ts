@@ -99,11 +99,20 @@ function onFairway(layout: HoleLayout, p: Pt): boolean {
   return lateralFromLine(layout.path, p) <= halfWidth;
 }
 
+/**
+ * What the painted picture shows at a point: a bunker, water, or other open ground; undefined
+ * off the picture. Bunkers and water come from the picture, so the lie matches what's drawn.
+ */
+export type PictureLie = (p: Pt) => "bunker" | "water" | "open" | undefined;
+
 /** The lie the ball is in at a point on the course. */
-export function lieAt(layout: HoleLayout, p: Pt): BallLie {
-  if (layout.water.some((poly) => inPolygon(p, poly))) return "water";
+export function lieAt(layout: HoleLayout, p: Pt, picture?: PictureLie): BallLie {
+  const shown = picture?.(p);
+  if (shown === "water") return "water";
+  if (shown === undefined && layout.water.some((poly) => inPolygon(p, poly))) return "water";
   if (dist(p, layout.green) <= layout.green.r) return "green";
-  if (layout.bunkers.some((b) => dist(p, b) <= b.r)) return "bunker";
+  if (shown === "bunker") return "bunker";
+  if (shown === undefined && layout.bunkers.some((b) => dist(p, b) <= b.r)) return "bunker";
   // Under or among trees: the map's tree zones.
   if (layout.trees.some((t) => dist(p, t) <= t.r)) return "tree";
   return onFairway(layout, p) ? "fairway" : "rough";
@@ -128,7 +137,7 @@ export function startPracticeHole(course: Course, hole: Hole, round = 0): Practi
  * Plays one stroke with this swing. Returns the new state. A ball into water is
  * dropped back where it was struck from, with a penalty stroke.
  */
-export function playPracticeShot(state: PracticeHole, player: Player, shot: PracticeShot): PracticeHole {
+export function playPracticeShot(state: PracticeHole, player: Player, shot: PracticeShot, picture?: PictureLie): PracticeHole {
   if (state.holed) throw new Error("the hole is finished");
   const { layout } = state;
   const from = state.ball;
@@ -165,7 +174,7 @@ export function playPracticeShot(state: PracticeHole, player: Player, shot: Prac
   const outside = Math.max(0, Math.abs(shot.timingMs) - window);
   const sideways = (Math.sign(shot.timingMs) * outside) / 600 * 75 + shot.aim + (shot.shape ?? 0) * (shot.strength ?? 0.5) * carry * 0.03;
   const landing = { x: from.x + forward.x * carry + right.x * sideways, y: from.y + forward.y * carry + right.y * sideways };
-  const landLie = lieAt(layout, landing);
+  const landLie = lieAt(layout, landing, picture);
   if (landLie === "water") {
     const stroke: PracticeStroke = { stroke: state.score + 2, club, from, to: from, lieBefore: state.lie, lieAfter: state.lie, yards: carry, penalty: true, quality: scored.quality };
     return { ...state, strokes: [...state.strokes, stroke], score: state.score + 2 };

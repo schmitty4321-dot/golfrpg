@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createRng, REAL_COURSES, generatePlayer } from "../../engine";
 import { clubCarry, playPracticeShot, startPracticeHole, type PracticeHole, type PracticeStroke } from "../../engine/practiceHole";
 import { meterFactor, sweetSpotMs, type SwingClub, type SwingLie, type SwingShot } from "../../engine/swing";
-import { illustratedArtFor, projectArtPoint, type ArtMatrix } from "../illustratedArt";
+import { illustratedArtFor, pictureLieAt, projectArtPoint, type ArtMatrix } from "../illustratedArt";
 import { pointAt, projectAlong, type HoleLayout } from "../../engine/tracer";
 
 // Development review of a practice hole, played shot by shot. The swing is the broadcast three-click
@@ -198,6 +198,8 @@ export function PracticeHolePreview() {
   const [log, setLog] = useState<string[]>([]);
   const picture = useRef<HTMLDivElement>(null);
   const art = illustratedArtFor("waialae", 1)!;
+  // Bunkers and water are taken from the painting, so a ball lies where the picture shows sand or water.
+  const pictureAt = (p: Pt) => pictureLieAt(art, p);
   const base = import.meta.env.BASE_URL;
   const lie = (LIE_LABEL[state.lie] ? state.lie : "fairway") as string;
   const swingLie = SWING_LIE[lie] ?? "fairway";
@@ -244,7 +246,7 @@ export function PracticeHolePreview() {
 
   const onStrike = (strike: SwingStrike) => {
     if (state.holed) return;
-    const next = playPracticeShot(state, player, { club: playClub, power: strike.power, timingMs: strike.timingMs, aim: 0, target: aimAt });
+    const next = playPracticeShot(state, player, { club: playClub, power: strike.power, timingMs: strike.timingMs, aim: 0, target: aimAt }, pictureAt);
     const s = next.strokes[next.strokes.length - 1] as PracticeStroke;
     setState(next);
     setTurn((t) => 1 - t);
