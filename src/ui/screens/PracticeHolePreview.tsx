@@ -212,14 +212,21 @@ export function PracticeHolePreview() {
   const state = balls[turn]!;
   // Only the golfer whose turn it is shows his ball and shot info. The view moves to him as his turn starts, when the shot before him lands.
   const [shown, setShown] = useState(0);
-  useEffect(() => { if (progress >= 1) setShown(turn); }, [progress]);
+  // The next golfer comes up 1.5 seconds after the ball lands, so the landing can be seen first.
+  useEffect(() => {
+    if (progress < 1) return;
+    const t = window.setTimeout(() => setShown(turn), 1500);
+    return () => window.clearTimeout(t);
+  }, [progress]);
   // The approach cam: the golfer whose shot landed within 30 yards, kept up with its flight and resting spot until the next swing starts.
   const [camGolfer, setCamGolfer] = useState<number | null>(null);
   const camBall = balls[camGolfer ?? shown]!;
   const allHoled = balls.every((b) => b.holed);
   // The column lists the golfer whose turn it is, so the next golfer is shown as soon as the shot before him lands.
-  const showGolfer = (i: number) => allHoled || i === turn;
+  const showGolfer = (i: number) => allHoled || i === shown;
   const shownBall = balls[shown]!;
+  // The lie picture is the lie where the ball landed, straight away; it moves to the next golfer when his turn comes up.
+  const boxLie = SWING_LIE[shownBall.lie] ?? "fairway";
   const player = PLAYERS[turn]!;
   const [log, setLog] = useState<string[]>([]);
   const picture = useRef<HTMLDivElement>(null);
@@ -316,7 +323,7 @@ export function PracticeHolePreview() {
         <div className="panel-head">
           <div>
             <h1>Practice · {course.name}, hole 1</h1>
-            <span className="secondary small">Par {hole.par} · {hole.yards} yds · {player.name} · lie: {LIE_LABEL[state.lie] ?? state.lie} · {Math.round(toTarget)} yds to the target · sweet spot ±{windowMs} ms</span>
+            <span className="secondary small">Par {hole.par} · {hole.yards} yds · {PLAYERS[shown]!.name} · lie: {LIE_LABEL[shownBall.lie] ?? shownBall.lie} · {Math.round(toTarget)} yds to the target · sweet spot ±{windowMs} ms</span>
           </div>
           <a className="btn btn-small" href={window.location.pathname}>Return to game</a>
         </div>
@@ -361,7 +368,7 @@ export function PracticeHolePreview() {
         </div>
         <aside style={{ flex: "1 1 220px", minWidth: 220, border: "1px solid rgba(0, 0, 0, 0.12)", borderRadius: 8, padding: 12 }}>
           {PLAYERS.map((p, i) => showGolfer(i) ? (
-            <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 8, padding: "6px 8px", borderRadius: 6, background: !allHoled && turn === i ? "rgba(34, 238, 227, 0.2)" : "transparent", fontWeight: !allHoled && turn === i ? 700 : 400 }}>
+            <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 8, padding: "6px 8px", borderRadius: 6, background: !allHoled && shown === i ? "rgba(34, 238, 227, 0.2)" : "transparent", fontWeight: !allHoled && shown === i ? 700 : 400 }}>
               <span>{p.name}</span>
               <span style={{ fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{balls[i]!.holed ? `holed in ${balls[i]!.score}` : `${strokesBy(i)} ${strokesBy(i) === 1 ? "stroke" : "strokes"}`}</span>
             </div>
@@ -379,7 +386,7 @@ export function PracticeHolePreview() {
             ))}
             <button className="btn btn-small" onClick={() => setTarget(null)} disabled={flying || target === null}>Move target to the pin</button>
           </div>
-          <BroadcastSwing lie={swingLie} club={playClub} shot="normal" speed={meterFactor(player, playClub)} targetPower={power} onStrike={onStrike} onSwingStart={() => { setSwinging(true); setCamGolfer(null); }} onSwingEnd={() => setSwinging(false)} onClubPick={setClub} />
+          <BroadcastSwing lie={boxLie} club={playClub} shot="normal" speed={meterFactor(player, playClub)} targetPower={power} onStrike={onStrike} onSwingStart={() => { setSwinging(true); setCamGolfer(null); }} onSwingEnd={() => setSwinging(false)} onClubPick={setClub} />
           <button className="btn" onClick={reset}>Start the hole again</button>
         </div>
       </section>
