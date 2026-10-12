@@ -9,7 +9,7 @@ import { TOUR_AVERAGE, type AttributeKey } from "./attributes";
 import type { Player } from "./types";
 
 export type SwingClub = "driver" | "iron" | "wedge";
-export type SwingLie = "fairway" | "light" | "deep" | "fairwaySand" | "greenSand" | "green";
+export type SwingLie = "fairway" | "light" | "deep" | "fairwaySand" | "greenSand" | "green" | "tree" | "tee";
 export type SwingShot = "normal" | "punch" | "flop" | "splash";
 
 /** Strike window for each club on a clean fairway, in ms either side of the centre. */
@@ -18,7 +18,7 @@ export const BASE_WINDOW_MS: Record<SwingClub, number> = { driver: 60, iron: 85,
 export const POWER_SWEEP_MS = 2200;
 export const STRIKE_SWEEP_MS = 1200;
 /** Window penalty for each lie (the demo's values). */
-const LIE_PENALTY_MS: Record<SwingLie, number> = { fairway: 0, light: 8, deep: 22, fairwaySand: 25, greenSand: 0, green: 0 };
+const LIE_PENALTY_MS: Record<SwingLie, number> = { fairway: 0, light: 8, deep: 22, fairwaySand: 25, greenSand: 0, green: 0, tree: 40, tee: 0 };
 const FLOOR_MS = 25;
 const SPLASH_WINDOW_MS = 115;
 

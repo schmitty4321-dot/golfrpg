@@ -9,7 +9,7 @@ import { holeLayout, projectAlong, type HoleLayout, type Pt } from "./tracer";
 import { scoreSwing, sweetSpotMs, type SwingClub, type SwingLie, type SwingShot } from "./swing";
 import type { Course, Hole, Player } from "./types";
 
-export type BallLie = "tee" | "fairway" | "rough" | "bunker" | "green" | "water" | "holed";
+export type BallLie = "tee" | "fairway" | "rough" | "bunker" | "tree" | "green" | "water" | "holed";
 
 export interface PracticeShot {
   club: SwingClub;
@@ -104,6 +104,8 @@ export function lieAt(layout: HoleLayout, p: Pt): BallLie {
   if (layout.water.some((poly) => inPolygon(p, poly))) return "water";
   if (dist(p, layout.green) <= layout.green.r) return "green";
   if (layout.bunkers.some((b) => dist(p, b) <= b.r)) return "bunker";
+  // Under or among trees: the map's tree zones.
+  if (layout.trees.some((t) => dist(p, t) <= t.r)) return "tree";
   return onFairway(layout, p) ? "fairway" : "rough";
 }
 
@@ -112,6 +114,8 @@ function swingLie(lie: BallLie): SwingLie {
   if (lie === "rough") return "light";
   if (lie === "bunker") return "fairwaySand";
   if (lie === "green") return "greenSand";
+  if (lie === "tree") return "tree";
+  if (lie === "tee") return "tee";
   return "fairway";
 }
 
@@ -152,7 +156,8 @@ export function playPracticeShot(state: PracticeHole, player: Player, shot: Prac
   const sLie = swingLie(state.lie);
   const window = sweetSpotMs(player, club, sLie, { shot: shot.shot, shape: shot.shape ?? 0, strength: shot.strength ?? 0.5, power: shot.power });
   const scored = scoreSwing({ power: shot.power, timingMs: shot.timingMs }, window, 90);
-  const lieCarry = state.lie === "rough" ? 0.94 : state.lie === "bunker" ? 0.9 : 1;
+  // A tree lie takes a lot of the power: a punch out at best.
+  const lieCarry = state.lie === "rough" ? 0.94 : state.lie === "bunker" ? 0.9 : state.lie === "tree" ? 0.6 : 1;
   const carry = clubCarry(player, club) * Math.min(shot.power, 110) / 100 * lieCarry * (shot.shot === "flop" ? 0.5 : shot.shot === "punch" ? 0.8 : 1);
   const forward = toPin > 0 ? { x: (pin.x - from.x) / toPin, y: (pin.y - from.y) / toPin } : { x: 0, y: 1 };
   const right = { x: forward.y, y: -forward.x };

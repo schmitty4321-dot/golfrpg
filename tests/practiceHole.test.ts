@@ -93,4 +93,13 @@ describe("practice hole, shot by shot", () => {
     state = playPracticeShot(state, player, { club: "iron", power: 80, timingMs: 0, aim: 0 });
     expect(state.strokes[1]!.from).toEqual(landed);
   });
+  it("a ball among the map's trees is in a tree lie, and punches out short", () => {
+    const hole = course.holes.find((h) => h.number === 2)!;
+    const start = startPracticeHole(course, hole, 0);
+    const tree = start.layout.trees[0]!;
+    expect(lieAt(start.layout, { x: tree.x, y: tree.y })).toBe("tree");
+    const fromTree = playPracticeShot({ ...start, ball: { x: tree.x, y: tree.y }, lie: "tree" }, player, { club: "iron", power: 90, timingMs: 0, aim: 0 });
+    const fromFairway = playPracticeShot({ ...start, ball: { x: tree.x, y: tree.y }, lie: "fairway" }, player, { club: "iron", power: 90, timingMs: 0, aim: 0 });
+    expect(fromTree.strokes[0]!.yards).toBeLessThan(fromFairway.strokes[0]!.yards);
+  });
 });

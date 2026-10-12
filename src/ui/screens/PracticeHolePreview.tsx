@@ -10,8 +10,8 @@ import { pointAt, projectAlong, type HoleLayout } from "../../engine/tracer";
 // on the picture: drag it, and the swing's power and the tracer both work towards it.
 const course = REAL_COURSES.find((c) => c.id === "waialae")!;
 const player = generatePlayer(createRng(19), { tier: "tour", nationality: "USA" });
-const LIE_LABEL: Record<string, string> = { tee: "Tee", fairway: "Fairway", rough: "Rough", bunker: "Bunker", green: "Green", water: "Water", holed: "Holed" };
-const SWING_LIE: Record<string, SwingLie> = { tee: "fairway", fairway: "fairway", rough: "light", bunker: "fairwaySand", green: "green" };
+const LIE_LABEL: Record<string, string> = { tee: "Tee", fairway: "Fairway", rough: "Rough", bunker: "Bunker", tree: "Trees", green: "Green", water: "Water", holed: "Holed" };
+const SWING_LIE: Record<string, SwingLie> = { tee: "tee", fairway: "fairway", rough: "light", bunker: "fairwaySand", tree: "tree", green: "green" };
 
 interface SwingStrike { power: number; timingMs: number }
 interface SwingElement extends HTMLElement { golfSwing?: { configure: (options: Record<string, unknown>) => boolean } }
