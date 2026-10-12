@@ -7,7 +7,11 @@
 #golf-bar .broadcast{display:grid;grid-template-columns:170px minmax(0,1fr) 190px;gap:12px;align-items:stretch}
 #golf-bar .side,#golf-bar .center{background:#19201ef2;border:1px solid #727b6590;border-radius:10px;padding:18px}
 #golf-bar .side{display:flex;flex-direction:column;justify-content:center;gap:9px}
-#golf-bar .club-name{font-size:23px;font-weight:500}#golf-bar .sub{color:#c3cbbd;font-size:12px;text-transform:uppercase;letter-spacing:1px}
+#golf-bar .club-name{font-size:23px;font-weight:500}#golf-bar .club-name[hidden]{display:none}
+#golf-bar .side-split{padding:0;gap:0;justify-content:stretch}
+#golf-bar .side-top{flex:1;display:flex;align-items:center;padding:14px 16px}
+#golf-bar .side-bottom{flex:1;display:flex;align-items:center;padding:12px 16px;border-top:1px solid #727b6590}
+#golf-bar .club-pick{font-size:18px;padding:8px 10px}#golf-bar .sub{color:#c3cbbd;font-size:12px;text-transform:uppercase;letter-spacing:1px}
 #golf-bar .meter{height:32px;margin:18px 0 8px;position:relative;background:var(--muted);overflow:hidden;border-radius:7px}
 #golf-bar .fill{position:absolute;inset:0 auto 0 0;background:var(--viz-series-1);opacity:.75}
 #golf-bar .zone{position:absolute;top:0;bottom:0;background:var(--viz-series-1);opacity:.5}
@@ -25,7 +29,7 @@
 @media(max-width:700px){#golf-bar .broadcast{grid-template-columns:1fr 1fr}#golf-bar .center{grid-column:1/-1;grid-row:2}#golf-bar .side{padding:12px}}
 </style>
 <div class="broadcast">
-<div class="side"><span class="club-name" id="gb-club-summary">7 IRON</span><span class="sub" id="gb-lie-summary">Fairway</span></div>
+<div class="side side-split"><div class="side-top"><select class="form-select club-pick" id="gb-club" aria-label="Club"><option value="driver">Driver</option><option value="iron">7 iron</option><option value="wedge">Wedge</option></select><span class="club-name" id="gb-club-summary" hidden>7 IRON</span></div><div class="side-bottom"><span class="sub" id="gb-lie-summary">Fairway</span></div></div>
 <div class="center"><div class="labels"><span id="gb-phase">1 · Start swing</span><span class="tabular-nums" id="gb-value">Target 90% · Driver</span></div>
 <div class="meter" role="img" aria-label="Power and strike meter"><div class="danger" id="gb-danger"></div><div class="fill" id="gb-fill"></div><div class="zone" id="gb-zone"></div><div class="needle" id="gb-needle"></div></div>
 <div class="labels text-small"><span id="gb-left">0%</span><span id="gb-right">100% → 110% overdrive</span></div>
@@ -39,7 +43,6 @@
 <label class="form-label">Along-shot wind <span id="gb-wind-value">Calm</span><input class="form-range" id="gb-wind" type="range" min="-20" max="20" value="0"></label>
 <label class="form-label">Crosswind <span id="gb-cross-value">Calm</span><input class="form-range" id="gb-cross" type="range" min="-20" max="20" value="0"></label>
 <label class="form-label">Aim offset <span id="gb-aim-value">0 yd</span><input class="form-range" id="gb-aim" type="range" min="-40" max="40" value="0"></label>
-<label class="form-label">Club <select class="form-select" id="gb-club"><option value="driver">Driver</option><option value="iron">7 iron</option><option value="wedge">Wedge</option></select></label>
 <label class="form-label">Shot <select class="form-select" id="gb-shot"><option value="normal">Normal</option><option value="punch">Punch</option><option value="flop">Flop · wedge only</option><option value="splash" disabled>Splash · greenside bunker</option></select></label>
 <label class="form-label">Calm-air target power <span id="gb-target-value">90%</span><input class="form-range" id="gb-target" type="range" min="10" max="110" value="90"></label>
 <label class="form-label">Shape <select class="form-select" id="gb-shape"><option value="0">Straight</option><option value="-1">Draw · right to left</option><option value="1">Fade · left to right</option></select></label>
