@@ -128,6 +128,24 @@ function YardsBox({ strokes, progress }: { strokes: PracticeStroke[]; progress: 
   );
 }
 
+/** The fairway outline on the picture: the line of play, widened to half the fairway width on each side. */
+function fairwayOutline(path: Pt[], halfWidth: number): Pt[] {
+  const left: Pt[] = [];
+  const right: Pt[] = [];
+  path.forEach((p, i) => {
+    const a = path[Math.max(0, i - 1)]!;
+    const b = path[Math.min(path.length - 1, i + 1)]!;
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const len = Math.hypot(dx, dy) || 1;
+    const nx = dy / len;
+    const ny = -dx / len;
+    left.push({ x: p.x + nx * halfWidth, y: p.y + ny * halfWidth });
+    right.push({ x: p.x - nx * halfWidth, y: p.y - ny * halfWidth });
+  });
+  return [...left, ...right.reverse()];
+}
+
 /** The shot lines on the picture. The newest stroke climbs and falls to where it landed, with its shadow on the ground. */
 function ShotLines({ strokes, progress, dot, ball, width, height }: { strokes: PracticeStroke[]; progress: number; dot: (p: Pt) => Pt; ball: Pt; width: number; height: number }) {
   const last = strokes.length - 1;
@@ -238,6 +256,11 @@ export function PracticeHolePreview() {
         <div className="practice-picture" ref={picture} style={{ position: "relative", touchAction: "none" }}>
           <img src={`${base}${art.image}`} alt={`${course.name}, hole 1`} style={{ width: "100%", display: "block" }} />
           <svg viewBox={`0 0 ${art.width} ${art.height}`} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} aria-hidden>
+            {(() => {
+              const half = Math.max(15, (state.layout.fairwayWidth ?? 30) / 2);
+              const pts = fairwayOutline(state.layout.path, half).map(dot);
+              return <polygon points={pts.map((p) => `${p.x},${p.y}`).join(" ")} fill="#bce764" fillOpacity={0.2} stroke="#bce764" strokeOpacity={0.5} strokeWidth={3} strokeDasharray="8 8" />;
+            })()}
             {showTarget && <line x1={ballPx.x} y1={ballPx.y} x2={marker.x} y2={marker.y} stroke="#fff" strokeWidth={3} strokeDasharray="6 8" opacity={0.6} />}
           </svg>
           {showTarget && (

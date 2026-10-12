@@ -5,7 +5,7 @@
  * it doesn't feed a tournament result.
  */
 import { TOUR_AVERAGE } from "./attributes";
-import { holeLayout, type HoleLayout, type Pt } from "./tracer";
+import { holeLayout, projectAlong, type HoleLayout, type Pt } from "./tracer";
 import { scoreSwing, sweetSpotMs, type SwingClub, type SwingLie, type SwingShot } from "./swing";
 import type { Course, Hole, Player } from "./types";
 
@@ -74,13 +74,37 @@ export function clubCarry(player: Player, club: SwingClub): number {
   return Math.round(95 + YARDS_PER_POINT * (a.wedges - TOUR_AVERAGE));
 }
 
+/** Distance from a point to the centre line of the hole (the nearest point on the path). */
+function lateralFromLine(path: Pt[], p: Pt): number {
+  let best = Infinity;
+  for (let i = 0; i < path.length - 1; i++) {
+    const a = path[i]!;
+    const b = path[i + 1]!;
+    const len2 = (b.x - a.x) ** 2 + (b.y - a.y) ** 2 || 1;
+    const t = Math.max(0, Math.min(1, ((p.x - a.x) * (b.x - a.x) + (p.y - a.y) * (b.y - a.y)) / len2));
+    best = Math.min(best, dist(p, { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t }));
+  }
+  return best;
+}
+
+/**
+ * On the fairway: within half the fairway width of the line of play, from the tee box up to the
+ * green. A par 3 has no fairway width, so it gets a narrow corridor for the tee and approach.
+ */
+function onFairway(layout: HoleLayout, p: Pt): boolean {
+  const halfWidth = Math.max(15, (layout.fairwayWidth ?? 30) / 2);
+  const along = projectAlong(layout.path, p);
+  const total = projectAlong(layout.path, layout.path[layout.path.length - 1]!);
+  if (along < 0 || along > total - 15) return false;
+  return lateralFromLine(layout.path, p) <= halfWidth;
+}
+
 /** The lie the ball is in at a point on the course. */
 export function lieAt(layout: HoleLayout, p: Pt): BallLie {
   if (layout.water.some((poly) => inPolygon(p, poly))) return "water";
   if (dist(p, layout.green) <= layout.green.r) return "green";
   if (layout.bunkers.some((b) => dist(p, b) <= b.r)) return "bunker";
-  if (layout.fairway.length >= 3 && inPolygon(p, layout.fairway)) return "fairway";
-  return "rough";
+  return onFairway(layout, p) ? "fairway" : "rough";
 }
 
 /** The lie the swing model uses for the sweet spot, for a ball in a given lie. */

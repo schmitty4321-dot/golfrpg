@@ -75,4 +75,22 @@ describe("practice hole, shot by shot", () => {
     const after = Math.hypot(target.x - landed.x, target.y - landed.y);
     expect(after).toBeLessThan(before);
   });
+  it("the lie comes from the line of play: fairway on the line, rough well off it", () => {
+    const hole = course.holes.find((h) => h.number === 1)!;
+    const { layout } = startPracticeHole(course, hole, 0);
+    const onLine = layout.path[1]!;
+    expect(lieAt(layout, onLine)).toBe("fairway");
+    expect(lieAt(layout, { x: onLine.x + 60, y: onLine.y })).toBe("rough");
+  });
+
+  it("each shot starts from where the last one landed, and its lie carries over", () => {
+    const hole = course.holes.find((h) => h.number === 5)!;
+    let state = startPracticeHole(course, hole, 0);
+    state = playPracticeShot(state, player, { club: "driver", power: 90, timingMs: 0, aim: 0 });
+    const landed = state.strokes[0]!.to;
+    expect(state.ball).toEqual(landed);
+    expect(state.lie).toBe(state.strokes[0]!.lieAfter);
+    state = playPracticeShot(state, player, { club: "iron", power: 80, timingMs: 0, aim: 0 });
+    expect(state.strokes[1]!.from).toEqual(landed);
+  });
 });
