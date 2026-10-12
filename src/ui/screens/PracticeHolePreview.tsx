@@ -246,6 +246,14 @@ export function PracticeHolePreview() {
   }, [playClub, state.strokes.length, turn]);
   // The target and its yardage show only between shots: not during a swing, not in flight.
   const showTarget = !flying && !swinging && !state.holed;
+  // Only the golfer whose shot is on screen shows his ball and shot info. The other waits until his turn.
+  // A shot keeps its golfer on screen until it lands, so the flight is seen before the next golfer takes over.
+  const [shown, setShown] = useState(0);
+  // Switches only when a flight ends (progress reaches 1), not when the turn changes at the strike.
+  useEffect(() => { if (progress >= 1) setShown(turn); }, [progress]);
+  const allHoled = balls.every((b) => b.holed);
+  const showGolfer = (i: number) => allHoled || i === shown;
+  const shownBall = balls[shown]!;
 
   const dot = (p: Pt) => projectArtPoint(view.matrix, p);
 
@@ -288,11 +296,12 @@ export function PracticeHolePreview() {
     setLog([]);
     setTarget(null);
     setTurn(0);
+    setShown(0);
   };
 
   const strokesBy = (i: number) => balls[i]!.strokes.length;
   const marker = dot(aimAt);
-  const ballPx = dot(state.ball);
+  const ballPx = dot(shownBall.ball);
   return (
     <main className="tracer-preview practice-hole">
       <section className="panel">
@@ -313,7 +322,7 @@ export function PracticeHolePreview() {
               {Math.round(toTarget)} yds
             </div>
           )}
-          <ShotLines strokes={history} progress={progress} dot={dot} ball={ballPx} width={view.width} height={view.height} />
+          <ShotLines strokes={shownBall.strokes} progress={progress} dot={dot} ball={ballPx} width={view.width} height={view.height} />
           {showTarget && !near && (
             <div
               role="slider"
@@ -325,7 +334,7 @@ export function PracticeHolePreview() {
           {near && (
             <div ref={insetRef} style={{ position: "absolute", top: 8, left: 8, width: "50%", aspectRatio: `${cropW} / ${cropH}`, overflow: "hidden", border: "3px solid #ffd60a", borderRadius: 8, boxShadow: "0 6px 18px rgba(0, 0, 0, 0.5)", background: "#0a140e", zIndex: 2 }}>
               <img src={`${base}${art.image}`} alt="" style={{ position: "absolute", width: `${(art.width / cropW) * 100}%`, maxWidth: "none", left: `${(-x0 / cropW) * 100}%`, top: `${(-y0 / cropH) * 100}%` }} />
-              <ShotLines strokes={history} progress={progress} dot={insetDot} ball={insetDot(state.ball)} width={cropW} height={cropH} />
+              <ShotLines strokes={shownBall.strokes} progress={progress} dot={insetDot} ball={insetDot(shownBall.ball)} width={cropW} height={cropH} />
               {showTarget && (
                 <div
                   role="slider"
@@ -336,17 +345,17 @@ export function PracticeHolePreview() {
               )}
             </div>
           )}
-          <YardsBox strokes={history} progress={progress} />
+          <YardsBox strokes={shownBall.strokes} progress={progress} />
         </div>
         <aside style={{ flex: "1 1 220px", minWidth: 220, border: "1px solid rgba(0, 0, 0, 0.12)", borderRadius: 8, padding: 12 }}>
-          {PLAYERS.map((p, i) => (
-            <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 8, padding: "6px 8px", borderRadius: 6, background: !state.holed && turn === i ? "rgba(34, 238, 227, 0.2)" : "transparent", fontWeight: !state.holed && turn === i ? 700 : 400 }}>
+          {PLAYERS.map((p, i) => showGolfer(i) ? (
+            <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 8, padding: "6px 8px", borderRadius: 6, background: !allHoled && shown === i ? "rgba(34, 238, 227, 0.2)" : "transparent", fontWeight: !allHoled && shown === i ? 700 : 400 }}>
               <span>{p.name}</span>
               <span style={{ fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{balls[i]!.holed ? `holed in ${balls[i]!.score}` : `${strokesBy(i)} ${strokesBy(i) === 1 ? "stroke" : "strokes"}`}</span>
             </div>
-          ))}
+          ) : null)}
           <ol className="practice-log" style={{ listStyle: "none", padding: 0, margin: "10px 0 0", maxHeight: 420, overflowY: "auto" }}>
-            {log.map((line, i) => <li key={i} style={{ padding: "6px 0", borderTop: "1px solid rgba(0, 0, 0, 0.08)" }}>{line}</li>)}
+            {log.filter((l) => allHoled || l.startsWith(PLAYERS[shown]!.name)).map((line, i) => <li key={i} style={{ padding: "6px 0", borderTop: "1px solid rgba(0, 0, 0, 0.08)" }}>{line}</li>)}
             {balls.every((b) => b.holed) && <li style={{ padding: "6px 0", borderTop: "1px solid rgba(0, 0, 0, 0.08)" }}><strong>Hole finished (par {hole.par}): {PLAYERS.map((p, i) => `${p.name.split(" (")[0]} ${balls[i]!.score}`).join(" · ")}</strong></li>}
           </ol>
         </aside>
