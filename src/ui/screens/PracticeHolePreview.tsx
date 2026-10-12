@@ -187,13 +187,25 @@ function ShotLines({ strokes, progress, dot, ball, width, height }: { strokes: P
   );
 }
 
+/** Golf's order: the golfer farther from the hole plays next. A golfer who has holed is skipped. */
+function nextToPlay(balls: PracticeHole[], pin: Pt, last: number): number {
+  const open = balls.map((_, i) => i).filter((i) => !balls[i]!.holed);
+  if (open.length === 0) return last;
+  if (open.length === 1) return open[0]!;
+  const away = (i: number) => Math.hypot(balls[i]!.ball.x - pin.x, balls[i]!.ball.y - pin.y);
+  return away(1) > away(0) ? 1 : 0;
+}
+
 export function PracticeHolePreview() {
   const hole = course.holes[0]!;
-  const [state, setState] = useState<PracticeHole>(() => startPracticeHole(course, hole, 0));
-  const progress = useFlight(state.strokes.length);
+  // Each golfer has his own ball; the one to play is picked by nextToPlay. history is every stroke in order.
+  const [balls, setBalls] = useState<PracticeHole[]>(() => [startPracticeHole(course, hole, 0), startPracticeHole(course, hole, 0)]);
+  const [history, setHistory] = useState<PracticeStroke[]>([]);
+  const progress = useFlight(history.length);
   const [club, setClub] = useState<SwingClub>("driver");
   const [target, setTarget] = useState<Pt | null>(null);
   const [turn, setTurn] = useState(0);
+  const state = balls[turn]!;
   const player = PLAYERS[turn]!;
   const [log, setLog] = useState<string[]>([]);
   const picture = useRef<HTMLDivElement>(null);
@@ -248,19 +260,21 @@ export function PracticeHolePreview() {
     if (state.holed) return;
     const next = playPracticeShot(state, player, { club: playClub, power: strike.power, timingMs: strike.timingMs, aim: 0, target: aimAt }, pictureAt);
     const s = next.strokes[next.strokes.length - 1] as PracticeStroke;
-    setState(next);
-    setTurn((t) => 1 - t);
+    const nextBalls = balls.map((b, i) => (i === turn ? next : b));
+    setBalls(nextBalls);
+    setHistory((h) => [...h, s]);
+    setTurn(nextToPlay(nextBalls, state.layout.pin, turn));
     setLog((l) => [...l, `${player.name} · shot ${s.stroke}. ${s.penalty ? "Into the water, penalty, back to where it was struck" : `${Math.round(s.yards)} yds to ${LIE_LABEL[s.lieAfter] ?? s.lieAfter}`} · timing ${Math.round(strike.timingMs)} ms · power ${Math.round(strike.power)}%`]);
   };
   const reset = () => {
-    setState(startPracticeHole(course, hole, 0));
+    setBalls([startPracticeHole(course, hole, 0), startPracticeHole(course, hole, 0)]);
+    setHistory([]);
     setLog([]);
     setTarget(null);
     setTurn(0);
   };
 
-  // Each golfer takes every other stroke, so his strokes are the ones at his turn's parity.
-  const strokesBy = (i: number) => state.strokes.filter((_, k) => k % 2 === i).length;
+  const strokesBy = (i: number) => balls[i]!.strokes.length;
   const marker = dot(aimAt);
   const ballPx = dot(state.ball);
   return (
@@ -283,7 +297,7 @@ export function PracticeHolePreview() {
               {Math.round(toTarget)} yds
             </div>
           )}
-          <ShotLines strokes={state.strokes} progress={progress} dot={dot} ball={ballPx} width={art.width} height={art.height} />
+          <ShotLines strokes={history} progress={progress} dot={dot} ball={ballPx} width={art.width} height={art.height} />
           {showTarget && (
             <div
               role="slider"
@@ -292,18 +306,18 @@ export function PracticeHolePreview() {
               style={{ position: "absolute", left: `${(marker.x / art.width) * 100}%`, top: `${(marker.y / art.height) * 100}%`, width: 34, height: 34, marginLeft: -17, marginTop: -17, borderRadius: "50%", border: "3px solid #ffd60a", background: "rgba(255, 214, 10, 0.25)", boxShadow: "0 0 0 2px rgba(0,0,0,0.5)", cursor: "grab", touchAction: "none" }}
             />
           )}
-          <YardsBox strokes={state.strokes} progress={progress} />
+          <YardsBox strokes={history} progress={progress} />
         </div>
         <aside style={{ flex: "1 1 220px", minWidth: 220, border: "1px solid rgba(0, 0, 0, 0.12)", borderRadius: 8, padding: 12 }}>
           {PLAYERS.map((p, i) => (
             <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 8, padding: "6px 8px", borderRadius: 6, background: !state.holed && turn === i ? "rgba(34, 238, 227, 0.2)" : "transparent", fontWeight: !state.holed && turn === i ? 700 : 400 }}>
               <span>{p.name}</span>
-              <span style={{ fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{strokesBy(i)} {strokesBy(i) === 1 ? "stroke" : "strokes"}</span>
+              <span style={{ fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{balls[i]!.holed ? `holed in ${balls[i]!.score}` : `${strokesBy(i)} ${strokesBy(i) === 1 ? "stroke" : "strokes"}`}</span>
             </div>
           ))}
           <ol className="practice-log" style={{ listStyle: "none", padding: 0, margin: "10px 0 0", maxHeight: 420, overflowY: "auto" }}>
             {log.map((line, i) => <li key={i} style={{ padding: "6px 0", borderTop: "1px solid rgba(0, 0, 0, 0.08)" }}>{line}</li>)}
-            {state.holed && <li style={{ padding: "6px 0", borderTop: "1px solid rgba(0, 0, 0, 0.08)" }}><strong>Holed in {state.score} (par {hole.par})</strong></li>}
+            {balls.every((b) => b.holed) && <li style={{ padding: "6px 0", borderTop: "1px solid rgba(0, 0, 0, 0.08)" }}><strong>Hole finished (par {hole.par}): {PLAYERS.map((p, i) => `${p.name.split(" (")[0]} ${balls[i]!.score}`).join(" · ")}</strong></li>}
           </ol>
         </aside>
         </div>
