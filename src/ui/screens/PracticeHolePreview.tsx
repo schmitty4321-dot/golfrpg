@@ -147,10 +147,12 @@ function useFlight(strokeCount: number): number {
 /** The yards box in the bottom right of the picture: counts up with the flight and stops on the landing distance. */
 function YardsBox({ strokes, progress }: { strokes: PracticeStroke[]; progress: number }) {
   const last = strokes[strokes.length - 1];
-  const yards = last ? Math.round(last.yards * progress) : 0;
+  // A putt, struck from the green, reads in feet; a shot from off the green reads in yards.
+  const feet = last?.lieBefore === "green";
+  const distance = last ? Math.round((feet ? last.yards * 3 : last.yards) * progress) : 0;
   return (
     <div aria-live="off" style={{ position: "absolute", right: 14, bottom: 14, padding: "8px 14px", borderRadius: 8, background: "rgba(10, 20, 15, 0.78)", color: "#fff", fontSize: 26, fontWeight: 600, fontVariantNumeric: "tabular-nums", minWidth: 110, textAlign: "right", pointerEvents: "none" }}>
-      {yards} <span style={{ fontSize: 14, fontWeight: 500, opacity: 0.8 }}>yds</span>
+      {distance} <span style={{ fontSize: 14, fontWeight: 500, opacity: 0.8 }}>{feet ? "ft" : "yds"}</span>
     </div>
   );
 }
@@ -321,7 +323,7 @@ export function PracticeHolePreview() {
     setHistory((h) => [...h, s]);
     setTurn(nextToPlay(nextBalls, state.layout.pin, turn));
     setCamGolfer(!next.holed && Math.hypot(s.to.x - state.layout.pin.x, s.to.y - state.layout.pin.y) <= 30 ? turn : null);
-    setLog((l) => [...l, `${player.name} · shot ${s.stroke}. ${s.penalty ? "Into the water, penalty, back to where it was struck" : `${Math.round(s.yards)} yds to ${LIE_LABEL[s.lieAfter] ?? s.lieAfter}`} · timing ${Math.round(strike.timingMs)} ms · power ${Math.round(strike.power)}%`]);
+    setLog((l) => [...l, `${player.name} · shot ${s.stroke}. ${s.penalty ? "Into the water, penalty, back to where it was struck" : s.lieBefore === "green" ? `${Math.round(s.yards * 3)} ft to ${LIE_LABEL[s.lieAfter] ?? s.lieAfter}` : `${Math.round(s.yards)} yds to ${LIE_LABEL[s.lieAfter] ?? s.lieAfter}`} · timing ${Math.round(strike.timingMs)} ms · power ${Math.round(strike.power)}%`]);
   };
   const reset = () => {
     setBalls([startPracticeHole(course, hole, 0), startPracticeHole(course, hole, 0)]);
