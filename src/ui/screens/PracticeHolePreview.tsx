@@ -3,7 +3,7 @@ import { createRng, REAL_COURSES, generatePlayer } from "../../engine";
 import { bestClub, clubCarry, playPracticeShot, puttPower, startPracticeHole, type PracticeHole, type PracticeStroke } from "../../engine/practiceHole";
 import { meterFactor, sweetSpotMs, type SwingClub, type SwingLie, type SwingShot } from "../../engine/swing";
 import { illustratedArtFor, pictureLieAt, projectArtPoint, type ArtMatrix } from "../illustratedArt";
-import { GreenTopDown } from "../components/GreenTopDown";
+import { GreenTopDown, loadPhotoSand, photoPoint, type PhotoSand } from "../components/GreenTopDown";
 import { pointAt, projectAlong, type HoleLayout } from "../../engine/tracer";
 
 // Development review of a practice hole, played shot by shot. The swing is the broadcast three-click
@@ -237,8 +237,22 @@ export function PracticeHolePreview() {
   const picture = useRef<HTMLDivElement>(null);
   const insetRef = useRef<HTMLDivElement>(null);
   const art = illustratedArtFor("waialae", 1)!;
+  // The overhead photo of the green: its sand decides the lie where the photo shows the green.
+  const [sand, setSand] = useState<PhotoSand | null>(null);
+  useEffect(() => {
+    loadPhotoSand(`${import.meta.env.BASE_URL}art/greens/waialae-1-green.webp`).then(setSand).catch(() => setSand(null));
+  }, []);
   // Bunkers and water are taken from the painting, so a ball lies where the picture shows sand or water.
-  const pictureAt = (p: Pt) => pictureLieAt(art, p);
+  // Inside the overhead photo of the green, the photo's own sand decides.
+  const pictureAt = (p: Pt): "bunker" | "water" | "open" | undefined => {
+    if (sand) {
+      const q = photoPoint(state.layout.green, p);
+      const x = Math.round(q.x);
+      const y = Math.round(q.y);
+      if (x >= 0 && y >= 0 && x < sand.w && y < sand.h) return sand.mask[y * sand.w + x] ? "bunker" : "open";
+    }
+    return pictureLieAt(art, p);
+  };
   // Within 50 yards of the pin, a bordered close-up of the green sits over the top half of the picture.
   // It's a crop of the same painting, centred between the ball and the pin so both stay in view.
   const cropW = 420;

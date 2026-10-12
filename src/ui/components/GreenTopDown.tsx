@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import type { PracticeStroke } from "../../engine/practiceHole";
-import type { HoleLayout, Pt } from "../../engine/tracer";
+import type { Circle, HoleLayout, Pt } from "../../engine/tracer";
 
 /**
  * The photo of Waialae hole 1's green from above. The sand and water are in the photo, so the
@@ -17,6 +17,53 @@ const PHOTO = {
   /** The green's radius in photo pixels, matched to the course layout's green radius. */
   radiusPx: 383,
 };
+
+/** A pixel of the photo for a point on the course, from the way the photo is turned and scaled onto the green. */
+export function photoPoint(green: Circle, p: Pt): Pt {
+  const backAngle = (Math.atan2(PHOTO.back.y - PHOTO.centre.y, PHOTO.back.x - PHOTO.centre.x) * 180) / Math.PI;
+  const turn = ((90 - backAngle) * Math.PI) / 180;
+  const k = green.r / PHOTO.radiusPx;
+  // Yards from the green centre, forward up the screen; then back through the turn and scale to photo pixels.
+  const vx = p.x - green.x;
+  const vy = -(p.y - green.y);
+  const a = -turn;
+  const ux = vx * Math.cos(a) - vy * Math.sin(a);
+  const uy = vx * Math.sin(a) + vy * Math.cos(a);
+  return { x: PHOTO.centre.x + ux / k, y: PHOTO.centre.y + uy / k };
+}
+
+export interface PhotoSand {
+  w: number;
+  h: number;
+  /** 1 where the photo shows bunker sand, 0 elsewhere. */
+  mask: Uint8Array;
+}
+
+/** Reads the photo once and marks its pale bunker sand. The grass is greener, with green above red. */
+export function loadPhotoSand(src: string): Promise<PhotoSand> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return reject(new Error("no canvas"));
+      ctx.drawImage(img, 0, 0);
+      const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const mask = new Uint8Array(canvas.width * canvas.height);
+      for (let i = 0; i < mask.length; i++) {
+        const r = data[i * 4]!;
+        const g = data[i * 4 + 1]!;
+        const b = data[i * 4 + 2]!;
+        mask[i] = r > 170 && r >= g - 5 && g >= b && r - b < 90 ? 1 : 0;
+      }
+      resolve({ w: canvas.width, h: canvas.height, mask });
+    };
+    img.onerror = () => reject(new Error("photo did not load"));
+    img.src = src;
+  });
+}
 
 interface Props {
   layout: HoleLayout;
