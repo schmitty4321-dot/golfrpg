@@ -3,6 +3,7 @@ import { createRng, REAL_COURSES, generatePlayer } from "../../engine";
 import { clubCarry, playPracticeShot, puttPower, startPracticeHole, type PracticeHole, type PracticeStroke } from "../../engine/practiceHole";
 import { meterFactor, sweetSpotMs, type SwingClub, type SwingLie, type SwingShot } from "../../engine/swing";
 import { illustratedArtFor, pictureLieAt, projectArtPoint, type ArtMatrix } from "../illustratedArt";
+import { GreenTopDown } from "../components/GreenTopDown";
 import { pointAt, projectAlong, type HoleLayout } from "../../engine/tracer";
 
 // Development review of a practice hole, played shot by shot. The swing is the broadcast three-click
@@ -314,10 +315,13 @@ export function PracticeHolePreview() {
         </div>
         <div style={{ display: "flex", gap: 16, alignItems: "flex-start", flexWrap: "wrap" }}>
         <div className="practice-picture" ref={picture} style={{ position: "relative", touchAction: "none", flex: "3 1 380px", minWidth: 0 }}>
+          {state.lie === "green" ? (
+            <GreenTopDown layout={state.layout} art={art} ball={state.ball} aim={aimAt} strokes={shownBall.strokes} progress={progress} showAim={showTarget} onAim={setTarget} />
+          ) : (<>
           <img src={`${base}${art.image}`} alt={`${course.name}, hole 1`} style={{ width: "100%", display: "block" }} />
           <svg viewBox={`0 0 ${view.width} ${view.height}`} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} aria-hidden>
           </svg>
-          {showTarget && !near && state.lie !== "green" && (
+          {showTarget && !near && (
             <div style={{ position: "absolute", left: `${(((ballPx.x + marker.x) / 2) / view.width) * 100}%`, top: `${(((ballPx.y + marker.y) / 2) / view.height) * 100}%`, transform: "translate(-50%, -50%)", padding: "4px 10px", borderRadius: 6, background: "rgba(10, 20, 15, 0.8)", color: "#ffd60a", fontSize: 16, fontWeight: 700, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap", pointerEvents: "none" }}>
               {Math.round(toTarget)} yds
             </div>
@@ -346,6 +350,7 @@ export function PracticeHolePreview() {
             </div>
           )}
           <YardsBox strokes={shownBall.strokes} progress={progress} />
+          </>)}
         </div>
         <aside style={{ flex: "1 1 220px", minWidth: 220, border: "1px solid rgba(0, 0, 0, 0.12)", borderRadius: 8, padding: 12 }}>
           {PLAYERS.map((p, i) => showGolfer(i) ? (
