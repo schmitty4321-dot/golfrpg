@@ -306,7 +306,6 @@ export function PracticeHolePreview() {
             ))}
             <button className="btn btn-small" onClick={() => setTarget(null)} disabled={flying || target === null}>Move target to the pin</button>
           </div>
-          <span className="secondary small">Drag the yellow target on the picture. Power to reach it: {power}%.</span>
           <BroadcastSwing lie={swingLie} club={playClub} shot={lie === "green" ? "splash" : "normal"} targetPower={power} onStrike={onStrike} onSwingStart={() => setSwinging(true)} onSwingEnd={() => setSwinging(false)} onClubPick={setClub} />
           <button className="btn" onClick={reset}>Start the hole again</button>
         </div>
