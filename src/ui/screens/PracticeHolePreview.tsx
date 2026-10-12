@@ -187,6 +187,9 @@ function ShotLines({ strokes, progress, dot, ball, width, height }: { strokes: P
   );
 }
 
+/** A picture the ball can be aimed on: its size, and how yards map onto its pixels. */
+type PlateView = { width: number; height: number; matrix: ArtMatrix };
+
 /** Golf's order: the golfer farther from the hole plays next. A golfer who has holed is skipped. */
 function nextToPlay(balls: PracticeHole[], pin: Pt, last: number): number {
   const open = balls.map((_, i) => i).filter((i) => !balls[i]!.holed);
@@ -209,18 +212,22 @@ export function PracticeHolePreview() {
   const player = PLAYERS[turn]!;
   const [log, setLog] = useState<string[]>([]);
   const picture = useRef<HTMLDivElement>(null);
+  const insetRef = useRef<HTMLDivElement>(null);
   const art = illustratedArtFor("waialae", 1)!;
   // Bunkers and water are taken from the painting, so a ball lies where the picture shows sand or water.
   const pictureAt = (p: Pt) => pictureLieAt(art, p);
-  // On the green the picture blows up to a close-up: a crop of the same painting around the putting surface, with the same yards.
+  // Within 50 yards of the pin, a bordered close-up of the green sits over the top half of the picture.
+  // It's a crop of the same painting, centred between the ball and the pin so both stay in view.
+  const near = Math.hypot(state.ball.x - state.layout.pin.x, state.ball.y - state.layout.pin.y) <= 50;
   const cropW = 420;
   const cropH = 280;
-  const greenAt = projectArtPoint(art.matrix, state.layout.green);
-  const x0 = Math.max(0, Math.min(art.width - cropW, greenAt.x - cropW / 2));
-  const y0 = Math.max(0, Math.min(art.height - cropH, greenAt.y - cropH / 2));
-  const view: { image: string; width: number; height: number; matrix: ArtMatrix } = state.lie === "green"
-    ? { image: art.image, width: cropW, height: cropH, matrix: { x: [art.matrix.x[0], art.matrix.x[1], art.matrix.x[2] - x0], y: [art.matrix.y[0], art.matrix.y[1], art.matrix.y[2] - y0] } }
-    : { image: art.image, width: art.width, height: art.height, matrix: art.matrix };
+  const midAt = projectArtPoint(art.matrix, { x: (state.ball.x + state.layout.pin.x) / 2, y: (state.ball.y + state.layout.pin.y) / 2 });
+  const x0 = Math.max(0, Math.min(art.width - cropW, midAt.x - cropW / 2));
+  const y0 = Math.max(0, Math.min(art.height - cropH, midAt.y - cropH / 2));
+  const view: PlateView = { width: art.width, height: art.height, matrix: art.matrix };
+  const insetMatrix: ArtMatrix = { x: [art.matrix.x[0], art.matrix.x[1], art.matrix.x[2] - x0], y: [art.matrix.y[0], art.matrix.y[1], art.matrix.y[2] - y0] };
+  const insetView: PlateView = { width: cropW, height: cropH, matrix: insetMatrix };
+  const insetDot = (p: Pt) => projectArtPoint(insetMatrix, p);
   const base = import.meta.env.BASE_URL;
   const lie = (LIE_LABEL[state.lie] ? state.lie : "fairway") as string;
   const swingLie = SWING_LIE[lie] ?? "fairway";
@@ -242,27 +249,27 @@ export function PracticeHolePreview() {
 
   const dot = (p: Pt) => projectArtPoint(view.matrix, p);
 
-  // Dragging the target: the pointer on the picture, converted to yards and kept on the hole's map.
-  const dragTo = (clientX: number, clientY: number) => {
-    const rect = picture.current?.getBoundingClientRect();
+  // Dragging the target: the pointer over a picture (the full hole or the close-up), converted to yards and kept on the hole's map.
+  const dragTo = (clientX: number, clientY: number, el: HTMLElement | null, v: PlateView) => {
+    const rect = el?.getBoundingClientRect();
     if (!rect) return;
-    const px = ((clientX - rect.left) / rect.width) * view.width;
-    const py = ((clientY - rect.top) / rect.height) * view.height;
-    const yards = unprojectArtPoint(view.matrix, px, py);
+    const px = ((clientX - rect.left) / rect.width) * v.width;
+    const py = ((clientY - rect.top) / rect.height) * v.height;
+    const yards = unprojectArtPoint(v.matrix, px, py);
     const b = state.layout.bounds;
     setTarget({ x: Math.max(b.minX, Math.min(b.maxX, yards.x)), y: Math.max(b.minY, Math.min(b.maxY, yards.y)) });
   };
-  const startDrag = (e: React.PointerEvent) => {
+  const startDrag = (e: React.PointerEvent, el: HTMLElement | null, v: PlateView) => {
     if (!showTarget) return;
     e.preventDefault();
-    const move = (ev: PointerEvent) => dragTo(ev.clientX, ev.clientY);
+    const move = (ev: PointerEvent) => dragTo(ev.clientX, ev.clientY, el, v);
     const up = () => {
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
     };
     window.addEventListener("pointermove", move);
     window.addEventListener("pointerup", up);
-    dragTo(e.clientX, e.clientY);
+    dragTo(e.clientX, e.clientY, el, v);
   };
 
   const onStrike = (strike: SwingStrike) => {
@@ -297,23 +304,37 @@ export function PracticeHolePreview() {
           <a className="btn btn-small" href={window.location.pathname}>Return to game</a>
         </div>
         <div style={{ display: "flex", gap: 16, alignItems: "flex-start", flexWrap: "wrap" }}>
-        <div className="practice-picture" ref={picture} style={{ position: "relative", touchAction: "none", flex: "3 1 380px", minWidth: 0, ...(state.lie === "green" ? { aspectRatio: `${cropW} / ${cropH}`, overflow: "hidden" } : {}) }}>
-          <img src={`${base}${view.image}`} alt={`${course.name}, hole 1`} style={state.lie === "green" ? { position: "absolute", width: `${(art.width / cropW) * 100}%`, maxWidth: "none", left: `${(-x0 / cropW) * 100}%`, top: `${(-y0 / cropH) * 100}%` } : { width: "100%", display: "block" }} />
+        <div className="practice-picture" ref={picture} style={{ position: "relative", touchAction: "none", flex: "3 1 380px", minWidth: 0 }}>
+          <img src={`${base}${art.image}`} alt={`${course.name}, hole 1`} style={{ width: "100%", display: "block" }} />
           <svg viewBox={`0 0 ${view.width} ${view.height}`} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} aria-hidden>
           </svg>
-          {showTarget && state.lie !== "green" && (
+          {showTarget && !near && state.lie !== "green" && (
             <div style={{ position: "absolute", left: `${(((ballPx.x + marker.x) / 2) / view.width) * 100}%`, top: `${(((ballPx.y + marker.y) / 2) / view.height) * 100}%`, transform: "translate(-50%, -50%)", padding: "4px 10px", borderRadius: 6, background: "rgba(10, 20, 15, 0.8)", color: "#ffd60a", fontSize: 16, fontWeight: 700, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap", pointerEvents: "none" }}>
               {Math.round(toTarget)} yds
             </div>
           )}
           <ShotLines strokes={history} progress={progress} dot={dot} ball={ballPx} width={view.width} height={view.height} />
-          {showTarget && (
+          {showTarget && !near && (
             <div
               role="slider"
               aria-label="Landing target: drag to move"
-              onPointerDown={startDrag}
+              onPointerDown={(e) => startDrag(e, picture.current, view)}
               style={{ position: "absolute", left: `${(marker.x / view.width) * 100}%`, top: `${(marker.y / view.height) * 100}%`, width: 34, height: 34, marginLeft: -17, marginTop: -17, borderRadius: "50%", border: "3px solid #ffd60a", background: "rgba(255, 214, 10, 0.25)", boxShadow: "0 0 0 2px rgba(0,0,0,0.5)", cursor: "grab", touchAction: "none" }}
             />
+          )}
+          {near && (
+            <div ref={insetRef} style={{ position: "absolute", top: 8, left: 8, width: "50%", aspectRatio: `${cropW} / ${cropH}`, overflow: "hidden", border: "3px solid #ffd60a", borderRadius: 8, boxShadow: "0 6px 18px rgba(0, 0, 0, 0.5)", background: "#0a140e", zIndex: 2 }}>
+              <img src={`${base}${art.image}`} alt="" style={{ position: "absolute", width: `${(art.width / cropW) * 100}%`, maxWidth: "none", left: `${(-x0 / cropW) * 100}%`, top: `${(-y0 / cropH) * 100}%` }} />
+              <ShotLines strokes={history} progress={progress} dot={insetDot} ball={insetDot(state.ball)} width={cropW} height={cropH} />
+              {showTarget && (
+                <div
+                  role="slider"
+                  aria-label="Landing target: drag to move"
+                  onPointerDown={(e) => startDrag(e, insetRef.current, insetView)}
+                  style={{ position: "absolute", left: `${(insetDot(aimAt).x / cropW) * 100}%`, top: `${(insetDot(aimAt).y / cropH) * 100}%`, width: 34, height: 34, marginLeft: -17, marginTop: -17, borderRadius: "50%", border: "3px solid #ffd60a", background: "rgba(255, 214, 10, 0.25)", boxShadow: "0 0 0 2px rgba(0,0,0,0.5)", cursor: "grab", touchAction: "none" }}
+                />
+              )}
+            </div>
           )}
           <YardsBox strokes={history} progress={progress} />
         </div>
