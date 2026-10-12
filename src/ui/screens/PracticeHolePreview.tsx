@@ -11,7 +11,7 @@ import { pointAt, projectAlong, type HoleLayout } from "../../engine/tracer";
 const course = REAL_COURSES.find((c) => c.id === "waialae")!;
 const player = generatePlayer(createRng(19), { tier: "tour", nationality: "USA" });
 const LIE_LABEL: Record<string, string> = { tee: "Tee", fairway: "Fairway", rough: "Rough", bunker: "Bunker", green: "Green", water: "Water", holed: "Holed" };
-const SWING_LIE: Record<string, SwingLie> = { tee: "fairway", fairway: "fairway", rough: "light", bunker: "fairwaySand", green: "greenSand" };
+const SWING_LIE: Record<string, SwingLie> = { tee: "fairway", fairway: "fairway", rough: "light", bunker: "fairwaySand", green: "green" };
 
 interface SwingStrike { power: number; timingMs: number }
 interface SwingElement extends HTMLElement { golfSwing?: { configure: (options: Record<string, unknown>) => boolean } }
@@ -306,7 +306,7 @@ export function PracticeHolePreview() {
             ))}
             <button className="btn btn-small" onClick={() => setTarget(null)} disabled={flying || target === null}>Move target to the pin</button>
           </div>
-          <BroadcastSwing lie={swingLie} club={playClub} shot={lie === "green" ? "splash" : "normal"} targetPower={power} onStrike={onStrike} onSwingStart={() => setSwinging(true)} onSwingEnd={() => setSwinging(false)} onClubPick={setClub} />
+          <BroadcastSwing lie={swingLie} club={playClub} shot="normal" targetPower={power} onStrike={onStrike} onSwingStart={() => setSwinging(true)} onSwingEnd={() => setSwinging(false)} onClubPick={setClub} />
           <button className="btn" onClick={reset}>Start the hole again</button>
         </div>
         <ol className="practice-log">
