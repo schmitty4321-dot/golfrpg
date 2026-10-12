@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createRng, REAL_COURSES, generatePlayer } from "../../engine";
 import { clubCarry, playPracticeShot, startPracticeHole, type PracticeHole, type PracticeStroke } from "../../engine/practiceHole";
-import { sweetSpotMs, type SwingClub, type SwingLie, type SwingShot } from "../../engine/swing";
+import { meterFactor, sweetSpotMs, type SwingClub, type SwingLie, type SwingShot } from "../../engine/swing";
 import { illustratedArtFor, projectArtPoint, type ArtMatrix } from "../illustratedArt";
 import { pointAt, projectAlong, type HoleLayout } from "../../engine/tracer";
 
@@ -35,8 +35,8 @@ function unprojectArtPoint(m: ArtMatrix, px: number, py: number): Pt {
 }
 
 /** The broadcast swing, in its own frame so its script and styles run as they were written. */
-function BroadcastSwing({ lie, club, shot, targetPower, onStrike, onSwingStart, onSwingEnd, onClubPick }: {
-  lie: SwingLie; club: SwingClub; shot: SwingShot; targetPower: number; onStrike: (s: SwingStrike) => void; onSwingStart: () => void; onSwingEnd: () => void; onClubPick: (c: SwingClub) => void;
+function BroadcastSwing({ lie, club, shot, speed, targetPower, onStrike, onSwingStart, onSwingEnd, onClubPick }: {
+  lie: SwingLie; club: SwingClub; shot: SwingShot; speed: number; targetPower: number; onStrike: (s: SwingStrike) => void; onSwingStart: () => void; onSwingEnd: () => void; onClubPick: (c: SwingClub) => void;
 }) {
   const frame = useRef<HTMLIFrameElement>(null);
   const [ready, setReady] = useState(false);
@@ -92,6 +92,8 @@ function BroadcastSwing({ lie, club, shot, targetPower, onStrike, onSwingStart, 
   // Only the settings the page owns are sent, and only when they change: a re-send would overwrite the player's own picks.
   useEffect(() => { swing()?.golfSwing?.configure({ lie, shot }); }, [ready, lie, shot]);
   useEffect(() => { swing()?.golfSwing?.configure({ club }); }, [ready, club]);
+  // The meter runs at the player's speed for this club: a stronger player has a slower meter.
+  useEffect(() => { swing()?.golfSwing?.configure({ speed }); }, [ready, speed]);
   useEffect(() => { swing()?.golfSwing?.configure({ target: Math.max(10, Math.min(110, targetPower)), aim: 0 }); }, [ready, targetPower]);
 
   return <iframe ref={frame} src={`${import.meta.env.BASE_URL}swing/broadcast-swing.html`} title="Three-click swing" onLoad={() => setReady(true)} style={{ width: "100%", height: 306, border: 0 }} />;
@@ -282,7 +284,7 @@ export function PracticeHolePreview() {
             ))}
             <button className="btn btn-small" onClick={() => setTarget(null)} disabled={flying || target === null}>Move target to the pin</button>
           </div>
-          <BroadcastSwing lie={swingLie} club={playClub} shot="normal" targetPower={power} onStrike={onStrike} onSwingStart={() => setSwinging(true)} onSwingEnd={() => setSwinging(false)} onClubPick={setClub} />
+          <BroadcastSwing lie={swingLie} club={playClub} shot="normal" speed={meterFactor(player, playClub)} targetPower={power} onStrike={onStrike} onSwingStart={() => setSwinging(true)} onSwingEnd={() => setSwinging(false)} onClubPick={setClub} />
           <button className="btn" onClick={reset}>Start the hole again</button>
         </div>
         <ol className="practice-log">
