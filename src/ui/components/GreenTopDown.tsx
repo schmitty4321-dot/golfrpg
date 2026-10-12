@@ -1,17 +1,28 @@
-import { useMemo, useRef } from "react";
+import { useRef } from "react";
 import type { PracticeStroke } from "../../engine/practiceHole";
 import type { HoleLayout, Pt } from "../../engine/tracer";
-import { pictureLieAt, type ArtEntry } from "../illustratedArt";
 
 /** How far from the green centre the top-down view reaches, in yards. */
 const REACH = 30;
-/** Sampling step for the sand and water around the green, in yards. */
-const STEP = 1.5;
+
+/**
+ * The photo of Waialae hole 1's green from above. The sand and water are in the photo, so the
+ * layout only places the green, the pin and the ball on it.
+ */
+const PHOTO = {
+  src: "art/greens/waialae-1-green.webp",
+  width: 1536,
+  height: 1024,
+  /** The centre of the putting surface, in photo pixels. */
+  centre: { x: 732, y: 430 },
+  /** A point on the fairway the approach comes in from, in photo pixels: the way back to the tee. */
+  back: { x: 200, y: 850 },
+  /** The green's radius in photo pixels, matched to the course layout's green radius. */
+  radiusPx: 383,
+};
 
 interface Props {
   layout: HoleLayout;
-  /** The painting the sand and water are read from. */
-  art: ArtEntry;
   ball: Pt;
   aim: Pt;
   strokes: PracticeStroke[];
@@ -21,25 +32,20 @@ interface Props {
 }
 
 /**
- * The green from above, in yards: the putting surface and fringe from the course layout, with the
- * sand and water beside it read from the hole picture. Forward (away from the tee) is up the screen.
+ * The green from above, in yards. The photo is turned so the way back to the tee points down the
+ * screen, and scaled to the layout's green radius. Forward (away from the tee) is up the screen.
  */
-export function GreenTopDown({ layout, art, ball, aim, strokes, progress, showAim, onAim }: Props) {
+export function GreenTopDown({ layout, ball, aim, strokes, progress, showAim, onAim }: Props) {
   const svg = useRef<SVGSVGElement>(null);
   const g = layout.green;
   // Yards from the green centre to a point on the course, with forward pointing up the screen.
   const toView = (p: Pt) => ({ x: p.x - g.x, y: -(p.y - g.y) });
 
-  const hazards = useMemo(() => {
-    const out: { x: number; y: number; kind: "bunker" | "water" }[] = [];
-    for (let dx = -REACH; dx <= REACH; dx += STEP) {
-      for (let dy = -REACH; dy <= REACH; dy += STEP) {
-        const kind = pictureLieAt(art, { x: g.x + dx, y: g.y + dy });
-        if (kind === "bunker" || kind === "water") out.push({ x: dx, y: -dy, kind });
-      }
-    }
-    return out;
-  }, [art, g.x, g.y]);
+  // Turn the photo so the way back to the tee points down (the screen's y runs down), and scale it to the green.
+  const backAngle = (Math.atan2(PHOTO.back.y - PHOTO.centre.y, PHOTO.back.x - PHOTO.centre.x) * 180) / Math.PI;
+  const turn = 90 - backAngle;
+  const scale = g.r / PHOTO.radiusPx;
+  const photoTransform = `rotate(${turn}) scale(${scale}) translate(${-PHOTO.centre.x} ${-PHOTO.centre.y})`;
 
   const dragAim = (e: React.PointerEvent) => {
     if (!showAim) return;
@@ -69,7 +75,7 @@ export function GreenTopDown({ layout, art, ball, aim, strokes, progress, showAi
   const last = strokes.length - 1;
 
   return (
-    <div style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", background: "#3f7d2a", borderRadius: 8, overflow: "hidden" }}>
+    <div style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", background: "#4f8a2f", borderRadius: 8, overflow: "hidden" }}>
       <svg
         ref={svg}
         viewBox={`${-REACH} ${-REACH} ${2 * REACH} ${2 * REACH}`}
@@ -77,13 +83,9 @@ export function GreenTopDown({ layout, art, ball, aim, strokes, progress, showAi
         style={{ width: "100%", height: "100%", display: "block", touchAction: "none", cursor: showAim ? "crosshair" : "default" }}
         aria-label="Top-down view of the green"
       >
-        {/* The fringe and the putting surface. */}
-        <circle cx={0} cy={0} r={g.r + 1.2} fill="#5aa23c" />
-        <circle cx={0} cy={0} r={g.r} fill="#84c75a" />
-        {/* Sand and water beside the green, read from the picture. */}
-        {hazards.map((h, i) => (
-          <rect key={i} x={h.x - STEP / 2} y={h.y - STEP / 2} width={STEP} height={STEP} fill={h.kind === "bunker" ? "#e8d7a0" : "#3d86c6"} />
-        ))}
+        <rect x={-REACH} y={-REACH} width={2 * REACH} height={2 * REACH} fill="#4f8a2f" />
+        {/* The photo of the green, turned and scaled onto the layout. */}
+        <image href={`${import.meta.env.BASE_URL}${PHOTO.src}`} x={0} y={0} width={PHOTO.width} height={PHOTO.height} transform={photoTransform} />
         {/* Shot lines: earlier shots in full, the latest flying in. */}
         {strokes.map((s, i) => {
           const from = toView(s.from);

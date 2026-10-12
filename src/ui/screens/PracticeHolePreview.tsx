@@ -300,6 +300,8 @@ export function PracticeHolePreview() {
     setShown(0);
   };
 
+  // The top-down green is for putting: the golfer whose turn it is has his ball on the green and his last shot has landed.
+  const putting = state.lie === "green" && !flying && shown === turn;
   const strokesBy = (i: number) => balls[i]!.strokes.length;
   const marker = dot(aimAt);
   const ballPx = dot(shownBall.ball);
@@ -315,8 +317,8 @@ export function PracticeHolePreview() {
         </div>
         <div style={{ display: "flex", gap: 16, alignItems: "flex-start", flexWrap: "wrap" }}>
         <div className="practice-picture" ref={picture} style={{ position: "relative", touchAction: "none", flex: "3 1 380px", minWidth: 0 }}>
-          {state.lie === "green" ? (
-            <GreenTopDown layout={state.layout} art={art} ball={state.ball} aim={aimAt} strokes={shownBall.strokes} progress={progress} showAim={showTarget} onAim={setTarget} />
+          {putting ? (
+            <GreenTopDown layout={state.layout} ball={state.ball} aim={aimAt} strokes={shownBall.strokes} progress={progress} showAim={showTarget} onAim={setTarget} />
           ) : (<>
           <img src={`${base}${art.image}`} alt={`${course.name}, hole 1`} style={{ width: "100%", display: "block" }} />
           <svg viewBox={`0 0 ${view.width} ${view.height}`} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} aria-hidden>
