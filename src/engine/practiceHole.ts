@@ -17,8 +17,10 @@ export interface PracticeShot {
   power: number;
   /** Strike timing in ms (negative early, positive late). */
   timingMs: number;
-  /** Aim left (-) or right (+) of the pin, in yards. */
+  /** Aim left (-) or right (+) of the line to the target, in yards. */
   aim: number;
+  /** The landing target on the course, in yards. Defaults to the pin. */
+  target?: Pt;
   shot?: SwingShot;
   /** -1 draw, 0 straight, 1 fade. */
   shape?: number;
@@ -103,7 +105,8 @@ export function playPracticeShot(state: PracticeHole, player: Player, shot: Prac
   const { layout } = state;
   const from = state.ball;
   const onGreen = state.lie === "green";
-  const pin = layout.pin;
+  // The target is where the player is aiming: the pin unless he has moved it.
+  const pin = shot.target ?? layout.pin;
   const toPin = dist(from, pin);
 
   // Putting: holed when the timing is inside the putt window and the power is near the distance to the hole.

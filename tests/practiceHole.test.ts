@@ -62,4 +62,17 @@ describe("practice hole, shot by shot", () => {
     const rough = playPracticeShot({ ...state, lie: "rough" }, player, { club: "iron", power: 90, timingMs: 0, aim: 0 });
     expect(rough.strokes[0]!.yards).toBeLessThan(fairwayShot.strokes[0]!.yards);
   });
+  it("a moved target pulls the shot towards it, not the pin", () => {
+    const hole = course.holes.find((h) => h.number === 5)!;
+    const state = startPracticeHole(course, hole, 0);
+    const pin = state.layout.pin;
+    // A target 60 yards right of the pin, and enough power to reach it from the tee.
+    const target = { x: pin.x + 60, y: pin.y };
+    const dTarget = Math.hypot(target.x - state.ball.x, target.y - state.ball.y);
+    const shot = playPracticeShot(state, player, { club: "driver", power: Math.min(110, (dTarget / clubCarry(player, "driver")) * 100), timingMs: 0, aim: 0, target });
+    const landed = shot.strokes[0]!.to;
+    const before = Math.hypot(target.x - state.ball.x, target.y - state.ball.y);
+    const after = Math.hypot(target.x - landed.x, target.y - landed.y);
+    expect(after).toBeLessThan(before);
+  });
 });
