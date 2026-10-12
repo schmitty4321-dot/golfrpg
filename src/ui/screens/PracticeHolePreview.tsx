@@ -27,13 +27,17 @@ function unprojectArtPoint(m: ArtMatrix, px: number, py: number): Pt {
 }
 
 /** The broadcast swing, in its own frame so its script and styles run as they were written. */
-function BroadcastSwing({ lie, club, shot, targetPower, onStrike }: {
-  lie: SwingLie; club: SwingClub; shot: SwingShot; targetPower: number; onStrike: (s: SwingStrike) => void;
+function BroadcastSwing({ lie, club, shot, targetPower, onStrike, onSwingStart, onSwingEnd }: {
+  lie: SwingLie; club: SwingClub; shot: SwingShot; targetPower: number; onStrike: (s: SwingStrike) => void; onSwingStart: () => void; onSwingEnd: () => void;
 }) {
   const frame = useRef<HTMLIFrameElement>(null);
   const [ready, setReady] = useState(false);
   const latestStrike = useRef(onStrike);
   latestStrike.current = onStrike;
+  const onStartRef = useRef(onSwingStart);
+  onStartRef.current = onSwingStart;
+  const onEndRef = useRef(onSwingEnd);
+  onEndRef.current = onSwingEnd;
   const swing = (): SwingElement | null => (frame.current?.contentDocument?.getElementById("golf-bar") as SwingElement | null) ?? null;
 
   useEffect(() => {
@@ -42,9 +46,31 @@ function BroadcastSwing({ lie, club, shot, targetPower, onStrike }: {
     const onShot = (e: Event) => {
       const d = (e as CustomEvent<{ power: number; timingMs: number }>).detail;
       latestStrike.current({ power: d.power, timingMs: d.timingMs });
+      onEndRef.current();
     };
     el.addEventListener("golf-shot", onShot);
-    return () => el.removeEventListener("golf-shot", onShot);
+    // The swing begins on its first press (the Swing button, or Space or Enter in the frame); its cancel button ends it.
+    const doc = frame.current?.contentDocument;
+    const onDown = (e: Event) => {
+      const t = e.target as Element | null;
+      if (t?.closest?.("#gb-swing")) onStartRef.current();
+    };
+    const onKey = (e: Event) => {
+      const k = e as KeyboardEvent;
+      if ((k.code === "Space" || k.code === "Enter") && !k.repeat) onStartRef.current();
+    };
+    const onCancel = (e: Event) => {
+      if ((e.target as Element | null)?.closest?.("#gb-cancel")) onEndRef.current();
+    };
+    doc?.addEventListener("pointerdown", onDown, true);
+    doc?.addEventListener("keydown", onKey, true);
+    doc?.addEventListener("click", onCancel, true);
+    return () => {
+      el.removeEventListener("golf-shot", onShot);
+      doc?.removeEventListener("pointerdown", onDown, true);
+      doc?.removeEventListener("keydown", onKey, true);
+      doc?.removeEventListener("click", onCancel, true);
+    };
   }, [ready]);
 
   useEffect(() => {
@@ -154,7 +180,10 @@ export function PracticeHolePreview() {
   const aimAt: Pt = target ?? state.layout.pin;
   const toTarget = Math.hypot(aimAt.x - state.ball.x, aimAt.y - state.ball.y);
   const power = Math.min(110, Math.round((toTarget / carry) * 100));
+  const [swinging, setSwinging] = useState(false);
   const flying = progress < 1;
+  // The target and its yardage show only between shots: not during a swing, not in flight.
+  const showTarget = !flying && !swinging && !state.holed;
 
   const dot = (p: Pt) => projectArtPoint(art.matrix, p);
 
@@ -169,7 +198,7 @@ export function PracticeHolePreview() {
     setTarget({ x: Math.max(b.minX, Math.min(b.maxX, yards.x)), y: Math.max(b.minY, Math.min(b.maxY, yards.y)) });
   };
   const startDrag = (e: React.PointerEvent) => {
-    if (flying || state.holed) return;
+    if (!showTarget) return;
     e.preventDefault();
     const move = (ev: PointerEvent) => dragTo(ev.clientX, ev.clientY);
     const up = () => {
@@ -209,20 +238,20 @@ export function PracticeHolePreview() {
         <div className="practice-picture" ref={picture} style={{ position: "relative", touchAction: "none" }}>
           <img src={`${base}${art.image}`} alt={`${course.name}, hole 1`} style={{ width: "100%", display: "block" }} />
           <svg viewBox={`0 0 ${art.width} ${art.height}`} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} aria-hidden>
-            {!flying && !state.holed && <line x1={ballPx.x} y1={ballPx.y} x2={marker.x} y2={marker.y} stroke="#fff" strokeWidth={3} strokeDasharray="6 8" opacity={0.6} />}
+            {showTarget && <line x1={ballPx.x} y1={ballPx.y} x2={marker.x} y2={marker.y} stroke="#fff" strokeWidth={3} strokeDasharray="6 8" opacity={0.6} />}
           </svg>
-          {!flying && !state.holed && (
+          {showTarget && (
             <div style={{ position: "absolute", left: `${(((ballPx.x + marker.x) / 2) / art.width) * 100}%`, top: `${(((ballPx.y + marker.y) / 2) / art.height) * 100}%`, transform: "translate(-50%, -50%)", padding: "4px 10px", borderRadius: 6, background: "rgba(10, 20, 15, 0.8)", color: "#ffd60a", fontSize: 16, fontWeight: 700, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap", pointerEvents: "none" }}>
               {Math.round(toTarget)} yds
             </div>
           )}
           <ShotLines strokes={state.strokes} progress={progress} dot={dot} ball={ballPx} width={art.width} height={art.height} />
-          {!state.holed && (
+          {showTarget && (
             <div
               role="slider"
               aria-label="Landing target: drag to move"
               onPointerDown={startDrag}
-              style={{ position: "absolute", left: `${(marker.x / art.width) * 100}%`, top: `${(marker.y / art.height) * 100}%`, width: 34, height: 34, marginLeft: -17, marginTop: -17, borderRadius: "50%", border: "3px solid #ffd60a", background: "rgba(255, 214, 10, 0.25)", boxShadow: "0 0 0 2px rgba(0,0,0,0.5)", cursor: flying ? "default" : "grab", touchAction: "none" }}
+              style={{ position: "absolute", left: `${(marker.x / art.width) * 100}%`, top: `${(marker.y / art.height) * 100}%`, width: 34, height: 34, marginLeft: -17, marginTop: -17, borderRadius: "50%", border: "3px solid #ffd60a", background: "rgba(255, 214, 10, 0.25)", boxShadow: "0 0 0 2px rgba(0,0,0,0.5)", cursor: "grab", touchAction: "none" }}
             />
           )}
           <YardsBox strokes={state.strokes} progress={progress} />
@@ -235,7 +264,7 @@ export function PracticeHolePreview() {
             <button className="btn btn-small" onClick={() => setTarget(null)} disabled={flying || target === null}>Move target to the pin</button>
           </div>
           <span className="secondary small">Drag the yellow target on the picture. Power to reach it: {power}%.</span>
-          <BroadcastSwing lie={swingLie} club={playClub} shot={lie === "green" ? "splash" : "normal"} targetPower={power} onStrike={onStrike} />
+          <BroadcastSwing lie={swingLie} club={playClub} shot={lie === "green" ? "splash" : "normal"} targetPower={power} onStrike={onStrike} onSwingStart={() => setSwinging(true)} onSwingEnd={() => setSwinging(false)} />
           <button className="btn" onClick={reset}>Start the hole again</button>
         </div>
         <ol className="practice-log">
