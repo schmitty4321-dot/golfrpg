@@ -285,8 +285,9 @@ export function PracticeHolePreview() {
   // The target and its yardage show only between shots: not during a swing, not in flight.
   const showTarget = !flying && !swinging && !state.holed && shown === turn;
   // The overhead view: within 30 yards of the pin when the golfer's turn starts.
-  const toPin = Math.hypot(state.ball.x - state.layout.pin.x, state.ball.y - state.layout.pin.y);
-  const overhead = !flying && shown === turn && toPin <= 30;
+  // The overhead view stays up for the golfer on screen while he is within 30 yards, and while his ball is on the green.
+  const shownToPin = Math.hypot(shownBall.ball.x - state.layout.pin.x, shownBall.ball.y - state.layout.pin.y);
+  const overhead = shownToPin <= 30 && (shown === turn || shownBall.lie === "green");
   const near = !overhead && camGolfer !== null;
 
   const dot = (p: Pt) => projectArtPoint(view.matrix, p);
@@ -354,7 +355,7 @@ export function PracticeHolePreview() {
         <div style={{ display: "flex", gap: 16, alignItems: "flex-start", flexWrap: "wrap" }}>
         <div className="practice-picture" ref={picture} style={{ position: "relative", touchAction: "none", flex: "3 1 380px", minWidth: 0 }}>
           {overhead ? (
-            <GreenTopDown layout={state.layout} ball={state.ball} aim={aimAt} strokes={shownBall.strokes} progress={progress} showAim={showTarget} onAim={setTarget} />
+            <GreenTopDown layout={state.layout} ball={shownBall.ball} aim={aimAt} strokes={shownBall.strokes} progress={progress} showAim={showTarget} onAim={setTarget} />
           ) : (<>
           <img src={`${base}${art.image}`} alt={`${course.name}, hole 1`} style={{ width: "100%", display: "block" }} />
           <svg viewBox={`0 0 ${view.width} ${view.height}`} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} aria-hidden>

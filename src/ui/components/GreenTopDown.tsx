@@ -73,6 +73,10 @@ export function GreenTopDown({ layout, ball, aim, strokes, progress, showAim, on
   const aimAt = toView(aim);
   const feetToPin = Math.round(Math.hypot(ball.x - layout.pin.x, ball.y - layout.pin.y) * 3);
   const last = strokes.length - 1;
+  const lastShot = strokes[last];
+  const rollAt = lastShot && progress < 1
+    ? { x: toView(lastShot.from).x + (toView(lastShot.to).x - toView(lastShot.from).x) * progress, y: toView(lastShot.from).y + (toView(lastShot.to).y - toView(lastShot.from).y) * progress }
+    : ballAt;
 
   return (
     <div style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", background: "#4f8a2f", borderRadius: 8, overflow: "hidden" }}>
@@ -86,20 +90,13 @@ export function GreenTopDown({ layout, ball, aim, strokes, progress, showAim, on
         <rect x={mid.x - span} y={mid.y - span} width={2 * span} height={2 * span} fill="#4f8a2f" />
         {/* The photo of the green, turned and scaled onto the layout. */}
         <image href={`${import.meta.env.BASE_URL}${PHOTO.src}`} x={0} y={0} width={PHOTO.width} height={PHOTO.height} transform={photoTransform} />
-        {/* The tracer shows only while the latest shot is flying; earlier shots are not drawn on the green. */}
-        {strokes.map((s, i) => {
-          if (i !== last || progress >= 1) return null;
-          const from = toView(s.from);
-          const to = toView(s.to);
-          const end = i === last ? { x: from.x + (to.x - from.x) * progress, y: from.y + (to.y - from.y) * progress } : to;
-          return <line key={i} x1={from.x} y1={from.y} x2={end.x} y2={end.y} stroke="#ffffff" strokeOpacity={0.85} strokeWidth={0.35} strokeDasharray="1 0.8" />;
-        })}
         {/* The pin. */}
         <line x1={pin.x} y1={pin.y} x2={pin.x} y2={pin.y - 3.5} stroke="#f4f5ef" strokeWidth={0.3} />
         <path d={`M ${pin.x} ${pin.y - 3.5} l 1.6 0.6 l -1.6 0.6 Z`} fill="#e53935" />
         <circle cx={pin.x} cy={pin.y} r={0.35} fill="#101010" />
         {/* The ball. */}
-        {progress >= 1 && <circle cx={ballAt.x} cy={ballAt.y} r={0.6} fill="#ffffff" stroke="#000" strokeWidth={0.25} />}
+        {/* The ball rolls from where it was struck to where it comes to rest. No tracer line. */}
+        <circle cx={rollAt.x} cy={rollAt.y} r={0.6} fill="#ffffff" stroke="#000" strokeWidth={0.25} />
         {/* The aim marker: a yellow ring the player drags. */}
         {showAim && <circle cx={aimAt.x} cy={aimAt.y} r={1.1} fill="rgba(255, 214, 10, 0.3)" stroke="#ffd60a" strokeWidth={0.3} />}
       </svg>
