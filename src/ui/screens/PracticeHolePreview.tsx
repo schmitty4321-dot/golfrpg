@@ -211,6 +211,11 @@ export function PracticeHolePreview() {
           <svg viewBox={`0 0 ${art.width} ${art.height}`} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} aria-hidden>
             {!flying && !state.holed && <line x1={ballPx.x} y1={ballPx.y} x2={marker.x} y2={marker.y} stroke="#fff" strokeWidth={3} strokeDasharray="6 8" opacity={0.6} />}
           </svg>
+          {!flying && !state.holed && (
+            <div style={{ position: "absolute", left: `${(((ballPx.x + marker.x) / 2) / art.width) * 100}%`, top: `${(((ballPx.y + marker.y) / 2) / art.height) * 100}%`, transform: "translate(-50%, -50%)", padding: "4px 10px", borderRadius: 6, background: "rgba(10, 20, 15, 0.8)", color: "#ffd60a", fontSize: 16, fontWeight: 700, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap", pointerEvents: "none" }}>
+              {Math.round(toTarget)} yds
+            </div>
+          )}
           <ShotLines strokes={state.strokes} progress={progress} dot={dot} ball={ballPx} width={art.width} height={art.height} />
           {!state.holed && (
             <div
