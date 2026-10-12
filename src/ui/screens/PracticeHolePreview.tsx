@@ -210,6 +210,11 @@ export function PracticeHolePreview() {
   const [target, setTarget] = useState<Pt | null>(null);
   const [turn, setTurn] = useState(0);
   const state = balls[turn]!;
+  // Only the golfer whose shot is on screen shows his ball and shot info. He stays up after his shot lands, until the next golfer starts his swing.
+  const [shown, setShown] = useState(0);
+  const allHoled = balls.every((b) => b.holed);
+  const showGolfer = (i: number) => allHoled || i === shown;
+  const shownBall = balls[shown]!;
   const player = PLAYERS[turn]!;
   const [log, setLog] = useState<string[]>([]);
   const picture = useRef<HTMLDivElement>(null);
@@ -219,10 +224,9 @@ export function PracticeHolePreview() {
   const pictureAt = (p: Pt) => pictureLieAt(art, p);
   // Within 50 yards of the pin, a bordered close-up of the green sits over the top half of the picture.
   // It's a crop of the same painting, centred between the ball and the pin so both stay in view.
-  const near = Math.hypot(state.ball.x - state.layout.pin.x, state.ball.y - state.layout.pin.y) <= 50;
   const cropW = 420;
   const cropH = 280;
-  const midAt = projectArtPoint(art.matrix, { x: (state.ball.x + state.layout.pin.x) / 2, y: (state.ball.y + state.layout.pin.y) / 2 });
+  const midAt = projectArtPoint(art.matrix, { x: (shownBall.ball.x + state.layout.pin.x) / 2, y: (shownBall.ball.y + state.layout.pin.y) / 2 });
   const x0 = Math.max(0, Math.min(art.width - cropW, midAt.x - cropW / 2));
   const y0 = Math.max(0, Math.min(art.height - cropH, midAt.y - cropH / 2));
   const view: PlateView = { width: art.width, height: art.height, matrix: art.matrix };
@@ -246,15 +250,13 @@ export function PracticeHolePreview() {
     setTarget(state.lie === "green" ? state.layout.pin : fairwayTarget(state.layout, state.ball, clubCarry(player, playClub)));
   }, [playClub, state.strokes.length, turn]);
   // The target and its yardage show only between shots: not during a swing, not in flight.
-  const showTarget = !flying && !swinging && !state.holed;
-  // Only the golfer whose shot is on screen shows his ball and shot info. The other waits until his turn.
-  // A shot keeps its golfer on screen until it lands, so the flight is seen before the next golfer takes over.
-  const [shown, setShown] = useState(0);
-  // Switches only when a flight ends (progress reaches 1), not when the turn changes at the strike.
-  useEffect(() => { if (progress >= 1) setShown(turn); }, [progress]);
-  const allHoled = balls.every((b) => b.holed);
-  const showGolfer = (i: number) => allHoled || i === shown;
-  const shownBall = balls[shown]!;
+  const showTarget = !flying && !swinging && !state.holed && shown === turn;
+  // The overhead view: within 30 yards of the pin when the golfer's turn starts.
+  const toPin = Math.hypot(state.ball.x - state.layout.pin.x, state.ball.y - state.layout.pin.y);
+  const overhead = !flying && shown === turn && toPin <= 30;
+  // The approach cam: the shot on screen landed within 30 yards. It stays up until the next golfer starts his swing.
+  const lastStroke = shownBall.strokes[shownBall.strokes.length - 1];
+  const near = !overhead && !!lastStroke && Math.hypot(lastStroke.to.x - state.layout.pin.x, lastStroke.to.y - state.layout.pin.y) <= 30;
 
   const dot = (p: Pt) => projectArtPoint(view.matrix, p);
 
@@ -300,8 +302,6 @@ export function PracticeHolePreview() {
     setShown(0);
   };
 
-  // The overhead view shows within 30 yards of the hole: the golfer whose turn it is, once his last shot has landed.
-  const overhead = !flying && shown === turn && Math.hypot(state.ball.x - state.layout.pin.x, state.ball.y - state.layout.pin.y) <= 30;
   const strokesBy = (i: number) => balls[i]!.strokes.length;
   const marker = dot(aimAt);
   const ballPx = dot(shownBall.ball);
@@ -374,7 +374,7 @@ export function PracticeHolePreview() {
             ))}
             <button className="btn btn-small" onClick={() => setTarget(null)} disabled={flying || target === null}>Move target to the pin</button>
           </div>
-          <BroadcastSwing lie={swingLie} club={playClub} shot="normal" speed={meterFactor(player, playClub)} targetPower={power} onStrike={onStrike} onSwingStart={() => setSwinging(true)} onSwingEnd={() => setSwinging(false)} onClubPick={setClub} />
+          <BroadcastSwing lie={swingLie} club={playClub} shot="normal" speed={meterFactor(player, playClub)} targetPower={power} onStrike={onStrike} onSwingStart={() => { setSwinging(true); setShown(turn); }} onSwingEnd={() => setSwinging(false)} onClubPick={setClub} />
           <button className="btn" onClick={reset}>Start the hole again</button>
         </div>
       </section>
