@@ -59,13 +59,13 @@ function flightPoint(a: { x: number; y: number }, b: { x: number; y: number }, t
 
 const SHOT_ANIMATION_MS = 1100;
 
-/** The shot lines on the picture. The newest stroke climbs and falls to where it landed, with its shadow on the ground. */
-function ShotLines({ strokes, dot, ball, width, height }: { strokes: PracticeStroke[]; dot: (p: { x: number; y: number }) => { x: number; y: number }; ball: { x: number; y: number }; width: number; height: number }) {
+/** Runs the flight from 0 to 1 each time a new stroke is played; the flight line and the yards box both read it. */
+function useFlight(strokeCount: number): number {
   const [progress, setProgress] = useState(1);
-  const count = useRef(strokes.length);
+  const count = useRef(strokeCount);
   useEffect(() => {
-    if (strokes.length === count.current) return;
-    count.current = strokes.length;
+    if (strokeCount === count.current) return;
+    count.current = strokeCount;
     let frame = 0;
     const began = performance.now();
     const step = (now: number) => {
@@ -76,7 +76,23 @@ function ShotLines({ strokes, dot, ball, width, height }: { strokes: PracticeStr
     setProgress(0);
     frame = requestAnimationFrame(step);
     return () => cancelAnimationFrame(frame);
-  }, [strokes.length]);
+  }, [strokeCount]);
+  return progress;
+}
+
+/** The yards box in the bottom right of the picture: counts up with the flight and stops on the landing distance. */
+function YardsBox({ strokes, progress }: { strokes: PracticeStroke[]; progress: number }) {
+  const last = strokes[strokes.length - 1];
+  const yards = last ? Math.round(last.yards * progress) : 0;
+  return (
+    <div aria-live="off" style={{ position: "absolute", right: 14, bottom: 14, padding: "8px 14px", borderRadius: 8, background: "rgba(10, 20, 15, 0.78)", color: "#fff", fontSize: 26, fontWeight: 600, fontVariantNumeric: "tabular-nums", minWidth: 110, textAlign: "right" }}>
+      {yards} <span style={{ fontSize: 14, fontWeight: 500, opacity: 0.8 }}>yds</span>
+    </div>
+  );
+}
+
+/** The shot lines on the picture. The newest stroke climbs and falls to where it landed, with its shadow on the ground. */
+function ShotLines({ strokes, progress, dot, ball, width, height }: { strokes: PracticeStroke[]; progress: number; dot: (p: { x: number; y: number }) => { x: number; y: number }; ball: { x: number; y: number }; width: number; height: number }) {
 
   const last = strokes.length - 1;
   return (
@@ -111,6 +127,7 @@ function ShotLines({ strokes, dot, ball, width, height }: { strokes: PracticeStr
 export function PracticeHolePreview() {
   const hole = course.holes[0]!;
   const [state, setState] = useState<PracticeHole>(() => startPracticeHole(course, hole, 0));
+  const progress = useFlight(state.strokes.length);
   const [club, setClub] = useState<SwingClub>("driver");
   const [aim, setAim] = useState(0);
   const [log, setLog] = useState<string[]>([]);
@@ -146,7 +163,8 @@ export function PracticeHolePreview() {
         </div>
         <div className="practice-picture" style={{ position: "relative" }}>
           <img src={`${base}${art.image}`} alt={`${course.name}, hole 1`} style={{ width: "100%", display: "block" }} />
-          <ShotLines strokes={state.strokes} dot={dot} ball={dot(state.ball)} width={art.width} height={art.height} />
+          <YardsBox strokes={state.strokes} progress={progress} />
+          <ShotLines strokes={state.strokes} progress={progress} dot={dot} ball={dot(state.ball)} width={art.width} height={art.height} />
         </div>
         <div className="practice-controls">
           <div className="btn-row" aria-label="Club">
