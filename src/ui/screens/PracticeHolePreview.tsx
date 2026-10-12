@@ -215,7 +215,10 @@ export function PracticeHolePreview() {
   // The next golfer comes up 1.5 seconds after the ball lands, so the landing can be seen first.
   useEffect(() => {
     if (progress < 1) return;
-    const t = window.setTimeout(() => setShown(turn), 1500);
+    const t = window.setTimeout(() => {
+      setShown(turn);
+      setCamGolfer(null);
+    }, 1500);
     return () => window.clearTimeout(t);
   }, [progress]);
   // The approach cam: the golfer whose shot landed within 30 yards, kept up with its flight and resting spot until the next swing starts.
