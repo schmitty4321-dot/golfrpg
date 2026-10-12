@@ -210,8 +210,12 @@ export function PracticeHolePreview() {
   const [target, setTarget] = useState<Pt | null>(null);
   const [turn, setTurn] = useState(0);
   const state = balls[turn]!;
-  // Only the golfer whose shot is on screen shows his ball and shot info. He stays up after his shot lands, until the next golfer starts his swing.
+  // Only the golfer whose turn it is shows his ball and shot info. The view moves to him as his turn starts, when the shot before him lands.
   const [shown, setShown] = useState(0);
+  useEffect(() => { if (progress >= 1) setShown(turn); }, [progress]);
+  // The approach cam: the golfer whose shot landed within 30 yards, kept up with its flight and resting spot until the next swing starts.
+  const [camGolfer, setCamGolfer] = useState<number | null>(null);
+  const camBall = balls[camGolfer ?? shown]!;
   const allHoled = balls.every((b) => b.holed);
   // The column lists the golfer whose turn it is, so the next golfer is shown as soon as the shot before him lands.
   const showGolfer = (i: number) => allHoled || i === turn;
@@ -227,7 +231,7 @@ export function PracticeHolePreview() {
   // It's a crop of the same painting, centred between the ball and the pin so both stay in view.
   const cropW = 420;
   const cropH = 280;
-  const midAt = projectArtPoint(art.matrix, { x: (shownBall.ball.x + state.layout.pin.x) / 2, y: (shownBall.ball.y + state.layout.pin.y) / 2 });
+  const midAt = projectArtPoint(art.matrix, { x: (camBall.ball.x + state.layout.pin.x) / 2, y: (camBall.ball.y + state.layout.pin.y) / 2 });
   const x0 = Math.max(0, Math.min(art.width - cropW, midAt.x - cropW / 2));
   const y0 = Math.max(0, Math.min(art.height - cropH, midAt.y - cropH / 2));
   const view: PlateView = { width: art.width, height: art.height, matrix: art.matrix };
@@ -255,9 +259,7 @@ export function PracticeHolePreview() {
   // The overhead view: within 30 yards of the pin when the golfer's turn starts.
   const toPin = Math.hypot(state.ball.x - state.layout.pin.x, state.ball.y - state.layout.pin.y);
   const overhead = !flying && shown === turn && toPin <= 30;
-  // The approach cam: the shot on screen landed within 30 yards. It stays up until the next golfer starts his swing.
-  const lastStroke = shownBall.strokes[shownBall.strokes.length - 1];
-  const near = !overhead && !!lastStroke && Math.hypot(lastStroke.to.x - state.layout.pin.x, lastStroke.to.y - state.layout.pin.y) <= 30;
+  const near = !overhead && camGolfer !== null;
 
   const dot = (p: Pt) => projectArtPoint(view.matrix, p);
 
@@ -292,6 +294,7 @@ export function PracticeHolePreview() {
     setBalls(nextBalls);
     setHistory((h) => [...h, s]);
     setTurn(nextToPlay(nextBalls, state.layout.pin, turn));
+    setCamGolfer(!next.holed && Math.hypot(s.to.x - state.layout.pin.x, s.to.y - state.layout.pin.y) <= 30 ? turn : null);
     setLog((l) => [...l, `${player.name} · shot ${s.stroke}. ${s.penalty ? "Into the water, penalty, back to where it was struck" : `${Math.round(s.yards)} yds to ${LIE_LABEL[s.lieAfter] ?? s.lieAfter}`} · timing ${Math.round(strike.timingMs)} ms · power ${Math.round(strike.power)}%`]);
   };
   const reset = () => {
@@ -301,6 +304,7 @@ export function PracticeHolePreview() {
     setTarget(null);
     setTurn(0);
     setShown(0);
+    setCamGolfer(null);
   };
 
   const strokesBy = (i: number) => balls[i]!.strokes.length;
@@ -341,7 +345,7 @@ export function PracticeHolePreview() {
           {near && (
             <div ref={insetRef} style={{ position: "absolute", top: 8, left: 8, width: "50%", aspectRatio: `${cropW} / ${cropH}`, overflow: "hidden", border: "3px solid #ffd60a", borderRadius: 8, boxShadow: "0 6px 18px rgba(0, 0, 0, 0.5)", background: "#0a140e", zIndex: 2 }}>
               <img src={`${base}${art.image}`} alt="" style={{ position: "absolute", width: `${(art.width / cropW) * 100}%`, maxWidth: "none", left: `${(-x0 / cropW) * 100}%`, top: `${(-y0 / cropH) * 100}%` }} />
-              <ShotLines strokes={shownBall.strokes} progress={progress} dot={insetDot} ball={insetDot(shownBall.ball)} width={cropW} height={cropH} />
+              <ShotLines strokes={camBall.strokes} progress={progress} dot={insetDot} ball={insetDot(camBall.ball)} width={cropW} height={cropH} />
               {showTarget && (
                 <div
                   role="slider"
@@ -375,7 +379,7 @@ export function PracticeHolePreview() {
             ))}
             <button className="btn btn-small" onClick={() => setTarget(null)} disabled={flying || target === null}>Move target to the pin</button>
           </div>
-          <BroadcastSwing lie={swingLie} club={playClub} shot="normal" speed={meterFactor(player, playClub)} targetPower={power} onStrike={onStrike} onSwingStart={() => { setSwinging(true); setShown(turn); }} onSwingEnd={() => setSwinging(false)} onClubPick={setClub} />
+          <BroadcastSwing lie={swingLie} club={playClub} shot="normal" speed={meterFactor(player, playClub)} targetPower={power} onStrike={onStrike} onSwingStart={() => { setSwinging(true); setCamGolfer(null); }} onSwingEnd={() => setSwinging(false)} onClubPick={setClub} />
           <button className="btn" onClick={reset}>Start the hole again</button>
         </div>
       </section>
