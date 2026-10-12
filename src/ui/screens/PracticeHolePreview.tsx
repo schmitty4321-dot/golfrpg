@@ -257,6 +257,9 @@ export function PracticeHolePreview() {
   // Where he's aiming: the marker, or the pin until he moves it.
   const aimAt: Pt = target ?? state.layout.pin;
   const toTarget = Math.hypot(aimAt.x - state.ball.x, aimAt.y - state.ball.y);
+  // On the green the meter speeds up 7% for every 10 feet of putt above 10 feet.
+  const puttLevel = Math.max(10, Math.min(50, Math.round((toTarget * 3) / 10) * 10));
+  const puttSpeed = state.lie === "green" ? Math.pow(1.07, (puttLevel - 10) / 10) : 1;
   const power = state.lie === "green" ? Math.round(puttPower(toTarget)) : Math.min(110, Math.round((toTarget / carry) * 100));
   const [swinging, setSwinging] = useState(false);
   const flying = progress < 1;
@@ -267,9 +270,12 @@ export function PracticeHolePreview() {
   // At the start of each shot, and when the club changes, the target goes to the club's usual carry on the fairway.
   useEffect(() => {
     if (state.lie === "green") {
-      // A putt starts aimed 30 feet (10 yards) from the ball toward the hole, or at the hole when it is closer.
+      // A putt starts aimed at the nearest 10, 20, 30, 40 or 50 feet to the hole, never past it.
       const d = Math.hypot(state.layout.pin.x - state.ball.x, state.layout.pin.y - state.ball.y);
-      setTarget(d <= 10 ? state.layout.pin : { x: state.ball.x + ((state.layout.pin.x - state.ball.x) * 10) / d, y: state.ball.y + ((state.layout.pin.y - state.ball.y) * 10) / d });
+      const feet = d * 3;
+      const level = Math.max(10, Math.min(50, Math.round(feet / 10) * 10));
+      const along = Math.min(level, feet) / 3;
+      setTarget(d <= along ? state.layout.pin : { x: state.ball.x + ((state.layout.pin.x - state.ball.x) * along) / d, y: state.ball.y + ((state.layout.pin.y - state.ball.y) * along) / d });
     } else {
       setTarget(fairwayTarget(state.layout, state.ball, clubCarry(player, playClub)));
     }
@@ -339,7 +345,7 @@ export function PracticeHolePreview() {
         <div className="panel-head">
           <div>
             <h1>Practice · {course.name}, hole 1</h1>
-            <span className="secondary small">Par {hole.par} · {hole.yards} yds · {PLAYERS[shown]!.name} · lie: {LIE_LABEL[shownBall.lie] ?? shownBall.lie} · {Math.round(toTarget)} yds to the target · sweet spot ±{windowMs} ms</span>
+            <span className="secondary small">Par {hole.par} · {hole.yards} yds · {PLAYERS[shown]!.name} · lie: {LIE_LABEL[shownBall.lie] ?? shownBall.lie} · {state.lie === "green" ? `${Math.round(toTarget * 3)} ft` : `${Math.round(toTarget)} yds`} to the target · sweet spot ±{windowMs} ms</span>
           </div>
           <a className="btn btn-small" href={window.location.pathname}>Return to game</a>
         </div>
@@ -384,7 +390,7 @@ export function PracticeHolePreview() {
           <div style={{ position: "absolute", left: 8, bottom: 8, zIndex: 3, padding: "6px 10px", borderRadius: 6, background: "rgba(10, 20, 15, 0.8)", color: "#fff", fontSize: 14, lineHeight: 1.45, fontVariantNumeric: "tabular-nums", pointerEvents: "none" }}>
             <div><strong>Hole {hole.number}</strong> · Par {hole.par} · {hole.yards} yds</div>
             <div>{PLAYERS[shown]!.name.split(" (")[0]} · shot {shotNo}</div>
-            {shownBall.lie !== "tee" && <div>{Math.round(leftYds)} yds to the hole</div>}
+            {shownBall.lie !== "tee" && <div>{shownBall.lie === "green" ? `${Math.round(leftYds * 3)} ft` : `${Math.round(leftYds)} yds`} to the hole</div>}
           </div>
         </div>
         <aside style={{ flex: "1 1 220px", minWidth: 220, border: "1px solid rgba(0, 0, 0, 0.12)", borderRadius: 8, padding: 12 }}>
@@ -407,7 +413,7 @@ export function PracticeHolePreview() {
             ))}
             <button className="btn btn-small" onClick={() => setTarget(null)} disabled={flying || target === null}>Move target to the pin</button>
           </div>
-          <BroadcastSwing lie={boxLie} club={playClub} shot="normal" speed={meterFactor(player, playClub)} targetPower={power} onStrike={onStrike} onSwingStart={() => { setSwinging(true); setCamGolfer(null); }} onSwingEnd={() => setSwinging(false)} onClubPick={setClub} />
+          <BroadcastSwing lie={boxLie} club={playClub} shot="normal" speed={meterFactor(player, playClub) * puttSpeed} targetPower={power} onStrike={onStrike} onSwingStart={() => { setSwinging(true); setCamGolfer(null); }} onSwingEnd={() => setSwinging(false)} onClubPick={setClub} />
           <button className="btn" onClick={reset}>Start the hole again</button>
         </div>
       </section>
