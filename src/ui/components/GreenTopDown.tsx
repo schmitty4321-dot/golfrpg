@@ -86,8 +86,9 @@ export function GreenTopDown({ layout, ball, aim, strokes, progress, showAim, on
         <rect x={mid.x - span} y={mid.y - span} width={2 * span} height={2 * span} fill="#4f8a2f" />
         {/* The photo of the green, turned and scaled onto the layout. */}
         <image href={`${import.meta.env.BASE_URL}${PHOTO.src}`} x={0} y={0} width={PHOTO.width} height={PHOTO.height} transform={photoTransform} />
-        {/* Shot lines: earlier shots in full, the latest flying in. */}
+        {/* The tracer shows only while the latest shot is flying; earlier shots are not drawn on the green. */}
         {strokes.map((s, i) => {
+          if (i !== last || progress >= 1) return null;
           const from = toView(s.from);
           const to = toView(s.to);
           const end = i === last ? { x: from.x + (to.x - from.x) * progress, y: from.y + (to.y - from.y) * progress } : to;
