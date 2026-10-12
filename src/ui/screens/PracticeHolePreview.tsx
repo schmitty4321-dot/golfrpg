@@ -43,19 +43,23 @@ function BroadcastSwing({ lie, club, shot, aim, targetPower, onStrike }: {
 }
 
 
-/** Flight arc from a to b (SVG pixels): a quadratic curve bulging to one side, so a longer shot rises higher. */
-function arcPoint(a: { x: number; y: number }, b: { x: number; y: number }, t: number) {
-  const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
-  const dx = b.x - a.x, dy = b.y - a.y;
-  const len = Math.hypot(dx, dy) || 1;
-  const bulge = len * 0.12;
-  const cx = mx + (-dy / len) * bulge, cy = my + (dx / len) * bulge;
-  return { x: (1 - t) * (1 - t) * a.x + 2 * (1 - t) * t * cx + t * t * b.x, y: (1 - t) * (1 - t) * a.y + 2 * (1 - t) * t * cy + t * t * b.y, cx, cy };
+/** How high a shot climbs at its peak, in picture pixels: longer shots, and higher flights, go higher. */
+function apexHeight(yards: number, shot: "normal" | "high" | "low" = "normal"): number {
+  const factor = shot === "high" ? 1.3 : shot === "low" ? 0.6 : 1;
+  return Math.min(180, yards * 0.5) * factor;
 }
 
-const SHOT_ANIMATION_MS = 1000;
+/** Where the ball is part-way through its flight: along the ground track, lifted in a parabola above it. */
+function flightPoint(a: { x: number; y: number }, b: { x: number; y: number }, t: number, apex: number) {
+  const x = a.x + (b.x - a.x) * t;
+  const y = a.y + (b.y - a.y) * t;
+  const lift = 4 * apex * t * (1 - t);
+  return { x, y, lift, ballY: y - lift, scale: 1 + (lift / Math.max(apex, 1)) * 0.25 };
+}
 
-/** The shot lines on the picture. The newest stroke is drawn in flight, then settles where it landed. */
+const SHOT_ANIMATION_MS = 1100;
+
+/** The shot lines on the picture. The newest stroke climbs and falls to where it landed, with its shadow on the ground. */
 function ShotLines({ strokes, dot, ball, width, height }: { strokes: PracticeStroke[]; dot: (p: { x: number; y: number }) => { x: number; y: number }; ball: { x: number; y: number }; width: number; height: number }) {
   const [progress, setProgress] = useState(1);
   const count = useRef(strokes.length);
@@ -80,13 +84,24 @@ function ShotLines({ strokes, dot, ball, width, height }: { strokes: PracticeStr
       {strokes.map((s, i) => {
         const a = dot(s.from), b = dot(s.to);
         const color = s.penalty ? "#ff5a4a" : "#bce764";
+        const apex = apexHeight(s.yards);
         if (i === last && progress < 1) {
-          const p = arcPoint(a, b, progress);
-          const route = `M ${a.x} ${a.y} Q ${arcPoint(a, b, 0.5).cx} ${arcPoint(a, b, 0.5).cy} ${b.x} ${b.y}`;
-          return <g key={i}><path d={route} fill="none" stroke={color} strokeWidth={6} strokeDasharray="1 1" pathLength={1} strokeDashoffset={1 - progress} /><circle cx={p.x} cy={p.y} r={12} fill="#fff" stroke="#000" strokeWidth={3} /></g>;
+          const p = flightPoint(a, b, progress, apex);
+          const shadowOpacity = 0.25 + 0.25 * (1 - p.lift / Math.max(apex, 1));
+          return (
+            <g key={i}>
+              <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={color} strokeWidth={5} strokeDasharray="1 1" pathLength={1} strokeDashoffset={1 - progress} opacity={0.8} />
+              <ellipse cx={p.x} cy={p.y} rx={16} ry={7} fill="#000" opacity={shadowOpacity} />
+              <circle cx={p.x} cy={p.ballY} r={12 * p.scale} fill="#fff" stroke="#000" strokeWidth={3} />
+            </g>
+          );
         }
-        const route = `M ${a.x} ${a.y} Q ${arcPoint(a, b, 0.5).cx} ${arcPoint(a, b, 0.5).cy} ${b.x} ${b.y}`;
-        return <g key={i}><path d={route} fill="none" stroke={color} strokeWidth={6} strokeDasharray="14 10" /><circle cx={b.x} cy={b.y} r={14} fill={color} stroke="#fff" strokeWidth={3} /></g>;
+        return (
+          <g key={i}>
+            <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={color} strokeWidth={5} strokeDasharray="14 10" />
+            <circle cx={b.x} cy={b.y} r={12} fill={color} stroke="#fff" strokeWidth={3} />
+          </g>
+        );
       })}
       {progress >= 1 && <circle cx={ball.x} cy={ball.y} r={18} fill="#fff" stroke="#000" strokeWidth={4} />}
     </svg>
