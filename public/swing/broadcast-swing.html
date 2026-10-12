@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Broadcast three-click swing</title></head><body style="margin:0;padding:24px;background:#111713">
+<div id="golf-bar">
+<style>
+#golf-bar{--foreground:#f4f5ef;--muted:#303631;--border:#626a60;--viz-series-1:#bce764;--orange:#e7b76a;font:14px/1.45 system-ui,sans-serif;color:var(--foreground);max-width:1100px;margin:auto;display:grid;gap:14px}
+#golf-bar *{box-sizing:border-box}#golf-bar h3{font-size:18px;font-weight:500;margin:0}
+#golf-bar .broadcast{display:grid;grid-template-columns:170px minmax(0,1fr) 190px;gap:12px;align-items:stretch}
+#golf-bar .side,#golf-bar .center{background:#19201ef2;border:1px solid #727b6590;border-radius:10px;padding:18px}
+#golf-bar .side{display:flex;flex-direction:column;justify-content:center;gap:9px}
+#golf-bar .club-name{font-size:23px;font-weight:500}#golf-bar .sub{color:#c3cbbd;font-size:12px;text-transform:uppercase;letter-spacing:1px}
+#golf-bar .meter{height:32px;margin:18px 0 8px;position:relative;background:var(--muted);overflow:hidden;border-radius:7px}
+#golf-bar .fill{position:absolute;inset:0 auto 0 0;background:var(--viz-series-1);opacity:.75}
+#golf-bar .zone{position:absolute;top:0;bottom:0;background:var(--viz-series-1);opacity:.5}
+#golf-bar .needle{position:absolute;top:0;bottom:0;width:3px;background:var(--foreground)}
+#golf-bar .danger{position:absolute;left:90.9%;right:0;top:0;bottom:0;background:repeating-linear-gradient(135deg,transparent 0 4px,#d9dfce55 4px 6px)}
+#golf-bar .labels,#golf-bar .viz-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+#golf-bar .viz-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;padding:15px 0}
+#golf-bar .form-label{display:grid;gap:7px}#golf-bar select,#golf-bar input{width:100%;color:inherit;accent-color:#bce764}
+#golf-bar select{background:#222a25;border:1px solid #727b65;border-radius:5px;padding:9px;font:inherit}
+#golf-bar .btn{background:#242e27;color:inherit;border:1px solid #727b65;border-radius:7px;padding:11px 18px;font:inherit;cursor:pointer}
+#golf-bar .btn-primary{background:#bce764;color:#17200e;border-color:#bce764}#golf-bar button:disabled{opacity:.4;cursor:default}
+#golf-bar .text-small{font-size:12px}#golf-bar .tabular-nums{font-variant-numeric:tabular-nums}
+#golf-bar details{background:#19201e;border-radius:8px;padding:14px}#golf-bar summary{cursor:pointer}
+#golf-bar :focus-visible{outline:2px solid #bce764;outline-offset:3px}
+@media(max-width:700px){#golf-bar .broadcast{grid-template-columns:1fr 1fr}#golf-bar .center{grid-column:1/-1;grid-row:2}#golf-bar .side{padding:12px}}
+</style>
+<div class="broadcast">
+<div class="side"><span class="club-name" id="gb-club-summary">7 IRON</span><span class="sub" id="gb-lie-summary">Fairway</span></div>
+<div class="center"><div class="labels"><span id="gb-phase">1 · Start swing</span><span class="tabular-nums" id="gb-value">Target 90% · Driver</span></div>
+<div class="meter" role="img" aria-label="Power and strike meter"><div class="danger" id="gb-danger"></div><div class="fill" id="gb-fill"></div><div class="zone" id="gb-zone"></div><div class="needle" id="gb-needle"></div></div>
+<div class="labels text-small"><span id="gb-left">0%</span><span id="gb-right">100% → 110% overdrive</span></div>
+<div class="viz-row"><button type="button" class="btn btn-primary" id="gb-swing">Start swing</button><button type="button" class="btn" id="gb-cancel" disabled>Cancel swing</button><span class="text-small">Space or button · three presses</span></div>
+<div class="text-small" id="gb-rules"></div></div>
+<div class="side"><span id="gb-shape-summary">STRAIGHT</span><span class="sub" id="gb-height-summary">NORMAL HEIGHT</span></div>
+</div>
+<div aria-live="polite" id="gb-result">Three presses: start → power → strike</div>
+<details><summary>Demo conditions and shot setup</summary><div class="viz-controls">
+<label class="form-label">Lie <select class="form-select" id="gb-lie"><option value="fairway">Fairway</option><option value="light">Light rough</option><option value="deep">Deep rough</option><option value="fairwaySand">Fairway bunker</option><option value="greenSand">Greenside bunker · splash</option></select></label>
+<label class="form-label">Along-shot wind <span id="gb-wind-value">Calm</span><input class="form-range" id="gb-wind" type="range" min="-20" max="20" value="0"></label>
+<label class="form-label">Crosswind <span id="gb-cross-value">Calm</span><input class="form-range" id="gb-cross" type="range" min="-20" max="20" value="0"></label>
+<label class="form-label">Aim offset <span id="gb-aim-value">0 yd</span><input class="form-range" id="gb-aim" type="range" min="-40" max="40" value="0"></label>
+<label class="form-label">Club <select class="form-select" id="gb-club"><option value="driver">Driver</option><option value="iron">7 iron</option><option value="wedge">Wedge</option></select></label>
+<label class="form-label">Shot <select class="form-select" id="gb-shot"><option value="normal">Normal</option><option value="punch">Punch</option><option value="flop">Flop · wedge only</option><option value="splash" disabled>Splash · greenside bunker</option></select></label>
+<label class="form-label">Calm-air target power <span id="gb-target-value">90%</span><input class="form-range" id="gb-target" type="range" min="10" max="110" value="90"></label>
+<label class="form-label">Shape <select class="form-select" id="gb-shape"><option value="0">Straight</option><option value="-1">Draw · right to left</option><option value="1">Fade · left to right</option></select></label>
+<label class="form-label">Height <select class="form-select" id="gb-height"><option value="0">Normal</option><option value="-1">Low</option><option value="1">High</option></select></label>
+<label class="form-label">Shape strength <span id="gb-strength-value">50%</span><input class="form-range" id="gb-strength" type="range" min="0" max="100" value="50"></label>
+</div>
+</details>
+</div>
+<script>
+(() => {
+const root=document.getElementById('golf-bar'), q=id=>root.querySelector('#gb-'+id);
+const shape=q('shape'),height=q('height'),strength=q('strength'),button=q('swing');
+const club=q('club'),shot=q('shot'),target=q('target');
+const lie=q('lie'),wind=q('wind'),cross=q('cross'),aim=q('aim');
+const lies={fairway:{name:'Fairway',carry:1,spin:1,window:0},light:{name:'Light rough',carry:.94,spin:.8,window:8},deep:{name:'Deep rough',carry:.78,spin:.45,window:22},fairwaySand:{name:'Fairway bunker',carry:.96,spin:.85,window:25},greenSand:{name:'Greenside bunker',carry:1,spin:.9,window:0}};
+const clubs={driver:{name:'Driver',carry:250,window:60},iron:{name:'7 iron',carry:155,window:85},wedge:{name:'Wedge',carry:90,window:110}};
+const powerDuration=2200,strikeDuration=1200;
+let phase='ready',start=0,power=90,error=0,raf=0,last=null;
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+function restore(s){const m=s?.modelContent;if(!m)return;shape.value=['-1','0','1'].includes(String(m.shape))?String(m.shape):'0';height.value=['-1','0','1'].includes(String(m.height))?String(m.height):'0';strength.value=clamp(Number(m.strength)||0,0,100);club.value=clubs[m.club]?m.club:'driver';shot.value=['normal','punch','flop'].includes(m.shot)?m.shot:'normal';target.value=clamp(Number(m.target)||90,10,110);lie.value=lies[m.lie]?m.lie:'fairway';wind.value=clamp(+m.wind||0,-20,20);cross.value=clamp(+m.crosswind||0,-20,20);aim.value=clamp(+m.aim||0,-40,40);normalize();}
+function cap(){return shot.value==='punch'?75:['flop','splash'].includes(shot.value)?100:110;}
+function normalize(){if(!lies[lie.value])lie.value='fairway';if(lie.value==='greenSand'){shot.value='splash';club.value='wedge';height.value='1';}else if(shot.value==='splash')shot.value='normal';if(!clubs[club.value])club.value='driver';if(shot.value==='flop')club.value='wedge';target.max=cap();target.value=clamp(+target.value||90,10,cap());if(shot.value==='punch')height.value='-1';if(['flop','splash'].includes(shot.value))height.value='1';}
+restore(window.openai?.widgetState);normalize();
+function save(){window.openai?.setWidgetState({modelContent:{lie:lie.value,wind:+wind.value,crosswind:+cross.value,aim:+aim.value,club:club.value,shot:shot.value,target:+target.value,shape:+shape.value,height:+height.value,strength:+strength.value,lastShot:last},privateContent:null})?.catch(()=>{});}
+window.addEventListener('openai:set_globals',e=>{if(phase==='ready'){restore(e.detail?.globals?.widgetState);settings();}});
+function windowMs(p){const base=shot.value==='splash'?115:clubs[club.value].window;return Math.max(25,base-lies[lie.value].window-24*Math.abs(+shape.value)*(+strength.value/100)-14*Math.abs(+height.value)-Math.max(0,p-100)*(lie.value==='deep'?4:2.5)-(shot.value==='flop'?30:shot.value==='punch'?8:0));}
+function powerTolerance(){return shot.value==='flop'?1.5:+target.value<60?2:3;}
+function exposure(){return +height.value===1?1.4:+height.value===-1?.55:1;}
+function windFactor(){return 1+(+wind.value)*.009*exposure();}
+function suggestedPower(){const ideal=+target.value/windFactor();return clamp(ideal,10,cap());}
+function calmCarry(p){const effective=lie.value==='deep'?Math.min(p,85)+Math.max(0,p-85)*.3:p;return clubs[club.value].carry*effective/100*(shot.value==='splash'?.32:shot.value==='flop'?.5:shot.value==='punch'?.8:+height.value===1?.94:+height.value===-1?.96:1)*lies[lie.value].carry;}
+function carryFor(p){return calmCarry(p)*windFactor();}
+function drift(p){return +cross.value*.65*exposure()*carryFor(p)/150;}
+function spinFactor(){return lies[lie.value].spin;}
+function powerMeter(){const tolerance=powerTolerance();q('zone').style.left=((suggestedPower()-tolerance)/110*100)+'%';q('zone').style.width=(tolerance*2/110*100)+'%';q('danger').hidden=shot.value!=='normal';q('left').textContent='0%';q('right').textContent=shot.value==='normal'?'100% → 110% overdrive':cap()+'% cap';}
+function rules(){q('rules').textContent=clubs[club.value].name+' · '+lies[lie.value].name+' · Strike ±'+Math.round(windowMs(suggestedPower()))+' ms · Power ±'+powerTolerance()+'% · Return 1.2 s'+(lie.value==='deep'?' · Effective power soft ceiling 85%':'')+(shot.value==='splash'?' · Splash scale 0–29 yd':shot.value==='punch'?' · Low flight, 75% cap':shot.value==='flop'?' · High flight, contact penalty ×1.8':'');}
+function position(v){q('needle').style.left=clamp(v,0,99.5)+'%';}
+function settings(){normalize();q('strength-value').textContent=strength.value+'%';q('target-value').textContent=target.value+'%';q('wind-value').textContent=+wind.value===0?'Calm':Math.abs(+wind.value)+' mph '+(+wind.value<0?'headwind':'tailwind');q('cross-value').textContent=+cross.value===0?'Calm':Math.abs(+cross.value)+' mph '+(+cross.value<0?'to left':'to right');q('aim-value').textContent=Math.abs(+aim.value)+' yd '+(+aim.value<0?'left':+aim.value>0?'right':'center');if(phase==='ready'){powerMeter();q('value').textContent='Suggested '+suggestedPower().toFixed(1)+'% · Goal '+Math.round(calmCarry(+target.value))+' yd'+(+target.value/windFactor()>cap()?' · Beyond power cap':'');}rules();draw();}
+function lock(v){[shape,height,strength,club,shot,target,lie,wind,cross,aim].forEach(el=>el.disabled=v);club.disabled=v||lie.value==='greenSand';shot.disabled=v||lie.value==='greenSand';height.disabled=v||shot.value!=='normal';q('cancel').disabled=!v;}
+function reset(){cancelAnimationFrame(raf);phase='ready';button.textContent='Swing';q('phase').textContent='1 · Start swing';q('value').textContent='Target 90% · Driver';q('left').textContent='0%';q('right').textContent='100% → 110% overdrive';q('danger').hidden=false;q('fill').style.width='0%';position(0);lock(false);settings();}
+function tick(t){if(phase==='power'){const p=(t-start)/powerDuration*110;position(p/110*100);q('fill').style.width=clamp(p/110*100,0,100)+'%';q('value').textContent=Math.min(p,cap()).toFixed(0)+'% power';if(p>=cap()){power=cap();finish(strikeDuration/2);q('result').textContent='Power click missed · try again';return;}}else if(phase==='strike'){const elapsed=t-start;position(100-elapsed/strikeDuration*100);if(elapsed>=strikeDuration){finish(strikeDuration/2);return;}}raf=requestAnimationFrame(tick);}
+function beginStrike(t){phase='strike';start=t;q('result').textContent='Power locked · strike at the center';q('phase').textContent='3 · Strike at the center';button.textContent='Swing';q('danger').hidden=true;q('fill').style.width='0%';const w=windowMs(power);q('zone').style.left=(50-w/strikeDuration*100)+'%';q('zone').style.width=(2*w/strikeDuration*100)+'%';q('left').textContent='Late · pushes right';q('right').textContent='Early · pulls left';q('value').textContent=power.toFixed(0)+'% power · ±'+w.toFixed(0)+' ms strike';position(100);}
+function swing(now=performance.now()){if(phase==='ready'){phase='power';start=now;lock(true);q('phase').textContent='2 · Set power';button.textContent='Swing';q('result').textContent='Press registered · set power';q('danger').hidden=false;q('left').textContent='0%';q('right').textContent='100% → 110% overdrive';powerMeter();position(0);q('fill').style.width='0%';raf=requestAnimationFrame(tick);}else if(phase==='power'){power=clamp((now-start)/powerDuration*110,0,cap());beginStrike(now);}else if(phase==='strike'){finish(now-start-strikeDuration/2);}}
+function finish(e){cancelAnimationFrame(raf);error=e;const w=windowMs(power),severity=Math.max(0,Math.abs(e)-w)/250;const over=Math.max(0,power-100)/10;const multiplier=(1+over*(lie.value==='deep'?1.6:.8))*(shot.value==='flop'?1.8:shot.value==='splash'?1.3:1);const loss=clamp(severity*(lie.value==='fairwaySand'?.7:.3)*multiplier,0,.8);const carry=carryFor(power)*(1-loss);const lateral=Math.sign(e)*Math.max(0,Math.abs(e)-w)/600*75*multiplier;const powerError=power-suggestedPower();last={lie:lie.value,wind:+wind.value,crosswind:+cross.value,aim:+aim.value,drift:drift(power),spin:spinFactor(),club:club.value,shot:shot.value,target:+target.value,power:Math.round(power),timingMs:Math.round(e),carryYards:Math.round(carry),shape:+shape.value,height:+height.value,strength:+strength.value,lateral};q('result').textContent=(Math.abs(e)<=w?'Clean strike':lie.value==='fairwaySand'?'Heavy contact · short':e<0?'Early · pulled left':'Late · pushed right')+' · Power '+Math.round(power)+'% ('+(powerError>=0?'+':'')+powerError.toFixed(1)+'%)'+(Math.abs(powerError)<=powerTolerance()?' on target':' off target')+' · '+Math.round(e)+' ms · '+Math.round(carry)+' yd carry';phase='ready';button.textContent='Swing';q('phase').textContent='Shot complete';lock(false);draw();save();root.dispatchEvent(new CustomEvent('golf-shot',{bubbles:true,detail:{...last}}));}
+function draw(){q('club-summary').textContent=clubs[club.value].name.toUpperCase();q('lie-summary').textContent=lies[lie.value].name;q('shape-summary').textContent=(+shape.value<0?'DRAW':+shape.value>0?'FADE':'STRAIGHT')+(+shape.value?' '+strength.value+'%':'');q('height-summary').textContent=+height.value<0?'LOW FLIGHT':+height.value>0?'HIGH FLIGHT':'NORMAL HEIGHT';}
+function inputTime(e){const now=performance.now();return Number.isFinite(e.timeStamp)&&Math.abs(now-e.timeStamp)<10000?e.timeStamp:now;}
+button.addEventListener('pointerdown',e=>{if(e.button!==0)return;e.preventDefault();button.focus();swing(inputTime(e));});
+button.addEventListener('click',e=>{if(e.detail===0)swing(inputTime(e));});q('cancel').addEventListener('click',reset);root.addEventListener('keydown',e=>{if((e.code==='Space'||e.code==='Enter')&&!['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName)&&e.target!==q('cancel')){e.preventDefault();if(!e.repeat)swing(inputTime(e));}});root.addEventListener('keyup',e=>{if((e.code==='Space'||e.code==='Enter')&&e.target===button)e.preventDefault();});
+[shape,height,strength,club,shot,target,lie,wind,cross,aim].forEach(el=>el.addEventListener('input',()=>{if(el===club&&shot.value==='flop'&&club.value!=='wedge')shot.value='normal';last=null;normalize();lock(false);settings();save();}));root.golfSwing={configure(options={}){if(phase!=='ready')return false;for(const [key,value] of Object.entries(options)){const inputs={club,shot,lie,wind,crosswind:cross,aim,target,shape,height,strength};if(inputs[key])inputs[key].value=String(value);}last=null;normalize();lock(false);settings();return true;},cancel:reset};reset();
+})();
+</script>
+
+</body></html>

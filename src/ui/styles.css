@@ -1667,13 +1667,3 @@ select, input[type="text"], input[type="number"] {
 @media(max-width:1150px){.roster-masthead-copy{width:48%}.roster-featured{right:62px;width:52%}.roster-featured article{width:145px;margin-left:-25px}.roster-featured .cutout-portrait{height:190px!important;max-width:165px}.roster-summary{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:720px){.roster-masthead{min-height:520px}.roster-masthead-shade{background:linear-gradient(180deg,rgba(5,43,31,.96),rgba(5,43,31,.72) 57%,rgba(5,43,31,.45))}.roster-masthead-copy{width:100%;padding:22px 18px}.roster-featured{left:6px;right:6px;width:auto;height:210px}.roster-featured article{width:34%;margin-left:-3%}.roster-featured .cutout-portrait{height:165px!important;max-width:140px}.roster-featured article>div strong{font-size:11px}.roster-panel-heading{grid-template-columns:1fr}.roster-summary{grid-template-columns:repeat(2,1fr)}.roster-panel>.table-wrap{margin:0 10px}.roster-capacity{width:58px;height:58px}.roster-masthead-copy h1{padding-right:50px}}
 
-/* Practice hole: the three-click swing meter, under the hole picture. */
-.practice-hole .practice-picture { border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
-.practice-hole .practice-controls { display: grid; gap: 10px; margin: 14px 0; max-width: 620px; }
-.practice-hole .practice-controls label { display: grid; gap: 4px; }
-.swing-meter { display: grid; gap: 8px; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
-.swing-meter-labels { display: flex; justify-content: space-between; gap: 12px; }
-.swing-meter-bar { position: relative; height: 28px; border-radius: 7px; background: var(--surface-2); overflow: hidden; }
-.swing-meter-fill { position: absolute; inset: 0 auto 0 0; background: var(--accent); opacity: 0.7; }
-.swing-meter-zone { position: absolute; top: 0; bottom: 0; background: var(--accent); opacity: 0.45; }
-.swing-meter-needle { position: absolute; top: 0; bottom: 0; width: 3px; background: var(--text); }

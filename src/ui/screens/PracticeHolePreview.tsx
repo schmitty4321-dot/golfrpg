@@ -1,14 +1,46 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createRng, REAL_COURSES, generatePlayer } from "../../engine";
-import { clubCarry, lieAt, playPracticeShot, startPracticeHole, type PracticeHole, type PracticeStroke } from "../../engine/practiceHole";
-import { powerSweepMs, strikeSweepMs, sweetSpotMs, type SwingClub } from "../../engine/swing";
+import { clubCarry, playPracticeShot, startPracticeHole, type PracticeHole, type PracticeStroke } from "../../engine/practiceHole";
+import { sweetSpotMs, type SwingClub, type SwingLie, type SwingShot } from "../../engine/swing";
 import { illustratedArtFor, projectArtPoint } from "../illustratedArt";
-import { SwingMeter, type SwingStrike } from "../components/SwingMeter";
 
-// Development review of a practice hole, played shot by shot with the three-click meter below the picture.
+// Development review of a practice hole, played shot by shot. The swing is the broadcast three-click
+// (public/swing/broadcast-swing.html), shown in a frame below the picture.
 const course = REAL_COURSES.find((c) => c.id === "waialae")!;
 const player = generatePlayer(createRng(19), { tier: "tour", nationality: "USA" });
 const LIE_LABEL: Record<string, string> = { tee: "Tee", fairway: "Fairway", rough: "Rough", bunker: "Bunker", green: "Green", water: "Water", holed: "Holed" };
+const SWING_LIE: Record<string, SwingLie> = { tee: "fairway", fairway: "fairway", rough: "light", bunker: "fairwaySand", green: "greenSand" };
+
+interface SwingStrike { power: number; timingMs: number }
+interface SwingElement extends HTMLElement { golfSwing?: { configure: (options: Record<string, unknown>) => boolean } }
+
+/** The broadcast swing, in its own frame so its script and styles run as they were written. */
+function BroadcastSwing({ lie, club, shot, aim, targetPower, onStrike }: {
+  lie: SwingLie; club: SwingClub; shot: SwingShot; aim: number; targetPower: number; onStrike: (s: SwingStrike) => void;
+}) {
+  const frame = useRef<HTMLIFrameElement>(null);
+  const [ready, setReady] = useState(false);
+  const latestStrike = useRef(onStrike);
+  latestStrike.current = onStrike;
+  const swing = (): SwingElement | null => (frame.current?.contentDocument?.getElementById("golf-bar") as SwingElement | null) ?? null;
+
+  useEffect(() => {
+    const el = swing();
+    if (!ready || !el) return;
+    const onShot = (e: Event) => {
+      const d = (e as CustomEvent<{ power: number; timingMs: number }>).detail;
+      latestStrike.current({ power: d.power, timingMs: d.timingMs });
+    };
+    el.addEventListener("golf-shot", onShot);
+    return () => el.removeEventListener("golf-shot", onShot);
+  }, [ready]);
+
+  useEffect(() => {
+    swing()?.golfSwing?.configure({ lie, club, shot, aim, target: Math.max(10, Math.min(110, targetPower)), wind: 0, crosswind: 0, shape: 0, strength: 50, height: 0 });
+  }, [ready, lie, club, shot, aim, targetPower]);
+
+  return <iframe ref={frame} src={`${import.meta.env.BASE_URL}swing/broadcast-swing.html`} title="Three-click swing" onLoad={() => setReady(true)} style={{ width: "100%", height: 400, border: 0 }} />;
+}
 
 export function PracticeHolePreview() {
   const hole = course.holes[0]!;
@@ -18,37 +50,38 @@ export function PracticeHolePreview() {
   const [log, setLog] = useState<string[]>([]);
   const art = illustratedArtFor("waialae", 1)!;
   const base = import.meta.env.BASE_URL;
-  const lie = state.lie === "tee" || state.lie === "fairway" || state.lie === "rough" || state.lie === "bunker" || state.lie === "green" ? state.lie : "fairway";
-  const swingLie = lie === "rough" ? "light" : lie === "bunker" ? "fairwaySand" : lie === "green" ? "greenSand" : "fairway";
-  const windowMs = sweetSpotMs(player, club, swingLie);
-  const carry = clubCarry(player, club);
+  const lie = (LIE_LABEL[state.lie] ? state.lie : "fairway") as string;
+  const swingLie = SWING_LIE[lie] ?? "fairway";
+  const playClub: SwingClub = lie === "green" ? "wedge" : club;
+  const windowMs = sweetSpotMs(player, playClub, swingLie);
+  const carry = clubCarry(player, playClub);
   const toPin = Math.hypot(state.layout.pin.x - state.ball.x, state.layout.pin.y - state.ball.y);
-  const target = Math.min(100, Math.round((toPin / carry) * 100));
+  const target = Math.min(110, Math.round((toPin / carry) * 100));
 
   const onStrike = (strike: SwingStrike) => {
     if (state.holed) return;
-    const next = playPracticeShot(state, player, { club: lie === "green" ? "wedge" : club, power: strike.power, timingMs: strike.timingMs, aim });
-    const s = next.strokes[next.strokes.length - 1]!;
+    const next = playPracticeShot(state, player, { club: playClub, power: strike.power, timingMs: strike.timingMs, aim });
+    const s = next.strokes[next.strokes.length - 1] as PracticeStroke;
     setState(next);
     setLog((l) => [...l, `${s.stroke}. ${s.penalty ? "Into the water, penalty, back to where it was struck" : `${Math.round(s.yards)} yds to ${LIE_LABEL[s.lieAfter] ?? s.lieAfter}`} · timing ${Math.round(strike.timingMs)} ms · power ${Math.round(strike.power)}%`]);
   };
   const reset = () => { setState(startPracticeHole(course, hole, 0)); setLog([]); };
-
   const dot = (p: { x: number; y: number }) => projectArtPoint(art.matrix, p);
+
   return (
     <main className="tracer-preview practice-hole">
       <section className="panel">
         <div className="panel-head">
           <div>
             <h1>Practice · {course.name}, hole 1</h1>
-            <span className="secondary small">Par {hole.par} · {hole.yards} yds · {player.name} · lie: {LIE_LABEL[lie]} · {Math.round(toPin)} yds to the pin</span>
+            <span className="secondary small">Par {hole.par} · {hole.yards} yds · {player.name} · lie: {LIE_LABEL[state.lie] ?? state.lie} · {Math.round(toPin)} yds to the pin · sweet spot ±{windowMs} ms</span>
           </div>
           <a className="btn btn-small" href={window.location.pathname}>Return to game</a>
         </div>
         <div className="practice-picture" style={{ position: "relative" }}>
           <img src={`${base}${art.image}`} alt={`${course.name}, hole 1`} style={{ width: "100%", display: "block" }} />
           <svg viewBox={`0 0 ${art.width} ${art.height}`} style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} aria-hidden>
-            {state.strokes.map((s: PracticeStroke, i: number) => {
+            {state.strokes.map((s, i) => {
               const a = dot(s.from), b = dot(s.to);
               return <g key={i}><line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={s.penalty ? "#ff5a4a" : "#bce764"} strokeWidth={6} strokeDasharray="14 10" /><circle cx={b.x} cy={b.y} r={14} fill={s.penalty ? "#ff5a4a" : "#bce764"} stroke="#fff" strokeWidth={3} /></g>;
             })}
@@ -62,15 +95,13 @@ export function PracticeHolePreview() {
             ))}
           </div>
           <label>Aim {aim > 0 ? `${aim} yd right` : aim < 0 ? `${-aim} yd left` : "at the pin"}<input type="range" min={-20} max={20} value={aim} onChange={(e) => setAim(Number(e.target.value))} /></label>
-          <span className="secondary small">Sweet spot ±{windowMs} ms · carry {carry} yd · power to reach the pin {target}%</span>
-          <SwingMeter powerSweepMs={powerSweepMs(player, club)} strikeSweepMs={strikeSweepMs(player, club)} windowMs={windowMs} targetPower={target} disabled={state.holed} onStrike={onStrike} />
+          <BroadcastSwing lie={swingLie} club={playClub} shot={lie === "green" ? "splash" : "normal"} aim={aim} targetPower={target} onStrike={onStrike} />
           <button className="btn" onClick={reset}>Start the hole again</button>
         </div>
         <ol className="practice-log">
           {log.map((line, i) => <li key={i}>{line}</li>)}
           {state.holed && <li><strong>Holed in {state.score} (par {hole.par})</strong></li>}
         </ol>
-        <span className="secondary small">{lieAt(state.layout, state.ball) === "water" ? "" : ""}</span>
       </section>
     </main>
   );
