@@ -251,7 +251,7 @@ export function PracticeHolePreview() {
   const base = import.meta.env.BASE_URL;
   const lie = (LIE_LABEL[state.lie] ? state.lie : "fairway") as string;
   const swingLie = SWING_LIE[lie] ?? "fairway";
-  const playClub: SwingClub = lie === "green" ? "wedge" : club;
+  const playClub: SwingClub = lie === "green" ? "putter" : club === "putter" ? "wedge" : club;
   const windowMs = sweetSpotMs(player, playClub, swingLie);
   const carry = clubCarry(player, playClub);
   // Where he's aiming: the marker, or the pin until he moves it.
@@ -262,7 +262,13 @@ export function PracticeHolePreview() {
   const flying = progress < 1;
   // At the start of each shot, and when the club changes, the target goes to the club's usual carry on the fairway.
   useEffect(() => {
-    setTarget(state.lie === "green" ? state.layout.pin : fairwayTarget(state.layout, state.ball, clubCarry(player, playClub)));
+    if (state.lie === "green") {
+      // A putt starts aimed 30 feet (10 yards) from the ball toward the hole, or at the hole when it is closer.
+      const d = Math.hypot(state.layout.pin.x - state.ball.x, state.layout.pin.y - state.ball.y);
+      setTarget(d <= 10 ? state.layout.pin : { x: state.ball.x + ((state.layout.pin.x - state.ball.x) * 10) / d, y: state.ball.y + ((state.layout.pin.y - state.ball.y) * 10) / d });
+    } else {
+      setTarget(fairwayTarget(state.layout, state.ball, clubCarry(player, playClub)));
+    }
   }, [playClub, state.strokes.length, turn]);
   // The target and its yardage show only between shots: not during a swing, not in flight.
   const showTarget = !flying && !swinging && !state.holed && shown === turn;
@@ -384,8 +390,8 @@ export function PracticeHolePreview() {
         </div>
         <div className="practice-controls">
           <div className="btn-row" aria-label="Club">
-            {(["driver", "iron", "wedge"] as const).map((c) => (
-              <button key={c} className={`btn btn-small${club === c ? " btn-primary" : ""}`} onClick={() => setClub(c)} disabled={lie === "green"}>{c === "driver" ? "Driver" : c === "iron" ? "7 iron" : "Wedge"}</button>
+            {(["driver", "iron", "wedge", "putter"] as const).map((c) => (
+              <button key={c} className={`btn btn-small${playClub === c ? " btn-primary" : ""}`} onClick={() => setClub(c)} disabled={(c === "putter") !== (lie === "green")}>{c === "driver" ? "Driver" : c === "iron" ? "7 iron" : c === "wedge" ? "Wedge" : "Putter"}</button>
             ))}
             <button className="btn btn-small" onClick={() => setTarget(null)} disabled={flying || target === null}>Move target to the pin</button>
           </div>

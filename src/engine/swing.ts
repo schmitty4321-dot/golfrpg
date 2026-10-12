@@ -8,12 +8,12 @@
 import { TOUR_AVERAGE, type AttributeKey } from "./attributes";
 import type { Player } from "./types";
 
-export type SwingClub = "driver" | "iron" | "wedge";
+export type SwingClub = "driver" | "iron" | "wedge" | "putter";
 export type SwingLie = "fairway" | "light" | "deep" | "fairwaySand" | "greenSand" | "green" | "tree" | "tee";
 export type SwingShot = "normal" | "punch" | "flop" | "splash";
 
 /** Strike window for each club on a clean fairway, in ms either side of the centre. */
-export const BASE_WINDOW_MS: Record<SwingClub, number> = { driver: 60, iron: 85, wedge: 110 };
+export const BASE_WINDOW_MS: Record<SwingClub, number> = { driver: 60, iron: 85, wedge: 110, putter: 40 };
 /** Time for the power meter to sweep 0 to 110%, and the strike meter to cross, for a tour average player. */
 export const POWER_SWEEP_MS = 1400;
 export const STRIKE_SWEEP_MS = 764;
@@ -27,6 +27,7 @@ const CLUB_SKILLS: Record<SwingClub, AttributeKey[]> = {
   driver: ["drivingDistance", "drivingAccuracy"],
   iron: ["longIrons", "midIrons", "fairwayWoods"],
   wedge: ["wedges", "distanceControl", "chipping", "pitching", "bunkerPlay"],
+  putter: ["lagPutting", "shortPutts"],
 };
 
 /** How far above (+) or below (-) the tour average a player is with this club. */

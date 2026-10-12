@@ -32,7 +32,7 @@
 @media(max-width:700px){#golf-bar .broadcast{grid-template-columns:1fr 1fr}#golf-bar .center{grid-column:1/-1;grid-row:2}#golf-bar .side{padding:12px}}
 </style>
 <div class="broadcast">
-<div class="side side-split"><div class="side-top"><select class="form-select club-pick" id="gb-club" aria-label="Club"><option value="driver">Driver</option><option value="iron">7 iron</option><option value="wedge">Wedge</option></select><span class="club-name" id="gb-club-summary" hidden>7 IRON</span></div><div class="side-bottom"><span class="sub" id="gb-lie-summary">Fairway</span></div></div>
+<div class="side side-split"><div class="side-top"><select class="form-select club-pick" id="gb-club" aria-label="Club"><option value="driver">Driver</option><option value="iron">7 iron</option><option value="wedge">Wedge</option><option value="putter">Putter</option></select><span class="club-name" id="gb-club-summary" hidden>7 IRON</span></div><div class="side-bottom"><span class="sub" id="gb-lie-summary">Fairway</span></div></div>
 <div class="center"><div class="labels"><span id="gb-phase">1 · Start swing</span><span class="tabular-nums" id="gb-value">Target 90% · Driver</span></div>
 <svg id="gb-track" role="img" aria-label="Power bar above accuracy bar, joined by a continuous right-hand curve"><title>Three-click swing track</title></svg>
 <div class="viz-row"><button type="button" class="btn btn-primary" id="gb-swing">Start swing</button><button type="button" class="btn" id="gb-cancel" disabled>Cancel swing</button><span class="text-small">Space or button · three presses</span></div>
@@ -60,7 +60,7 @@ const shape=q('shape'),height=q('height'),strength=q('strength'),button=q('swing
 const club=q('club'),shot=q('shot'),target=q('target');
 const lie=q('lie'),wind=q('wind'),cross=q('cross'),aim=q('aim');
 const lies={fairway:{name:'Fairway',carry:1,spin:1,window:0},light:{name:'Light rough',carry:.94,spin:.8,window:8},deep:{name:'Deep rough',carry:.78,spin:.45,window:22},fairwaySand:{name:'Fairway bunker',carry:.96,spin:.85,window:25},greenSand:{name:'Greenside bunker',carry:1,spin:.9,window:0},green:{name:'Green',carry:1,spin:1,window:0},tree:{name:'Trees',carry:.6,spin:.5,window:40},tee:{name:'Tee',carry:1,spin:1,window:0}};
-const clubs={driver:{name:'Driver',carry:250,window:60},iron:{name:'7 iron',carry:155,window:85},wedge:{name:'Wedge',carry:90,window:110}};
+const clubs={driver:{name:'Driver',carry:250,window:60},iron:{name:'7 iron',carry:155,window:85},wedge:{name:'Wedge',carry:90,window:110},putter:{name:'Putter',carry:10,window:40}};
 let powerDuration=1400,curveDuration=267,strikeDuration=764;
 let phase='ready',start=0,power=90,error=0,raf=0,last=null,elapsed=0,powerMark=null,accuracyMark=null,powerLocked=false;
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));

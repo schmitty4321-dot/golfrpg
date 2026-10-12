@@ -70,6 +70,7 @@ function inPolygon(p: Pt, poly: Pt[]): boolean {
 export function clubCarry(player: Player, club: SwingClub): number {
   const a = player.attributes;
   if (club === "driver") return Math.round(255 + YARDS_PER_POINT * (a.drivingDistance - TOUR_AVERAGE));
+  if (club === "putter") return 10;
   if (club === "iron") return Math.round(165 + YARDS_PER_POINT * ((a.longIrons + a.midIrons) / 2 - TOUR_AVERAGE));
   return Math.round(95 + YARDS_PER_POINT * (a.wedges - TOUR_AVERAGE));
 }
@@ -155,7 +156,8 @@ export function playPracticeShot(state: PracticeHole, player: Player, shot: Prac
   if (onGreen) {
     // A putt travels about (power - 10) / 0.75 feet-per-point of the meter; holed when the power and timing are both right.
     const ideal = puttPower(toPin);
-    const holed = Math.abs(shot.timingMs) <= PUTT_WINDOW_MS && Math.abs(shot.power - ideal) <= 3;
+    // Only a putt aimed at the hole can drop; a putt to a spot on the green just rolls there.
+    const holed = dist(pin, layout.pin) < 1 && Math.abs(shot.timingMs) <= PUTT_WINDOW_MS && Math.abs(shot.power - ideal) <= 3;
     const travel = Math.max(0, (shot.power - 10) / 0.75 / 3) + (Math.abs(shot.timingMs) > PUTT_WINDOW_MS ? 0.5 : 0);
     const left = holed ? 0 : Math.max(0, toPin - travel);
     const scale = toPin > 0 ? left / toPin : 0;
