@@ -133,6 +133,11 @@ export function startPracticeHole(course: Course, hole: Hole, round = 0): Practi
   return { layout, par: hole.par, ball: layout.tee, lie: "tee", strokes: [], score: 0, holed: false };
 }
 
+/** The meter power that putts a ball this many yards to the hole (shared by the meter and the holing rule). */
+export function puttPower(yards: number): number {
+  return Math.min(110, 10 + yards * 3 * 0.75);
+}
+
 /**
  * Plays one stroke with this swing. Returns the new state. A ball into water is
  * dropped back where it was struck from, with a penalty stroke.
@@ -149,7 +154,7 @@ export function playPracticeShot(state: PracticeHole, player: Player, shot: Prac
   // Putting: holed when the timing is inside the putt window and the power is near the distance to the hole.
   if (onGreen) {
     // A putt travels about (power - 10) / 0.75 feet-per-point of the meter; holed when the power and timing are both right.
-    const ideal = Math.min(110, 10 + toPin * 3 * 0.75);
+    const ideal = puttPower(toPin);
     const holed = Math.abs(shot.timingMs) <= PUTT_WINDOW_MS && Math.abs(shot.power - ideal) <= 3;
     const travel = Math.max(0, (shot.power - 10) / 0.75 / 3) + (Math.abs(shot.timingMs) > PUTT_WINDOW_MS ? 0.5 : 0);
     const left = holed ? 0 : Math.max(0, toPin - travel);

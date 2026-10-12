@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createRng, REAL_COURSES, generatePlayer } from "../../engine";
-import { clubCarry, playPracticeShot, startPracticeHole, type PracticeHole, type PracticeStroke } from "../../engine/practiceHole";
+import { clubCarry, playPracticeShot, puttPower, startPracticeHole, type PracticeHole, type PracticeStroke } from "../../engine/practiceHole";
 import { meterFactor, sweetSpotMs, type SwingClub, type SwingLie, type SwingShot } from "../../engine/swing";
 import { illustratedArtFor, pictureLieAt, projectArtPoint, type ArtMatrix } from "../illustratedArt";
 import { pointAt, projectAlong, type HoleLayout } from "../../engine/tracer";
@@ -212,6 +212,15 @@ export function PracticeHolePreview() {
   const art = illustratedArtFor("waialae", 1)!;
   // Bunkers and water are taken from the painting, so a ball lies where the picture shows sand or water.
   const pictureAt = (p: Pt) => pictureLieAt(art, p);
+  // On the green the picture blows up to a close-up: a crop of the same painting around the putting surface, with the same yards.
+  const cropW = 420;
+  const cropH = 280;
+  const greenAt = projectArtPoint(art.matrix, state.layout.green);
+  const x0 = Math.max(0, Math.min(art.width - cropW, greenAt.x - cropW / 2));
+  const y0 = Math.max(0, Math.min(art.height - cropH, greenAt.y - cropH / 2));
+  const view: { image: string; width: number; height: number; matrix: ArtMatrix } = state.lie === "green"
+    ? { image: art.image, width: cropW, height: cropH, matrix: { x: [art.matrix.x[0], art.matrix.x[1], art.matrix.x[2] - x0], y: [art.matrix.y[0], art.matrix.y[1], art.matrix.y[2] - y0] } }
+    : { image: art.image, width: art.width, height: art.height, matrix: art.matrix };
   const base = import.meta.env.BASE_URL;
   const lie = (LIE_LABEL[state.lie] ? state.lie : "fairway") as string;
   const swingLie = SWING_LIE[lie] ?? "fairway";
@@ -221,25 +230,25 @@ export function PracticeHolePreview() {
   // Where he's aiming: the marker, or the pin until he moves it.
   const aimAt: Pt = target ?? state.layout.pin;
   const toTarget = Math.hypot(aimAt.x - state.ball.x, aimAt.y - state.ball.y);
-  const power = Math.min(110, Math.round((toTarget / carry) * 100));
+  const power = state.lie === "green" ? Math.round(puttPower(toTarget)) : Math.min(110, Math.round((toTarget / carry) * 100));
   const [swinging, setSwinging] = useState(false);
   const flying = progress < 1;
   // At the start of each shot, and when the club changes, the target goes to the club's usual carry on the fairway.
   useEffect(() => {
-    setTarget(fairwayTarget(state.layout, state.ball, clubCarry(player, playClub)));
+    setTarget(state.lie === "green" ? state.layout.pin : fairwayTarget(state.layout, state.ball, clubCarry(player, playClub)));
   }, [playClub, state.strokes.length, turn]);
   // The target and its yardage show only between shots: not during a swing, not in flight.
   const showTarget = !flying && !swinging && !state.holed;
 
-  const dot = (p: Pt) => projectArtPoint(art.matrix, p);
+  const dot = (p: Pt) => projectArtPoint(view.matrix, p);
 
   // Dragging the target: the pointer on the picture, converted to yards and kept on the hole's map.
   const dragTo = (clientX: number, clientY: number) => {
     const rect = picture.current?.getBoundingClientRect();
     if (!rect) return;
-    const px = ((clientX - rect.left) / rect.width) * art.width;
-    const py = ((clientY - rect.top) / rect.height) * art.height;
-    const yards = unprojectArtPoint(art.matrix, px, py);
+    const px = ((clientX - rect.left) / rect.width) * view.width;
+    const py = ((clientY - rect.top) / rect.height) * view.height;
+    const yards = unprojectArtPoint(view.matrix, px, py);
     const b = state.layout.bounds;
     setTarget({ x: Math.max(b.minX, Math.min(b.maxX, yards.x)), y: Math.max(b.minY, Math.min(b.maxY, yards.y)) });
   };
@@ -288,22 +297,22 @@ export function PracticeHolePreview() {
           <a className="btn btn-small" href={window.location.pathname}>Return to game</a>
         </div>
         <div style={{ display: "flex", gap: 16, alignItems: "flex-start", flexWrap: "wrap" }}>
-        <div className="practice-picture" ref={picture} style={{ position: "relative", touchAction: "none", flex: "3 1 380px", minWidth: 0 }}>
-          <img src={`${base}${art.image}`} alt={`${course.name}, hole 1`} style={{ width: "100%", display: "block" }} />
-          <svg viewBox={`0 0 ${art.width} ${art.height}`} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} aria-hidden>
+        <div className="practice-picture" ref={picture} style={{ position: "relative", touchAction: "none", flex: "3 1 380px", minWidth: 0, ...(state.lie === "green" ? { aspectRatio: `${cropW} / ${cropH}`, overflow: "hidden" } : {}) }}>
+          <img src={`${base}${view.image}`} alt={`${course.name}, hole 1`} style={state.lie === "green" ? { position: "absolute", width: `${(art.width / cropW) * 100}%`, maxWidth: "none", left: `${(-x0 / cropW) * 100}%`, top: `${(-y0 / cropH) * 100}%` } : { width: "100%", display: "block" }} />
+          <svg viewBox={`0 0 ${view.width} ${view.height}`} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} aria-hidden>
           </svg>
           {showTarget && state.lie !== "green" && (
-            <div style={{ position: "absolute", left: `${(((ballPx.x + marker.x) / 2) / art.width) * 100}%`, top: `${(((ballPx.y + marker.y) / 2) / art.height) * 100}%`, transform: "translate(-50%, -50%)", padding: "4px 10px", borderRadius: 6, background: "rgba(10, 20, 15, 0.8)", color: "#ffd60a", fontSize: 16, fontWeight: 700, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap", pointerEvents: "none" }}>
+            <div style={{ position: "absolute", left: `${(((ballPx.x + marker.x) / 2) / view.width) * 100}%`, top: `${(((ballPx.y + marker.y) / 2) / view.height) * 100}%`, transform: "translate(-50%, -50%)", padding: "4px 10px", borderRadius: 6, background: "rgba(10, 20, 15, 0.8)", color: "#ffd60a", fontSize: 16, fontWeight: 700, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap", pointerEvents: "none" }}>
               {Math.round(toTarget)} yds
             </div>
           )}
-          <ShotLines strokes={history} progress={progress} dot={dot} ball={ballPx} width={art.width} height={art.height} />
+          <ShotLines strokes={history} progress={progress} dot={dot} ball={ballPx} width={view.width} height={view.height} />
           {showTarget && (
             <div
               role="slider"
               aria-label="Landing target: drag to move"
               onPointerDown={startDrag}
-              style={{ position: "absolute", left: `${(marker.x / art.width) * 100}%`, top: `${(marker.y / art.height) * 100}%`, width: 34, height: 34, marginLeft: -17, marginTop: -17, borderRadius: "50%", border: "3px solid #ffd60a", background: "rgba(255, 214, 10, 0.25)", boxShadow: "0 0 0 2px rgba(0,0,0,0.5)", cursor: "grab", touchAction: "none" }}
+              style={{ position: "absolute", left: `${(marker.x / view.width) * 100}%`, top: `${(marker.y / view.height) * 100}%`, width: 34, height: 34, marginLeft: -17, marginTop: -17, borderRadius: "50%", border: "3px solid #ffd60a", background: "rgba(255, 214, 10, 0.25)", boxShadow: "0 0 0 2px rgba(0,0,0,0.5)", cursor: "grab", touchAction: "none" }}
             />
           )}
           <YardsBox strokes={history} progress={progress} />
