@@ -34,7 +34,7 @@ export function AchievementsScreen({ world }: { world: World }) {
               return (
                 <div key={a.id} className={`achievement achievement-${g.toLowerCase()}${when ? " unlocked" : ""}`}>
                   <div className="achievement-medal" aria-hidden>
-                    <img src={`/art/achievements/${BADGES[a.id] ?? "trophy"}.png`} alt="" />
+                    <img src={`art/achievements/${BADGES[a.id] ?? "trophy"}.png`} alt="" />
                   </div>
                   <div className="achievement-copy">
                     <strong>{a.title}</strong>

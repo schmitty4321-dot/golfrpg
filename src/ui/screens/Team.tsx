@@ -108,7 +108,7 @@ export function Team({ world, game, clientId }: { world: World; game: Game; clie
                     const have = e.price === 0 || owned.has(e.id);
                     return (
                       <button key={e.id} className="choice gear-card" role="radio" aria-checked={inBag} onClick={() => !inBag && act((w) => game.lib.equip(w, clientId, e.id))}>
-                        <img className="club-art" src={`/art/clubs/${gearSlot}.webp`} alt="" />
+                        <img className="club-art" src={`art/clubs/${gearSlot}.webp`} alt="" />
                         <strong>{e.name}</strong>
                         <span className="secondary small">{e.blurb}</span>
                         <span className="small">{effects(e)}</span>
@@ -130,7 +130,7 @@ export function Team({ world, game, clientId }: { world: World; game: Game; clie
             const t = TRAVEL_CLASSES[k];
             return (
               <button key={k} className="choice" role="radio" aria-checked={(m.travelClass ?? "economy") === k} disabled={!!world.agency.jet} onClick={() => act((w) => game.lib.setTravelClass(w, clientId, k))}>
-                <img className="option-art" src={`/art/travel/${k}.webp`} alt="" />
+                <img className="option-art" src={`art/travel/${k}.webp`} alt="" />
                 <strong>{t.label}</strong>
                 <span className="secondary small">{t.blurb}</span>
                 <span className="small">Cost ×{t.cost} · travel tiredness ×{t.fatigue} · travel days {t.days[0]} (same region) / {t.days[1]} (another)</span>

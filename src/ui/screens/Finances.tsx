@@ -44,7 +44,7 @@ export function Finances({ world, game }: { world: World; game: Game }) {
 
       {page === "overview" ? <>
       <section className="finance-hero finance-overview-hero">
-        <img src="/art/finance/finance-overview.png" alt="Illustrated agency finance desk overlooking a golf course" />
+        <img src="art/finance/finance-overview.png" alt="Illustrated agency finance desk overlooking a golf course" />
         <div className="finance-hero-shade" />
         <div className="finance-hero-title"><span>FINANCIAL OVERVIEW</span><h1>Run the agency by the numbers</h1><p>Track the season, protect the bank and plan the next investment.</p></div>
       </section>
@@ -299,7 +299,7 @@ function CreditPanel({ world, game }: { world: World; game: Game }) {
     <section className="panel credit-bank-panel">
       <div className="panel-head"><h2>Bank &amp; credit line</h2><span className="muted small">Flexible capital for opportunities and expenses</span></div>
       <div className="credit-bank-body">
-        <img src="/art/finance/contracts-credit.png" alt="Illustrated golf agency bank vault" />
+        <img src="art/finance/contracts-credit.png" alt="Illustrated golf agency bank vault" />
         <div className="credit-bank-controls">
           <div className="credit-facts"><div><small>Credit limit</small><strong>{money(limit)}</strong></div><div><small>Amount owed</small><strong className={owed ? "bad-text" : ""}>{money(owed)}</strong></div><div><small>Annual rate</small><strong>{Math.round(CREDIT_RATE * 100)}%</strong></div></div>
           <div className="loan-card-grid">{amounts.map((a, i) => <article className="loan-card" key={a}><span className={`cash-stack cash-stack-${i + 1}`}>▰</span><small>Borrow</small><strong>{money(a)}</strong><button className="btn btn-small" disabled={owed + a > limit} onClick={() => game.act((w) => borrow(w, a))}>Take funds</button></article>)}</div>

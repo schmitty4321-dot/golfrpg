@@ -170,7 +170,7 @@ export function RecruitingDesk({ world, game, watchList = false }: { world: Worl
   return (
     <section className="panel recruiting-desk-panel">
       {!watchList && <header className="recruiting-masthead">
-        <img src="/art/week-decisions/options/recruit-amateurs-b.png" alt="A golfer being evaluated on the practice range" />
+        <img src="art/week-decisions/options/recruit-amateurs-b.png" alt="A golfer being evaluated on the practice range" />
         <div className="recruiting-masthead-shade" />
         <div className="recruiting-masthead-copy">
           <span>RECRUITING COMMAND CENTER</span>

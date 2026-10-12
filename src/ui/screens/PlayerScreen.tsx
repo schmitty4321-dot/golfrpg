@@ -5,7 +5,7 @@ import { Portrait } from "../components/Portrait";
 import { PlayerName } from "../components/PlayerLink";
 import { formWord, money } from "../format";
 
-const COURSE_ART = ["/art/scenes/approach.webp", "/art/scenes/longGame.webp", "/art/scenes/shortGame.webp", "/art/facilities/center-1.webp", "/art/facilities/center-2.webp", "/art/facilities/center-3.webp"];
+const COURSE_ART = ["art/scenes/approach.webp", "art/scenes/longGame.webp", "art/scenes/shortGame.webp", "art/facilities/center-1.webp", "art/facilities/center-2.webp", "art/facilities/center-3.webp"];
 
 export function PlayerScreen({ world, clientId }: { world: World; clientId: string }) {
   const wp = world.players[clientId]!;
@@ -32,7 +32,7 @@ export function PlayerScreen({ world, clientId }: { world: World; clientId: stri
 
   return <main className="player-command-page"><div className="player-command-content">
       <section className="player-command-hero" id="command-overview">
-        <img src="/art/player-command/hero.png" alt="Illustrated coastal golf course and clubhouse" /><div className="player-command-hero-shade" />
+        <img src="art/player-command/hero.png" alt="Illustrated coastal golf course and clubhouse" /><div className="player-command-hero-shade" />
         <div className="player-command-title"><span>PLAYER COMMAND CENTER</span><h1>{p.name}</h1><p>{p.age} · {nationInfo(p.nationality).name} · {STATUS_LABELS[c.status]}</p>{p.archetype && <ArchetypePill id={p.archetype} tier={masteryTier(wp, ARCHETYPE_KEY)} />}</div>
         <div className="command-vitals">
           <CommandVital label="World" value={`#${rank}`} note={pointsRank ? `Points list #${pointsRank}` : "Not yet ranked"} /><CommandVital label="Form" value={formWord(p.form)} note={recent.length ? `${madeCuts}/${season.length} cuts made` : "Season begins here"} /><CommandVital label="Mood" value={mood >= 75 ? "Happy" : mood >= 55 ? "Content" : "Concerned"} note={`${mood}/100`} /><CommandVital label="Trust" value={trust >= 75 ? "High" : trust >= 45 ? "Steady" : "Fragile"} note={`${trust}/100`} /><CommandVital label="Condition" value={`${Math.round(p.condition)}%`} note={wp.injury ? wp.injury.name : p.condition >= 80 ? "Fit to compete" : "Manage workload"} /><CommandVital label="Contract" value={`${Math.max(0, management.contract.untilSeason - world.season + 1)} seasons`} note={`${Math.round(management.contract.commission * 100)}% commission`} />

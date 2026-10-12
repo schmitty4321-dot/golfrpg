@@ -67,7 +67,7 @@ export function Scouting({ world, game }: { world: World; game: Game }) {
 
         <section className="panel scouting-expedition-panel">
           <div className="panel-head"><h2>Scouting expedition</h2><span className="muted small">{(a.trips ?? []).length ? `${(a.trips ?? []).length} active` : "No scout travelling"}</span></div>
-          <div className="expedition-map"><img src="/art/scouting/expedition-map.png" alt="Illustrated world scouting map with travel gear" /><span className="expedition-route">✈</span></div>
+          <div className="expedition-map"><img src="art/scouting/expedition-map.png" alt="Illustrated world scouting map with travel gear" /><span className="expedition-route">✈</span></div>
           {(a.trips ?? []).length > 0 ? <div className="expedition-list">{(a.trips ?? []).map((t) => <div key={t.id}><strong>{a.scouts.find((s) => s.id === t.scoutId)?.name}</strong><span>{t.weeksLeft} week{t.weeksLeft === 1 ? "" : "s"} remaining</span><i><b style={{ width: `${Math.max(8, ((t.weeks - t.weeksLeft) / t.weeks) * 100)}%` }} /></i></div>)}</div> : <p className="empty">Hire a scout and choose a region to begin an expedition.</p>}
         </section>
       </div>

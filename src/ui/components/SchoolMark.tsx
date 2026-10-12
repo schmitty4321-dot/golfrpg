@@ -4,7 +4,7 @@ const slug = (name: string) => name.toLowerCase().replaceAll("&", "and").replace
 
 /** The locally stored team mark for every college program used by the game. */
 export function schoolLogoPath(name: string): string {
-  return `/school-logos/${slug(name)}.${name === "Augusta" ? "svg" : "png"}`;
+  return `school-logos/${slug(name)}.${name === "Augusta" ? "svg" : "png"}`;
 }
 
 /** A compact school identity. The visible table cell is logo-only; its full label remains accessible. */
@@ -17,7 +17,7 @@ export function SchoolMark({ world, player, size = 30 }: { world: World; player:
   }
   // An international player with no US school: the world globe.
   if (school.kind === "national") {
-    return <img className="school-mark" src="/school-logos/international.png" width={size} height={size} alt={label} title={label} loading="lazy" />;
+    return <img className="school-mark" src="school-logos/international.png" width={size} height={size} alt={label} title={label} loading="lazy" />;
   }
   return (
     <span className="school-mark school-mark-generic" style={{ width: size, height: size }} aria-label={label} title={label}>

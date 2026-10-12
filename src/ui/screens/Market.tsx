@@ -65,7 +65,7 @@ export function RecruitmentBoard({ world, game }: { world: World; game: Game }) 
   return (
     <main className="recruitment-war-room">
       <section className="recruitment-board-hero">
-        <img src="/art/recruitment/scouting-war-room.png" alt="Rangefinder, player dossiers and a world scouting map in the agency war room" />
+        <img src="art/recruitment/scouting-war-room.png" alt="Rangefinder, player dossiers and a world scouting map in the agency war room" />
         <div className="recruitment-board-hero-copy">
           <span>Talent intelligence</span>
           <h1>Scouting War Room</h1>
@@ -240,7 +240,7 @@ export function Trophies({ world }: { world: World }) {
   return (
     <main className="trophies-page">
       <section className="trophy-room-hero">
-        <img src="/art/trophies/legacy-room.png" alt="Illustrated agency trophy room and hall of fame" />
+        <img src="art/trophies/legacy-room.png" alt="Illustrated agency trophy room and hall of fame" />
         <div className="trophy-room-shade" />
         <div className="trophy-room-copy"><span>AGENCY LEGACY</span><h1>A history still being written</h1><p>Every victory, champion and era earns a permanent place in the room.</p></div>
         <div className="legacy-score-seal"><small>LEGACY SCORE</small><strong>{legacyScore(world)}</strong><span>{list.length ? `${list.length} honours collected` : "The first chapter awaits"}</span></div>

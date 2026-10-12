@@ -131,13 +131,13 @@ const portraitNumber = (player: PortraitPlayer, fixed?: number): number => fixed
 export function Portrait({ player, size = 72, className, title, index: fixed }: { player: PortraitPlayer; size?: number; className?: string; title?: string; index?: number }) {
   // A fixed picture (a rival head agent) or the player's own number.
   const index = portraitNumber(player, fixed);
-  return <img className={`portrait ${className ?? ""}`} src={`/people/person-${String(index).padStart(3, "0")}.webp`} width={size} height={size} alt={title ?? "Illustrated player portrait"} loading="lazy" />;
+  return <img className={`portrait ${className ?? ""}`} src={`people/person-${String(index).padStart(3, "0")}.webp`} width={size} height={size} alt={title ?? "Illustrated player portrait"} loading="lazy" />;
 }
 
 /** The player's picture cut out from its background (same number), for mastheads: head and shoulders standing over the scene. */
 export function CutoutPortrait({ player, height = 180, title }: { player: PortraitPlayer; height?: number; title?: string }) {
   const index = portraitNumber(player);
-  return <img className="cutout-portrait" src={`/people-cutouts/person-${String(index).padStart(3, "0")}.webp`} height={height} alt={title ?? "Illustrated player portrait"} loading="lazy" />;
+  return <img className="cutout-portrait" src={`people-cutouts/person-${String(index).padStart(3, "0")}.webp`} height={height} alt={title ?? "Illustrated player portrait"} loading="lazy" />;
 }
 
 /** A portrait tile with the player's flag and country code underneath, as on a player card. */

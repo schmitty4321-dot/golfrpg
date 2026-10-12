@@ -28,7 +28,7 @@ export function NewGame({ game }: { game: Game }) {
             on one is a dollar you can't spend on the others.
           </p>
         </div>
-        <img src="/art/new-game/career-hero.webp" alt="An agent planning the careers of three male golfers" />
+        <img src="art/new-game/career-hero.webp" alt="An agent planning the careers of three male golfers" />
       </div>
       <section className="panel">
         <div className="panel-head"><h2>Your agency</h2></div>

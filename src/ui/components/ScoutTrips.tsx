@@ -5,11 +5,11 @@ import { money } from "../format";
 
 const REGIONS = Object.keys(SCOUT_REGIONS) as ScoutRegion[];
 const REGION_ART: Record<ScoutRegion, string> = {
-  NA: "/art/scouting/north-america.png",
-  EU: "/art/scouting/europe.png",
-  ASIA: "/art/scouting/asia.png",
-  AUS: "/art/scouting/australia.png",
-  ROW: "/art/scouting/world.png",
+  NA: "art/scouting/north-america.png",
+  EU: "art/scouting/europe.png",
+  ASIA: "art/scouting/asia.png",
+  AUS: "art/scouting/australia.png",
+  ROW: "art/scouting/world.png",
 };
 
 /** Send scouts abroad: pick a region on the board, a scout and how long; follow the trips under way. */

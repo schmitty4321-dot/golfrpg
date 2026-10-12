@@ -9,7 +9,7 @@ function hash(text: string): number {
 /** Deterministic illustrated staff portrait: every market candidate keeps the same face in every save. */
 export function StaffPortrait({ id, name, size = 88 }: { id: string; name: string; role: StaffRole; size?: number }) {
   const index = 101 + (hash(`${id}:${name}`) % 50);
-  return <img className="staff-portrait" src={`/people/person-${String(index).padStart(3, "0")}.webp`} width={size} height={size} alt={`Illustrated portrait of ${name}`} loading="lazy" />;
+  return <img className="staff-portrait" src={`people/person-${String(index).padStart(3, "0")}.webp`} width={size} height={size} alt={`Illustrated portrait of ${name}`} loading="lazy" />;
 }
 
 export function StaffRoleIcon({ role }: { role: StaffRole }) {

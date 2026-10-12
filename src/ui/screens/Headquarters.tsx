@@ -167,13 +167,13 @@ function SkillMedals({ world, staffer, loyalty = false }: { world: World; staffe
     <ul className="skill-medals">
       {skills.map((k) => (
         <li key={k} title={`${STAFF_SKILLS[k]!.label}: ${STAFF_SKILLS[k]!.blurb}`}>
-          <img src={`/art/staff-skills/${k}.webp`} alt="" />
+          <img src={`art/staff-skills/${k}.webp`} alt="" />
           <span>{STAFF_SKILLS[k]!.label}</span>
         </li>
       ))}
       {next && (
         <li className="skill-locked" title={`After ${LOYAL_SEASONS} seasons with you: ${STAFF_SKILLS[next]!.label}. ${STAFF_SKILLS[next]!.blurb}`}>
-          <img src={`/art/staff-skills/${next}.webp`} alt="" />
+          <img src={`art/staff-skills/${next}.webp`} alt="" />
           <span>{STAFF_SKILLS[next]!.label} · after {LOYAL_SEASONS} seasons</span>
         </li>
       )}
@@ -355,7 +355,7 @@ function BrandCard({ world, deal, active = false, onSign, onDecline, block }: { 
     g.met ? 100 : g.unit === "rank" ? (g.now ? Math.round(Math.min(1, g.target / g.now) * 100) : 0) : Math.max(0, Math.min(100, Math.round((g.now / g.target) * 100)));
   return (
     <article className={`brand-deal-card${active ? " active" : ""}`}>
-      <img className="brand-campaign-art" src={BRAND_ART[deal.brand] ? `${import.meta.env.BASE_URL}${BRAND_ART[deal.brand]!.banner}` : `/art/sponsors/${deal.category}.webp`} alt="" />
+      <img className="brand-campaign-art" src={BRAND_ART[deal.brand] ? `${import.meta.env.BASE_URL}${BRAND_ART[deal.brand]!.banner}` : `art/sponsors/${deal.category}.webp`} alt="" />
       <BrandMark name={deal.brand} category={deal.category} />
       <div className="brand-deal-name"><strong>{deal.brand}</strong><span>{deal.category}</span></div>
       <div className="brand-deal-terms">{deal.goals ? <span><b>{money(guaranteed(deal))}</b><small>guaranteed · up to {money(maxPayout(deal))}</small></span> : <span><b>{money(deal.annual)}</b><small>per season</small></span>}<span><b>+{Math.round(deal.lift * 100)}%</b><small>client offers</small></span><span><b>S{deal.untilSeason}</b><small>{active ? "contract ends" : "term"}</small></span></div>
@@ -363,7 +363,7 @@ function BrandCard({ world, deal, active = false, onSign, onDecline, block }: { 
         <ul className="brand-goals">
           {(progress ?? deal.goals.map((g) => ({ ...g, now: 0, met: false, unit: "count" }))).map((g) => (
             <li key={g.id} className={g.met ? "met" : undefined}>
-              <img className="brand-goal-icon" src={`/art/goals/${GOAL_ICON[g.id] ?? g.id}.webp`} alt="" />
+              <img className="brand-goal-icon" src={`art/goals/${GOAL_ICON[g.id] ?? g.id}.webp`} alt="" />
               <span className="brand-goal-label">{g.met ? "✓ " : ""}{g.label}</span>
               <span className="brand-goal-pay">{money(g.share * deal.annual)}</span>
               {progress && <span className="meter"><span style={{ width: `${share(g)}%` }} /></span>}
@@ -400,7 +400,7 @@ function EventsPanel({ world, game }: { world: World; game: Game }) {
           const block = eventBlock(world, k);
           return (
             <button type="button" className="agency-event-card" key={k} disabled={!!block} onClick={() => game.act((w) => { const net = holdEvent(w, k); setMessage(`${e.label}: ${net >= 0 ? "made" : "lost"} ${money(Math.abs(net))}.`); })}>
-              <img src={`/art/scenes/${k === "proAm" ? "pro-am" : k}.webp`} alt="" />
+              <img src={`art/scenes/${k === "proAm" ? "pro-am" : k}.webp`} alt="" />
               <div className="event-card-copy">
                 <strong>{e.label}</strong>
                 <span className="secondary small">{e.blurb}</span>

@@ -118,15 +118,15 @@ export function Home({ world, game, go, week }: { world: World; game: Game; go: 
 }
 
 const VENUE_BANNERS: Record<string, string> = {
-  waialae: "/art/week-venues/waialae.png",
-  "pga-west-stadium": "/art/week-venues/pga-west-stadium.png",
-  "torrey-pines-south": "/art/week-venues/torrey-pines-south.png",
-  "tpc-scottsdale": "/art/week-venues/tpc-scottsdale.png",
-  "pebble-beach": "/art/week-venues/pebble-beach.png",
-  "bay-hill": "/art/week-venues/bay-hill.webp",
-  "pga-national-champion": "/art/week-venues/pga-national-champion.webp",
-  riviera: "/art/week-venues/riviera.webp",
-  "augusta-national": "/art/week-venues/augusta-national.webp",
+  waialae: "art/week-venues/waialae.png",
+  "pga-west-stadium": "art/week-venues/pga-west-stadium.png",
+  "torrey-pines-south": "art/week-venues/torrey-pines-south.png",
+  "tpc-scottsdale": "art/week-venues/tpc-scottsdale.png",
+  "pebble-beach": "art/week-venues/pebble-beach.png",
+  "bay-hill": "art/week-venues/bay-hill.webp",
+  "pga-national-champion": "art/week-venues/pga-national-champion.webp",
+  riviera: "art/week-venues/riviera.webp",
+  "augusta-national": "art/week-venues/augusta-national.webp",
 };
 
 const DECISION_ART = {
@@ -138,7 +138,7 @@ const DECISION_ART = {
   condition: ["player-condition-a.png", "player-condition-b.png", "player-condition-c.png"],
   staff: ["open-staff-a.png", "open-staff-b.png", "open-staff-c.png"],
 } as const;
-const decisionArtUrl = (file: string) => `/art/week-decisions/options/${file}`;
+const decisionArtUrl = (file: string) => `art/week-decisions/options/${file}`;
 
 function MastheadFact({ kind, label, value, note }: { kind: "purse" | "weather" | "course"; label: string; value: string; note?: string }) {
   const icon = kind === "purse"
@@ -185,7 +185,7 @@ function WeekCommandCenter({ world, game, go, week }: { world: World; game: Game
   ] as const;
   return <section className="week-command-center">
     <div className="week-event-masthead">
-      <img src={VENUE_BANNERS[main.courseId] ?? "/art/player-command/hero.png"} alt={`Illustrated view of ${course.name}`} />
+      <img src={VENUE_BANNERS[main.courseId] ?? "art/player-command/hero.png"} alt={`Illustrated view of ${course.name}`} />
       <div className="week-event-shade" />
       <div className="week-event-copy"><span>Week {world.week} of {weeks} · {TIER_LABELS[main.tier]}</span><h1>{main.name}</h1><p>{course.name}{course.info ? ` · ${course.info.city}` : ""}</p></div>
       <div className="week-event-facts"><MastheadFact kind="purse" label="Purse" value={money(main.purse)} /><MastheadFact kind="weather" label="Weather" value={weather} /><MastheadFact kind="course" label="Course" value={course.name} note={`Par ${coursePar(course)} · ${courseYards(course).toLocaleString("en-US")} yds`} /></div>

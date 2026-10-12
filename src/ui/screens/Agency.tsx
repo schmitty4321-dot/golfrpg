@@ -38,7 +38,7 @@ export function Agency({ world, game }: { world: World; game: Game }) {
   return (
     <main className="roster-command-center">
       <section className="roster-masthead">
-        <img className="roster-masthead-bg" src="/art/facilities/hq-3.webp" alt="Fairway Manager agency headquarters" />
+        <img className="roster-masthead-bg" src="art/facilities/hq-3.webp" alt="Fairway Manager agency headquarters" />
         <div className="roster-masthead-shade" />
         <div className="roster-masthead-copy">
           <span>ROSTER COMMAND CENTER</span>
@@ -212,7 +212,7 @@ export function SponsorshipOffers({ world, game }: { world: World; game: Game })
               const weeksLeft = o.expiresAbsWeek - (world.season * 52 + world.week);
               return (
                 <article className="sponsor-card sponsor-offer" key={o.id}>
-                  <img className="sponsor-banner" src={art ? `${import.meta.env.BASE_URL}${art.banner}` : `/art/sponsors/${o.category}.webp`} alt={art ? `${o.sponsor}: ${art.tagline}` : ""} />
+                  <img className="sponsor-banner" src={art ? `${import.meta.env.BASE_URL}${art.banner}` : `art/sponsors/${o.category}.webp`} alt={art ? `${o.sponsor}: ${art.tagline}` : ""} />
                   <div className="sponsor-card-body">
                     <Portrait player={wp.player} size={64} />
                     <div className="sponsor-card-who">
@@ -273,7 +273,7 @@ export function CurrentSponsorships({ world }: { world: World }) {
             const wins = (wp.career.stats?.season === world.season ? wp.career.stats.wins : 0);
             return (
               <article className="sponsor-card" key={s.id}>
-                {art ? <img className="sponsor-banner" src={`${import.meta.env.BASE_URL}${art.banner}`} alt={`${s.sponsor}: ${art.tagline}`} /> : <img className="sponsor-banner" src={`/art/sponsors/${s.category}.webp`} alt="" />}
+                {art ? <img className="sponsor-banner" src={`${import.meta.env.BASE_URL}${art.banner}`} alt={`${s.sponsor}: ${art.tagline}`} /> : <img className="sponsor-banner" src={`art/sponsors/${s.category}.webp`} alt="" />}
                 <div className="sponsor-card-body">
                   <Portrait player={wp.player} size={64} />
                   <div className="sponsor-card-who">

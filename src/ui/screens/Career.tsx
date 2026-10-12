@@ -28,7 +28,7 @@ export function Career({ world, game }: { world: World; game: Game }) {
 
   return (
     <main className="career-save-page">
-      <section className="career-save-hero"><img src="/art/new-game/career-hero.webp" alt="Illustrated golf agency office" /><div><span>GAME MANAGEMENT</span><h1>Your agency, safely filed</h1><p>Back up a career, move it to another computer, or begin a new story.</p></div></section>
+      <section className="career-save-hero"><img src="art/new-game/career-hero.webp" alt="Illustrated golf agency office" /><div><span>GAME MANAGEMENT</span><h1>Your agency, safely filed</h1><p>Back up a career, move it to another computer, or begin a new story.</p></div></section>
       <section className="panel save-management">
         <div className="panel-head"><h2>Game management</h2><span className="save-status">✓ Saved locally</span></div>
         <p style={{ marginTop: 0 }}>
