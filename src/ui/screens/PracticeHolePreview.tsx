@@ -94,7 +94,7 @@ function BroadcastSwing({ lie, club, shot, targetPower, onStrike, onSwingStart, 
   useEffect(() => { swing()?.golfSwing?.configure({ club }); }, [ready, club]);
   useEffect(() => { swing()?.golfSwing?.configure({ target: Math.max(10, Math.min(110, targetPower)), aim: 0 }); }, [ready, targetPower]);
 
-  return <iframe ref={frame} src={`${import.meta.env.BASE_URL}swing/broadcast-swing.html`} title="Three-click swing" onLoad={() => setReady(true)} style={{ width: "100%", height: 400, border: 0 }} />;
+  return <iframe ref={frame} src={`${import.meta.env.BASE_URL}swing/broadcast-swing.html`} title="Three-click swing" onLoad={() => setReady(true)} style={{ width: "100%", height: 306, border: 0 }} />;
 }
 
 /** How high a shot climbs at its peak, in picture pixels: longer shots go higher. */

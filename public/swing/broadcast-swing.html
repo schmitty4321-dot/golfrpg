@@ -2,17 +2,17 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Broadcast three-click swing</title></head><body style="margin:0;padding:24px;background:#111713">
 <div id="golf-bar">
 <style>
-#golf-bar{--foreground:#f4f5ef;--muted:#303631;--border:#626a60;--viz-series-1:#20dedc;--orange:#e7b76a;font:14px/1.45 system-ui,sans-serif;color:var(--foreground);max-width:1100px;margin:auto;display:grid;gap:14px}
+#golf-bar{--foreground:#f4f5ef;--muted:#303631;--border:#626a60;--viz-series-1:#20dedc;--orange:#e7b76a;font:14px/1.45 system-ui,sans-serif;color:var(--foreground);max-width:1100px;margin:auto;display:grid;gap:8px}
 #golf-bar *{box-sizing:border-box}#golf-bar h3{font-size:18px;font-weight:500;margin:0}
-#golf-bar .broadcast{display:grid;grid-template-columns:170px minmax(0,1fr) 190px;gap:12px;align-items:stretch}
-#golf-bar .side,#golf-bar .center{background:linear-gradient(180deg,#22272a,#101518);border:1px solid #535b61;border-radius:22px;padding:18px}
+#golf-bar .broadcast{display:grid;grid-template-columns:170px minmax(0,1fr) 190px;gap:8px;align-items:stretch}
+#golf-bar .side,#golf-bar .center{background:linear-gradient(180deg,#22272a,#101518);border:1px solid #535b61;border-radius:22px;padding:10px 14px}
 #golf-bar .side{display:flex;flex-direction:column;justify-content:center;gap:9px}
 #golf-bar .club-name{font-size:23px;font-weight:500}#golf-bar .club-name[hidden],#golf-bar [hidden]{display:none}
 #golf-bar .side-split{padding:0;gap:0;justify-content:stretch}
 #golf-bar .side-top{flex:1;display:flex;align-items:center;padding:14px 16px}
 #golf-bar .side-bottom{flex:1;display:flex;align-items:center;padding:12px 16px;border-top:1px solid #727b6590}
 #golf-bar .club-pick{font-size:16px;padding:8px 10px}#golf-bar .sub{color:#c3cbbd;font-size:12px;text-transform:uppercase;letter-spacing:1px}
-#golf-bar #gb-track{display:block;width:100%;height:220px}#golf-bar #gb-track text{fill:var(--foreground);font:12px system-ui,sans-serif}#golf-bar .meter{height:32px;margin:18px 0 8px;position:relative;background:var(--muted);overflow:hidden;border-radius:7px}
+#golf-bar #gb-track{display:block;width:100%;height:150px}#golf-bar #gb-track text{fill:var(--foreground);font:12px system-ui,sans-serif}#golf-bar .meter{height:32px;margin:18px 0 8px;position:relative;background:var(--muted);overflow:hidden;border-radius:7px}
 #golf-bar .fill{position:absolute;inset:0 auto 0 0;background:var(--viz-series-1);opacity:.75}
 #golf-bar .zone{position:absolute;top:0;bottom:0;background:var(--viz-series-1);opacity:.5}
 #golf-bar .needle{position:absolute;top:0;bottom:0;width:3px;background:var(--foreground)}
