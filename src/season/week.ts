@@ -30,7 +30,7 @@ import { beginRebuild, endOfWeek } from "./staff";
 import { manageStaff } from "./managers";
 import { amateurWeek } from "./amateurResults";
 import { familiarityWith, recordFamiliarity } from "./familiarity";
-import { takePracticeRound, takePracticeTrip } from "./practice";
+import { courseRegion, takePracticeRound, takePracticeTrip } from "./practice";
 import { caddiePay, payJet, travelMode } from "./team";
 import { ensureGoals } from "./goals";
 import { EVENT_WEEK_ACTIVITIES, OFF_WEEK_ACTIVITIES, applyPlan, familiarityAfterPractice, fitPlan, trainingBoost, weekDays, type DayActivity } from "./planner";
@@ -68,7 +68,7 @@ export type ClientChoice =
   | { kind: "rest"; /** The week off, Monday to Sunday. */ days?: DayActivity[] }
   | { kind: "auto" }
   /** A week's practice trip to any course, instead of an event. */
-  | { kind: "practice"; courseId: string };
+  | { kind: "practice"; courseId: string; /** Played hole by hole on the course (live), instead of simmed. */ live?: boolean };
 /** Choices by client id; clients without one play "auto". */
 export type ClientChoices = Record<string, ClientChoice>;
 
@@ -231,6 +231,17 @@ export function liveEvents(world: World, choices: ClientChoices = {}): LiveEvent
     if (!clientIds.length || f.field.length < 2 || f.event.format === "matchplay") return;
     out.push({ event: f.event, field: f, clientIds, tournament: startLive(tournamentConfig(world, f, i, practising(choices)), clientIds, roundPlans(world, clientIds)) });
   });
+  // A practice trip played hole by hole: just him on the course. No field, no result; familiarity comes from the trip as usual.
+  for (const [id, c] of Object.entries(choices)) {
+    if (c.kind !== "practice" || !c.live) continue;
+    const wp = world.players[id];
+    if (!wp || !world.clientIds.includes(id) || wp.injury || wp.career.status === "amateur") continue;
+    const course = world.courses.find((x) => x.id === c.courseId);
+    if (!course) continue;
+    const event: TourEvent = { id: `practice-${c.courseId}`, name: `Practice at ${course.name}`, week: world.week, tier: "standard", courseId: c.courseId, purse: 0, fieldSize: 1, cutTop: null, region: courseRegion(world, c.courseId) };
+    const f: FieldResult = { event, field: [id], alternates: [], mondayQualifiers: [], mondayPool: [] };
+    out.push({ event, field: f, clientIds: [id], tournament: startLive(tournamentConfig(world, f, 0), id, roundPlans(world, [id])) });
+  }
   return out;
 }
 

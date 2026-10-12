@@ -315,6 +315,9 @@ function ClientWeek({ world, game, id, choice, onChoose }: { world: World; game:
           <span>
             Familiarity {Math.round(familiarityWith(wp, choice.courseId))} → {Math.round(afterPracticeTrip(wp, choice.courseId))} · −{PRACTICE_TRIP_FATIGUE}% condition against a week's rest · {money(practiceTripCost(world, choice.courseId))}
           </span>
+          <label>
+            <input type="checkbox" checked={!!choice.live} onChange={(e) => onChoose({ ...choice, live: e.target.checked })} /> Play it hole by hole
+          </label>
         </div>
       )}
     </article>
