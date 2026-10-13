@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { eventsInWeek, seasonWeeks, type World } from "../../season";
+import { APP_VERSION } from "../appVersion";
 import { millions } from "../format";
 import { SECTIONS, sectionOf, type SectionId, type Tab } from "../nav";
 
@@ -98,7 +99,7 @@ export function AppRail({ tab, open, go, season, theme, onTheme }: { tab: Tab; o
           {current.tabs.map((t) => <button key={t.id} aria-current={tab === t.id ? "page" : undefined} onClick={() => go(t.id)}><span className="app-rail-context-icon"><TabIcon id={t.id} /></span><span className="app-rail-context-copy"><strong>{t.label}</strong><em>{TAB_DESCRIPTIONS[t.id]}</em></span><b>›</b></button>)}
         </nav>
       </div>
-      <div className="app-rail-footer"><span>Season {season}</span><button onClick={onTheme} title="Change theme">◐ {theme}</button></div>
+      <div className="app-rail-footer"><span>Season {season} · <small title="Version and build">{APP_VERSION}</small></span><button onClick={onTheme} title="Change theme">◐ {theme}</button></div>
     </aside>
   );
 }

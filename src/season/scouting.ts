@@ -46,9 +46,10 @@ export const weeklyScoutCost = (world: World): number =>
 
 /**
  * Weekly: intel jobs move on a week, and a finished job files its report. Then
- * the queue goes out to scouts with room (best scout first). A player takes a
- * scout for as long as he's far from your HQ (see intel.ts); a player with no
- * free scout waits in the queue.
+ * the queue goes out to scouts with room (best scout first). Each scout on the
+ * payroll and not on a trip starts one new player a week, so the week's attempts
+ * are tied to your scouts. A player takes a scout for as long as he's far from
+ * your HQ (see intel.ts); a player with no free scout waits in the queue.
  */
 export function scoutingWeek(world: World): string[] {
   const done: string[] = [];
@@ -72,7 +73,9 @@ export function scoutingWeek(world: World): string[] {
     .filter((s): s is Scout => !!s)
     .sort((a, b) => b.quality - a.quality);
   const queue = world.agency.scoutingQueue;
+  let started = 0;
   for (const id of [...queue]) {
+    if (started >= scouts.length) break;
     const wp = world.players[id];
     if (!wp) {
       queue.splice(queue.indexOf(id), 1);
@@ -84,6 +87,7 @@ export function scoutingWeek(world: World): string[] {
     const weeks = intelWeeks(world, wp);
     jobs.push({ id: `intel-${now}-${id}`, playerId: id, scoutId: scout.id, region, weeksLeft: weeks, totalWeeks: weeks });
     queue.splice(queue.indexOf(id), 1);
+    started++;
   }
   if (done.length) world.news.unshift(`Scouting: new report${done.length === 1 ? "" : "s"} on ${done.map((id) => world.players[id]!.player.name).join(", ")}.`);
   return done;

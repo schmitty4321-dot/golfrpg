@@ -11,6 +11,11 @@ function setup(): { w: World; ps: WorldPlayer[] } {
   const ps = Object.values(w.players).filter((p) => !p.client).slice(0, 6);
   return { w, ps };
 }
+/** Hires the next n best scouts. Each hired scout starts one new player a week, so these tests need one per start. */
+function hireMore(w: World, n: number): void {
+  const rest = [...w.agency.scouts].sort((a, b) => b.quality - a.quality).filter((s) => !w.agency.hiredScouts.includes(s.id));
+  for (const s of rest.slice(0, n)) hireScout(w, s.id);
+}
 const inState = (wp: WorldPlayer, state: string): void => {
   wp.player.nationality = "USA";
   wp.school = { kind: "high", state };
@@ -45,6 +50,7 @@ describe("intel by distance", () => {
 
   it("lets a scout work on two players in the same region at once, and no more", () => {
     const { w, ps } = setup();
+    hireMore(w, 1);
     for (const p of ps.slice(0, 3)) inState(p, "Michigan");
     for (const p of ps.slice(0, 3)) queueScouting(w, p.player.id);
     scoutingWeek(w);
@@ -52,8 +58,18 @@ describe("intel by distance", () => {
     expect(w.agency.scoutingQueue).toEqual([ps[2]!.player.id]);
   });
 
+  it("starts one new player a week for each scout hired", () => {
+    const { w, ps } = setup();
+    for (const p of ps.slice(0, 3)) inState(p, "Michigan");
+    for (const p of ps.slice(0, 3)) queueScouting(w, p.player.id);
+    scoutingWeek(w);
+    expect(w.agency.intelJobs).toHaveLength(1);
+    expect(w.agency.scoutingQueue).toHaveLength(2);
+  });
+
   it("lets a scout work on three overseas players at once", () => {
     const { w, ps } = setup();
+    hireMore(w, 2);
     for (const p of ps.slice(0, 4)) abroad(p);
     for (const p of ps.slice(0, 4)) queueScouting(w, p.player.id);
     scoutingWeek(w);
@@ -64,6 +80,7 @@ describe("intel by distance", () => {
 
   it("files the report when the weeks run out, and frees the scout for the next player", () => {
     const { w, ps } = setup();
+    hireMore(w, 1);
     for (const p of ps.slice(0, 3)) inState(p, "Michigan");
     for (const p of ps.slice(0, 3)) queueScouting(w, p.player.id);
     scoutingWeek(w);
