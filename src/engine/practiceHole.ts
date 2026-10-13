@@ -202,6 +202,12 @@ export function playPracticeShot(state: PracticeHole, player: Player, shot: Prac
     const stroke: PracticeStroke = { stroke: state.score + 2, club, from, to: from, lieBefore: state.lie, lieAfter: state.lie, yards: carry, penalty: true, quality: scored.quality };
     return { ...state, strokes: [...state.strokes, stroke], score: state.score + 2 };
   }
+  // A shot that lands on the green within 5 feet of the hole is a gimme: it is tapped in for one more stroke.
+  if (landLie === "green" && dist(landing, layout.pin) <= GIMME_YARDS) {
+    const shot: PracticeStroke = { stroke: state.score + 1, club, from, to: landing, lieBefore: state.lie, lieAfter: "green", yards: carry, penalty: false, quality: scored.quality };
+    const tap: PracticeStroke = { stroke: state.score + 2, club: "putter", from: landing, to: layout.pin, lieBefore: "green", lieAfter: "holed", yards: dist(landing, layout.pin), penalty: false, quality: 1, gimme: true };
+    return { ...state, ball: layout.pin, lie: "holed", strokes: [...state.strokes, shot, tap], score: state.score + 2, holed: true };
+  }
   const stroke: PracticeStroke = { stroke: state.score + 1, club, from, to: landing, lieBefore: state.lie, lieAfter: landLie, yards: carry, penalty: false, quality: scored.quality };
   return { ...state, ball: landing, lie: landLie, strokes: [...state.strokes, stroke], score: state.score + 1 };
 }
