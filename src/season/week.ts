@@ -1,6 +1,7 @@
 import { payBrands, recordClientWin, updateFollowers } from "./showcase";
 import { brandGoalsWeek, noteBoldHeld, noteBrandResult, noteRyderTeam } from "./brandGoals";
 import { scoutTripsWeek } from "./scoutTrips";
+import { earlyTurnPros } from "./amateurs";
 import { checkChallenge } from "./challenges";
 import { trackBestRanks } from "./legacy";
 import { checkAchievements } from "./achievements";
@@ -505,6 +506,7 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
   if (world.season >= 1) {
     scoutingWeek(world);
     scoutTripsWeek(world);
+    earlyTurnPros(world);
     // A tax planner trims the running costs.
     const trim = hasSkill(world, "tax-planner") ? 0.95 : 1;
     const office = Math.round(hqTier(world.agency).office * trim);

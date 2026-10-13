@@ -74,7 +74,7 @@ export function schoolOf(world: World, wp: WorldPlayer): School | undefined {
 }
 
 /** The year in college, by age. */
-export const classYear = (age: number) => (age <= 18 ? "Freshman" : age === 19 ? "Freshman" : age === 20 ? "Sophomore" : age === 21 ? "Junior" : "Senior");
+export const classYear = (age: number) => (age <= 18 ? "Freshman" : age === 19 ? "Sophomore" : age === 20 ? "Junior" : "Senior");
 
 /** For the screen: "Stanford (No. 11) · Junior", "High school · Florida", "National team". */
 export function schoolLabel(world: World, wp: WorldPlayer): string | null {

@@ -85,6 +85,29 @@ export function turnPro(world: World, id: string): void {
   world.news.unshift(`${wp.player.name} turns professional${wp.client ? ` with ${world.agency.name}` : ""}.`);
 }
 
+/** The last week an amateur can decide to go pro during the year; after it, the decision waits for the season's end. */
+export const EARLY_DECISION_LAST_WEEK = 22;
+/** Each week, a top-ten amateur who is climbing may turn pro early, at this chance. */
+const EARLY_DECISION_CHANCE = 0.1;
+
+/**
+ * Weekly: a top amateur (not one of your clients) who has been climbing the ranks may
+ * decide to turn pro mid-year, any week up to week 22.
+ */
+export function earlyTurnPros(world: World): string[] {
+  if (world.week > EARLY_DECISION_LAST_WEEK) return [];
+  const rng = createRng(mixSeed(world.seed, world.season, world.week, 515));
+  const declared: string[] = [];
+  for (const id of amateurRanking(world).slice(0, 10)) {
+    const wp = world.players[id];
+    if (!wp || wp.client || wp.player.age < 19) continue;
+    if (!rng.chance(EARLY_DECISION_CHANCE)) continue;
+    turnPro(world, id);
+    declared.push(id);
+  }
+  return declared;
+}
+
 export function canTurnPro(world: World, id: string): boolean {
   return world.players[id]?.career.status === "amateur";
 }
