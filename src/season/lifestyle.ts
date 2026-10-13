@@ -98,8 +98,9 @@ export function buyLifestyle(world: World, clientId: string, itemId: string): vo
 }
 
 /**
- * Weekly: Q drifts a tenth of the way toward its target. His following moves with it:
- * above 50 it grows, below 50 it slips. Upkeep is paid a fiftieth each week.
+ * Weekly: Q drifts a tenth of the way toward its target. His following drifts toward the
+ * level his Q supports (about 20k at Q 40, doubling every ten points), so Q lifts the
+ * following without compounding it. Upkeep is paid a fiftieth each week.
  */
 export function lifestyleWeek(world: World): void {
   for (const id of world.clientIds) {
@@ -108,7 +109,9 @@ export function lifestyleWeek(world: World): void {
     if (!wp || !c) continue;
     const q = qRating(world, wp);
     c.qRating = Math.round((q + (qTarget(world, wp) - q) * 0.1) * 10) / 10;
-    c.followers = Math.round(followers(world, wp) * (1 + (c.qRating - 50) * 0.0004));
+    const supported = 20_000 * 10 ** ((c.qRating - 40) / 25);
+    const now = followers(world, wp);
+    c.followers = Math.round(now + (supported - now) * 0.02);
     const upkeep = ownedLifestyle(wp).reduce((s, i) => s + i.upkeep, 0);
     if (upkeep) c.finances.lifestyle = (c.finances.lifestyle ?? 0) + Math.round(upkeep / 52);
   }
