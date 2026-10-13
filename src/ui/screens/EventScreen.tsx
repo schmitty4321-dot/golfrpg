@@ -173,6 +173,7 @@ function FollowView({ world, game, lw }: { world: World; game: Game; lw: LiveWee
           clientId={followed}
           mondayQualifier={ev.field.mondayQualifiers.includes(followed)}
           onPlay={startHbh}
+          onMoments={() => game.setLiveMode("moments")}
           onSim={() => game.liveAct(() => { startLiveRound(t); autoFinishRound(t); })}
           onPlan={(plan) => setRoundPlan(game, t, followed, plan)}
         />
@@ -185,13 +186,14 @@ function FollowView({ world, game, lw }: { world: World; game: Game; lw: LiveWee
 
 type PreRoundTab = "command" | "scouting" | "matchup" | "tournament" | "preparation";
 
-function PreRoundHub({ world, event, tournament: t, clientId, mondayQualifier, onPlay, onSim, onPlan }: {
+function PreRoundHub({ world, event, tournament: t, clientId, mondayQualifier, onPlay, onMoments, onSim, onPlan }: {
   world: World;
   event: TourEvent;
   tournament: LiveEvent["tournament"];
   clientId: string;
   mondayQualifier: boolean;
   onPlay: () => void;
+  onMoments: () => void;
   onSim: () => void;
   onPlan: (plan: RoundPlan) => void;
 }) {
@@ -213,7 +215,7 @@ function PreRoundHub({ world, event, tournament: t, clientId, mondayQualifier, o
   const weather = t.weather[0];
   const wind = weather ? Math.round((weather.windMph.AM + weather.windMph.PM) / 2) : Math.round(course.windiness * 20);
   const archetype = p.archetype ? p.archetype.split("-").map((word) => word[0]!.toUpperCase() + word.slice(1)).join(" ") : "Tour professional";
-  const startButtons = <div className="btn-row preround-actions"><button className="btn btn-primary" onClick={onPlay}>Play round 1 hole by hole</button><button className="btn" onClick={onSim}>Sim round 1</button></div>;
+  const startButtons = <div className="btn-row preround-actions"><button className="btn" onClick={onMoments}>Broadcast</button><button className="btn btn-primary" onClick={onPlay}>Hole by hole</button><button className="btn" onClick={onSim}>Sim round 1</button></div>;
   const labels: [PreRoundTab, string][] = [["command", "Command Center"], ["scouting", "Scouting"], ["matchup", "Matchup"], ["tournament", "Tournament"], ["preparation", "Preparation"]];
 
   return (
