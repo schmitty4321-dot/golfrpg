@@ -123,7 +123,7 @@ export function developmentCost(world: World, id: string, winter: WinterProgram 
 export function costBurden(wp: WorldPlayer): number {
   const f = wp.client?.finances;
   if (!f) return 0;
-  const spend = f.coaching + (f.training ?? 0);
+  const spend = f.coaching + (f.training ?? 0) + (f.lifestyle ?? 0);
   return spend / Math.max(250_000, f.prizeMoney + f.endorsements);
 }
 

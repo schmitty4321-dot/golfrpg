@@ -322,6 +322,10 @@ export interface ClientManagement {
   travelClass?: TravelClass;
   /** Equipment models he owns (tour standard is always free). */
   ownedEquipment?: string[];
+  /** Lifestyle items he owns (see lifestyle.ts). */
+  lifestyle?: string[];
+  /** 0-100: his Q rating, his standing with the public (see lifestyle.ts). */
+  qRating?: number;
   /** Share of his coaching and camps the agency pays (0, 0.5 or 1; older saves: 0). */
   devFunding?: 0 | 0.5 | 1;
   /** A development deal: the agency funds his coaching and camps in return for better terms. */
@@ -585,6 +589,8 @@ export interface Finances {
   coaching: number;
   /** Winter programs and other training he paid for. */
   training?: number;
+  /** Lifestyle purchases and upkeep (see lifestyle.ts). */
+  lifestyle?: number;
   /** Clubs bought. */
   equipment?: number;
   /** Your agency's cut of prize money and endorsements. */

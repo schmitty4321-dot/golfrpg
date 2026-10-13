@@ -172,7 +172,7 @@ function ClientMoney({ world }: { world: World }) {
       {world.clientIds.map((id) => {
         const wp = world.players[id]!;
         const f = wp.client!.finances;
-        const expenses = f.caddie + f.travel + f.coaching + (f.training ?? 0) + (f.equipment ?? 0);
+        const expenses = f.caddie + f.travel + f.coaching + (f.training ?? 0) + (f.equipment ?? 0) + (f.lifestyle ?? 0);
         const net = f.prizeMoney + f.endorsements - expenses - f.commission;
         return <article className="client-money-card" key={id}>
           <div className="client-money-person"><Portrait player={wp.player} size={70} title={wp.player.name} /><strong><PlayerName id={id}>{wp.player.name}</PlayerName></strong></div>

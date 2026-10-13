@@ -1,5 +1,5 @@
 import { APPAREL_LABELS, APPAREL_SLOTS, EQUIPMENT, EQUIPMENT_SLOTS, SLOT_LABELS, type GearSlot } from "../../engine";
-import { equip, type World } from "../../season";
+import { LIFESTYLE_ITEMS, buyLifestyle, equip, lifestyleBlock, ownedLifestyle, qRating, qTarget, type World } from "../../season";
 import { money } from "../format";
 import { effects } from "./Team";
 import type { Game } from "../useGame";
@@ -52,6 +52,39 @@ export function Store({ world, game, clientId }: { world: World; game: Game; cli
           ))}
         </div>
       ))}
+      <div className="store-section">
+        <h3>Lifestyle</h3>
+        <p className="muted small">Personal purchases that lift his Q rating over time. Upkeep is paid a fiftieth each week.</p>
+        <p className="small"><b>Q rating {qRating(world, wp).toFixed(0)}</b>, heading to {qTarget(world, wp).toFixed(0)}</p>
+        {(["home", "car", "extra"] as const).map((kind) => (
+          <div key={kind} className="store-slot">
+            <span className="recruit-label">{kind === "home" ? "Homes" : kind === "car" ? "Cars" : "Extras"}</span>
+            <ul className="store-items">
+              {LIFESTYLE_ITEMS.filter((i) => i.kind === kind).map((i) => {
+                const block = lifestyleBlock(world, clientId, i.id);
+                const have = ownedLifestyle(wp).some((o) => o.id === i.id);
+                const trading = i.kind !== "extra" ? ownedLifestyle(wp).find((o) => o.kind === i.kind) : undefined;
+                return (
+                  <li key={i.id}>
+                    <strong>{i.name}</strong> <span className="small">{money(i.price)}</span>
+                    <span className="small secondary"> · upkeep {money(i.upkeep)} a year · Q +{i.qBonus}</span>
+                    <div className="small muted">{i.blurb}</div>
+                    {have ? (
+                      <span className="small good-text">He owns it</span>
+                    ) : (
+                      <>
+                        <button className="btn btn-small" disabled={!!block} onClick={() => game.act((w) => buyLifestyle(w, clientId, i.id))}>{`Buy · ${money(i.price)}`}</button>
+                        {trading && <span className="small muted"> Trades in his {trading.name} for half its price.</span>}
+                        {block && <span className="small muted"> {block}</span>}
+                      </>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))}
+      </div>
     </section>
   );
 }
