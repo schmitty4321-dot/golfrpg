@@ -114,7 +114,7 @@ export function Scouting({ world, game }: { world: World; game: Game }) {
                     <td><TraitChips ids={knownTraits(world, id)} empty={k ? "None spotted" : "Unscouted"} /></td>
                     <td>
                       <div className="btn-row">
-                        <button className="btn btn-small" disabled={queued} onClick={() => game.act((w) => queueScouting(w, id))}>{queued ? "Queued" : "Scout"}</button>
+                        <button className="btn btn-small" disabled={queued || a.hiredScouts.length === 0} onClick={() => game.act((w) => queueScouting(w, id))}>{queued ? "Queued" : a.hiredScouts.length === 0 ? "No scouts hired" : "Scout"}</button>
                         <button className="btn btn-small" onClick={() => openPlayer?.(id)}>View</button>
                       </div>
                     </td>

@@ -121,7 +121,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
                 {!wp.client && (
                   <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-start" }}>
                     <button className="btn btn-small" onClick={() => game.act((w) => toggleShortlist(w, id))}>{onShortlist(world, id) ? "On your watch list ✓" : "Add to watch list"}</button>
-                    <button className="btn btn-small" disabled={pending} onClick={() => game.act((w) => queueScouting(w, id))}>{job ? `Scout is gathering intel · ${job.weeksLeft} wk${job.weeksLeft === 1 ? "" : "s"} left` : queued ? "Waiting for a scout" : known ? "Scout again for a sharper report" : "Have a scout gather intel"}</button>
+                    <button className="btn btn-small" disabled={pending || (world.agency.hiredScouts.length === 0 && !job)} onClick={() => game.act((w) => queueScouting(w, id))}>{world.agency.hiredScouts.length === 0 && !job ? "No scouts hired" : job ? `Scout is gathering intel · ${job.weeksLeft} wk${job.weeksLeft === 1 ? "" : "s"} left` : queued ? "Waiting for a scout" : known ? "Scout again for a sharper report" : "Have a scout gather intel"}</button>
                     {world.agency.hiredScouts.length === 0 && <span className="muted small">Hire a scout to start gathering intel.</span>}
                   </div>
                 )}
