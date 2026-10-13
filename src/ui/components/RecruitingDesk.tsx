@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { nationInfo } from "../../engine";
 import {
   ACTIONS,
@@ -141,16 +141,6 @@ function RecruitBadge({ state, pro }: { state: RecruitMark; pro: boolean }) {
 /** The recruiting desk: this week's hours, how prospects see the agency, the prospects, and last season's class. */
 /** The recruiting desk. With `watchList`, it's the same table for the amateurs you're watching (no hours, summary or tabs). */
 export function RecruitingDesk({ world, game, watchList = false }: { world: World; game: Game; watchList?: boolean }) {
-  const [open, setOpen] = useState<string | null>(null);
-  // The prospect card is a pop-up: Escape closes it.
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(null);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open]);
   const [note, setNote] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
   const [tab, setTab] = useState<"amateur" | "pro">("amateur");
@@ -220,8 +210,8 @@ export function RecruitingDesk({ world, game, watchList = false }: { world: Worl
       </div>}
       {note && <p className="small good-text">{note}</p>}
       {!watchList && <div className="tabs" role="tablist" style={{ marginBottom: 8 }}>
-        <button role="tab" aria-selected={tab === "amateur"} onClick={() => { setTab("amateur"); setOpen(null); }}>Amateurs</button>
-        <button role="tab" aria-selected={tab === "pro"} onClick={() => { setTab("pro"); setOpen(null); }}>Pros</button>
+        <button role="tab" aria-selected={tab === "amateur"} onClick={() => { setTab("amateur"); }}>Amateurs</button>
+        <button role="tab" aria-selected={tab === "pro"} onClick={() => { setTab("pro"); }}>Pros</button>
       </div>}
       <div className="tone-legend small muted" aria-label="Row colours">
         <span className="tone-chip tone-recruiting">Recruiting</span>
@@ -230,7 +220,7 @@ export function RecruitingDesk({ world, game, watchList = false }: { world: Worl
       </div>
       <div className="table-wrap">
         <table>
-          <thead><tr><th>Rating</th><th className="num">#</th><th>{tab === "pro" ? "Player" : "Prospect"}</th><th className="num">Age</th><th>{tab === "pro" ? "World · contract" : "School"}</th><th>Your read</th><th>Season</th><th>Interest</th><th>Most interested rival</th><th>His list</th><th /></tr></thead>
+          <thead><tr><th>Rating</th><th className="num">#</th><th>{tab === "pro" ? "Player" : "Prospect"}</th><th className="num">Age</th><th>{tab === "pro" ? "World · contract" : "School"}</th><th>Your read</th><th>Season</th><th>Interest</th><th>Most interested rival</th><th>His list</th></tr></thead>
           <tbody>
             {list.map((id) => {
               const wp = world.players[id]!;
@@ -238,7 +228,7 @@ export function RecruitingDesk({ world, game, watchList = false }: { world: Worl
               const mine = world.agency.prospects?.[id];
               const pos = narrowing(wp) && mine ? agencyList(world, id).findIndex((a) => a.you) + 1 : 0;
               return (
-                <tr key={id} className={[open === id ? "row-current" : "", rowTone(world, id) ?? ""].join(" ").trim() || undefined}>
+                <tr key={id} className={[rowTone(world, id) ?? ""].join(" ").trim() || undefined}>
                   <td><Stars value={stars(world, id)} /></td>
                   <td className="num">{tab === "pro" ? "–" : <>{(rankOf.get(id) ?? 0) + 1} <MoveArrow move={standingMove(world, id)} /></>}</td>
                   <td><RecruitBadge state={recruitMark(world, id)} pro={tab === "pro"} /><PlayerName id={id}>{wp.player.name}</PlayerName>{wp.academy ? <span className="sponsor-tag">Academy</span> : null}{firstCall(world, id) ? <span className="sponsor-tag" title="His deal is up and he's keen on you: he'll hear you out before the other agencies bid">First call</span> : null}</td>
@@ -249,7 +239,6 @@ export function RecruitingDesk({ world, game, watchList = false }: { world: Worl
                   <td><InterestSegments value={interest} /></td>
                   <td className="small">{(() => { const [a, v] = Object.entries(rivalInterest(world, id)).sort((x, y) => y[1] - x[1])[0] ?? []; return a ? <>{a} <span className="muted">({Math.round(v!)})</span></> : "—"; })()}</td>
                   <td className="small">{pos ? (pos <= 3 ? <span className="good-text">You're #{pos}</span> : <span className="bad-text">Not in his top 3</span>) : narrowing(wp) ? "Deciding this season" : "—"}</td>
-                  <td><button className="btn btn-small" onClick={() => setOpen(open === id ? null : id)}>{open === id ? "Close" : "Card"}</button></td>
                 </tr>
               );
             })}
@@ -258,14 +247,6 @@ export function RecruitingDesk({ world, game, watchList = false }: { world: Worl
       </div>
       {tab === "amateur" && <p className="school-logo-credit small muted">College team marks via <a href="https://www.espn.com/college-sports/" target="_blank" rel="noreferrer">ESPN</a>; Augusta mark via <a href="https://commons.wikimedia.org/wiki/File:Augusta_Jaguars_logo.svg" target="_blank" rel="noreferrer">Wikimedia Commons</a>.</p>}
       {!showAll && pool.length > 30 && <button className="btn btn-small" style={{ marginTop: 8 }} onClick={() => setShowAll(true)}>Show all {pool.length}</button>}
-      {open && world.players[open] && (
-        <div className="prospect-modal-backdrop" onClick={() => setOpen(null)}>
-          <div className="prospect-modal" role="dialog" aria-modal="true" aria-label="Prospect card" onClick={(e) => e.stopPropagation()}>
-            <div className="prospect-modal-bar"><button className="btn btn-small" onClick={() => setOpen(null)}>Close</button></div>
-            <ProspectCard world={world} game={game} id={open} />
-          </div>
-        </div>
-      )}
       {ranking && (
         <div style={{ marginTop: 14 }}>
           <span className="recruit-label">Season {ranking.season} recruiting classes</span>
