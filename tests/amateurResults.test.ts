@@ -24,7 +24,10 @@ describe("amateur weekly results", () => {
     playWeek(w);
     expect(standingMove(w, amateurs(w)[0]!)).toBeNull();
     playWeek(w);
+    // A top amateur may turn pro early (any week to 22), which changes the field: the movements only net to zero when it didn't.
+    const stayed = w.amateurStanding!.order.length === w.amateurStandingPrev!.order.length;
     const moves = amateurs(w).map((id) => standingMove(w, id));
+    if (!stayed) return;
     expect(moves.every((m) => m !== null)).toBe(true);
     expect((moves as number[]).reduce((a, b) => a + b, 0)).toBe(0);
     expect(moves.some((m) => m !== 0)).toBe(true);

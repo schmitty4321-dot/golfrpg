@@ -87,24 +87,29 @@ export function turnPro(world: World, id: string): void {
 
 /** The last week an amateur can decide to go pro during the year; after it, the decision waits for the season's end. */
 export const EARLY_DECISION_LAST_WEEK = 22;
-/** Each week, a top-ten amateur who is climbing may turn pro early, at this chance. */
-const EARLY_DECISION_CHANCE = 0.1;
+/** Each week, the chance an amateur turns pro early, by his place in the ranking: the higher he ranks, the likelier. Any class can decide. */
+const EARLY_DECISION_CHANCE = [
+  { top: 10, chance: 0.1 },
+  { top: 30, chance: 0.03 },
+  { top: Infinity, chance: 0.005 },
+];
 
 /**
- * Weekly: a top amateur (not one of your clients) who has been climbing the ranks may
- * decide to turn pro mid-year, any week up to week 22.
+ * Weekly: an amateur (not one of your clients) may decide to turn pro mid-year, any week
+ * up to week 22. The higher he ranks, the likelier; his class doesn't matter.
  */
 export function earlyTurnPros(world: World): string[] {
   if (world.week > EARLY_DECISION_LAST_WEEK) return [];
   const rng = createRng(mixSeed(world.seed, world.season, world.week, 515));
   const declared: string[] = [];
-  for (const id of amateurRanking(world).slice(0, 10)) {
+  amateurRanking(world).forEach((id, rank) => {
     const wp = world.players[id];
-    if (!wp || wp.client || wp.player.age < 19) continue;
-    if (!rng.chance(EARLY_DECISION_CHANCE)) continue;
+    if (!wp || wp.client) return;
+    const chance = EARLY_DECISION_CHANCE.find((tier) => rank < tier.top)!.chance;
+    if (!rng.chance(chance)) return;
     turnPro(world, id);
     declared.push(id);
-  }
+  });
   return declared;
 }
 
