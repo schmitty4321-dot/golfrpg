@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { NegotiationTable } from "./Negotiation";
-import { ProfileCoaches } from "./ProfileGear";
+import { ProfileCoaches, ProfileEquipment } from "./ProfileGear";
 import { ProspectCard } from "./RecruitingDesk";
 import { PromisePicker } from "./Promises";
 import { ATTRIBUTE_LABELS, createRng, describeTendencies, feetInches, liveBoard, nationInfo, tendencies, type AttributeKey } from "../../engine";
@@ -57,7 +57,9 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
   const [years, setYears] = useState(2);
   const [promises, setPromises] = useState<PromiseKind[]>([]);
   const [result, setResult] = useState<string | null>(null);
-  const [tab, setTab] = useState<"profile" | "stats" | "results" | "development" | "coaches" | "recruiting">("profile");
+  const [tab, setTab] = useState<"profile" | "stats" | "results" | "development" | "coaches" | "recruiting" | "equipment">("profile");
+  // Amateurs, and pros the agency is recruiting, get Recruiting info; other pros get Equipment.
+  const recruiting = world.players[id]?.career.status === "amateur" || !!world.agency.prospects?.[id];
   // A full screen of its own: Escape goes back, and the page underneath doesn't scroll.
   const close = useRef(onClose);
   close.current = onClose;
@@ -174,7 +176,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
               <button aria-current={tab === "results" ? "page" : undefined} onClick={() => setTab("results")}>Results</button>
               <button aria-current={tab === "development" ? "page" : undefined} onClick={() => setTab("development")}>Development</button>
               {wp.client && <button aria-current={tab === "coaches" ? "page" : undefined} onClick={() => setTab("coaches")}>Coaches</button>}
-              <button aria-current={tab === "recruiting" ? "page" : undefined} onClick={() => setTab("recruiting")}>Recruiting info</button>
+              {recruiting ? <button aria-current={tab === "recruiting" ? "page" : undefined} onClick={() => setTab("recruiting")}>Recruiting info</button> : <button aria-current={tab === "equipment" || tab === "recruiting" ? "page" : undefined} onClick={() => setTab("equipment")}>Equipment</button>}
             </nav>
           </aside>
           </div>
@@ -280,8 +282,10 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
               </>
             ) : tab === "coaches" ? (
               <ProfileCoaches world={world} game={game} wp={wp} />
-            ) : tab === "recruiting" ? (
+            ) : tab === "recruiting" && recruiting ? (
               <ProspectCard world={world} game={game} id={wp.player.id} />
+            ) : tab === "equipment" || tab === "recruiting" ? (
+              <ProfileEquipment wp={wp} />
             ) : tab === "development" ? (
               <DevelopmentTab world={world} game={game} wp={wp} potential={potential} known={known} />
             ) : tab === "stats" ? (
