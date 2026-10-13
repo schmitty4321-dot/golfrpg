@@ -60,6 +60,8 @@ describe("development finances", () => {
     wp.client!.training.winter = "camp";
     const camp = winterCost(world, id, "camp");
     expect(camp).toBeGreaterThanOrEqual(60_000);
+    // The bill he already carries: a heavy training bill of $60,000 on top of the coaching.
+    wp.client!.finances.training = (wp.client!.finances.training ?? 0) + 60_000;
     for (let i = 0; i < 10; i++) playWeek(world);
     expect(costBurden(wp)).toBeGreaterThan(0.5);
     const sour = financeMood(wp);
