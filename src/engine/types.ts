@@ -32,7 +32,7 @@ export interface Player {
   /** The shape of his game (see archetypes.ts). Absent in older saves until filled in on load. */
   archetype?: ArchetypeId;
   /** Model ids in his bag by slot (see equipment.ts); tour standard where absent. */
-  equipment?: Partial<Record<"driver" | "irons" | "wedges" | "putter", string>>;
+  equipment?: Partial<Record<"driver" | "irons" | "wedges" | "putter" | "hat" | "shirt" | "shoes", string>>;
 }
 
 export interface Hole {

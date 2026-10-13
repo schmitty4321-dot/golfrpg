@@ -10,9 +10,15 @@ export type EquipmentSlot = "driver" | "irons" | "wedges" | "putter";
 export const EQUIPMENT_SLOTS: EquipmentSlot[] = ["driver", "irons", "wedges", "putter"];
 export const SLOT_LABELS: Record<EquipmentSlot, string> = { driver: "Driver", irons: "Irons", wedges: "Wedges", putter: "Putter" };
 
+/** Apparel: a hat, a shirt and shoes. Bought like clubs; they sit in the same bag of models. */
+export type ApparelSlot = "hat" | "shirt" | "shoes";
+export const APPAREL_SLOTS: ApparelSlot[] = ["hat", "shirt", "shoes"];
+export const APPAREL_LABELS: Record<ApparelSlot, string> = { hat: "Hat", shirt: "Shirt", shoes: "Shoes" };
+export type GearSlot = EquipmentSlot | ApparelSlot;
+
 export interface EquipmentModel {
   id: string;
-  slot: EquipmentSlot;
+  slot: GearSlot;
   name: string;
   price: number;
   blurb: string;
@@ -28,6 +34,8 @@ export interface EquipmentModel {
   tightBlowup?: number;
   /** Strokes gained around the green when the greens are firm (and lost when soft). */
   firm?: number;
+  /** Strokes gained a round when it rains (and nothing when it's dry). */
+  wet?: Partial<StrokesGained>;
 }
 
 export const STANDARD: Record<EquipmentSlot, string> = { driver: "driver-standard", irons: "irons-standard", wedges: "wedges-standard", putter: "putter-standard" };
@@ -87,12 +95,28 @@ function generatedEquipment(slot: EquipmentSlot): EquipmentModel[] {
 }
 
 /** A 400-model market: 100 choices in each of the four bag slots. */
+/** Apparel: small effects, bought for the client like clubs. Good in the rain or the wind, or steady over a round. */
+const APPAREL: readonly EquipmentModel[] = [
+  { id: "ap-visor", slot: "hat", name: "Tour Visor", price: 450, blurb: "Cuts the glare on the greens.", sg: { putting: 0.04 } },
+  { id: "ap-rain-cap", slot: "hat", name: "Storm Brim Cap", price: 600, blurb: "Keeps the rain off his eyes.", wet: { offTheTee: 0.06, approach: 0.04 } },
+  { id: "ap-compression", slot: "shirt", name: "Compression Base Layer", price: 700, blurb: "Holds the swing together over 18 holes.", spread: { offTheTee: 0.95, approach: 0.95 } },
+  { id: "ap-rain-shell", slot: "shirt", name: "Waterproof Shell", price: 1_400, blurb: "Stays dry on wet days.", wet: { approach: 0.05, putting: 0.04 } },
+  { id: "ap-spikeless", slot: "shoes", name: "Spikeless Grip Shoes", price: 900, blurb: "Grips firm turf; slips when it's wet.", firm: 0.05 },
+  { id: "ap-spiked", slot: "shoes", name: "Tour Spikes", price: 1_200, blurb: "Bites into soft, wet turf around the greens.", wet: { aroundTheGreen: 0.05 } },
+];
+
 export const EQUIPMENT: readonly EquipmentModel[] = [
   ...CORE_EQUIPMENT,
   ...EQUIPMENT_SLOTS.flatMap(generatedEquipment),
+  ...APPAREL,
 ];
 
 export const EQUIPMENT_BY_ID: ReadonlyMap<string, EquipmentModel> = new Map(EQUIPMENT.map((e) => [e.id, e]));
+
+/** The apparel he's wearing (nothing where a slot is empty). */
+export function apparelOf(p: Player): EquipmentModel[] {
+  return APPAREL_SLOTS.map((s) => EQUIPMENT_BY_ID.get(p.equipment?.[s] ?? "")).filter((m): m is EquipmentModel => !!m);
+}
 
 /** The models in a player's bag (tour standard where he hasn't chosen). */
 export function bagOf(p: Player): EquipmentModel[] {
@@ -104,8 +128,9 @@ export function equipmentRound(p: Player, firmDry: boolean, rain: boolean): { sg
   const sg: StrokesGained = { offTheTee: 0, approach: 0, aroundTheGreen: 0, putting: 0 };
   const spread: StrokesGained = { offTheTee: 1, approach: 1, aroundTheGreen: 1, putting: 1 };
   if (!p.equipment) return { sg, spread };
-  for (const m of bagOf(p)) {
+  for (const m of [...bagOf(p), ...apparelOf(p)]) {
     for (const k of Object.keys(m.sg ?? {}) as (keyof StrokesGained)[]) sg[k] += m.sg![k]!;
+    if (rain) for (const k of Object.keys(m.wet ?? {}) as (keyof StrokesGained)[]) sg[k] += m.wet![k]!;
     for (const k of Object.keys(m.spread ?? {}) as (keyof StrokesGained)[]) spread[k] *= m.spread![k]!;
     if (m.firm) sg.aroundTheGreen += firmDry ? m.firm : rain ? -m.firm / 2 : 0;
   }

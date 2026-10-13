@@ -18,7 +18,7 @@ import { PlayerName } from "../components/PlayerLink";
 import type { Game } from "../useGame";
 
 /** What a model does, in a few words. */
-function effects(m: EquipmentModel): string {
+export function effects(m: EquipmentModel): string {
   const out: string[] = [];
   const cat = { offTheTee: "off the tee", approach: "approach", aroundTheGreen: "around the green", putting: "putting" } as const;
   for (const [k, v] of Object.entries(m.sg ?? {})) out.push(`${v! > 0 ? "+" : ""}${v!.toFixed(2)} ${cat[k as keyof typeof cat]}`);
@@ -26,6 +26,7 @@ function effects(m: EquipmentModel): string {
   if (m.reach) out.push(`${m.reach > 0 ? "+" : ""}${m.reach} yds reach`);
   if (m.bunker) out.push("bunkers cost less");
   if (m.firm) out.push("better on firm greens, worse on soft");
+  if (m.wet) out.push("better in the rain");
   if (m.tightBlowup) out.push(m.tightBlowup > 1 ? "riskier on tight holes" : "safer on tight holes");
   return out.join(" · ") || "No change";
 }

@@ -27,6 +27,7 @@ const TAB_ICONS: Record<Tab, ReactNode> = {
   partnerships: <><path d="M4 9l4-4 4 3 4-3 4 4-5 6-3-2-3 2z"/><path d="M7 15l5 5 5-5"/></>,
   player: <><circle cx="12" cy="8" r="4"/><path d="M4.5 21c.8-4.4 3.3-6.5 7.5-6.5s6.7 2.1 7.5 6.5"/></>,
   training: <><path d="M5 8h14M7 5v6M17 5v6M3 10v4M21 10v4M5 16h14M7 13v6M17 13v6"/></>,
+  store: <><path d="M4 8h16l-1.5 11h-13z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></>,
   team: <><circle cx="8" cy="9" r="3"/><circle cx="17" cy="8" r="2.5"/><path d="M2.5 20c.6-3.7 2.7-5.5 5.5-5.5s4.9 1.8 5.5 5.5M14 14c3.5-.8 6.4 1.2 7 5"/></>,
   hq: <><path d="M3 21h18M5 21V9l7-5 7 5v12"/><path d="M9 21v-6h6v6M8 10h.01M12 10h.01M16 10h.01"/></>,
   scouting: <><circle cx="8.5" cy="8.5" r="4.5"/><circle cx="15.5" cy="8.5" r="4.5"/><path d="M12 8.5V19M8 19h8"/></>,
@@ -50,7 +51,7 @@ const TAB_ICONS: Record<Tab, ReactNode> = {
 
 const TAB_DESCRIPTIONS: Record<Tab, string> = {
   home: "Plans and decisions", tournament: "Live results and fields", calendar: "Full season view",
-  agency: "Roster and contracts", player: "Detailed player profile", training: "Focus and development", team: "Caddie, travel and clubs",
+  agency: "Roster and contracts", player: "Detailed player profile", training: "Focus and development", team: "Caddie, travel and clubs", store: "Clubs and apparel for his bag",
   hq: "Staff and facilities", partnerships: "Sponsors and relationships", scouting: "Find talent worldwide", recruiting: "Recruiting desk", amateurResults: "Track emerging players", scoutingBoard: "Players you are following", recruitmentBoard: "Players you are tracking",
   rivals: "Competing agencies", trophies: "Titles and legacy", achievements: "Agency milestones", finances: "Revenue, costs and forecasts",
   schedule: "Events and entry dates", standings: "Rankings across the tour", stats: "Performance and records", ryder: "International team golf",

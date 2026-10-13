@@ -1,4 +1,4 @@
-export type Tab = "home" | "team" | "agency" | "scouting" | "hq" | "partnerships" | "recruiting" | "rivals" | "trophies" | "tournament" | "standings" | "stats" | "calendar" | "schedule" | "player" | "training" | "finances" | "history" | "editor" | "career" | "ryder" | "matchplay" | "achievements" | "amateurResults" | "scoutingBoard" | "recruitmentBoard";
+export type Tab = "home" | "team" | "store" | "agency" | "scouting" | "hq" | "partnerships" | "recruiting" | "rivals" | "trophies" | "tournament" | "standings" | "stats" | "calendar" | "schedule" | "player" | "training" | "finances" | "history" | "editor" | "career" | "ryder" | "matchplay" | "achievements" | "amateurResults" | "scoutingBoard" | "recruitmentBoard";
 
 export type SectionId = "week" | "clients" | "agency" | "recruiting" | "tour" | "game";
 
@@ -8,7 +8,7 @@ export type SectionId = "week" | "clients" | "agency" | "recruiting" | "tour" | 
  */
 export const SECTIONS: { id: SectionId; label: string; tabs: { id: Tab; label: string }[] }[] = [
   { id: "week", label: "Week", tabs: [{ id: "home", label: "This week" }, { id: "tournament", label: "Leaderboards" }, { id: "calendar", label: "Calendar" }] },
-  { id: "clients", label: "Clients", tabs: [{ id: "agency", label: "Roster" }, { id: "player", label: "Player" }, { id: "training", label: "Training" }, { id: "team", label: "Team & gear" }] },
+  { id: "clients", label: "Clients", tabs: [{ id: "agency", label: "Roster" }, { id: "player", label: "Player" }, { id: "training", label: "Training" }, { id: "team", label: "Team & gear" }, { id: "store", label: "Store" }] },
   { id: "agency", label: "Agency", tabs: [{ id: "hq", label: "HQ" }, { id: "partnerships", label: "Partnerships" }, { id: "scouting", label: "Scouting" }, { id: "rivals", label: "Rivals" }, { id: "trophies", label: "Trophies" }, { id: "achievements", label: "Achievements" }, { id: "finances", label: "Finances" }] },
   { id: "recruiting", label: "Recruiting", tabs: [{ id: "recruiting", label: "Desk" }, { id: "amateurResults", label: "Amateur results" }, { id: "scoutingBoard", label: "Watch list" }, { id: "recruitmentBoard", label: "Recruitment board" }] },
   { id: "tour", label: "Tour", tabs: [{ id: "schedule", label: "Schedule" }, { id: "standings", label: "Standings" }, { id: "stats", label: "Stats" }, { id: "ryder", label: "Ryder Cup" }, { id: "matchplay", label: "Match Play" }, { id: "history", label: "History" }] },
