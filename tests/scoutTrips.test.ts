@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createWorld, hireScout, pendingDecisions, playWeek, queueScouting, reportAccuracy, resolveDecision, scoutOnTrip, sendScout } from "../src/season";
+import { createWorld, hireScout, pendingDecisions, playWeek, queueScouting, reportAccuracy, resolveDecision, scoutOnTrip, sendScout, tripCostPerWeek } from "../src/season";
 
 describe("scouting trips", () => {
   it("send a hired scout away, sharpen his reports, and end with a report in the inbox", () => {
@@ -12,13 +12,14 @@ describe("scouting trips", () => {
     // While he's away he doesn't work the queue at home.
     const queued = Object.values(w.players).find((wp) => !wp.client && wp.career.status === "exempt")!.player.id;
     queueScouting(w, queued);
-    const bank = w.agency.bank;
+    const spent = w.agency.ledger.scouts;
     playWeek(w);
     expect(w.agency.scoutingQueue).toContain(queued);
     const trip = scoutOnTrip(w, scout.id)!;
     expect(trip.found.length).toBeGreaterThanOrEqual(2);
     expect(w.agency.knowledge[trip.found[0]!]!.accuracy).toBeGreaterThanOrEqual(0.3);
-    expect(w.agency.bank).toBeLessThan(bank);
+    // The trip is paid for (the bank can still rise if a client wins that week).
+    expect(w.agency.ledger.scouts - spent).toBeGreaterThanOrEqual(tripCostPerWeek("EU"));
     playWeek(w);
     playWeek(w);
     expect(scoutOnTrip(w, scout.id)).toBeUndefined();

@@ -41,7 +41,8 @@ describe("agency staff", () => {
 
   it("an agent wins signings, marketing lifts sponsor offers, an analyst sharpens ceilings, and they are paid weekly", () => {
     const world = createWorld({ seed: 2, scenario: "rookie" });
-    const target = Object.values(world.players).find((wp) => !wp.client && wp.career.status === "conditional")!;
+    // A prospect whose chance can move: not already at the floor or the ceiling.
+    const target = Object.values(world.players).find((wp) => { if (wp.client || wp.career.status !== "conditional") return false; const c = acceptChance(world, wp.player.id, { commission: 0.1, years: 2 }); return c > 0.05 && c < 0.9; })!;
     const before = acceptChance(world, target.player.id, { commission: 0.1, years: 2 });
     const best = (role: string) => staffMarket(world).filter((s) => s.role === role).sort((a, b) => b.quality - a.quality)[0]!;
     hireStaffer(world, best("agent").id);
