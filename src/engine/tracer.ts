@@ -46,6 +46,8 @@ export interface HoleLayout {
   real?: { courseId: string; hole: number };
   /** Real fairway width in yards, measured from the map, when known. */
   fairwayWidth?: number;
+  /** Yards from the tee where the fairway ends at crossing water: tee shots lay up short of it. */
+  layupAt?: number;
 }
 
 /**
@@ -60,11 +62,14 @@ export interface RealHole {
   water: number[][][];
   trees: number[][];
   fw?: number;
+  /** Where the fairway ends at water crossing the line of play, in yards from the tee: tee shots stop short of it. */
+  layup?: number;
 }
 const REAL_HOLES = realHoles as unknown as Record<string, Record<string, RealHole>>;
 const REAL_HOLE_OVERRIDES = realHoleOverrides as unknown as Record<string, Record<string, RealHole>>;
 /** The real map of a hole (bunkers, water, the line of play), when the course has one. */
-export const realHoleOf = (courseId: string, hole: number): RealHole | undefined => REAL_HOLES[courseId]?.[String(hole)] ?? REAL_HOLE_OVERRIDES[courseId]?.[String(hole)];
+/** An override (hand-corrected to match a hole picture) wins over the OpenStreetMap data. */
+export const realHoleOf = (courseId: string, hole: number): RealHole | undefined => REAL_HOLE_OVERRIDES[courseId]?.[String(hole)] ?? REAL_HOLES[courseId]?.[String(hole)];
 
 /** Whether a course has real hole maps (and so a drawing to load). */
 export const hasRealHoles = (courseId: string): boolean => !!REAL_HOLES[courseId] || !!REAL_HOLE_OVERRIDES[courseId];
@@ -149,7 +154,7 @@ const pinnedCache = new WeakMap<HoleLayout, Map<string, HoleLayout[]>>();
 export function holeLayout(course: Course, hole: Hole, round?: number): HoleLayout {
   let layout = layoutCache.get(hole);
   if (!layout) {
-    const real = REAL_HOLES[course.id]?.[String(hole.number)] ?? REAL_HOLE_OVERRIDES[course.id]?.[String(hole.number)];
+    const real = realHoleOf(course.id, hole.number);
     layout = real ? realLayout(course, hole, real) : buildLayout(course, hole);
     layoutCache.set(hole, layout);
   }
@@ -221,6 +226,7 @@ function realLayout(course: Course, hole: Hole, real: RealHole): HoleLayout {
     bounds: { minX: Math.min(Math.min(...xs) - 55, -60), maxX: Math.max(Math.max(...xs) + 55, 60), minY: -25, maxY: Math.max(...ys) + 35 },
     real: { courseId: course.id, hole: hole.number },
     ...(real.fw ? { fairwayWidth: real.fw } : {}),
+    ...(real.layup ? { layupAt: real.layup } : {}),
   };
 }
 
@@ -565,7 +571,7 @@ export function traceHole({ course, hole, score, player, windMph = 0, seed, call
     let lie: Lie;
     let teeOutcome: string;
     const teeClub = call?.tee === "iron" ? "Long iron" : call?.tee === "3-wood" ? "3-wood" : call?.tee === "driver" ? "Driver" : Y < 360 || (w < 24 && a.courseManagement >= 13) ? "3-wood" : "Driver";
-    const len = Math.min(teeClub === "Long iron" ? driveLen - 55 : teeClub === "3-wood" ? driveLen - 25 : driveLen, Y - 70);
+    const len = Math.min(teeClub === "Long iron" ? driveLen - 55 : teeClub === "3-wood" ? driveLen - 25 : driveLen, Y - 70, (layout.layupAt ?? Infinity) - 12);
     if (plan.penalties > 0) {
       const wet = layout.water.length > 0;
       const landing = pointAt(layout.path, len - 20, (layout.water[0]?.[0]?.x ?? 0) > 0 ? w / 2 + 22 : -(w / 2 + 22));
