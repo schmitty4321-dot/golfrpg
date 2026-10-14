@@ -6,6 +6,8 @@ const LABELS = ["Tee", "Landing area", "Green"];
 const pad = (value: number) => String(value).padStart(2, "0");
 
 function defaultImage(courseId: string, hole: number): string {
+  // Innisbrook's pictures are hole-NN.png; the Waialae pilot used its own names.
+  if (courseId === "innisbrook-copperhead") return `art-demo/${courseId}/hole-${pad(hole)}.png`;
   return `art-demo/${courseId}/hole-${pad(hole)}-${hole === 2 ? "course.png" : "illustrated.jpg"}`;
 }
 
@@ -18,7 +20,8 @@ export function IllustrationCalibrator() {
   const holeData = course?.holes[hole - 1];
   const geometry = course && holeData ? holeLayout(course, holeData) : undefined;
   const image = query.get("image") ?? defaultImage(courseId, hole);
-  const dimensions = { width: 1672, height: 941 };
+  // The frame is the picture's own size, read when it loads.
+  const [dimensions, setDimensions] = useState({ width: 1672, height: 941 });
 
   const world = useMemo<Pt[]>(() => {
     if (!geometry) return [];
@@ -83,7 +86,7 @@ export function IllustrationCalibrator() {
         </div>
         <div className="calibration-layout">
           <div className="calibration-stage" onClick={clickImage} role="button" tabIndex={0} aria-label={`Click ${LABELS[pixels.length] ?? "anchors complete"}`}>
-            <img src={`${import.meta.env.BASE_URL}${image}`} alt={`${course.name} Hole ${hole} illustration to calibrate`} />
+            <img src={`${import.meta.env.BASE_URL}${image}`} alt={`${course.name} Hole ${hole} illustration to calibrate`} onLoad={(e) => setDimensions({ width: e.currentTarget.naturalWidth, height: e.currentTarget.naturalHeight })} />
             <svg viewBox={`0 0 ${dimensions.width} ${dimensions.height}`} aria-hidden>
               {path.length > 1 && <polyline points={path.map((point) => `${point.x},${point.y}`).join(" ")} />}
               {pixels.map((point, index) => (
