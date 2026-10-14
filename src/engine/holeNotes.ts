@@ -71,6 +71,26 @@ export const HOLE_NOTES: Record<string, Record<number, HoleNote>> = {
     17: { name: "Alcatraz", description: "The signature hole of PGA West. Inspired by the 17th at TPC Sawgrass, this terrifying island green is completely surrounded by water and jagged boulders." },
     18: { name: "Coliseum", description: "The brutal finishing hole features a dramatic amphitheater design. It requires a highly intimidating tee shot with water lining the entire left side all the way to a heavily guarded green." },
   },
+  "innisbrook-copperhead": {
+    1: { name: "Innisbrook's View", description: "A long par 5 that sweeps left between the pines. Bunkers pinch the landing area on both sides, and water waits right of a green ringed by sand." },
+    2: { name: "Second Thoughts", description: "The fairway bends left around a lake that runs the whole right side. Anything leaking right is wet; the green is guarded by a bunker front-right." },
+    3: { name: "Narrow Neck", description: "The fairway squeezes between two ponds in the landing area. Find the neck off the tee, then play to a green framed by bunkers." },
+    4: { name: "Bunkered", description: "A par 3 to a green ringed by sand. Hit the putting surface or play from a bunker." },
+    5: { name: "Longview", description: "A three-shot par 5 that starts beside a lake on the left. Fairway bunkers guard the second shot, and four bunkers surround the green." },
+    6: { name: "Sidewinder", description: "A snaking fairway between the pines to a green with a bunker short and left." },
+    7: { name: "Hidden Gem", description: "A tree-lined par 4 that drifts right to a green guarded by three bunkers." },
+    8: { name: "Drop Off", description: "A long par 3 played down to a wide green, with bunkers short-left and short-right." },
+    9: { name: "Hide Away", description: "A tight corridor of pines with a bunker in the middle of the landing area, and a green between two bunkers." },
+    10: { name: "The Descent", description: "Downhill off the tee past a bunker on the left, to a green tucked between bunkers." },
+    11: { name: "O's Alley", description: "A par 5 with a long sandy waste area down the right and water beyond it. The green is guarded by bunkers and the lake." },
+    12: { name: "Bridge Hole", description: "The fairway ends at the water. A short approach crosses the pond to a green guarded by three bunkers; the players walk over the bridge." },
+    13: { name: "Forced Carry", description: "All carry over a pond to a green with bunkers left, right and long." },
+    14: { name: "Packard's Double Dogleg", description: "A par 5 that bends twice, with a pond right of the green to punish an aggressive second." },
+    15: { name: "Snake Bite", description: "The first hole of the Snake Pit: a par 3 over water to a green with three bunkers." },
+    16: { name: "Moccasin", description: "A demanding par 4 with a lake down the entire right side and bunkers either side of the green." },
+    17: { name: "The Rattler", description: "A par 3 framed by pines, to a green surrounded by four bunkers." },
+    18: { name: "The Copperhead", description: "The finishing par 4 runs uphill between bunkers on both sides of the fairway to a green guarded by sand." },
+  },
 };
 
 export const holeNote = (courseId: string, hole: number): HoleNote | undefined => HOLE_NOTES[courseId]?.[hole];

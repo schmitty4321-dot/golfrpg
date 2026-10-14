@@ -11587,19 +11587,19 @@
     ]
   },
   "innisbrook-copperhead:2": {
-    "image": "art-demo/innisbrook-copperhead/hole-02.png",
+    "image": "art-demo/innisbrook-copperhead/hole-02.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        1.257165,
-        3.065098,
-        194
+        1.35,
+        3.065366,
+        190
       ],
       "y": [
-        -2.375445,
-        -1.351755,
-        766
+        3.06875,
+        -1.357137,
+        768
       ]
     },
     "meta": {
@@ -11607,23 +11607,41 @@
       "par": 4,
       "yards": 435,
       "tourAverage": 4.158,
+      "difficulty": 5,
       "course": "Innisbrook (Copperhead Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 190,
+        "y": 768
+      },
+      {
+        "at": 0.6806,
+        "x": 1040,
+        "y": 290
+      },
+      {
+        "at": 1,
+        "x": 1488,
+        "y": 197
+      }
+    ]
   },
   "innisbrook-copperhead:1": {
-    "image": "art-demo/innisbrook-copperhead/hole-01.png",
+    "image": "art-demo/innisbrook-copperhead/hole-01.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        0.815385,
-        2.248348,
-        330
+        1.076923,
+        2.534421,
+        175
       ],
       "y": [
-        2.253846,
-        -0.824592,
-        640
+        2.538462,
+        -1.088324,
+        780
       ]
     },
     "meta": {
@@ -11633,22 +11651,39 @@
       "tourAverage": 4.681,
       "difficulty": 17,
       "course": "Innisbrook (Copperhead Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 175,
+        "y": 780
+      },
+      {
+        "at": 0.5375,
+        "x": 888,
+        "y": 437
+      },
+      {
+        "at": 1,
+        "x": 1528,
+        "y": 205
+      }
+    ]
   },
   "innisbrook-copperhead:3": {
-    "image": "art-demo/innisbrook-copperhead/hole-03.png",
+    "image": "art-demo/innisbrook-copperhead/hole-03.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        1.233333,
-        3.114156,
-        260
+        1.426667,
+        3.361547,
+        170
       ],
       "y": [
-        3.113333,
-        -1.226881,
-        720
+        3.36,
+        -1.418864,
+        800
       ]
     },
     "meta": {
@@ -11658,22 +11693,39 @@
       "tourAverage": 4.18,
       "difficulty": 3,
       "course": "Innisbrook (Copperhead Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 170,
+        "y": 800
+      },
+      {
+        "at": 0.6481,
+        "x": 1041,
+        "y": 400
+      },
+      {
+        "at": 1,
+        "x": 1530,
+        "y": 222
+      }
+    ]
   },
   "innisbrook-copperhead:4": {
-    "image": "art-demo/innisbrook-copperhead/hole-04.png",
+    "image": "art-demo/innisbrook-copperhead/hole-04.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        2.721429,
-        5.606731,
+        2.685714,
+        5.605984,
         300
       ],
       "y": [
         5.55,
-        -2.606283,
-        750
+        -2.569634,
+        745
       ]
     },
     "meta": {
@@ -11683,22 +11735,39 @@
       "tourAverage": 3.108,
       "difficulty": 9,
       "course": "Innisbrook (Copperhead Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 300,
+        "y": 745
+      },
+      {
+        "at": 1,
+        "x": 1360,
+        "y": 232
+      },
+      {
+        "at": 1,
+        "x": 1360,
+        "y": 232
+      }
+    ]
   },
   "innisbrook-copperhead:5": {
-    "image": "art-demo/innisbrook-copperhead/hole-05.png",
+    "image": "art-demo/innisbrook-copperhead/hole-05.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        0.969231,
-        2.165573,
+        0.861538,
+        2.183526,
         230
       ],
       "y": [
-        2.176923,
-        -0.991672,
-        740
+        2.192308,
+        -0.882216,
+        675
       ]
     },
     "meta": {
@@ -11708,22 +11777,39 @@
       "tourAverage": 4.743,
       "difficulty": 16,
       "course": "Innisbrook (Copperhead Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 230,
+        "y": 675
+      },
+      {
+        "at": 0.4975,
+        "x": 872,
+        "y": 409
+      },
+      {
+        "at": 1,
+        "x": 1530,
+        "y": 165
+      }
+    ]
   },
   "innisbrook-copperhead:6": {
-    "image": "art-demo/innisbrook-copperhead/hole-06.png",
+    "image": "art-demo/innisbrook-copperhead/hole-06.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        0.992857,
-        2.745098,
-        370
+        1.271429,
+        3.026144,
+        210
       ],
       "y": [
-        2.742857,
-        -0.991285,
-        640
+        3.028571,
+        -1.267974,
+        765
       ]
     },
     "meta": {
@@ -11733,22 +11819,39 @@
       "tourAverage": 4.125,
       "difficulty": 8,
       "course": "Innisbrook (Copperhead Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 210,
+        "y": 765
+      },
+      {
+        "at": 0.6832,
+        "x": 1150,
+        "y": 345
+      },
+      {
+        "at": 1,
+        "x": 1599,
+        "y": 183
+      }
+    ]
   },
   "innisbrook-copperhead:7": {
-    "image": "art-demo/innisbrook-copperhead/hole-07.png",
+    "image": "art-demo/innisbrook-copperhead/hole-07.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        1.207143,
-        2.891566,
-        300
+        1.321429,
+        3.120482,
+        215
       ],
       "y": [
-        2.892857,
-        -1.204819,
-        700
+        3.121429,
+        -1.320482,
+        748
       ]
     },
     "meta": {
@@ -11758,22 +11861,39 @@
       "tourAverage": 3.998,
       "difficulty": 13,
       "course": "Innisbrook (Copperhead Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 215,
+        "y": 748
+      },
+      {
+        "at": 0.7239,
+        "x": 1151,
+        "y": 348
+      },
+      {
+        "at": 1,
+        "x": 1510,
+        "y": 200
+      }
+    ]
   },
   "innisbrook-copperhead:8": {
-    "image": "art-demo/innisbrook-copperhead/hole-08.png",
+    "image": "art-demo/innisbrook-copperhead/hole-08.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        2.135714,
-        4.755556,
+        2.078571,
+        4.911111,
         290
       ],
       "y": [
-        4.757143,
-        -2.133333,
-        720
+        4.914286,
+        -2.08,
+        710
       ]
     },
     "meta": {
@@ -11783,22 +11903,39 @@
       "tourAverage": 3.139,
       "difficulty": 6,
       "course": "Innisbrook (Copperhead Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 290,
+        "y": 710
+      },
+      {
+        "at": 1,
+        "x": 1395,
+        "y": 242
+      },
+      {
+        "at": 1,
+        "x": 1395,
+        "y": 242
+      }
+    ]
   },
   "innisbrook-copperhead:9": {
-    "image": "art-demo/innisbrook-copperhead/hole-09.png",
+    "image": "art-demo/innisbrook-copperhead/hole-09.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        1.3,
-        2.914286,
-        300
+        1.4,
+        3.097696,
+        225
       ],
       "y": [
-        2.926667,
-        -1.328817,
-        740
+        3.113333,
+        -1.429616,
+        785
       ]
     },
     "meta": {
@@ -11808,22 +11945,39 @@
       "tourAverage": 4.235,
       "difficulty": 1,
       "course": "Innisbrook (Copperhead Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 225,
+        "y": 785
+      },
+      {
+        "at": 0.6855,
+        "x": 1145,
+        "y": 356
+      },
+      {
+        "at": 1,
+        "x": 1575,
+        "y": 177
+      }
+    ]
   },
   "innisbrook-copperhead:10": {
-    "image": "art-demo/innisbrook-copperhead/hole-10.png",
+    "image": "art-demo/innisbrook-copperhead/hole-10.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
         1.242857,
-        2.941176,
-        230
+        3.076923,
+        180
       ],
       "y": [
-        2.942857,
+        3.078571,
         -1.244344,
-        740
+        745
       ]
     },
     "meta": {
@@ -11833,22 +11987,39 @@
       "tourAverage": 3.952,
       "difficulty": 14,
       "course": "Innisbrook (Copperhead Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 180,
+        "y": 745
+      },
+      {
+        "at": 0.6856,
+        "x": 1107,
+        "y": 354
+      },
+      {
+        "at": 1,
+        "x": 1540,
+        "y": 195
+      }
+    ]
   },
   "innisbrook-copperhead:11": {
-    "image": "art-demo/innisbrook-copperhead/hole-11.png",
+    "image": "art-demo/innisbrook-copperhead/hole-11.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        0.991667,
-        2.318117,
+        1.008333,
+        2.291725,
         240
       ],
       "y": [
-        2.316667,
-        -0.997042,
-        750
+        2.291667,
+        -1.011057,
+        760
       ]
     },
     "meta": {
@@ -11858,22 +12029,39 @@
       "tourAverage": 4.616,
       "difficulty": 18,
       "course": "Innisbrook (Copperhead Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 240,
+        "y": 760
+      },
+      {
+        "at": 0.5255,
+        "x": 896,
+        "y": 390
+      },
+      {
+        "at": 1,
+        "x": 1545,
+        "y": 187
+      }
+    ]
   },
   "innisbrook-copperhead:12": {
-    "image": "art-demo/innisbrook-copperhead/hole-12.png",
+    "image": "art-demo/innisbrook-copperhead/hole-12.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        1.416667,
-        3.620591,
-        150
+        1.408333,
+        3.660295,
+        135
       ],
       "y": [
-        3.625,
-        -1.424934,
-        740
+        3.666667,
+        -1.419753,
+        745
       ]
     },
     "meta": {
@@ -11883,21 +12071,38 @@
       "tourAverage": 4.036,
       "difficulty": 11,
       "course": "Innisbrook (Copperhead Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 135,
+        "y": 745
+      },
+      {
+        "at": 0.6343,
+        "x": 1000,
+        "y": 370
+      },
+      {
+        "at": 1,
+        "x": 1520,
+        "y": 212
+      }
+    ]
   },
   "innisbrook-copperhead:13": {
-    "image": "art-demo/innisbrook-copperhead/hole-13.png",
+    "image": "art-demo/innisbrook-copperhead/hole-13.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        2.083333,
-        5.591997,
-        260
+        2.041667,
+        5.568276,
+        275
       ],
       "y": [
-        5.641667,
-        -2.218853,
+        5.616667,
+        -2.17863,
         680
       ]
     },
@@ -11908,22 +12113,39 @@
       "tourAverage": 3.077,
       "difficulty": 10,
       "course": "Innisbrook (Copperhead Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 275,
+        "y": 680
+      },
+      {
+        "at": 1,
+        "x": 1410,
+        "y": 268
+      },
+      {
+        "at": 1,
+        "x": 1410,
+        "y": 268
+      }
+    ]
   },
   "innisbrook-copperhead:14": {
-    "image": "art-demo/innisbrook-copperhead/hole-14.png",
+    "image": "art-demo/innisbrook-copperhead/hole-14.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        0.957143,
-        2.422186,
-        220
+        0.928571,
+        2.510475,
+        165
       ],
       "y": [
-        2.421429,
-        -0.949785,
-        730
+        2.507143,
+        -0.923132,
+        720
       ]
     },
     "meta": {
@@ -11933,22 +12155,39 @@
       "tourAverage": 4.835,
       "difficulty": 15,
       "course": "Innisbrook (Copperhead Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 165,
+        "y": 720
+      },
+      {
+        "at": 0.5131,
+        "x": 886,
+        "y": 430
+      },
+      {
+        "at": 1,
+        "x": 1585,
+        "y": 195
+      }
+    ]
   },
   "innisbrook-copperhead:15": {
-    "image": "art-demo/innisbrook-copperhead/hole-15.png",
+    "image": "art-demo/innisbrook-copperhead/hole-15.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        2.04,
-        3.933649,
-        400
+        1.993333,
+        3.886256,
+        410
       ],
       "y": [
-        3.933333,
-        -2.037915,
-        690
+        3.886667,
+        -1.990521,
+        700
       ]
     },
     "meta": {
@@ -11958,22 +12197,39 @@
       "tourAverage": 3.019,
       "difficulty": 12,
       "course": "Innisbrook (Copperhead Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 410,
+        "y": 700
+      },
+      {
+        "at": 1,
+        "x": 1230,
+        "y": 280
+      },
+      {
+        "at": 1,
+        "x": 1230,
+        "y": 280
+      }
+    ]
   },
   "innisbrook-copperhead:16": {
-    "image": "art-demo/innisbrook-copperhead/hole-16.png",
+    "image": "art-demo/innisbrook-copperhead/hole-16.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        1.235714,
-        2.977918,
-        230
+        1.257143,
+        3.114874,
+        170
       ],
       "y": [
-        3,
-        -1.283753,
-        740
+        3.135714,
+        -1.30881,
+        755
       ]
     },
     "meta": {
@@ -11983,22 +12239,39 @@
       "tourAverage": 4.223,
       "difficulty": 2,
       "course": "Innisbrook (Copperhead Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 170,
+        "y": 755
+      },
+      {
+        "at": 0.613,
+        "x": 1007,
+        "y": 411
+      },
+      {
+        "at": 1,
+        "x": 1540,
+        "y": 205
+      }
+    ]
   },
   "innisbrook-copperhead:17": {
-    "image": "art-demo/innisbrook-copperhead/hole-17.png",
+    "image": "art-demo/innisbrook-copperhead/hole-17.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
         2.2,
-        4.460287,
+        4.484211,
         420
       ],
       "y": [
-        4.45,
-        -2.179665,
-        740
+        4.475,
+        -2.179545,
+        745
       ]
     },
     "meta": {
@@ -12008,22 +12281,39 @@
       "tourAverage": 3.175,
       "difficulty": 4,
       "course": "Innisbrook (Copperhead Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 420,
+        "y": 745
+      },
+      {
+        "at": 1,
+        "x": 1355,
+        "y": 285
+      },
+      {
+        "at": 1,
+        "x": 1355,
+        "y": 285
+      }
+    ]
   },
   "innisbrook-copperhead:18": {
-    "image": "art-demo/innisbrook-copperhead/hole-18.png",
+    "image": "art-demo/innisbrook-copperhead/hole-18.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        1.175,
-        3.021583,
-        230
+        1.31875,
+        3.17322,
+        145
       ],
       "y": [
-        3.03125,
-        -1.193835,
-        720
+        3.18125,
+        -1.342924,
+        785
       ]
     },
     "meta": {
@@ -12033,6 +12323,23 @@
       "tourAverage": 4.127,
       "difficulty": 7,
       "course": "Innisbrook (Copperhead Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 145,
+        "y": 785
+      },
+      {
+        "at": 0.6607,
+        "x": 1082,
+        "y": 434
+      },
+      {
+        "at": 1,
+        "x": 1542,
+        "y": 205
+      }
+    ]
   }
 }
