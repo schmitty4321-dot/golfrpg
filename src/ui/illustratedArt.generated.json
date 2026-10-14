@@ -12341,5 +12341,761 @@
         "y": 205
       }
     ]
+  },
+  "barton-creek-fazio-canyons:1": {
+    "image": "art-demo/barton-creek-fazio-canyons/hole-01.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.408537,
+        3.506459,
+        140
+      ],
+      "y": [
+        3.512195,
+        -1.424525,
+        756
+      ]
+    },
+    "meta": {
+      "number": 1,
+      "par": 4,
+      "yards": 400,
+      "tourAverage": null,
+      "difficulty": 5,
+      "course": "Barton Creek (Fazio Canyons)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 140,
+        "y": 756
+      },
+      {
+        "at": 0.7578,
+        "x": 1201,
+        "y": 331
+      },
+      {
+        "at": 1,
+        "x": 1540,
+        "y": 195
+      }
+    ]
+  },
+  "barton-creek-fazio-canyons:2": {
+    "image": "art-demo/barton-creek-fazio-canyons/hole-02.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.5375,
+        3.703446,
+        149
+      ],
+      "y": [
+        3.7,
+        -1.53378,
+        760
+      ]
+    },
+    "meta": {
+      "number": 2,
+      "par": 4,
+      "yards": 405,
+      "tourAverage": null,
+      "difficulty": 6,
+      "course": "Barton Creek (Fazio Canyons)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 149,
+        "y": 760
+      },
+      {
+        "at": 0.7108,
+        "x": 1160,
+        "y": 310
+      },
+      {
+        "at": 1,
+        "x": 1586,
+        "y": 164
+      }
+    ]
+  },
+  "barton-creek-fazio-canyons:3": {
+    "image": "art-demo/barton-creek-fazio-canyons/hole-03.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        2.670968,
+        6.553176,
+        330
+      ],
+      "y": [
+        6.541935,
+        -2.643852,
+        732
+      ]
+    },
+    "meta": {
+      "number": 3,
+      "par": 3,
+      "yards": 171,
+      "tourAverage": null,
+      "difficulty": 1,
+      "course": "Barton Creek (Fazio Canyons)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 330,
+        "y": 732
+      },
+      {
+        "at": 1,
+        "x": 1452,
+        "y": 274
+      },
+      {
+        "at": 1,
+        "x": 1452,
+        "y": 274
+      }
+    ]
+  },
+  "barton-creek-fazio-canyons:4": {
+    "image": "art-demo/barton-creek-fazio-canyons/hole-04.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.908497,
+        4.022501,
+        176
+      ],
+      "y": [
+        4.03268,
+        -1.931741,
+        795
+      ]
+    },
+    "meta": {
+      "number": 4,
+      "par": 4,
+      "yards": 333,
+      "tourAverage": null,
+      "difficulty": 7,
+      "course": "Barton Creek (Fazio Canyons)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 176,
+        "y": 795
+      },
+      {
+        "at": 0.7749,
+        "x": 1199,
+        "y": 311
+      },
+      {
+        "at": 1,
+        "x": 1496,
+        "y": 170
+      }
+    ]
+  },
+  "barton-creek-fazio-canyons:5": {
+    "image": "art-demo/barton-creek-fazio-canyons/hole-05.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.029586,
+        2.752931,
+        126
+      ],
+      "y": [
+        2.757396,
+        -1.043769,
+        737
+      ]
+    },
+    "meta": {
+      "number": 5,
+      "par": 5,
+      "yards": 587,
+      "tourAverage": null,
+      "difficulty": 15,
+      "course": "Barton Creek (Fazio Canyons)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 126,
+        "y": 737
+      },
+      {
+        "at": 0.5076,
+        "x": 869,
+        "y": 460
+      },
+      {
+        "at": 1,
+        "x": 1590,
+        "y": 192
+      }
+    ]
+  },
+  "barton-creek-fazio-canyons:6": {
+    "image": "art-demo/barton-creek-fazio-canyons/hole-06.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.335366,
+        3.211607,
+        161
+      ],
+      "y": [
+        3.213415,
+        -1.332194,
+        746
+      ]
+    },
+    "meta": {
+      "number": 6,
+      "par": 4,
+      "yards": 448,
+      "tourAverage": null,
+      "difficulty": 8,
+      "course": "Barton Creek (Fazio Canyons)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 161,
+        "y": 746
+      },
+      {
+        "at": 0.6766,
+        "x": 1132,
+        "y": 343
+      },
+      {
+        "at": 1,
+        "x": 1596,
+        "y": 150
+      }
+    ]
+  },
+  "barton-creek-fazio-canyons:7": {
+    "image": "art-demo/barton-creek-fazio-canyons/hole-07.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.125874,
+        2.901997,
+        137
+      ],
+      "y": [
+        2.902098,
+        -1.122175,
+        743
+      ]
+    },
+    "meta": {
+      "number": 7,
+      "par": 5,
+      "yards": 538,
+      "tourAverage": null,
+      "difficulty": 16,
+      "course": "Barton Creek (Fazio Canyons)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 137,
+        "y": 743
+      },
+      {
+        "at": 0.5477,
+        "x": 1010,
+        "y": 560
+      },
+      {
+        "at": 1,
+        "x": 1630,
+        "y": 162
+      }
+    ]
+  },
+  "barton-creek-fazio-canyons:8": {
+    "image": "art-demo/barton-creek-fazio-canyons/hole-08.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        2.44,
+        5.556077,
+        246
+      ],
+      "y": [
+        5.553333,
+        -2.426906,
+        712
+      ]
+    },
+    "meta": {
+      "number": 8,
+      "par": 3,
+      "yards": 208,
+      "tourAverage": null,
+      "difficulty": 2,
+      "course": "Barton Creek (Fazio Canyons)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 246,
+        "y": 712
+      },
+      {
+        "at": 1,
+        "x": 1406,
+        "y": 202
+      },
+      {
+        "at": 1,
+        "x": 1406,
+        "y": 202
+      }
+    ]
+  },
+  "barton-creek-fazio-canyons:9": {
+    "image": "art-demo/barton-creek-fazio-canyons/hole-09.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.477987,
+        2.761804,
+        290
+      ],
+      "y": [
+        2.767296,
+        -1.487718,
+        818
+      ]
+    },
+    "meta": {
+      "number": 9,
+      "par": 4,
+      "yards": 453,
+      "tourAverage": null,
+      "difficulty": 9,
+      "course": "Barton Creek (Fazio Canyons)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 290,
+        "y": 818
+      },
+      {
+        "at": 0.66,
+        "x": 1115,
+        "y": 377
+      },
+      {
+        "at": 1,
+        "x": 1540,
+        "y": 150
+      }
+    ]
+  },
+  "barton-creek-fazio-canyons:10": {
+    "image": "art-demo/barton-creek-fazio-canyons/hole-10.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.47619,
+        3.640192,
+        138
+      ],
+      "y": [
+        3.62585,
+        -1.443748,
+        781
+      ]
+    },
+    "meta": {
+      "number": 10,
+      "par": 4,
+      "yards": 445,
+      "tourAverage": null,
+      "difficulty": 10,
+      "course": "Barton Creek (Fazio Canyons)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 138,
+        "y": 781
+      },
+      {
+        "at": 0.6781,
+        "x": 1106,
+        "y": 292
+      },
+      {
+        "at": 1,
+        "x": 1609,
+        "y": 182
+      }
+    ]
+  },
+  "barton-creek-fazio-canyons:11": {
+    "image": "art-demo/barton-creek-fazio-canyons/hole-11.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        2.255172,
+        6.578364,
+        239
+      ],
+      "y": [
+        6.572414,
+        -2.240864,
+        648
+      ]
+    },
+    "meta": {
+      "number": 11,
+      "par": 3,
+      "yards": 189,
+      "tourAverage": null,
+      "difficulty": 3,
+      "course": "Barton Creek (Fazio Canyons)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 239,
+        "y": 648
+      },
+      {
+        "at": 1,
+        "x": 1470,
+        "y": 225
+      },
+      {
+        "at": 1,
+        "x": 1470,
+        "y": 225
+      }
+    ]
+  },
+  "barton-creek-fazio-canyons:12": {
+    "image": "art-demo/barton-creek-fazio-canyons/hole-12.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.583851,
+        3.725164,
+        142
+      ],
+      "y": [
+        3.732919,
+        -1.602698,
+        785
+      ]
+    },
+    "meta": {
+      "number": 12,
+      "par": 4,
+      "yards": 404,
+      "tourAverage": null,
+      "difficulty": 11,
+      "course": "Barton Creek (Fazio Canyons)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 142,
+        "y": 785
+      },
+      {
+        "at": 0.7251,
+        "x": 1171,
+        "y": 348
+      },
+      {
+        "at": 1,
+        "x": 1561,
+        "y": 182
+      }
+    ]
+  },
+  "barton-creek-fazio-canyons:13": {
+    "image": "art-demo/barton-creek-fazio-canyons/hole-13.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.778481,
+        4.142434,
+        125
+      ],
+      "y": [
+        4.14557,
+        -1.782417,
+        755
+      ]
+    },
+    "meta": {
+      "number": 13,
+      "par": 4,
+      "yards": 357,
+      "tourAverage": null,
+      "difficulty": 12,
+      "course": "Barton Creek (Fazio Canyons)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 125,
+        "y": 755
+      },
+      {
+        "at": 0.7756,
+        "x": 1238,
+        "y": 278
+      },
+      {
+        "at": 1,
+        "x": 1560,
+        "y": 140
+      }
+    ]
+  },
+  "barton-creek-fazio-canyons:14": {
+    "image": "art-demo/barton-creek-fazio-canyons/hole-14.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.074074,
+        2.643046,
+        118
+      ],
+      "y": [
+        2.641975,
+        -1.079286,
+        752
+      ]
+    },
+    "meta": {
+      "number": 14,
+      "par": 5,
+      "yards": 564,
+      "tourAverage": null,
+      "difficulty": 17,
+      "course": "Barton Creek (Fazio Canyons)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 118,
+        "y": 752
+      },
+      {
+        "at": 0.5391,
+        "x": 915,
+        "y": 428
+      },
+      {
+        "at": 1,
+        "x": 1596,
+        "y": 150
+      }
+    ]
+  },
+  "barton-creek-fazio-canyons:15": {
+    "image": "art-demo/barton-creek-fazio-canyons/hole-15.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.257862,
+        3.128656,
+        162
+      ],
+      "y": [
+        3.144654,
+        -1.294248,
+        772
+      ]
+    },
+    "meta": {
+      "number": 15,
+      "par": 4,
+      "yards": 450,
+      "tourAverage": null,
+      "difficulty": 13,
+      "course": "Barton Creek (Fazio Canyons)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 162,
+        "y": 772
+      },
+      {
+        "at": 0.6799,
+        "x": 1126,
+        "y": 385
+      },
+      {
+        "at": 1,
+        "x": 1580,
+        "y": 203
+      }
+    ]
+  },
+  "barton-creek-fazio-canyons:16": {
+    "image": "art-demo/barton-creek-fazio-canyons/hole-16.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.29697,
+        3.203185,
+        136
+      ],
+      "y": [
+        3.2,
+        -1.283363,
+        772
+      ]
+    },
+    "meta": {
+      "number": 16,
+      "par": 4,
+      "yards": 451,
+      "tourAverage": null,
+      "difficulty": 14,
+      "course": "Barton Creek (Fazio Canyons)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 136,
+        "y": 772
+      },
+      {
+        "at": 0.6698,
+        "x": 1094,
+        "y": 384
+      },
+      {
+        "at": 1,
+        "x": 1566,
+        "y": 192
+      }
+    ]
+  },
+  "barton-creek-fazio-canyons:17": {
+    "image": "art-demo/barton-creek-fazio-canyons/hole-17.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        2.70922,
+        6.456218,
+        146
+      ],
+      "y": [
+        6.475177,
+        -2.758363,
+        813
+      ]
+    },
+    "meta": {
+      "number": 17,
+      "par": 3,
+      "yards": 209,
+      "tourAverage": null,
+      "difficulty": 4,
+      "course": "Barton Creek (Fazio Canyons)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 146,
+        "y": 813
+      },
+      {
+        "at": 1,
+        "x": 1490,
+        "y": 251
+      },
+      {
+        "at": 1,
+        "x": 1490,
+        "y": 251
+      }
+    ]
+  },
+  "barton-creek-fazio-canyons:18": {
+    "image": "art-demo/barton-creek-fazio-canyons/hole-18.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.051948,
+        2.617623,
+        171
+      ],
+      "y": [
+        2.616883,
+        -1.046438,
+        753
+      ]
+    },
+    "meta": {
+      "number": 18,
+      "par": 5,
+      "yards": 562,
+      "tourAverage": null,
+      "difficulty": 18,
+      "course": "Barton Creek (Fazio Canyons)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 171,
+        "y": 753
+      },
+      {
+        "at": 0.5389,
+        "x": 958,
+        "y": 437
+      },
+      {
+        "at": 1,
+        "x": 1631,
+        "y": 166
+      }
+    ]
   }
 }

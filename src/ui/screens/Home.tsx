@@ -128,6 +128,7 @@ const VENUE_BANNERS: Record<string, string> = {
   riviera: "art/week-venues/riviera.webp",
   "augusta-national": "art/week-venues/augusta-national.webp",
   "innisbrook-copperhead": "art/week-venues/innisbrook-copperhead.webp",
+  "barton-creek-fazio-canyons": "art/week-venues/barton-creek-fazio-canyons.webp",
 };
 
 const DECISION_ART = {
