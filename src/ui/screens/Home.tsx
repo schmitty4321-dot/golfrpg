@@ -37,6 +37,8 @@ import {
   type ClientChoices,
   type EntryOption,
   type World,
+  approachBlock,
+  isDiscovered,
 } from "../../season";
 import { TIER_LABELS, fitWord, formWord, millions, money, signed } from "../format";
 import type { Go } from "../nav";
@@ -166,8 +168,10 @@ function WeekCommandCenter({ world, game, go, week }: { world: World; game: Game
   const field = buildFields(world, planWeek(world, new Map())).find((x) => x.event.id === main.id)?.field ?? [];
   const ranks = rankMap(world);
   const featured = field.map((id) => world.players[id]!).filter(Boolean).sort((x, y) => (ranks.get(x.player.id) ?? 9999) - (ranks.get(y.player.id) ?? 9999)).slice(0, 4);
-  const amateurs = Object.values(world.players).filter((wp) => wp.career.status === "amateur" && !wp.client).length;
-  const pros = Object.values(world.players).filter((wp) => !wp.client && wp.career.status !== "amateur").length;
+  // Players you could approach this week: known to the agency, not a client, and with nothing blocking the approach.
+  const approachable = (amateur: boolean) => Object.values(world.players).filter((wp) => !wp.client && (wp.career.status === "amateur") === amateur && isDiscovered(world, wp.player.id) && !approachBlock(world, wp.player.id)).length;
+  const amateurs = approachable(true);
+  const pros = approachable(false);
   const offers = world.clientIds.reduce((sum, id) => sum + world.players[id]!.client!.offers.length, 0);
   const expiring = world.clientIds.filter((id) => world.players[id]!.client!.contract.untilSeason <= world.season).length;
   const tired = world.clientIds.filter((id) => world.players[id]!.player.condition < 80).length;
@@ -177,7 +181,7 @@ function WeekCommandCenter({ world, game, go, week }: { world: World; game: Game
   const temperature = 68 + ((world.week * 7 + main.courseId.length) % 13);
   const weather = course.windiness > .62 ? `${temperature}°  Breezy` : course.firmness < .42 ? `${temperature}°  Overcast` : `${temperature}°  Sunny`;
   const decisions = [
-    { key: "amateurs", icon: "◉", title: "Recruit amateurs", copy: "Find and evaluate the next generation of talent.", status: `${amateurs} on your board`, action: "Search amateurs", run: () => go("recruiting") },
+    { key: "amateurs", icon: "◉", title: "Recruit amateurs", copy: "Find and evaluate the next generation of talent.", status: `${amateurs} approachable`, action: "Search amateurs", run: () => go("recruiting") },
     { key: "pros", icon: "♟", title: "Recruit pros", copy: "Identify professionals who may be open to representation.", status: `${pros} approachable`, action: "View prospects", run: () => go("scouting") },
     { key: "sponsor", icon: "◆", title: "Sponsor deal expiring", copy: "Review offers before the commercial window closes.", status: offers ? `${offers} offer${offers === 1 ? "" : "s"} waiting` : "No offers waiting", action: "Review deals", run: () => go("agency"), urgent: offers > 0 },
     { key: "extension", icon: "▤", title: "Extension talks", copy: "Discuss contract extensions with eligible clients.", status: `${expiring} contract${expiring === 1 ? "" : "s"} end this season`, action: "Open talks", run: () => go("agency") },
