@@ -32,7 +32,6 @@ import type { ClientChoices } from "../season";
 import { useGame } from "./useGame";
 import { WaialaeTracerPreview } from "./screens/WaialaeTracerPreview";
 import { IllustrationCalibrator } from "./screens/IllustrationCalibrator";
-import { PracticeHolePreview } from "./screens/PracticeHolePreview";
 import { PlayerLinkProvider } from "./components/PlayerLink";
 
 type Theme = "system" | "light" | "dark";
@@ -76,7 +75,6 @@ export function App() {
   const demo = import.meta.env.DEV ? new URLSearchParams(window.location.search).get("demo") : null;
   if (demo === "waialae-tracer") return <WaialaeTracerPreview />;
   if (demo === "art-calibrator") return <IllustrationCalibrator />;
-  if (demo === "practice-hole") return <PracticeHolePreview />;
   // The new-career screen even when a career is saved (to review its layout).
   if (demo === "new-game") return <NewGame game={game} />;
 
