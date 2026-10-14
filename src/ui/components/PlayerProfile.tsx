@@ -138,7 +138,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
               <div><dt>Career</dt><dd>{plural(wp.career.careerWins, "win")} · {plural(wp.career.careerMajors, "major")}</dd></div>
               <div><dt>Earnings</dt><dd>{money(wp.career.careerEarnings)}</dd></div>
               {wp.client && <div><dt>Followers</dt><dd>{Math.round(followers(world, wp) / 1000)}k</dd></div>}
-              {wp.client && <div><dt>Q rating</dt><dd>{qRating(world, wp).toFixed(0)} <span className="muted small">heading to {qTarget(world, wp).toFixed(0)}</span></dd></div>}
+              {wp.client && <div><dt>Q rating</dt><dd>{qRating(world, wp).toFixed(0)}{qTarget(world, wp).toFixed(0) !== qRating(world, wp).toFixed(0) && <span className="muted small"> heading to {qTarget(world, wp).toFixed(0)}</span>}</dd></div>}
               {ceiling !== null && <div><dt>Ceiling</dt><dd><Stars value={ceiling} /></dd></div>}
               {hidden && <div><dt>Home greens</dt><dd>{wp.player.grassPreference}</dd></div>}
               {hidden &&
