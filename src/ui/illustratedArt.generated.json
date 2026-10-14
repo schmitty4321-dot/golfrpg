@@ -11585,5 +11585,29 @@
         "y": 200
       }
     ]
+  },
+  "innisbrook-copperhead:2": {
+    "image": "art-demo/innisbrook-copperhead/hole-02.png",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.257165,
+        3.065098,
+        194
+      ],
+      "y": [
+        -2.375445,
+        -1.351755,
+        766
+      ]
+    },
+    "meta": {
+      "number": 2,
+      "par": 4,
+      "yards": 435,
+      "tourAverage": 4.158,
+      "course": "Innisbrook (Copperhead Course)"
+    }
   }
 }
