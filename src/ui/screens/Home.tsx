@@ -127,6 +127,7 @@ const VENUE_BANNERS: Record<string, string> = {
   "pga-national-champion": "art/week-venues/pga-national-champion.webp",
   riviera: "art/week-venues/riviera.webp",
   "augusta-national": "art/week-venues/augusta-national.webp",
+  "innisbrook-copperhead": "art/week-venues/innisbrook-copperhead.png",
 };
 
 const DECISION_ART = {
