@@ -85,7 +85,7 @@ export function IllustrationCalibrator() {
           </div>
         </div>
         <div className="calibration-layout">
-          <div className="calibration-stage" onClick={clickImage} role="button" tabIndex={0} aria-label={`Click ${LABELS[pixels.length] ?? "anchors complete"}`}>
+          <div className="calibration-stage" style={{ aspectRatio: `${dimensions.width} / ${dimensions.height}` }} onClick={clickImage} role="button" tabIndex={0} aria-label={`Click ${LABELS[pixels.length] ?? "anchors complete"}`}>
             <img src={`${import.meta.env.BASE_URL}${image}`} alt={`${course.name} Hole ${hole} illustration to calibrate`} onLoad={(e) => setDimensions({ width: e.currentTarget.naturalWidth, height: e.currentTarget.naturalHeight })} />
             <svg viewBox={`0 0 ${dimensions.width} ${dimensions.height}`} aria-hidden>
               {path.length > 1 && <polyline points={path.map((point) => `${point.x},${point.y}`).join(" ")} />}
