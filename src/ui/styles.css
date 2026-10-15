@@ -1683,3 +1683,21 @@ select, input[type="text"], input[type="number"] {
 @media(max-width:720px){.shop-masthead{min-height:425px}.shop-masthead-copy{width:100%;padding:22px 18px}.shop-masthead-copy h1{font-size:34px}.shop-player{left:8px;right:8px;width:auto;height:225px}.shop-player>.cutout-portrait{height:210px!important;max-width:50%}.shop-player>div{min-width:0;margin:0 0 16px -5px;padding:10px}.shop-player strong{font-size:14px}.shop-tools{grid-template-columns:1fr 1fr}.shop-search{grid-column:1/-1}.shop-check{justify-self:start}.shop-shell{display:block}.shop-categories{display:flex;gap:5px;overflow-x:auto;padding:9px}.shop-categories>strong,.shop-bag-note{display:none}.shop-categories>button{flex:0 0 auto;width:auto;padding:8px 11px}.shop-categories>button span{display:none}.shop-products{padding:15px 11px}.shop-grid{grid-template-columns:1fr}.shop-product{display:grid;grid-template-columns:42% 58%}.shop-product-art{height:100%;min-height:205px}.shop-product-copy{min-height:205px}.shop-compare{display:block;margin:0 11px 15px}.shop-compare-effects{display:grid;grid-template-columns:repeat(2,1fr)}.shop-compare>p{display:block}.shop-section-title h2{font-size:24px}}
 .shop-page{display:block}.shop-pager{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;color:#756e60;font-size:8px}.shop-pager>div{display:flex;gap:6px}.shop-pager button{padding:6px 9px;border:1px solid #d5c9b1;border-radius:5px;background:#fffdf8;color:#294238;font-size:8px;cursor:pointer}.shop-pager button:disabled{opacity:.45;cursor:default}
 
+
+/* This week: the events once, then one compact row per client. */
+.week-events { display: grid; gap: 8px; margin: 4px 0 12px; }
+.week-event { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); }
+.week-event-text { display: grid; gap: 1px; min-width: 0; }
+.client-week { display: grid; gap: 8px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); margin-bottom: 10px; }
+.client-week-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+.client-week-who { display: grid; gap: 1px; min-width: 0; }
+.client-week-picks { display: flex; flex-wrap: wrap; gap: 6px; }
+.week-pick { padding: 6px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); font-size: 13px; cursor: pointer; }
+.week-pick:hover { border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); }
+.week-pick[aria-checked="true"] { border-color: var(--accent); background: var(--accent); color: #fff; font-weight: 650; }
+.client-week-chips { padding: 0; align-items: center; }
+.client-week-inline { display: inline-flex; align-items: center; gap: 4px; }
+.planner-summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; padding: 8px 10px; border-radius: 8px; background: var(--surface-2); }
+.planner-summary-days { font-weight: 600; }
+.client-week-inline select { max-width: min(260px, 60vw); }
+.client-week { min-width: 0; }

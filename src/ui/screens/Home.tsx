@@ -234,6 +234,7 @@ function ThisWeek({ world, game, week }: { world: World; game: Game; week: WeekC
           return <div key={id}><strong>{wp.player.name}</strong><RoundPlanPicker plan={wp.client!.roundPlan ?? "steady"} onPick={(p) => game.act((w) => (w.players[id]!.client!.roundPlan = p))} /></div>;
         })}
       </div>
+      <WeekEvents world={world} />
       {world.clientIds.map((id) => (
         <ClientWeek key={`${id}-${world.week}`} world={world} game={game} id={id} choice={choices[id] ?? defaultWeekChoice(world, id)} onChoose={(c) => set(id, c)} />
       ))}
@@ -254,22 +255,69 @@ function ThisWeek({ world, game, week }: { world: World; game: Game; week: WeekC
   );
 }
 
+/** This week's events, shown once above the clients instead of on every client's card. */
+function WeekEvents({ world }: { world: World }) {
+  const seen = new Map<string, EntryOption>();
+  for (const id of world.clientIds) {
+    for (const o of clientOptions(world, id)) if (playable(o) && !seen.has(o.event.id)) seen.set(o.event.id, o);
+  }
+  if (seen.size === 0) return null;
+  return (
+    <div className="week-events">
+      {[...seen.values()].map((o) => (
+        <div key={o.event.id} className="week-event">
+          <TournamentEmblem event={o.event} course={o.course} size={48} />
+          <div className="week-event-text">
+            <span className="schedule-choice-kicker">{o.event.devFinals ? `Dev Finals ${o.event.devFinals}/4` : TIER_LABELS[o.event.tier]}</span>
+            <strong>{o.event.name}</strong>
+            <span className="secondary small">
+              {o.course.name}{o.course.info ? `, ${o.course.info.city}` : ""} · {o.course.style} · par {coursePar(o.course)} · {courseYards(o.course).toLocaleString("en-US")} yds · {REGION_NAMES[o.event.region]} · {millions(o.event.purse)}
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** An event he can actually play this week: not a tour he isn't on, and not while injured. */
+const playable = (o: EntryOption): boolean => o.access !== "not-invited" && o.access !== "injured";
+
+/** One client's week as a single row: his choice, what it means, and his days in one line. */
 function ClientWeek({ world, game, id, choice, onChoose }: { world: World; game: Game; id: string; choice: ClientChoice; onChoose: (c: ClientChoice) => void }) {
   const wp = world.players[id]!;
   const options = clientOptions(world, id);
-  const sel = (c: ClientChoice) => JSON.stringify(c) === JSON.stringify(choice);
+  const events = options.filter(playable);
   const entered = choice.kind === "enter" ? options.find((o) => o.event.id === choice.eventId) : undefined;
   const courses = practiceCourses(world);
   const tripCourse = choice.kind === "practice" ? choice.courseId : (courses.find((c) => c.next && world.schedule.some((e) => e.courseId === c.courseId && e.tier === "major" && e.week > world.week)) ?? courses[0])?.courseId;
+  const canPractice = !!tripCourse && !wp.injury && wp.career.status !== "amateur";
+  const [showDays, setShowDays] = useState(false);
+  const fit = entered ? fitWord(entered.fit) : null;
   return (
-    <article className="event-card">
-      <div className="panel-head" style={{ marginBottom: 0 }}>
-        <div>
-          <h2 style={{ fontSize: 16 }}>{wp.player.name}</h2>
-          <div className="secondary small">
+    <article className="client-week">
+      <div className="client-week-head">
+        <div className="client-week-who">
+          <strong>{wp.player.name}</strong>
+          <span className="secondary small">
             {STATUS_LABELS[wp.career.status]} · condition {Math.round(wp.player.condition)}% · form {formWord(wp.player.form).toLowerCase()}
             {wp.injury ? ` · injured (${wp.injury.weeksLeft} wk)` : ""}
-          </div>
+          </span>
+        </div>
+        <div className="client-week-picks" role="radiogroup" aria-label={`${wp.player.name}'s week`}>
+          {events.map((o) => (
+            <button key={o.event.id} className="week-pick" role="radio" aria-checked={choice.kind === "enter" && choice.eventId === o.event.id} onClick={() => onChoose({ kind: "enter", eventId: o.event.id })}>
+              ⛳ {o.event.name}
+            </button>
+          ))}
+          {canPractice && (
+            <button className="week-pick" role="radio" aria-checked={choice.kind === "practice"} onClick={() => onChoose({ kind: "practice", courseId: tripCourse! })}>
+              Practice trip
+            </button>
+          )}
+          <button className="week-pick" role="radio" aria-checked={choice.kind === "rest"} onClick={() => onChoose({ kind: "rest" })}>
+            Rest
+          </button>
         </div>
       </div>
       {wp.career.status === "amateur" && (
@@ -281,58 +329,48 @@ function ClientWeek({ world, game, id, choice, onChoose }: { world: World; game:
           </span>
         </div>
       )}
-      <div className="choice-list schedule-choice-list" role="radiogroup" aria-label={`${wp.player.name}'s week`}>
-        {options.map((o) => <EventChoice key={o.event.id} o={o} checked={choice.kind === "enter" && choice.eventId === o.event.id} onChoose={() => onChoose({ kind: "enter", eventId: o.event.id })} />)}
-        <button className="choice schedule-choice" role="radio" aria-checked={sel({ kind: "rest" })} onClick={() => onChoose({ kind: "rest" })}>
-          <span className="schedule-choice-head">
-            <span className="schedule-choice-logo"><ScheduleChoiceIcon kind="rest" /></span>
-            <span className="schedule-choice-title"><span className="schedule-choice-kicker">Recovery</span><strong>Rest week</strong><span className="secondary small">Recover condition from {Math.round(wp.player.condition)}%</span></span>
-          </span>
-          <span className="schedule-choice-chips"><span className="schedule-chip good">No travel</span><span className="schedule-chip">No entry fees</span></span>
-        </button>
-        {tripCourse && !wp.injury && wp.career.status !== "amateur" && (
-          <button className="choice schedule-choice" role="radio" aria-checked={choice.kind === "practice"} onClick={() => onChoose({ kind: "practice", courseId: tripCourse })}>
-            <span className="schedule-choice-head">
-              <span className="schedule-choice-logo"><ScheduleChoiceIcon kind="practice" /></span>
-              <span className="schedule-choice-title"><span className="schedule-choice-kicker">Preparation</span><strong>Practice trip</strong><span className="secondary small">{courses.find((c) => c.courseId === tripCourse)?.name ?? "Choose a course"}</span></span>
-            </span>
-            <span className="schedule-choice-chips">
-              <span className="schedule-chip good">Familiarity {Math.round(familiarityWith(wp, tripCourse))} → {Math.round(afterPracticeTrip(wp, tripCourse))}</span>
-              <span className="schedule-chip warn">−{PRACTICE_TRIP_FATIGUE}% condition</span>
-              <span className="schedule-chip">{money(practiceTripCost(world, tripCourse))}</span>
-            </span>
-          </button>
+      <div className="schedule-choice-chips client-week-chips">
+        {entered && fit && (
+          <>
+            <span className="schedule-chip" style={{ borderColor: ACCESS_TONE[entered.access] }}>{entered.detail}</span>
+            <span className={`schedule-chip ${fit.tone}`}>{fit.label} {signed(entered.fit, 2)}/round</span>
+            <span className={`schedule-chip ${!entered.debut && entered.familiarity >= 40 ? "good" : "warn"}`}>{entered.debut ? "Course debut" : `${familiarityLabel(entered.familiarity)} ${Math.round(entered.familiarity)}`}</span>
+          </>
+        )}
+        {choice.kind === "rest" && (
+          <>
+            <span className="schedule-chip good">Recovers from {Math.round(wp.player.condition)}%</span>
+            <span className="schedule-chip">No travel · no entry fees</span>
+          </>
+        )}
+        {choice.kind === "practice" && (
+          <>
+            <label className="client-week-inline small">
+              Practise at{" "}
+              <select value={choice.courseId} onChange={(e) => onChoose({ kind: "practice", courseId: e.target.value })}>
+                {courses.map((c) => (
+                  <option key={c.courseId} value={c.courseId}>{c.name}{c.next ? ` (${c.next})` : ""}</option>
+                ))}
+              </select>
+            </label>
+            <span className="schedule-chip good">Familiarity {Math.round(familiarityWith(wp, choice.courseId))} → {Math.round(afterPracticeTrip(wp, choice.courseId))}</span>
+            <span className="schedule-chip warn">−{PRACTICE_TRIP_FATIGUE}% condition</span>
+            <span className="schedule-chip">{money(practiceTripCost(world, choice.courseId))}</span>
+            <label className="client-week-inline small">
+              <input type="checkbox" checked={!!choice.live} onChange={(e) => onChoose({ ...choice, live: e.target.checked })} /> Play it hole by hole
+            </label>
+          </>
         )}
       </div>
       {(choice.kind === "enter" || choice.kind === "rest") && (
-        <DayPlanner world={world} id={id} choice={choice} entered={entered} onChoose={onChoose} />
-      )}
-      {choice.kind === "practice" && (
-        <div className="practice-toggle small">
-          <label>
-            <strong>Practise at</strong>{" "}
-            <select value={choice.courseId} onChange={(e) => onChoose({ kind: "practice", courseId: e.target.value })}>
-              {courses.map((c) => (
-                <option key={c.courseId} value={c.courseId}>
-                  {c.name}{c.next ? ` (${c.next})` : ""}
-                </option>
-              ))}
-            </select>
-          </label>
-          <span>
-            Familiarity {Math.round(familiarityWith(wp, choice.courseId))} → {Math.round(afterPracticeTrip(wp, choice.courseId))} · −{PRACTICE_TRIP_FATIGUE}% condition against a week's rest · {money(practiceTripCost(world, choice.courseId))}
-          </span>
-          <label>
-            <input type="checkbox" checked={!!choice.live} onChange={(e) => onChoose({ ...choice, live: e.target.checked })} /> Play it hole by hole
-          </label>
-        </div>
+        <DayPlanner world={world} id={id} choice={choice} entered={entered} onChoose={onChoose} open={showDays} onToggle={() => setShowDays((s) => !s)} />
       )}
     </article>
   );
 }
 
-/** The client's days this week: travel first, then one activity a free day. */
-function DayPlanner({ world, id, choice, entered, onChoose }: { world: World; id: string; choice: Extract<ClientChoice, { kind: "enter" | "rest" }>; entered: EntryOption | undefined; onChoose: (c: ClientChoice) => void }) {
+/** The client's days this week: travel first, then one activity a free day. Folded to one line until opened. */
+function DayPlanner({ world, id, choice, entered, onChoose, open, onToggle }: { world: World; id: string; choice: Extract<ClientChoice, { kind: "enter" | "rest" }>; entered: EntryOption | undefined; onChoose: (c: ClientChoice) => void; open: boolean; onToggle: () => void }) {
   const wp = world.players[id]!;
   const event = choice.kind === "enter" ? entered?.event : undefined;
   if (choice.kind === "enter" && !event) return null;
@@ -349,11 +387,31 @@ function DayPlanner({ world, id, choice, entered, onChoose }: { world: World; id
   const cost = planCost(plan);
   const practice = count(plan, "practice");
   const boost = trainingBoost(plan);
+  const notes: string[] = [];
+  if (cost.condition !== 0) notes.push(`Condition ${cost.condition}%`);
+  if (cost.fees > 0) notes.push(money(cost.fees));
+  if (practice > 0 && entered) notes.push(`Familiarity ${Math.round(entered.familiarity)} → ${Math.round(familiarityAfterPractice(wp, entered.course.id, practice))}${entered.debut ? ", no debut nerves" : ""}`);
+  if (boost.training > 1) notes.push(`Training +${Math.round((boost.training - 1) * 100)}%`);
+  if (boost.fitness > 1) notes.push(`Fitness +${Math.round((boost.fitness - 1) * 100)}%`);
+  if (count(plan, "sponsor") > 0) notes.push("Sponsor goodwill");
+  if (count(plan, "media") > 0) notes.push("Agency profile");
+  if (cost.condition === 0 && cost.fees === 0 && !count(plan, "media")) notes.push("All rest: nothing gained, nothing spent");
+  const line = [...days.map((d, i) => (i < travel ? `${d} ✈ Travel` : `${d} ${ACTIVITIES[plan[i - travel]!].short}`)), ...(event ? [`Thu–Sun ${event.name}`] : [])].join(" · ");
+  if (!open) {
+    return (
+      <div className="planner-summary small">
+        <span className="planner-summary-days">{line}</span>
+        <span className="secondary">{notes.join(" · ")}</span>
+        <button className="linkish" onClick={onToggle}>Change days</button>
+      </div>
+    );
+  }
   return (
     <div className="planner">
       <div className="planner-head small">
         <strong>{event ? `Before ${event.name}` : "His week off"}</strong>
         {travel > 0 && <span className="muted"> · {travel} travel day{travel === 1 ? "" : "s"} ({travelMode(world, wp).label.toLowerCase()})</span>}
+        <button className="linkish" style={{ marginLeft: 10 }} onClick={onToggle}>Done</button>
       </div>
       <div className="planner-days">
         {days.map((d, i) =>
@@ -370,49 +428,9 @@ function DayPlanner({ world, id, choice, entered, onChoose }: { world: World; id
         )}
         {event && <div className="planner-day event"><span className="planner-dname">Thu–Sun</span><span>⛳ {event.name}</span></div>}
       </div>
-      <div className="planner-sum small secondary">
-        {cost.condition !== 0 && <span>Condition {cost.condition}%</span>}
-        {cost.fees > 0 && <span>{money(cost.fees)}</span>}
-        {practice > 0 && entered && <span>Familiarity {Math.round(entered.familiarity)} → {Math.round(familiarityAfterPractice(wp, entered.course.id, practice))}{entered.debut ? ", no debut nerves" : ""}</span>}
-        {boost.training > 1 && <span>Training +{Math.round((boost.training - 1) * 100)}%</span>}
-        {boost.fitness > 1 && <span>Fitness +{Math.round((boost.fitness - 1) * 100)}%</span>}
-        {count(plan, "sponsor") > 0 && <span>Sponsor goodwill</span>}
-        {count(plan, "media") > 0 && <span>Agency profile</span>}
-        {cost.condition === 0 && cost.fees === 0 && !count(plan, "media") && <span>All rest: nothing gained, nothing spent.</span>}
-      </div>
+      <div className="planner-sum small secondary">{notes.map((n) => <span key={n}>{n}</span>)}</div>
     </div>
   );
-}
-
-function EventChoice({ o, checked, onChoose }: { o: EntryOption; checked: boolean; onChoose: () => void }) {
-  const e = o.event;
-  const fit = fitWord(o.fit);
-  const disabled = o.access === "not-invited" || o.access === "injured";
-  return (
-    <button className="choice schedule-choice" role="radio" aria-checked={checked} disabled={disabled} onClick={onChoose}>
-      <span className="schedule-choice-head">
-        <span className="schedule-choice-logo"><TournamentEmblem event={e} course={o.course} size={64} /></span>
-        <span className="schedule-choice-title">
-          <span className="schedule-choice-kicker">{e.devFinals ? `Dev Finals ${e.devFinals}/4` : TIER_LABELS[e.tier]}</span>
-          <strong>{e.name}</strong>
-          <span className="secondary small">{o.course.name}{o.course.info ? `, ${o.course.info.city}` : ""}</span>
-        </span>
-      </span>
-      <span className="schedule-choice-details secondary small">
-        <span>{o.course.style} · par {coursePar(o.course)} · {courseYards(o.course).toLocaleString("en-US")} yds</span>
-        <span>{REGION_NAMES[e.region]} · {millions(e.purse)}</span>
-      </span>
-      <span className="schedule-choice-chips">
-        <span className="schedule-chip" style={{ borderColor: ACCESS_TONE[o.access] }}>{o.detail}</span>
-        <span className={`schedule-chip ${fit.tone}`}>{fit.label} {signed(o.fit, 2)}/round</span>
-        <span className={`schedule-chip ${!o.debut && o.familiarity >= 40 ? "good" : "warn"}`}>{o.debut ? "Course debut" : `${familiarityLabel(o.familiarity)} ${Math.round(o.familiarity)}`}</span>
-      </span>
-    </button>
-  );
-}
-
-function ScheduleChoiceIcon({ kind }: { kind: "call" | "rest" | "practice" }) {
-  return <span className={`schedule-choice-icon ${kind}`} aria-hidden>{kind === "call" ? "CALL" : kind === "rest" ? "REST" : "PRACT"}</span>;
 }
 
 function LastWeek({ world, report, go }: { world: World; report: Game["state"]["reports"][number]; go: Go }) {
