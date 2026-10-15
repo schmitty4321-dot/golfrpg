@@ -90,6 +90,8 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
   // A scout out on him: the weeks left until his report (see intel.ts).
   const job = (world.agency.intelJobs ?? []).find((j) => j.playerId === id);
   const pending = queued || !!job;
+  // No scout free to take him: none hired, or every scout at home already has a player waiting.
+  const noScout = pending ? null : game.lib.scoutBlock(world);
   // His ceiling: the coaches' estimate for a client, the scouts' once a report is good enough.
   const potential = wp.client
     ? abilityView(world, id).potential
@@ -124,8 +126,8 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
                 {!wp.client && (
                   <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-start" }}>
                     <button className="btn btn-small" onClick={() => game.act((w) => toggleShortlist(w, id))}>{onShortlist(world, id) ? "On your watch list ✓" : "Add to watch list"}</button>
-                    <button className="btn btn-small" disabled={pending || (world.agency.hiredScouts.length === 0 && !job)} onClick={() => game.act((w) => queueScouting(w, id))}>{world.agency.hiredScouts.length === 0 && !job ? "No scouts hired" : job ? `Scout is gathering intel · ${job.weeksLeft} wk${job.weeksLeft === 1 ? "" : "s"} left` : queued ? "Waiting for a scout" : known ? "Scout again for a sharper report" : "Have a scout gather intel"}</button>
-                    {world.agency.hiredScouts.length === 0 && <span className="muted small">Hire a scout to start gathering intel.</span>}
+                    <button className="btn btn-small" disabled={pending || !!noScout} onClick={() => game.act((w) => queueScouting(w, id))}>{noScout ? noScout : job ? `Scout is gathering intel · ${job.weeksLeft} wk${job.weeksLeft === 1 ? "" : "s"} left` : queued ? "Waiting for a scout" : known ? "Scout again for a sharper report" : "Have a scout gather intel"}</button>
+                    {noScout && <span className="muted small">{world.agency.hiredScouts.length === 0 ? "Hire a scout to start gathering intel." : "Every scout is busy or away on a trip. Hire another, or wait for one to free up."}</span>}
                   </div>
                 )}
                 {archetype && <div style={{ marginTop: 8 }}><ArchetypePill id={archetype} tier={masteryTier(wp, ARCHETYPE_KEY)} /></div>}

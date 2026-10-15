@@ -1,7 +1,21 @@
 import { describe, expect, it } from "vitest";
-import { createWorld, hireScout, pendingDecisions, playWeek, queueScouting, reportAccuracy, resolveDecision, scoutOnTrip, sendScout, tripCostPerWeek } from "../src/season";
+import { createWorld, hireScout, pendingDecisions, playWeek, queueScouting, reportAccuracy, resolveDecision, scoutBlock, scoutOnTrip, sendScout, tripCostPerWeek } from "../src/season";
 
 describe("scouting trips", () => {
+  it("no scout is available once the one at home has a player waiting and the other is away", () => {
+    const w = createWorld({ seed: 4, scenario: "agency" });
+    w.agency.hiredScouts = [];
+    expect(scoutBlock(w)).toBe("No scouts hired");
+    const [a, b] = [...w.agency.scouts].sort((x, y) => y.quality - x.quality);
+    hireScout(w, a!.id);
+    hireScout(w, b!.id);
+    expect(sendScout(w, a!.id, "NA", "amateurs", 3)).toBeNull();
+    expect(scoutBlock(w)).toBeNull();
+    const target = Object.values(w.players).find((wp) => !wp.client && wp.career.status === "exempt")!.player.id;
+    queueScouting(w, target);
+    expect(scoutBlock(w)).toBe("No scout available");
+  });
+
   it("send a hired scout away, sharpen his reports, and end with a report in the inbox", () => {
     const w = createWorld({ seed: 121, scenario: "agency" });
     const scout = w.agency.scouts[w.agency.scouts.length - 1]!;
