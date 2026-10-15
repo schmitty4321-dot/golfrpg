@@ -220,7 +220,7 @@ export function RecruitingDesk({ world, game, watchList = false }: { world: Worl
       </div>
       <div className="table-wrap">
         <table>
-          <thead><tr><th>Rating</th><th className="num">#</th><th>{tab === "pro" ? "Player" : "Prospect"}</th><th className="num">Age</th><th>{tab === "pro" ? "World · contract" : "School"}</th><th>Your read</th><th>Season</th><th>Interest</th><th>Most interested rival</th><th>His list</th></tr></thead>
+          <thead><tr><th>Rating</th><th className="num">#</th><th>{tab === "pro" ? "Player" : "Prospect"}</th><th>{tab === "pro" ? "World · contract" : "School"}</th><th>Your read</th><th className="num">Age</th><th>Interest</th><th>Season</th><th>His list</th></tr></thead>
           <tbody>
             {list.map((id) => {
               const wp = world.players[id]!;
@@ -232,12 +232,11 @@ export function RecruitingDesk({ world, game, watchList = false }: { world: Worl
                   <td><Stars value={stars(world, id)} /></td>
                   <td className="num">{tab === "pro" ? "–" : <>{(rankOf.get(id) ?? 0) + 1} <MoveArrow move={standingMove(world, id)} /></>}</td>
                   <td><RecruitBadge state={recruitMark(world, id)} pro={tab === "pro"} /><PlayerName id={id}>{wp.player.name}</PlayerName>{wp.academy ? <span className="sponsor-tag">Academy</span> : null}{firstCall(world, id) ? <span className="sponsor-tag" title="His deal is up and he's keen on you: he'll hear you out before the other agencies bid">First call</span> : null}</td>
-                  <td className="num">{wp.player.age}</td>
                   <td className="small">{tab === "pro" ? <>#{ranks.get(id)} · {wp.agent && wp.agent.untilSeason > world.season ? `${wp.agent.agency} to S${wp.agent.untilSeason}` : wp.agent ? `${wp.agent.agency}, final season` : "Free agent"}</> : <SchoolMark world={world} player={wp} />}</td>
                   <td className="small">{readWords(readOf(world, id))}</td>
-                  <td className="small">{tab === "pro" ? "–" : seasonShort(world, id)}</td>
+                  <td className="num">{wp.player.age}</td>
                   <td><InterestSegments value={interest} /></td>
-                  <td className="small">{(() => { const [a, v] = Object.entries(rivalInterest(world, id)).sort((x, y) => y[1] - x[1])[0] ?? []; return a ? <>{a} <span className="muted">({Math.round(v!)})</span></> : "—"; })()}</td>
+                  <td className="small">{tab === "pro" ? "–" : seasonShort(world, id)}</td>
                   <td className="small">{pos ? (pos <= 3 ? <span className="good-text">You're #{pos}</span> : <span className="bad-text">Not in his top 3</span>) : narrowing(wp) ? "Deciding this season" : "—"}</td>
                 </tr>
               );
