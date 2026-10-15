@@ -109,24 +109,27 @@ export function ProfileEquipment({ wp }: { wp: WorldPlayer }) {
             );
           })}
         </div>
-        {wp.client && <p className="muted small">Change his clubs on Clients → Team &amp; gear.</p>}
+        {wp.client && <p className="muted small">Buy or swap clubs and apparel in Clients → Store.</p>}
       </section>
       <section className="panel">
         <div className="panel-head">
           <h2>What he wears</h2>
-          <span className="secondary small">Apparel deals: a full kit, or a hat, shirt or shoes deal on its own</span>
+          <span className="secondary small">What he has on, and who sponsors it</span>
         </div>
         <div className="bag-grid">
           {APPAREL_ITEMS.map((it) => {
             const brand = kit[it];
             const deal = brand ? wp.client?.sponsors.find((s) => s.sponsor === brand) : undefined;
             const art = brand ? BRAND_ART[brand] : undefined;
+            // The piece he bought for this slot (see the Store), if any.
+            const worn = EQUIPMENT.find((e) => e.id === wp.player.equipment?.[it]);
             return (
               <article key={it} className={`bag-card${brand ? " sponsored" : ""}`}>
                 {art ? <img className="apparel-art" src={`${base}${art.banner}`} alt="" /> : <div className="apparel-art blank" aria-hidden />}
                 <span className="recruit-label">{APPAREL_LABELS[it]}</span>
-                <strong>{brand ?? "Unbranded"}</strong>
-                <span className="small secondary">{deal ? `${money(deal.annualValue)} a season to S${deal.untilSeason}` : "Open for a deal"}</span>
+                <strong>{worn?.name ?? "Standard kit"}</strong>
+                {worn && <span className="small secondary">{worn.blurb}</span>}
+                <span className="small secondary">{brand ? `${brand}${deal ? `, ${money(deal.annualValue)} a season to S${deal.untilSeason}` : ""}` : "Unbranded · open for a deal"}</span>
               </article>
             );
           })}
