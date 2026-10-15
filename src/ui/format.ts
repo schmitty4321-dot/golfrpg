@@ -1,5 +1,11 @@
-export const money = (n: number): string => `$${Math.round(n).toLocaleString("en-US")}`;
-export const millions = (n: number): string => `$${(n / 1_000_000).toFixed(1)}M`;
+/** Dollars: in full under a million ($300,000), then in millions to one decimal ($1.0M). */
+export const money = (n: number): string => {
+  const sign = n < 0 ? "-" : "";
+  const abs = Math.abs(n);
+  return abs >= 999_950 ? `${sign}$${(abs / 1_000_000).toFixed(1)}M` : `${sign}$${Math.round(abs).toLocaleString("en-US")}`;
+};
+/** The same as money: kept for the places that always showed millions. */
+export const millions = money;
 export const toPar = (n: number): string => (n === 0 ? "E" : n > 0 ? `+${n}` : `${n}`);
 export const signed = (n: number, d = 1): string => (n >= 0 ? "+" : "−") + Math.abs(n).toFixed(d);
 export const plural = (n: number, word: string): string => `${n} ${word}${n === 1 ? "" : "s"}`;
