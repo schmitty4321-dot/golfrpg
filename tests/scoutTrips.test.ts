@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createWorld, hireScout, pendingDecisions, playWeek, queueScouting, reportAccuracy, resolveDecision, scoutBlock, scoutOnTrip, sendScout, tripCostPerWeek } from "../src/season";
+import { createWorld, hireScout, pendingDecisions, playWeek, queueScouting, reportAccuracy, resolveDecision, scoutBlock, scoutOnTrip, scoutingWeek, sendScout, tripCostPerWeek } from "../src/season";
 
 describe("scouting trips", () => {
   it("no scout is available once the one at home has a player waiting and the other is away", () => {
@@ -13,6 +13,11 @@ describe("scouting trips", () => {
     expect(scoutBlock(w)).toBeNull();
     const target = Object.values(w.players).find((wp) => !wp.client && wp.career.status === "exempt")!.player.id;
     queueScouting(w, target);
+    expect(scoutBlock(w)).toBe("No scout available");
+    // Still busy once he has started on the player.
+    scoutingWeek(w);
+    expect(w.agency.scoutingQueue).toEqual([]);
+    expect(w.agency.intelJobs?.length).toBe(1);
     expect(scoutBlock(w)).toBe("No scout available");
   });
 

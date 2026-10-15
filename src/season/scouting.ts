@@ -43,15 +43,16 @@ export function queueScouting(world: World, playerId: string): void {
 
 /**
  * Why a new player can't be sent to scouting now, or null when he can: no scouts on the
- * payroll, or every scout at home already has a player waiting (one away on a trip
- * can't take one).
+ * payroll, or every scout at home is already busy, gathering intel on a player or with one
+ * waiting (one away on a trip can't take one).
  */
 export function scoutBlock(world: World): string | null {
   const hired = world.agency.hiredScouts;
   if (hired.length === 0) return "No scouts hired";
   const away = new Set((world.agency.trips ?? []).map((t) => t.scoutId));
   const home = hired.filter((id) => !away.has(id)).length;
-  return world.agency.scoutingQueue.length >= home ? "No scout available" : null;
+  const working = (world.agency.intelJobs ?? []).filter((j) => !away.has(j.scoutId)).length;
+  return working + world.agency.scoutingQueue.length >= home ? "No scout available" : null;
 }
 
 export const weeklyScoutCost = (world: World): number =>

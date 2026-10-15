@@ -4,7 +4,7 @@ const { app, BrowserWindow, shell } = require("electron");
 
 const GAME_URL = "https://schmitty4321-dot.github.io/golfrpg/";
 
-function createWindow() {
+async function createWindow() {
   const win = new BrowserWindow({
     width: 1280,
     height: 860,
@@ -13,7 +13,10 @@ function createWindow() {
     autoHideMenuBar: true,
     webPreferences: { contextIsolation: true, sandbox: true },
   });
-  win.loadURL(GAME_URL);
+  // Always the latest build: GitHub Pages lets a browser keep the page for ten minutes, so drop
+  // anything saved from the last session and ask for a fresh copy.
+  await win.webContents.session.clearCache();
+  win.loadURL(GAME_URL, { extraHeaders: "pragma: no-cache\ncache-control: no-cache\n" });
   // Links to other sites open in the user's browser, not inside the game window.
   win.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
@@ -28,9 +31,9 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
-  createWindow();
+  void createWindow();
   app.on("activate", () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    if (BrowserWindow.getAllWindows().length === 0) void createWindow();
   });
 });
 
