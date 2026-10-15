@@ -13097,5 +13097,761 @@
         "y": 166
       }
     ]
+  },
+  "tpc-san-antonio-oaks:1": {
+    "image": "art-demo/tpc-san-antonio-oaks/hole-01.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.291667,
+        3.149573,
+        170
+      ],
+      "y": [
+        3.141667,
+        -1.27919,
+        750
+      ]
+    },
+    "meta": {
+      "number": 1,
+      "par": 4,
+      "yards": 454,
+      "tourAverage": 4.231,
+      "difficulty": 1,
+      "course": "TPC San Antonio (Oaks Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 170,
+        "y": 750
+      },
+      {
+        "at": 0.6717,
+        "x": 1117,
+        "y": 360
+      },
+      {
+        "at": 1,
+        "x": 1580,
+        "y": 170
+      }
+    ]
+  },
+  "tpc-san-antonio-oaks:2": {
+    "image": "art-demo/tpc-san-antonio-oaks/hole-02.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0.85022,
+        2.234483,
+        126
+      ],
+      "y": [
+        2.23348,
+        -0.852687,
+        760
+      ]
+    },
+    "meta": {
+      "number": 2,
+      "par": 5,
+      "yards": 602,
+      "tourAverage": 4.704,
+      "difficulty": 16,
+      "course": "TPC San Antonio (Oaks Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 126,
+        "y": 760
+      },
+      {
+        "at": 0.5085,
+        "x": 841,
+        "y": 488
+      },
+      {
+        "at": 1,
+        "x": 1532,
+        "y": 225
+      }
+    ]
+  },
+  "tpc-san-antonio-oaks:3": {
+    "image": "art-demo/tpc-san-antonio-oaks/hole-03.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        2.656604,
+        5.440927,
+        380
+      ],
+      "y": [
+        5.426415,
+        -2.656059,
+        692
+      ]
+    },
+    "meta": {
+      "number": 3,
+      "par": 3,
+      "yards": 171,
+      "tourAverage": 3.062,
+      "difficulty": 5,
+      "course": "TPC San Antonio (Oaks Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 380,
+        "y": 692
+      },
+      {
+        "at": 1,
+        "x": 1310,
+        "y": 237
+      },
+      {
+        "at": 1,
+        "x": 1310,
+        "y": 237
+      }
+    ]
+  },
+  "tpc-san-antonio-oaks:4": {
+    "image": "art-demo/tpc-san-antonio-oaks/hole-04.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.177419,
+        2.829436,
+        206
+      ],
+      "y": [
+        2.822581,
+        -1.170571,
+        762
+      ]
+    },
+    "meta": {
+      "number": 4,
+      "par": 4,
+      "yards": 481,
+      "tourAverage": 4.189,
+      "difficulty": 2,
+      "course": "TPC San Antonio (Oaks Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 206,
+        "y": 762
+      },
+      {
+        "at": 0.6299,
+        "x": 1050,
+        "y": 409
+      },
+      {
+        "at": 1,
+        "x": 1546,
+        "y": 202
+      }
+    ]
+  },
+  "tpc-san-antonio-oaks:5": {
+    "image": "art-demo/tpc-san-antonio-oaks/hole-05.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.272109,
+        3.354482,
+        150
+      ],
+      "y": [
+        3.353741,
+        -1.278441,
+        730
+      ]
+    },
+    "meta": {
+      "number": 5,
+      "par": 4,
+      "yards": 401,
+      "tourAverage": 3.99,
+      "difficulty": 10,
+      "course": "TPC San Antonio (Oaks Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 150,
+        "y": 730
+      },
+      {
+        "at": 0.7554,
+        "x": 1147,
+        "y": 352
+      },
+      {
+        "at": 1,
+        "x": 1470,
+        "y": 230
+      }
+    ]
+  },
+  "tpc-san-antonio-oaks:6": {
+    "image": "art-demo/tpc-san-antonio-oaks/hole-06.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.434783,
+        3.093292,
+        246
+      ],
+      "y": [
+        3.086957,
+        -1.423566,
+        750
+      ]
+    },
+    "meta": {
+      "number": 6,
+      "par": 4,
+      "yards": 403,
+      "tourAverage": 4.002,
+      "difficulty": 8,
+      "course": "TPC San Antonio (Oaks Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 246,
+        "y": 750
+      },
+      {
+        "at": 0.7419,
+        "x": 1136,
+        "y": 337
+      },
+      {
+        "at": 1,
+        "x": 1446,
+        "y": 194
+      }
+    ]
+  },
+  "tpc-san-antonio-oaks:7": {
+    "image": "art-demo/tpc-san-antonio-oaks/hole-07.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        2.488987,
+        5.659933,
+        230
+      ],
+      "y": [
+        5.303965,
+        -1.842225,
+        742
+      ]
+    },
+    "meta": {
+      "number": 7,
+      "par": 3,
+      "yards": 207,
+      "tourAverage": 3.01,
+      "difficulty": 7,
+      "course": "TPC San Antonio (Oaks Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 230,
+        "y": 742
+      },
+      {
+        "at": 1,
+        "x": 1380,
+        "y": 202
+      },
+      {
+        "at": 1,
+        "x": 1380,
+        "y": 202
+      }
+    ]
+  },
+  "tpc-san-antonio-oaks:8": {
+    "image": "art-demo/tpc-san-antonio-oaks/hole-08.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.008065,
+        2.478464,
+        146
+      ],
+      "y": [
+        2.475806,
+        -1.014383,
+        762
+      ]
+    },
+    "meta": {
+      "number": 8,
+      "par": 5,
+      "yards": 604,
+      "tourAverage": 4.886,
+      "difficulty": 14,
+      "course": "TPC San Antonio (Oaks Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 146,
+        "y": 762
+      },
+      {
+        "at": 0.5034,
+        "x": 891,
+        "y": 458
+      },
+      {
+        "at": 1,
+        "x": 1626,
+        "y": 158
+      }
+    ]
+  },
+  "tpc-san-antonio-oaks:9": {
+    "image": "art-demo/tpc-san-antonio-oaks/hole-09.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.266187,
+        2.96318,
+        190
+      ],
+      "y": [
+        2.971223,
+        -1.277188,
+        770
+      ]
+    },
+    "meta": {
+      "number": 9,
+      "par": 4,
+      "yards": 474,
+      "tourAverage": 4.127,
+      "difficulty": 3,
+      "course": "TPC San Antonio (Oaks Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 190,
+        "y": 770
+      },
+      {
+        "at": 0.6433,
+        "x": 1097,
+        "y": 384
+      },
+      {
+        "at": 1,
+        "x": 1600,
+        "y": 170
+      }
+    ]
+  },
+  "tpc-san-antonio-oaks:10": {
+    "image": "art-demo/tpc-san-antonio-oaks/hole-10.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.3,
+        3.24353,
+        136
+      ],
+      "y": [
+        3.246154,
+        -1.305053,
+        756
+      ]
+    },
+    "meta": {
+      "number": 10,
+      "par": 4,
+      "yards": 447,
+      "tourAverage": 3.998,
+      "difficulty": 9,
+      "course": "TPC San Antonio (Oaks Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 136,
+        "y": 756
+      },
+      {
+        "at": 0.68,
+        "x": 1115,
+        "y": 364
+      },
+      {
+        "at": 1,
+        "x": 1576,
+        "y": 180
+      }
+    ]
+  },
+  "tpc-san-antonio-oaks:11": {
+    "image": "art-demo/tpc-san-antonio-oaks/hole-11.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.282443,
+        3.468435,
+        130
+      ],
+      "y": [
+        3.465649,
+        -1.283794,
+        712
+      ]
+    },
+    "meta": {
+      "number": 11,
+      "par": 4,
+      "yards": 405,
+      "tourAverage": 3.903,
+      "difficulty": 13,
+      "course": "TPC San Antonio (Oaks Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 130,
+        "y": 712
+      },
+      {
+        "at": 0.7456,
+        "x": 1159,
+        "y": 332
+      },
+      {
+        "at": 1,
+        "x": 1510,
+        "y": 202
+      }
+    ]
+  },
+  "tpc-san-antonio-oaks:12": {
+    "image": "art-demo/tpc-san-antonio-oaks/hole-12.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.50625,
+        3.288146,
+        176
+      ],
+      "y": [
+        3.2875,
+        -1.512033,
+        752
+      ]
+    },
+    "meta": {
+      "number": 12,
+      "par": 4,
+      "yards": 410,
+      "tourAverage": 3.975,
+      "difficulty": 11,
+      "course": "TPC San Antonio (Oaks Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 176,
+        "y": 752
+      },
+      {
+        "at": 0.7413,
+        "x": 1162,
+        "y": 300
+      },
+      {
+        "at": 1,
+        "x": 1506,
+        "y": 142
+      }
+    ]
+  },
+  "tpc-san-antonio-oaks:13": {
+    "image": "art-demo/tpc-san-antonio-oaks/hole-13.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.849673,
+        4.577831,
+        310
+      ],
+      "y": [
+        4.588235,
+        -1.870375,
+        670
+      ]
+    },
+    "meta": {
+      "number": 13,
+      "par": 3,
+      "yards": 241,
+      "tourAverage": 3.097,
+      "difficulty": 4,
+      "course": "TPC San Antonio (Oaks Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 310,
+        "y": 670
+      },
+      {
+        "at": 1,
+        "x": 1400,
+        "y": 230
+      },
+      {
+        "at": 1,
+        "x": 1400,
+        "y": 230
+      }
+    ]
+  },
+  "tpc-san-antonio-oaks:14": {
+    "image": "art-demo/tpc-san-antonio-oaks/hole-14.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.088496,
+        2.81764,
+        136
+      ],
+      "y": [
+        2.823009,
+        -1.098349,
+        744
+      ]
+    },
+    "meta": {
+      "number": 14,
+      "par": 5,
+      "yards": 553,
+      "tourAverage": 4.443,
+      "difficulty": 18,
+      "course": "TPC San Antonio (Oaks Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 136,
+        "y": 744
+      },
+      {
+        "at": 0.5442,
+        "x": 947,
+        "y": 432
+      },
+      {
+        "at": 1,
+        "x": 1626,
+        "y": 170
+      }
+    ]
+  },
+  "tpc-san-antonio-oaks:15": {
+    "image": "art-demo/tpc-san-antonio-oaks/hole-15.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.169492,
+        2.997394,
+        120
+      ],
+      "y": [
+        3,
+        -1.172893,
+        722
+      ]
+    },
+    "meta": {
+      "number": 15,
+      "par": 4,
+      "yards": 464,
+      "tourAverage": 4.047,
+      "difficulty": 6,
+      "course": "TPC San Antonio (Oaks Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 120,
+        "y": 722
+      },
+      {
+        "at": 0.6615,
+        "x": 1033,
+        "y": 365
+      },
+      {
+        "at": 1,
+        "x": 1500,
+        "y": 182
+      }
+    ]
+  },
+  "tpc-san-antonio-oaks:16": {
+    "image": "art-demo/tpc-san-antonio-oaks/hole-16.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        3.006667,
+        7.15847,
+        96
+      ],
+      "y": [
+        7.16,
+        -3.005464,
+        762
+      ]
+    },
+    "meta": {
+      "number": 16,
+      "par": 3,
+      "yards": 183,
+      "tourAverage": 2.93,
+      "difficulty": 12,
+      "course": "TPC San Antonio (Oaks Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 96,
+        "y": 762
+      },
+      {
+        "at": 1,
+        "x": 1406,
+        "y": 212
+      },
+      {
+        "at": 1,
+        "x": 1406,
+        "y": 212
+      }
+    ]
+  },
+  "tpc-san-antonio-oaks:17": {
+    "image": "art-demo/tpc-san-antonio-oaks/hole-17.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        1.574468,
+        3.988446,
+        160
+      ],
+      "y": [
+        3.992908,
+        -1.59227,
+        740
+      ]
+    },
+    "meta": {
+      "number": 17,
+      "par": 4,
+      "yards": 347,
+      "tourAverage": 3.619,
+      "difficulty": 17,
+      "course": "TPC San Antonio (Oaks Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 160,
+        "y": 740
+      },
+      {
+        "at": 0.7753,
+        "x": 1222,
+        "y": 321
+      },
+      {
+        "at": 1,
+        "x": 1530,
+        "y": 200
+      }
+    ]
+  },
+  "tpc-san-antonio-oaks:18": {
+    "image": "art-demo/tpc-san-antonio-oaks/hole-18.webp",
+    "width": 1774,
+    "height": 887,
+    "matrix": {
+      "x": [
+        0.953125,
+        2.538477,
+        146
+      ],
+      "y": [
+        2.539062,
+        -0.955177,
+        730
+      ]
+    },
+    "meta": {
+      "number": 18,
+      "par": 5,
+      "yards": 591,
+      "tourAverage": 4.831,
+      "difficulty": 15,
+      "course": "TPC San Antonio (Oaks Course)"
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 146,
+        "y": 730
+      },
+      {
+        "at": 0.5129,
+        "x": 900,
+        "y": 446
+      },
+      {
+        "at": 1,
+        "x": 1616,
+        "y": 176
+      }
+    ]
   }
 }
