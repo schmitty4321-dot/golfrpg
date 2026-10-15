@@ -334,11 +334,18 @@ export function BrandsPanel({ world, game }: { world: World; game: Game }) {
       <div className="panel-head"><h2>Brand partnerships</h2><span className="muted small">Agency-wide deals: a yearly fee, and better offers for your clients</span></div>
       <p className="small secondary" style={{ marginTop: 0 }}>Partnership slots: <strong>{deals.length} of {brandSlots(world)}</strong> used (more as your reputation grows). Brands also come calling after your clients' wins and top 10s; offers lapse after a few weeks.</p>
       {deals.length > 0 && <div className="brand-deal-grid">{deals.map((b) => <BrandCard key={b.id} world={world} deal={b} active />)}</div>}
+      {/* With every slot taken there's nothing to sign, so the other offers aren't shown. */}
+      {deals.length >= brandSlots(world) ? (
+        <p className="muted small">All partnership slots are taken. New offers appear here when a slot opens.</p>
+      ) : (
+      <>
       <div className="pp-label" style={{ marginTop: 10 }}>On offer</div>
       {offers.length === 0 ? (
         <p className="empty">{world.agency.reputation < 15 ? "Brands start calling at reputation 15." : "No more offers this season."}</p>
       ) : (
         <div className="brand-deal-grid">{offers.map((b) => <BrandCard key={b.id} world={world} deal={b} block={brandBlock(world)} onSign={() => game.act((w) => signBrand(w, b.id))} onDecline={() => game.act((w) => declineBrand(w, b.id))} />)}</div>
+      )}
+      </>
       )}
     </section>
   );
