@@ -12,7 +12,15 @@ type StoreItem = { kind: "gear"; value: EquipmentModel } | { kind: "lifestyle"; 
 
 const slotLabel = (slot: GearSlot): string => (slot in SLOT_LABELS ? SLOT_LABELS[slot as keyof typeof SLOT_LABELS] : APPAREL_LABELS[slot as keyof typeof APPAREL_LABELS]);
 const makerOf = (m: EquipmentModel) => m.name.split(" ")[0] ?? "Tour";
+const SPECIALTY_CLUB_ART = new Set([
+  "driver-standard", "driver-bomber", "driver-fairway", "driver-adjustable",
+  "irons-standard", "irons-blades", "irons-gi", "irons-combo",
+  "wedges-standard", "wedges-spin", "wedges-low", "wedges-wide",
+  "putter-standard", "putter-milled", "putter-mallet", "putter-broom",
+]);
 const artFor = (category: StoreCategory, id?: string): string => {
+  if (id && SPECIALTY_CLUB_ART.has(id)) return `art/clubs/specialty/${id}.png`;
+  if (id && (id.startsWith("ap-") || id.startsWith("home-") || id.startsWith("car-"))) return `art/store/items/${id}.png`;
   if ((EQUIPMENT_SLOTS as readonly string[]).includes(category)) return `art/clubs/${category}.webp`;
   if ((APPAREL_SLOTS as readonly string[]).includes(category)) return "art/sponsors/apparel.webp";
   if (category === "home") return "art/facilities/hq-3.webp";
@@ -147,7 +155,7 @@ export function Store({ world, game, clientId }: { world: World; game: Game; cli
           <aside className="shop-compare">
             <div className="shop-compare-head"><Sparkles size={15} /><span>{isGear ? "CURRENT VS SELECTED" : "SELECTED UPGRADE"}</span></div>
             {selected ? <><div className="shop-compare-items">
-              <div><small>{isGear ? "Current" : currentLifestyle ? "Currently owned" : "Current"}</small><img src={artFor(category, currentLifestyle?.id)} alt="" /><strong>{isGear ? currentGear?.name ?? "None" : currentLifestyle?.name ?? "No item"}</strong></div>
+              <div><small>{isGear ? "Current" : currentLifestyle ? "Currently owned" : "Current"}</small><img src={artFor(category, isGear ? currentGear?.id : currentLifestyle?.id)} alt="" /><strong>{isGear ? currentGear?.name ?? "None" : currentLifestyle?.name ?? "No item"}</strong></div>
               <b>VS</b>
               <div><small>Selected</small><img src={artFor(category, selected.value.id)} alt="" /><strong>{selected.value.name}</strong></div>
             </div>
