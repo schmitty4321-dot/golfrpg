@@ -250,9 +250,18 @@ export function MomentsView({ world, game, lw }: { world: World; game: Game; lw:
       setReplay({ id: player.id, name: player.name, round: m.round, index: m.index, trace, courseName: course.name, scores: [...roundScores(t, m.id, m.round)], course });
       setStep(0);
       setMoment(null);
+    } else if (broadcast && watching) {
+      // Watching live: back to the board, which moves on a hole at a time to the next stop.
+      setMoment(null);
     } else {
       advance(callsLeft - (spends ? 1 : 0) > 0);
     }
+  }
+
+  /** After a played hole: watching live goes back to the board hole by hole; otherwise it plays on to the next stop. */
+  function playOn() {
+    setReplay(null);
+    if (!(broadcast && watching)) advance();
   }
 
   const current = moment ? events[moment.ev]!.tournament : null;
@@ -294,7 +303,7 @@ export function MomentsView({ world, game, lw }: { world: World; game: Game; lw:
               <ShotSequence trace={replay.trace} step={step} />
               <div className="btn-row">
                 {step < replay.trace.shots.length && <button className="btn" onClick={() => setStep(replay.trace.shots.length)}>Show all shots</button>}
-                <button className="btn btn-primary" onClick={() => { setReplay(null); advance(); }}>Play on</button>
+                <button className="btn btn-primary" onClick={playOn}>{broadcast && watching ? "Back to the broadcast" : "Play on"}</button>
               </div>
             </div>
           </div>
