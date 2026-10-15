@@ -99,10 +99,19 @@ function generatedEquipment(slot: EquipmentSlot): EquipmentModel[] {
 const APPAREL: readonly EquipmentModel[] = [
   { id: "ap-visor", slot: "hat", name: "Tour Visor", price: 450, blurb: "Cuts the glare on the greens.", sg: { putting: 0.04 } },
   { id: "ap-rain-cap", slot: "hat", name: "Storm Brim Cap", price: 600, blurb: "Keeps the rain off his eyes.", wet: { offTheTee: 0.06, approach: 0.04 } },
+  { id: "ap-aero-cap", slot: "hat", name: "Aero Tour Cap", price: 800, blurb: "A low-profile cap that stays settled through the swing.", spread: { offTheTee: 0.97 } },
+  { id: "ap-wide-brim", slot: "hat", name: "Heritage Sun Hat", price: 650, blurb: "A wide brim makes long practice days easier.", sg: { aroundTheGreen: 0.03 } },
+  { id: "ap-cooling-cap", slot: "hat", name: "Cooling Mesh Cap", price: 900, blurb: "Ventilated panels keep his concentration steady.", spread: { approach: 0.97, putting: 0.97 } },
   { id: "ap-compression", slot: "shirt", name: "Compression Base Layer", price: 700, blurb: "Holds the swing together over 18 holes.", spread: { offTheTee: 0.95, approach: 0.95 } },
   { id: "ap-rain-shell", slot: "shirt", name: "Waterproof Shell", price: 1_400, blurb: "Stays dry on wet days.", wet: { approach: 0.05, putting: 0.04 } },
+  { id: "ap-tour-polo", slot: "shirt", name: "Tailored Tour Polo", price: 850, blurb: "A precise cut that moves cleanly through impact.", sg: { approach: 0.03 } },
+  { id: "ap-quarter-zip", slot: "shirt", name: "Thermal Quarter-Zip", price: 1_100, blurb: "Warm, quiet fabric for cold and wet rounds.", wet: { offTheTee: 0.03, approach: 0.03 } },
+  { id: "ap-motion-polo", slot: "shirt", name: "Freedom Motion Polo", price: 1_000, blurb: "Stretch panels keep the full swing unrestricted.", spread: { offTheTee: 0.97, approach: 0.97 } },
   { id: "ap-spikeless", slot: "shoes", name: "Spikeless Grip Shoes", price: 900, blurb: "Grips firm turf; slips when it's wet.", firm: 0.05 },
   { id: "ap-spiked", slot: "shoes", name: "Tour Spikes", price: 1_200, blurb: "Bites into soft, wet turf around the greens.", wet: { aroundTheGreen: 0.05 } },
+  { id: "ap-stability", slot: "shoes", name: "Stability Platform Shoes", price: 1_350, blurb: "A grounded base keeps approach swings repeatable.", spread: { approach: 0.96 } },
+  { id: "ap-waterproof-shoes", slot: "shoes", name: "All-Weather High Shoes", price: 1_500, blurb: "Sealed uppers and deep traction for wet weeks.", wet: { approach: 0.03, aroundTheGreen: 0.03 } },
+  { id: "ap-lightweight", slot: "shoes", name: "Featherweight Tour Shoes", price: 1_100, blurb: "Light, responsive shoes for an athletic move.", sg: { offTheTee: 0.02, putting: 0.02 } },
 ];
 
 export const EQUIPMENT: readonly EquipmentModel[] = [

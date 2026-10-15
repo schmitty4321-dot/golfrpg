@@ -20,6 +20,7 @@ const SPECIALTY_CLUB_ART = new Set([
 ]);
 const artFor = (category: StoreCategory, id?: string): string => {
   if (id && SPECIALTY_CLUB_ART.has(id)) return `art/clubs/specialty/${id}.png`;
+  if (id && (id.startsWith("ap-") || id.startsWith("home-") || id.startsWith("car-"))) return `art/store/items/${id}.png`;
   if ((EQUIPMENT_SLOTS as readonly string[]).includes(category)) return `art/clubs/${category}.webp`;
   if ((APPAREL_SLOTS as readonly string[]).includes(category)) return "art/sponsors/apparel.webp";
   if (category === "home") return "art/facilities/hq-3.webp";
