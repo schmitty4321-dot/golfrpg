@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { EQUIPMENT, EQUIPMENT_SLOTS, SLOT_LABELS, STANDARD, type EquipmentModel, type EquipmentSlot } from "../../engine";
+import type { EquipmentModel } from "../../engine";
 import {
   JET_LEASE_WEEKLY,
   JET_PRICE,
@@ -14,6 +14,7 @@ import {
 } from "../../season";
 import { money } from "../format";
 import { Portrait } from "../components/Portrait";
+import { ProfileEquipment } from "../components/ProfileGear";
 import { PlayerName } from "../components/PlayerLink";
 import type { Game } from "../useGame";
 
@@ -43,17 +44,11 @@ export function Team({ world, game, clientId }: { world: World; game: Game; clie
   const m = wp.client!;
   const caddies = caddiesOf(world);
   const mine = caddies.find((k) => k.id === m.caddieId);
-  const owned = new Set(m.ownedEquipment ?? []);
   const mode = travelMode(world, wp);
   const act = game.act;
   const [caddiePage, setCaddiePage] = useState(0);
-  const [gearSlot, setGearSlot] = useState<EquipmentSlot>("driver");
-  const [gearPage, setGearPage] = useState(0);
   const caddiePages = Math.ceil(caddies.length / 8);
   const shownCaddies = caddies.slice(caddiePage * 8, caddiePage * 8 + 8);
-  const slotModels = EQUIPMENT.filter((e) => e.slot === gearSlot);
-  const gearPages = Math.ceil(slotModels.length / 12);
-  const shownModels = slotModels.slice(gearPage * 12, gearPage * 12 + 12);
 
   return (
     <main>
@@ -94,32 +89,8 @@ export function Team({ world, game, clientId }: { world: World; game: Game; clie
         <Pager page={caddiePage} pages={caddiePages} setPage={setCaddiePage} label={`${caddies.length} available caddies`} />
       </section>
 
-      <section className="panel">
-        <div className="panel-head">
-          <h2>The bag</h2>
-          <span className="muted small">He pays for his clubs. Owned models swap back in for free.</span>
-        </div>
-        <div className="market-tabs" role="tablist">
-          {EQUIPMENT_SLOTS.map((slot) => <button key={slot} className="btn btn-small" aria-selected={gearSlot === slot} onClick={() => { setGearSlot(slot); setGearPage(0); }}>{SLOT_LABELS[slot]}</button>)}
-        </div>
-        <div className="gear-market">
-                  {shownModels.map((e) => {
-                    const current = wp.player.equipment?.[gearSlot] ?? STANDARD[gearSlot];
-                    const inBag = e.id === current;
-                    const have = e.price === 0 || owned.has(e.id);
-                    return (
-                      <button key={e.id} className="choice gear-card" role="radio" aria-checked={inBag} onClick={() => !inBag && act((w) => game.lib.equip(w, clientId, e.id))}>
-                        <img className="club-art" src={`art/clubs/${gearSlot}.webp`} alt="" />
-                        <strong>{e.name}</strong>
-                        <span className="secondary small">{e.blurb}</span>
-                        <span className="small">{effects(e)}</span>
-                        <span className="small muted">{inBag ? "In the bag" : have ? "Owned: free to swap" : `Buy for ${money(e.price)}`}</span>
-                      </button>
-                    );
-                  })}
-        </div>
-        <Pager page={gearPage} pages={gearPages} setPage={setGearPage} label={`100 ${SLOT_LABELS[gearSlot].toLowerCase()} models`} />
-      </section>
+      {/* His clubs and apparel at a glance; buying and swapping are in the Store. */}
+      <ProfileEquipment wp={wp} />
 
       <section className="panel">
         <div className="panel-head">
