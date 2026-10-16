@@ -1,24 +1,24 @@
-# PGA West (Stadium Course) (pga-west-stadium) audit, 50 rounds per hole
+# PGA West (Stadium Course) (pga-west-stadium) audit, 1000 rounds per hole
 
 | Hole | Par | Yds | Questions asked (rounds) | Tee median | Picture landing | Water lies | Bunker lies | OB lies | Green hits | Flags |
 |---|---|---|---|---|---|---|---|---|---|---|
-| 1 | 4 | 445 | firm 50, dogleg 50 | 302 | display only | 0 | 12 | 5 | 137 | ok |
-| 2 | 4 | 371 | firm 50, bunkerCarry 50 | 298 | display only | 0 | 16 | 5 | 138 | ok |
-| 3 | 4 | 471 | firm 50, bunkerCarry 50 | 303 | display only | 0 | 0 | 7 | 146 | ok |
-| 4 | 3 | 170 | none | 175 | display only | 0 | 10 | 3 | 138 | ok |
-| 5 | 5 | 535 | tee 50, second 46, carry 50, firm 50, dogleg 50, layup 4 | 303 | display only | 10 | 5 | 0 | 139 | ok |
-| 6 | 3 | 227 | carry 50, longThree 50 | 219 | display only | 10 | 0 | 0 | 130 | ok |
-| 7 | 4 | 346 | tee 50, approach 50, firm 50, bunkerCarry 50, dogleg 50 | 265 | display only | 8 | 11 | 0 | 133 | ok |
-| 8 | 5 | 559 | firm 50, layup 26, dogleg 50, scoring 50, second 24 | 302 | display only | 3 | 0 | 0 | 146 | ok |
-| 9 | 4 | 452 | firm 50, trust 50 | 301 | display only | 4 | 4 | 0 | 130 | ok |
-| 10 | 4 | 405 | firm 50 | 299 | display only | 6 | 7 | 0 | 136 | ok |
-| 11 | 5 | 591 | tee 50, approach 50, firm 50, layup 48, bunkerCarry 50, second 2 | 299 | display only | 8 | 16 | 0 | 143 | ok |
-| 12 | 4 | 363 | firm 50, bunkerCarry 50 | 287 | display only | 4 | 9 | 0 | 139 | ok |
-| 13 | 3 | 214 | carry 50, hardest 50 | 194 | display only | 16 | 0 | 0 | 132 | ok |
-| 14 | 4 | 389 | firm 50, dogleg 50 | 299 | display only | 0 | 8 | 7 | 141 | ok |
-| 15 | 4 | 468 | firm 50 | 304 | display only | 0 | 0 | 9 | 130 | ok |
-| 16 | 5 | 600 | firm 50, layup 49, second 1 | 298 | display only | 2 | 7 | 0 | 138 | ok |
-| 17 | 3 | 165 | carry 50, chase 50 | 174 | display only | 10 | 8 | 0 | 129 | ok |
-| 18 | 4 | 439 | tee 50, carry 50, firm 50 | 299 | display only | 6 | 7 | 0 | 133 | ok |
+| 1 | 4 | 445 | firm 1000, dogleg 1000 | 300 | 277 | 0 | 237 | 86 | 2737 | ok |
+| 2 | 4 | 371 | firm 1000, bunkerCarry 1000 | 298 | 298 | 0 | 276 | 80 | 2775 | ok |
+| 3 | 4 | 471 | firm 1000, bunkerCarry 1000 | 305 | 305 | 0 | 18 | 124 | 2754 | ok |
+| 4 | 3 | 170 | none | 172 | 85 | 0 | 194 | 81 | 2709 | ok |
+| 5 | 5 | 535 | tee 1000, second 946, carry 1000, firm 1000, dogleg 1000, layup 54 | 307 | 307 | 237 | 116 | 0 | 2845 | ok |
+| 6 | 3 | 227 | carry 1000, longThree 1000 | 218 | 114 | 224 | 0 | 0 | 2593 | ok |
+| 7 | 4 | 346 | tee 1000, approach 1000, firm 1000, bunkerCarry 1000, dogleg 1000 | 264 | 240 | 166 | 246 | 0 | 2763 | ok |
+| 8 | 5 | 559 | second 558, firm 1000, dogleg 1000, scoring 1000, layup 442 | 298 | 298 | 74 | 2 | 0 | 2858 | ok |
+| 9 | 4 | 452 | firm 1000, trust 1000 | 299 | 294 | 134 | 186 | 0 | 2771 | ok |
+| 10 | 4 | 405 | firm 1000 | 303 | 303 | 88 | 262 | 0 | 2769 | ok |
+| 11 | 5 | 591 | tee 1000, approach 1000, firm 1000, layup 969, bunkerCarry 1000, second 31 | 302 | 302 | 153 | 178 | 0 | 2834 | ok |
+| 12 | 4 | 363 | firm 1000, bunkerCarry 1000 | 287 | 287 | 86 | 272 | 0 | 2737 | ok |
+| 13 | 3 | 214 | carry 1000, hardest 1000 | 202 | 107 | 168 | 0 | 0 | 2577 | ok |
+| 14 | 4 | 389 | firm 1000, dogleg 1000 | 298 | 278 | 0 | 184 | 107 | 2781 | ok |
+| 15 | 4 | 468 | firm 1000 | 304 | 304 | 0 | 17 | 125 | 2775 | ok |
+| 16 | 5 | 600 | firm 1000, layup 988, second 12 | 300 | 300 | 69 | 184 | 0 | 2842 | ok |
+| 17 | 3 | 165 | carry 1000, chase 1000 | 170 | 82 | 209 | 157 | 0 | 2539 | ok |
+| 18 | 4 | 439 | tee 1000, carry 1000, firm 1000 | 301 | 301 | 165 | 97 | 0 | 2759 | ok |
 
 0 of 18 holes have something to check.

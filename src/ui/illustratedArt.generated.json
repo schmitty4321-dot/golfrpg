@@ -1138,454 +1138,785 @@
     }
   },
   "pga-west-stadium:1": {
-    "image": "art-demo/pga-west-stadium/hole-01.png",
+    "image": "art-demo/pga-west-stadium/hole-01.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        1.072,
+        2.981582,
+        250
       ],
       "y": [
-        0,
-        0,
-        0
+        2.984,
+        -1.071641,
+        715
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 1,
       "par": 4,
       "yards": 445,
       "tourAverage": 3.903,
+      "difficulty": 9,
       "course": "PGA West (Stadium Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 250,
+        "y": 715
+      },
+      {
+        "at": 0.6231,
+        "x": 1040,
+        "y": 385
+      },
+      {
+        "at": 1,
+        "x": 1540,
+        "y": 250
+      }
+    ]
   },
   "pga-west-stadium:2": {
-    "image": "art-demo/pga-west-stadium/hole-02.png",
+    "image": "art-demo/pga-west-stadium/hole-02.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        1.290714,
+        3.411782,
+        300
       ],
       "y": [
-        0,
-        0,
-        0
+        3.418197,
+        -1.30094,
+        770
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 2,
       "par": 4,
       "yards": 371,
       "tourAverage": 3.758,
+      "difficulty": 14,
       "course": "PGA West (Stadium Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 300,
+        "y": 770
+      },
+      {
+        "at": 0.8033,
+        "x": 1312,
+        "y": 368
+      },
+      {
+        "at": 1,
+        "x": 1560,
+        "y": 270
+      }
+    ]
   },
   "pga-west-stadium:3": {
-    "image": "art-demo/pga-west-stadium/hole-03.png",
+    "image": "art-demo/pga-west-stadium/hole-03.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        1.084154,
+        2.678021,
+        270
       ],
       "y": [
-        0,
-        0,
-        0
+        2.67672,
+        -1.076328,
+        710
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 3,
       "par": 4,
       "yards": 471,
       "tourAverage": 4.04,
+      "difficulty": 6,
       "course": "PGA West (Stadium Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 270,
+        "y": 710
+      },
+      {
+        "at": 0.6473,
+        "x": 1084,
+        "y": 415
+      },
+      {
+        "at": 1,
+        "x": 1520,
+        "y": 235
+      }
+    ]
   },
   "pga-west-stadium:4": {
-    "image": "art-demo/pga-west-stadium/hole-04.png",
+    "image": "art-demo/pga-west-stadium/hole-04.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        2.175676,
+        5.326589,
+        320
       ],
       "y": [
-        0,
-        0,
-        0
+        5.317568,
+        -2.158703,
+        720
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 4,
       "par": 3,
       "yards": 170,
       "tourAverage": 2.877,
+      "difficulty": 10,
       "course": "PGA West (Stadium Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 320,
+        "y": 720
+      },
+      {
+        "at": 0.5,
+        "x": 785,
+        "y": 530
+      },
+      {
+        "at": 1,
+        "x": 1250,
+        "y": 340
+      }
+    ]
   },
   "pga-west-stadium:5": {
-    "image": "art-demo/pga-west-stadium/hole-05.png",
+    "image": "art-demo/pga-west-stadium/hole-05.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        1.003671,
+        2.488266,
+        290
       ],
       "y": [
-        0,
-        0,
-        0
+        2.488679,
+        -1.00568,
+        750
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 5,
       "par": 5,
       "yards": 535,
       "tourAverage": 4.678,
+      "difficulty": 17,
       "course": "PGA West (Stadium Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 290,
+        "y": 750
+      },
+      {
+        "at": 0.5736,
+        "x": 1037,
+        "y": 448
+      },
+      {
+        "at": 0.7505,
+        "x": 1250,
+        "y": 320
+      },
+      {
+        "at": 1,
+        "x": 1590,
+        "y": 235
+      }
+    ]
   },
   "pga-west-stadium:6": {
-    "image": "art-demo/pga-west-stadium/hole-06.png",
+    "image": "art-demo/pga-west-stadium/hole-06.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        1.832199,
+        4.519382,
+        330
       ],
       "y": [
-        0,
-        0,
-        0
+        4.5234,
+        -1.837579,
+        720
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 6,
       "par": 3,
       "yards": 227,
       "tourAverage": 3.115,
+      "difficulty": 3,
       "course": "PGA West (Stadium Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 330,
+        "y": 720
+      },
+      {
+        "at": 0.5,
+        "x": 840,
+        "y": 510
+      },
+      {
+        "at": 1,
+        "x": 1350,
+        "y": 300
+      }
+    ]
   },
   "pga-west-stadium:7": {
-    "image": "art-demo/pga-west-stadium/hole-07.png",
+    "image": "art-demo/pga-west-stadium/hole-07.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        1.516762,
+        3.185585,
+        450
       ],
       "y": [
-        0,
-        0,
-        0
+        3.189338,
+        -1.522993,
+        760
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 7,
       "par": 4,
       "yards": 346,
       "tourAverage": 3.863,
+      "difficulty": 11,
       "course": "PGA West (Stadium Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 450,
+        "y": 760
+      },
+      {
+        "at": 0.6931,
+        "x": 1150,
+        "y": 335
+      },
+      {
+        "at": 1,
+        "x": 1500,
+        "y": 240
+      }
+    ]
   },
   "pga-west-stadium:8": {
-    "image": "art-demo/pga-west-stadium/hole-08.png",
+    "image": "art-demo/pga-west-stadium/hole-08.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        0.948905,
+        2.405878,
+        270
       ],
       "y": [
-        0,
-        0,
-        0
+        2.408759,
+        -0.95624,
+        750
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 8,
       "par": 5,
       "yards": 559,
       "tourAverage": 4.449,
+      "difficulty": 18,
       "course": "PGA West (Stadium Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 270,
+        "y": 750
+      },
+      {
+        "at": 0.5329,
+        "x": 964,
+        "y": 430
+      },
+      {
+        "at": 0.7116,
+        "x": 1200,
+        "y": 330
+      },
+      {
+        "at": 1,
+        "x": 1600,
+        "y": 225
+      }
+    ]
   },
   "pga-west-stadium:9": {
-    "image": "art-demo/pga-west-stadium/hole-09.png",
+    "image": "art-demo/pga-west-stadium/hole-09.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        1.102941,
+        2.890089,
+        290
       ],
       "y": [
-        0,
-        0,
-        0
+        2.889706,
+        -1.098424,
+        740
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 9,
       "par": 4,
       "yards": 452,
       "tourAverage": 4.101,
+      "difficulty": 5,
       "course": "PGA West (Stadium Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 290,
+        "y": 740
+      },
+      {
+        "at": 0.6513,
+        "x": 1085,
+        "y": 325
+      },
+      {
+        "at": 1,
+        "x": 1560,
+        "y": 255
+      }
+    ]
   },
   "pga-west-stadium:10": {
-    "image": "art-demo/pga-west-stadium/hole-10.png",
+    "image": "art-demo/pga-west-stadium/hole-10.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        1.158282,
+        2.819643,
+        340
       ],
       "y": [
-        0,
-        0,
-        0
+        2.821904,
+        -1.170407,
+        740
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 10,
       "par": 4,
       "yards": 405,
       "tourAverage": 3.965,
+      "difficulty": 8,
       "course": "PGA West (Stadium Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 340,
+        "y": 740
+      },
+      {
+        "at": 0.748,
+        "x": 1213,
+        "y": 378
+      },
+      {
+        "at": 1,
+        "x": 1500,
+        "y": 240
+      }
+    ]
   },
   "pga-west-stadium:11": {
-    "image": "art-demo/pga-west-stadium/hole-11.png",
+    "image": "art-demo/pga-west-stadium/hole-11.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        0.844443,
+        2.311334,
+        210
       ],
       "y": [
-        0,
-        0,
-        0
+        2.312756,
+        -0.847629,
+        720
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 11,
       "par": 5,
       "yards": 591,
       "tourAverage": 4.722,
+      "difficulty": 15,
       "course": "PGA West (Stadium Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 210,
+        "y": 720
+      },
+      {
+        "at": 0.5102,
+        "x": 917,
+        "y": 456
+      },
+      {
+        "at": 0.7286,
+        "x": 1200,
+        "y": 300
+      },
+      {
+        "at": 1,
+        "x": 1590,
+        "y": 205
+      }
+    ]
   },
   "pga-west-stadium:12": {
-    "image": "art-demo/pga-west-stadium/hole-12.png",
+    "image": "art-demo/pga-west-stadium/hole-12.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        1.469565,
+        3.072716,
+        330
       ],
       "y": [
-        0,
-        0,
-        0
+        3.078261,
+        -1.47652,
+        750
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 12,
       "par": 4,
       "yards": 363,
       "tourAverage": 3.806,
+      "difficulty": 13,
       "course": "PGA West (Stadium Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 330,
+        "y": 750
+      },
+      {
+        "at": 0.7906,
+        "x": 1171,
+        "y": 336
+      },
+      {
+        "at": 1,
+        "x": 1400,
+        "y": 240
+      }
+    ]
   },
   "pga-west-stadium:13": {
-    "image": "art-demo/pga-west-stadium/hole-13.png",
+    "image": "art-demo/pga-west-stadium/hole-13.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        2.018349,
+        5.002405,
+        330
       ],
       "y": [
-        0,
-        0,
-        0
+        5,
+        -2.020202,
+        740
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 13,
       "par": 3,
       "yards": 214,
       "tourAverage": 3.229,
+      "difficulty": 1,
       "course": "PGA West (Stadium Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 330,
+        "y": 740
+      },
+      {
+        "at": 0.5,
+        "x": 850,
+        "y": 530
+      },
+      {
+        "at": 1,
+        "x": 1370,
+        "y": 320
+      }
+    ]
   },
   "pga-west-stadium:14": {
-    "image": "art-demo/pga-west-stadium/hole-14.png",
+    "image": "art-demo/pga-west-stadium/hole-14.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        1.241161,
+        3.266498,
+        290
       ],
       "y": [
-        0,
-        0,
-        0
+        3.271738,
+        -1.249856,
+        730
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 14,
       "par": 4,
       "yards": 389,
       "tourAverage": 3.855,
+      "difficulty": 12,
       "course": "PGA West (Stadium Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 290,
+        "y": 730
+      },
+      {
+        "at": 0.714,
+        "x": 1160,
+        "y": 365
+      },
+      {
+        "at": 1,
+        "x": 1520,
+        "y": 250
+      }
+    ]
   },
   "pga-west-stadium:15": {
-    "image": "art-demo/pga-west-stadium/hole-15.png",
+    "image": "art-demo/pga-west-stadium/hole-15.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        1.043063,
+        2.626679,
+        300
       ],
       "y": [
-        0,
-        0,
-        0
+        2.6219,
+        -1.041179,
+        750
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 15,
       "par": 4,
       "yards": 468,
       "tourAverage": 4.11,
+      "difficulty": 4,
       "course": "PGA West (Stadium Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 300,
+        "y": 750
+      },
+      {
+        "at": 0.6491,
+        "x": 1097,
+        "y": 422
+      },
+      {
+        "at": 1,
+        "x": 1530,
+        "y": 250
+      }
+    ]
   },
   "pga-west-stadium:16": {
-    "image": "art-demo/pga-west-stadium/hole-16.png",
+    "image": "art-demo/pga-west-stadium/hole-16.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        0.89916,
+        2.312521,
+        320
       ],
       "y": [
-        0,
-        0,
-        0
+        2.310924,
+        -0.899903,
+        730
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 16,
       "par": 5,
       "yards": 600,
       "tourAverage": 4.683,
+      "difficulty": 16,
       "course": "PGA West (Stadium Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 320,
+        "y": 730
+      },
+      {
+        "at": 0.5,
+        "x": 971,
+        "y": 448
+      },
+      {
+        "at": 0.7135,
+        "x": 1250,
+        "y": 330
+      },
+      {
+        "at": 1,
+        "x": 1640,
+        "y": 215
+      }
+    ]
   },
   "pga-west-stadium:17": {
-    "image": "art-demo/pga-west-stadium/hole-17.png",
+    "image": "art-demo/pga-west-stadium/hole-17.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        1.844295,
+        5.037658,
+        400
       ],
       "y": [
-        0,
-        0,
-        0
+        5.037381,
+        -1.850205,
+        690
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 17,
       "par": 3,
       "yards": 165,
       "tourAverage": 3.159,
+      "difficulty": 2,
       "course": "PGA West (Stadium Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 400,
+        "y": 690
+      },
+      {
+        "at": 0.4998,
+        "x": 830,
+        "y": 528
+      },
+      {
+        "at": 1,
+        "x": 1260,
+        "y": 365
+      }
+    ]
   },
   "pga-west-stadium:18": {
-    "image": "art-demo/pga-west-stadium/hole-18.png",
+    "image": "art-demo/pga-west-stadium/hole-18.webp",
     "width": 1774,
     "height": 887,
     "matrix": {
       "x": [
-        0,
-        0,
-        0
+        1.098682,
+        2.664699,
+        330
       ],
       "y": [
-        0,
-        0,
-        0
+        2.664766,
+        -1.095753,
+        720
       ]
     },
-    "displayOnly": true,
     "meta": {
       "number": 18,
       "par": 4,
       "yards": 439,
       "tourAverage": 4,
+      "difficulty": 7,
       "course": "PGA West (Stadium Course)"
-    }
+    },
+    "route": [
+      {
+        "at": 0,
+        "x": 330,
+        "y": 720
+      },
+      {
+        "at": 0.6849,
+        "x": 1126,
+        "y": 425
+      },
+      {
+        "at": 0.8448,
+        "x": 1300,
+        "y": 330
+      },
+      {
+        "at": 1,
+        "x": 1470,
+        "y": 240
+      }
+    ]
   },
   "torrey-pines-south:1": {
     "image": "art-demo/torrey-pines-south/hole-01.webp?v=1",
