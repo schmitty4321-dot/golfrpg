@@ -143,7 +143,16 @@ function RecruitBadge({ state, pro }: { state: RecruitMark; pro: boolean }) {
 export function RecruitingDesk({ world, game, watchList = false }: { world: World; game: Game; watchList?: boolean }) {
   const [note, setNote] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
-  const [tab, setTab] = useState<"amateur" | "pro">("amateur");
+  // This week's Recruit pros card opens the desk on Pros.
+  const [tab, setTab] = useState<"amateur" | "pro">(() => {
+    try {
+      const asked = sessionStorage.getItem("fm-recruit-tab");
+      sessionStorage.removeItem("fm-recruit-tab");
+      return asked === "pro" ? "pro" : "amateur";
+    } catch {
+      return "amateur";
+    }
+  });
   const total = weeklyHours(world);
   const left = hoursLeft(world);
   const g = grades(world);
