@@ -764,13 +764,26 @@ export function nextMoment(t: LiveTournament, opts: { stops?: boolean; maxHoles?
   return { ticker, moment: null };
 }
 
-/** Holes featured in a watched round: the 4th, 10th and 15th (or the next with a call to make), shared out among the clients given, best placed first. */
-export const FEATURED_FROM = [3, 9, 14];
+/** The stretches of the course a watched round features a hole from: holes 1-6, 7-12 and 13-17 (indexes). */
+export const FEATURED_THIRDS: readonly [number, number][] = [[0, 5], [6, 11], [12, 16]];
 
+/**
+ * Holes featured in a watched round: one from each third of the course (or the next with a call to
+ * make), shared out among the clients given, best placed first. The holes change from round to round,
+ * and a hole featured earlier in the week is passed over while there's another in its third. The
+ * picks have their own seed, so they don't change how the round plays.
+ */
 export function featureHoles(t: LiveTournament, ids: string[]): void {
   const live = ids.filter((id) => t.live[id]);
   if (!live.length) return;
-  (t.featured ??= {})[t.round] = FEATURED_FROM.map((from, i) => ({ id: live[i % live.length]!, from }));
+  const seen = new Set(Object.values(t.featured ?? {}).flat().map((f) => f.from));
+  const rng = createRng((t.config.seed ^ Math.imul(t.round + 1, 0x9e3779b1) ^ 0xfea7) >>> 0);
+  const picks = FEATURED_THIRDS.map(([lo, hi]) => {
+    const all = Array.from({ length: hi - lo + 1 }, (_, i) => lo + i);
+    const fresh = all.filter((h) => !seen.has(h));
+    return rng.pick(fresh.length ? fresh : all);
+  });
+  (t.featured ??= {})[t.round] = picks.map((from, i) => ({ id: live[i % live.length]!, from }));
 }
 
 /** Answers a key moment with your call (null: his own) and plays the hole. Returns the score (null for a playoff, which is played at the finish). */

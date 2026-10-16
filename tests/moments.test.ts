@@ -269,6 +269,24 @@ describe("live weeks", () => {
     for (const c of s.clients.filter((c) => c.id !== mine)) expect(c.callsMade).toBe(0);
   });
 
+  it("featured holes come one from each third of the course and change from round to round", () => {
+    const t = startLive(config(), [a, b]);
+    const picked: number[][] = [];
+    for (let r = 0; r < 4; r++) {
+      startLiveRound(t);
+      featureHoles(t, [a, b]);
+      const holes = t.featured![t.round]!.map((f) => f.from);
+      expect(holes[0]).toBeLessThanOrEqual(5);
+      expect(holes[1]).toBeGreaterThanOrEqual(6);
+      expect(holes[1]).toBeLessThanOrEqual(11);
+      expect(holes[2]).toBeGreaterThanOrEqual(12);
+      picked.push(holes);
+      autoFinishRound(t);
+    }
+    // Twelve picks over four rounds, from 17 holes: no hole twice while there's a fresh one in its third.
+    expect(new Set(picked.flat()).size).toBe(12);
+  });
+
   it("a watched round features at least three holes, even in round 1 with no calls left", () => {
     const t = startLive(config(), [a, b]);
     startLiveRound(t);
