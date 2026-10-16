@@ -26,7 +26,7 @@ import {
   rankMap,
   scoutedAttribute,
   ratingsFullyKnown,
-  type LiveEvent, type World, type WorldPlayer, knownArchetype, followers, onShortlist, toggleShortlist, qRating, qTarget } from "../../season";
+  type LiveEvent, type World, type WorldPlayer, knownArchetype, followers, onShortlist, toggleShortlist, qRating, qTarget, personalWealth } from "../../season";
 import { Stars } from "./Stars";
 import { TendenciesPanel } from "./TendenciesPanel";
 import { PortraitCard } from "./Portrait";
@@ -139,6 +139,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
               <div><dt>This season</dt><dd>{plural(season.length + (liveEvent ? 1 : 0), "start")} · {season.filter((r) => r.madeCut).length} cuts{liveEvent ? " · playing now" : best ? ` · best ${best.label}` : ""}</dd></div>
               <div><dt>Career</dt><dd>{plural(wp.career.careerWins, "win")} · {plural(wp.career.careerMajors, "major")}</dd></div>
               <div><dt>Earnings</dt><dd>{money(wp.career.careerEarnings)}</dd></div>
+              {wp.client && <div><dt>Wealth</dt><dd>{money(personalWealth(wp))}</dd></div>}
               {wp.client && <div><dt>Followers</dt><dd>{Math.round(followers(world, wp) / 1000)}k</dd></div>}
               {wp.client && <div><dt>Q rating</dt><dd>{qRating(world, wp).toFixed(0)}{qTarget(world, wp).toFixed(0) !== qRating(world, wp).toFixed(0) && <span className="muted small"> heading to {qTarget(world, wp).toFixed(0)}</span>}</dd></div>}
               {ceiling !== null && <div><dt>Ceiling</dt><dd><Stars value={ceiling} /></dd></div>}

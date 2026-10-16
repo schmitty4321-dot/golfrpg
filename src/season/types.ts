@@ -299,6 +299,8 @@ export interface ClientManagement {
   manager?: string;
   autoHire?: boolean;
   finances: Finances;
+  /** His own money banked from past seasons (see personalWealth in finance.ts). */
+  savings?: number;
   /** 0-100: how he feels about the agency. Low at contract end and he walks. */
   happiness: number;
   sponsors: Sponsorship[];

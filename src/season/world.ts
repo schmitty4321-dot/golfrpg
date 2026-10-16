@@ -1,3 +1,4 @@
+import { personalWealth } from "./finance";
 import { chargeWinterPrograms } from "./finance";
 import { checkChallenge } from "./challenges";
 import { alumniReferrals, alumnusRetires } from "./legacy";
@@ -686,7 +687,11 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   addFullDevTour(world);
   addMatchPlay(world);
   drawSeasonForm(world);
-  for (const wp of clients(world)) wp.client!.finances = emptyFinances();
+  // What he kept this season goes into his savings before the books start over.
+  for (const wp of clients(world)) {
+    wp.client!.savings = personalWealth(wp);
+    wp.client!.finances = emptyFinances();
+  }
   world.agency.ledger = { prizeCommission: 0, endorsementCommission: 0, office: 0, scouts: 0, development: 0 };
   // The winter program he just did goes on the new season's books.
   chargeWinterPrograms(world);

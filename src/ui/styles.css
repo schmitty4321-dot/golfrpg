@@ -1709,3 +1709,6 @@ select, input[type="text"], input[type="number"] {
 .week-decision-card.visited > img, .week-decision-card.done > img { opacity: .72; filter: saturate(.75); }
 .week-decision-check { position: absolute; z-index: 3; top: 10px; left: 10px; padding: 3px 9px; border-radius: 999px; background: #1f6b45; color: #fff; font-size: 11px; font-weight: 700; letter-spacing: .02em; box-shadow: 0 1px 4px rgba(0,0,0,.18); }
 .week-decision-card.visited .week-decision-check { background: #fff; color: #1f6b45; border: 1px solid #1f6b45; }
+
+/* Store: the player's money to spend, under his name. */
+.shop-funds { display: block; margin: 2px 0 2px; color: #f3d27a; font-size: 15px; font-weight: 750; }
