@@ -32,6 +32,7 @@ import { toPar } from "../format";
 import { useHoleMap } from "../holeMaps";
 import { HoleDrawing, ShotSequence } from "./ShotTracer";
 import { hasIllustratedTracerArt, IllustratedTracer } from "./IllustratedTracer";
+import { signatureIndexes } from "../../engine";
 import { PLAN_LABELS, RoundPlanPicker, setRoundPlan, tickerLine } from "./WeekTempo";
 import { RoundCalls } from "./RoundCalls";
 import { LiveScorecard } from "./LiveScorecard";
@@ -561,7 +562,7 @@ function MomentCard({ world, t, eventName, m, calls, setCalls, odds, callsLeft, 
           <span className="badge">{stakeWords(m.situation, m.playoff)}</span>
           <h2 style={{ marginTop: 6 }}><PlayerName id={m.id}>{name}</PlayerName>: {m.playoff ? "playoff on the 18th" : `round ${m.round}, hole ${m.index + 1}`}</h2>
           <span className="secondary small">
-            {eventName ? `${eventName} · ` : ""}Par {hole.par} · {hole.yards} yds
+            {eventName ? `${eventName} · ` : ""}Par {hole.par} · {hole.yards} yds{!m.playoff && signatureIndexes(course.id).includes(m.index) && <strong> · Signature hole</strong>}
           </span>
         </div>
       </div>

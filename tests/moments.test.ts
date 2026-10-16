@@ -301,8 +301,31 @@ describe("live weeks", () => {
     expect(stretchStops).toBeGreaterThan(0);
   });
 
+  it("on a course with signature holes, every watched round shows them, calls or not", () => {
+    for (const [id, holes] of [["augusta-national", [11, 12, 15]], ["tpc-sawgrass", [16, 17]]] as const) {
+      const t = startLive({ ...config(), course: getCourse(id) }, [a, b]);
+      for (let r = 0; r < 2; r++) {
+        startLiveRound(t);
+        featureHoles(t, [a, b]);
+        const featured = t.featured![t.round]!;
+        for (const h of holes) expect(featured.find((f) => f.from === h)?.signature, `${id} hole ${h + 1}`).toBe(true);
+        // Play the round through with no other stops: each signature hole still stops, once.
+        const stopped: number[] = [];
+        for (;;) {
+          const { moment } = nextMoment(t, { stops: false });
+          if (!moment) break;
+          if (featured.some((f) => f.signature && f.from === moment.index && f.id === moment.id)) stopped.push(moment.index);
+          answerMoment(t, moment, null);
+        }
+        expect(stopped.sort((x, y) => x - y)).toEqual([...holes]);
+        autoFinishRound(t);
+      }
+    }
+  });
+
   it("featured holes come one from each third of the course and change from round to round", () => {
-    const t = startLive(config(), [a, b]);
+    // A course with no signature holes: every pick is random.
+    const t = startLive({ ...config(), course: getCourse("grand-reserve") }, [a, b]);
     const picked: number[][] = [];
     for (let r = 0; r < 4; r++) {
       startLiveRound(t);
