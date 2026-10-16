@@ -8,7 +8,7 @@ import { newDevelopment } from "./development";
 import { generateScouts } from "./scouting";
 import { coachFee, generateCoaches } from "./staff";
 import { generateManagers } from "./managers";
-import { assignPortraits } from "../engine/portraits";
+import { assignPortraits, distinctPortraits } from "../engine/portraits";
 import { ensureDiscovery } from "./discovery";
 import { AMATEUR_CLASS_SIZE, generateAmateur } from "./amateurs";
 import { buildDevTour } from "./calendar";
@@ -58,6 +58,8 @@ export function deserializeWorld(json: string): World {
   // Saves from before portrait numbers: each player keeps the face he's shown today.
   ensureDiscovery(world);
   assignPortraits(Object.values(world.players));
+  // Clients in an older save who share a face get different ones.
+  distinctPortraits(world.clientIds.map((id) => world.players[id]!).filter(Boolean));
   return world;
 }
 

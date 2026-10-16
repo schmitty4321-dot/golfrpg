@@ -29,7 +29,7 @@ import { asSetUp, nextCourseSetup } from "./courseSetup";
 import { generateCoaches, offseason, OFFSEASON_WEEKS } from "./staff";
 import { generateManagers } from "./managers";
 import { resetAmateurSeason } from "./amateurResults";
-import { assignPortraits } from "../engine/portraits";
+import { assignPortraits, distinctPortraits } from "../engine/portraits";
 import { rivalSeasonEnd } from "./rivals";
 import { EUROPE, ensureRyderCup } from "./ryderCup";
 import { STAFF_LABELS, contractFee, hiredStaffer, staffContract, staffSeasonEnd, stafferFee } from "./market";
@@ -307,6 +307,8 @@ export function createWorld(opts: CreateWorldOptions): World {
   world.agency.discovered = {};
   for (const id of amateurRanking(world).slice(0, 30)) world.agency.discovered[id] = true;
   assignPortraits(Object.values(world.players));
+  // Your starting clients never share a face.
+  distinctPortraits(world.clientIds.map((id) => world.players[id]!).filter(Boolean));
   return world;
 }
 
