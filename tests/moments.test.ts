@@ -11,6 +11,8 @@ import {
   liveSnapshot,
   markAsked,
   featureHoles,
+  inTheHunt,
+  STRETCH_FROM,
   noteYourCall,
   nextDecisions,
   nextMoment,
@@ -267,6 +269,36 @@ describe("live weeks", () => {
     const s = weekSummary(w, report);
     expect(s.clients.find((c) => c.id === mine)!.callsMade).toBe(2);
     for (const c of s.clients.filter((c) => c.id !== mine)) expect(c.callsMade).toBe(0);
+  });
+
+  it("is in the hunt on holes 15-18: within 2 of the cut on Friday, within 3 of the lead at the weekend", () => {
+    const at = (round: number, index: number, behind: number, cutMargin: number | null) => ({ round, index, behind, cutMargin } as Parameters<typeof inTheHunt>[0]);
+    expect(inTheHunt(at(2, 15, 9, -2))).toBe(true);
+    expect(inTheHunt(at(2, 15, 9, 3))).toBe(false);
+    expect(inTheHunt(at(2, 12, 9, 0))).toBe(false);
+    expect(inTheHunt(at(4, 16, 3, null))).toBe(true);
+    expect(inTheHunt(at(4, 16, 4, null))).toBe(false);
+    expect(inTheHunt(at(1, 17, 0, null))).toBe(false);
+  });
+
+  it("a watched round stops on every closing hole for a client in the hunt, even with no calls left", () => {
+    let stretchStops = 0;
+    for (const seed of [21, 22, 23, 24, 25, 26]) {
+      const t = startLive(config(seed), [a, b, c]);
+      while (t.round < 4 || Object.keys(t.live).length) {
+        if (!Object.keys(t.live).length) {
+          startLiveRound(t);
+          featureHoles(t, [a, b, c]);
+        }
+        for (;;) {
+          const { moment } = nextMoment(t, { stops: false });
+          if (!moment || moment.playoff) break;
+          if (moment.index >= STRETCH_FROM && inTheHunt(moment.situation)) stretchStops++;
+          answerMoment(t, moment, null);
+        }
+      }
+    }
+    expect(stretchStops).toBeGreaterThan(0);
   });
 
   it("featured holes come one from each third of the course and change from round to round", () => {

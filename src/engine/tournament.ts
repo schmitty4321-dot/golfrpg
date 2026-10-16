@@ -391,6 +391,8 @@ export interface LiveTournament {
   boosts: Record<string, number>;
   /** Featured holes for a watched round, by round: a client's hole from `from` on stops for a moment whatever's at stake. */
   featured?: Record<number, { id: string; from: number; done?: boolean }[]>;
+  /** Closing holes already shown for a client in the hunt ("id:round:hole"), so each stops once. */
+  stretch?: Record<string, true>;
   /** Question kinds already asked at key moments, by `${id}:${round}` (each is asked once a round). */
   asked: Record<string, CallKind[]>;
   /** The hole (0-based) each question was last put to a client, by `${id}:${round}` (older saves: none). */
@@ -703,6 +705,17 @@ export interface TickerItem {
 }
 
 /** Whether a hole's situation is worth stopping for: the back nine, on the cut line on Friday or in contention at the weekend. */
+/** The closing stretch a client in the hunt is shown hole by hole: holes 15-18 (indexes). */
+export const STRETCH_FROM = 14;
+
+/** In the hunt down the stretch: within 2 of the cut line on Friday, or within 3 of the lead at the weekend. */
+export function inTheHunt(s: HoleSituation): boolean {
+  if (s.index < STRETCH_FROM) return false;
+  if (s.round === 2) return s.cutMargin !== null && Math.abs(s.cutMargin) <= 2;
+  if (s.round >= 3) return s.behind <= 3;
+  return false;
+}
+
 export function atStake(s: HoleSituation): boolean {
   if (s.index < 9) return false;
   if (s.round === 2) return s.cutMargin !== null && Math.abs(s.cutMargin) <= 1;
@@ -744,9 +757,13 @@ export function nextMoment(t: LiveTournament, opts: { stops?: boolean; maxHoles?
     // Each question is asked once a round; later holes go by his plan (and any closing-putts call).
     const fresh = decisions.filter((d) => !(t.asked[key] ?? []).includes(d.kind));
     const feature = (t.featured?.[t.round] ?? []).find((f) => f.id === id && !f.done && s.index >= f.from);
-    if (fresh.length && (feature || (stops && atStake(s) && (t.stops[key] ?? 0) < MAX_STOPS))) {
+    // A watched round, down the stretch in the hunt: every closing hole is shown, calls or not (asked again if need be).
+    const stretchKey = `${id}:${t.round}:${s.index}`;
+    const stretch = !!t.featured?.[t.round] && inTheHunt(s) && !t.stretch?.[stretchKey] && decisions.length > 0;
+    if (stretch || (fresh.length && (feature || (stops && atStake(s) && (t.stops[key] ?? 0) < MAX_STOPS)))) {
       if (feature) feature.done = true;
-      return { ticker, moment: { id, round: t.round, index: s.index, situation: s, decisions: fresh } };
+      if (stretch) (t.stretch ??= {})[stretchKey] = true;
+      return { ticker, moment: { id, round: t.round, index: s.index, situation: s, decisions: fresh.length ? fresh : decisions } };
     }
     // Watching hole by hole: hand back after a few holes so the leaderboard can update.
     if (opts.maxHoles !== undefined && played >= opts.maxHoles) return { ticker, moment: null, paused: true };
