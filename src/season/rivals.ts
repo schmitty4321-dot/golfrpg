@@ -220,6 +220,39 @@ const sentence = (s: string) => (s.endsWith(".") ? s : `${s}.`);
 const fmtRank = (rank: number | undefined) => (rank && rank <= 300 ? ` (world #${rank})` : "");
 
 /**
+ * Seasons left on a new world's contract. The top 150 are spread from this season to four
+ * more (only those in their final season can be approached); everyone else has 0-2.
+ */
+export function initialYears(rng: { next(): number; int(min: number, max: number): number }, rank: number | undefined): number {
+  if (rank === undefined || rank > INITIAL_SPREAD_RANKS) return rng.int(0, 2);
+  let roll = rng.next();
+  for (let years = 0; years < INITIAL_YEARS_WEIGHTS.length; years++) {
+    roll -= INITIAL_YEARS_WEIGHTS[years]!;
+    if (roll < 0) return years;
+  }
+  return INITIAL_YEARS_WEIGHTS.length - 1;
+}
+/**
+ * A first-season save from before the spread: re-deal the top 150's rival contracts once,
+ * so only some of them are in their final season. Later seasons are left alone.
+ */
+export function spreadStartingContracts(world: World): void {
+  if (world.agency.contractsSpread) return;
+  world.agency.contractsSpread = true;
+  if (world.season !== 1) return;
+  const rng = createRng(mixSeed(world.seed, world.season, 1403));
+  for (const [id, rank] of rankMap(world)) {
+    const wp = world.players[id];
+    if (rank > INITIAL_SPREAD_RANKS || !wp || wp.client || !wp.agent) continue;
+    wp.agent.untilSeason = world.season + initialYears(rng, rank);
+  }
+}
+/** Ranks whose starting contracts are spread over five seasons. */
+export const INITIAL_SPREAD_RANKS = 150;
+/** Chance of 0 (final season), 1, 2, 3 and 4 more seasons for those players. */
+export const INITIAL_YEARS_WEIGHTS = [0.15, 0.25, 0.25, 0.2, 0.15];
+
+/**
  * The winter market: everyone who is free goes to the best bid, most valuable
  * first. Players nobody wants (or who want nobody) stay free agents. With
  * `initial`, everyone is on the market (a new world) and contracts are staggered.
@@ -250,7 +283,7 @@ export function rivalMarket(world: World, opts: { initial?: boolean } = {}): str
       wp.agent = null;
       continue;
     }
-    const years = opts.initial ? rng.int(0, 2) : best.years;
+    const years = opts.initial ? initialYears(rng, ranks.get(wp.player.id)) : best.years;
     // A development deal carries on when he re-signs with the same agency.
     const deal = before === best.agency && wp.agent?.deal;
     wp.agent = { agency: best.agency, untilSeason: world.season + years, commission: best.commission, ...(deal ? { deal: true } : {}) };

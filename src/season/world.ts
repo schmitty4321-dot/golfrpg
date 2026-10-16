@@ -271,6 +271,7 @@ export function createWorld(opts: CreateWorldOptions): World {
   seedCareerHistory(world, rng);
 
   assignRivalAgents(world, rng);
+  world.agency.contractsSpread = true;
   world.agency.scouts = generateScouts(opts.seed);
   // The warm-up season brought in new amateurs and walk-ons: their names are taken too.
   for (const wp of Object.values(world.players)) usedNames.add(wp.player.name);

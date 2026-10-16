@@ -2,7 +2,7 @@ import { createRng, type Player } from "../engine";
 import { LOYALTY_DISCOUNT } from "./legacy";
 import { ensureRyderCup } from "./ryderCup";
 import { addMatchPlay } from "./world";
-import { ensureRivals } from "./rivals";
+import { ensureRivals, spreadStartingContracts } from "./rivals";
 import { assignRivalAgents, emptyFinances, newAgency, newManagement } from "./agency";
 import { newDevelopment } from "./development";
 import { generateScouts } from "./scouting";
@@ -58,6 +58,7 @@ export function deserializeWorld(json: string): World {
   // Saves from before portrait numbers: each player keeps the face he's shown today.
   ensureDiscovery(world);
   assignPortraits(Object.values(world.players));
+  spreadStartingContracts(world);
   // Clients in an older save who share a face get different ones.
   distinctPortraits(world.clientIds.map((id) => world.players[id]!).filter(Boolean));
   return world;
