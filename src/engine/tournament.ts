@@ -1,3 +1,4 @@
+import { signatureIndexes } from "./signatureHoles";
 import { coursePar } from "./courses";
 import type { MatchPlayBracket } from "./matchPlay";
 import { tiedPayout } from "./purse";
@@ -390,7 +391,8 @@ export interface LiveTournament {
   /** A lift or drag on a client's form for one round (strokes per round), by `${id}:${round}`: your calls between rounds. */
   boosts: Record<string, number>;
   /** Featured holes for a watched round, by round: a client's hole from `from` on stops for a moment whatever's at stake. */
-  featured?: Record<number, { id: string; from: number; done?: boolean }[]>;
+  /** `signature`: one of the course's signature holes, shown whether or not there's a call to make. */
+  featured?: Record<number, { id: string; from: number; done?: boolean; signature?: boolean }[]>;
   /** Closing holes already shown for a client in the hunt ("id:round:hole"), so each stops once. */
   stretch?: Record<string, true>;
   /** Question kinds already asked at key moments, by `${id}:${round}` (each is asked once a round). */
@@ -757,10 +759,12 @@ export function nextMoment(t: LiveTournament, opts: { stops?: boolean; maxHoles?
     // Each question is asked once a round; later holes go by his plan (and any closing-putts call).
     const fresh = decisions.filter((d) => !(t.asked[key] ?? []).includes(d.kind));
     const feature = (t.featured?.[t.round] ?? []).find((f) => f.id === id && !f.done && s.index >= f.from);
+    // A signature hole (the 16th at Scottsdale, the 12th at Augusta) is always shown.
+    const signature = !!feature?.signature && s.index === feature.from;
     // A watched round, down the stretch in the hunt: every closing hole is shown, calls or not (asked again if need be).
     const stretchKey = `${id}:${t.round}:${s.index}`;
     const stretch = !!t.featured?.[t.round] && inTheHunt(s) && !t.stretch?.[stretchKey] && decisions.length > 0;
-    if (stretch || (fresh.length && (feature || (stops && atStake(s) && (t.stops[key] ?? 0) < MAX_STOPS)))) {
+    if (stretch || signature || (fresh.length && (feature || (stops && atStake(s) && (t.stops[key] ?? 0) < MAX_STOPS)))) {
       if (feature) feature.done = true;
       if (stretch) (t.stretch ??= {})[stretchKey] = true;
       return { ticker, moment: { id, round: t.round, index: s.index, situation: s, decisions: fresh.length ? fresh : decisions } };
@@ -795,12 +799,21 @@ export function featureHoles(t: LiveTournament, ids: string[]): void {
   if (!live.length) return;
   const seen = new Set(Object.values(t.featured ?? {}).flat().map((f) => f.from));
   const rng = createRng((t.config.seed ^ Math.imul(t.round + 1, 0x9e3779b1) ^ 0xfea7) >>> 0);
-  const picks = FEATURED_THIRDS.map(([lo, hi]) => {
+  const random = FEATURED_THIRDS.map(([lo, hi]) => {
     const all = Array.from({ length: hi - lo + 1 }, (_, i) => lo + i);
     const fresh = all.filter((h) => !seen.has(h));
     return rng.pick(fresh.length ? fresh : all);
   });
-  (t.featured ??= {})[t.round] = picks.map((from, i) => ({ id: live[i % live.length]!, from }));
+  // The course's signature holes are shown every watched round: each takes the place of its third's
+  // random pick, and any more (two in a third, or the 18th) are added.
+  const signature = signatureIndexes(t.config.course.id);
+  const picks = FEATURED_THIRDS.map(([lo, hi], i) => {
+    const sig = signature.find((h) => h >= lo && h <= hi);
+    return sig === undefined ? { from: random[i]!, signature: false } : { from: sig, signature: true };
+  });
+  for (const h of signature) if (!picks.some((p) => p.from === h)) picks.push({ from: h, signature: true });
+  picks.sort((x, y) => x.from - y.from);
+  (t.featured ??= {})[t.round] = picks.map((p, i) => ({ id: live[i % live.length]!, from: p.from, ...(p.signature ? { signature: true } : {}) }));
 }
 
 /** Answers a key moment with your call (null: his own) and plays the hole. Returns the score (null for a playoff, which is played at the finish). */

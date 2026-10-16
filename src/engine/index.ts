@@ -22,3 +22,4 @@ export * from "./equipment";
 export * from "./nations";
 export * from "./archetypes";
 export * from "./matchPlay";
+export * from "./signatureHoles";
