@@ -1702,3 +1702,10 @@ select, input[type="text"], input[type="number"] {
 .planner-summary-days { font-weight: 600; }
 .client-week-inline select { max-width: min(260px, 60vw); }
 .client-week { min-width: 0; }
+
+/* Week decisions: a reviewed or done card turns soft green with a check, so the cards still to do stand out. */
+.week-decision-card { position: relative; }
+.week-decision-card.visited .week-decision-copy, .week-decision-card.done .week-decision-copy { background: color-mix(in srgb, var(--good, #2f7d4f) 9%, #fbf7eb); }
+.week-decision-card.visited > img, .week-decision-card.done > img { opacity: .72; filter: saturate(.75); }
+.week-decision-check { position: absolute; z-index: 3; top: 10px; left: 10px; padding: 3px 9px; border-radius: 999px; background: #1f6b45; color: #fff; font-size: 11px; font-weight: 700; letter-spacing: .02em; box-shadow: 0 1px 4px rgba(0,0,0,.18); }
+.week-decision-card.visited .week-decision-check { background: #fff; color: #1f6b45; border: 1px solid #1f6b45; }

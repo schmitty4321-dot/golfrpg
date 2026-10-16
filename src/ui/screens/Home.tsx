@@ -39,6 +39,8 @@ import {
   type World,
   approachBlock,
   isDiscovered,
+  STAFF_ROLES,
+  hiredStaffer,
   rosterCount,
   rosterLimit,
 } from "../../season";
@@ -160,6 +162,25 @@ function MastheadFact({ kind, label, value, note }: { kind: "purse" | "weather" 
 function WeekCommandCenter({ world, game, go, week }: { world: World; game: Game; go: Go; week: WeekChoices }) {
   // Hold one option while this page is open; leaving and returning mounts a fresh set.
   const [artFrame] = useState(() => Math.floor(Math.random() * 3));
+  // Cards you've opened this week, remembered until the week is played (this browser only).
+  const visitKey = `fm-visited-${world.seed}-${world.season}-${world.week}`;
+  const [visited, setVisited] = useState<string[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem(visitKey) ?? "[]") as string[];
+    } catch {
+      return [];
+    }
+  });
+  const visit = (key: string) => {
+    if (visited.includes(key)) return;
+    const next = [...visited, key];
+    setVisited(next);
+    try {
+      localStorage.setItem(visitKey, JSON.stringify(next));
+    } catch {
+      // Not remembered; the card still shows as reviewed until the page is left.
+    }
+  };
   const weeks = seasonWeeks(world);
   if (world.week > weeks) {
     return <section className="hero week-command-season-over"><div className="hero-body"><div className="hero-kicker">{world.agency.name} · Season {world.season}</div><h1 className="hero-title">The season is over</h1><div className="hero-meta">Close it to hand out cards, settle contracts and see how your agency did.</div></div><button className="btn btn-primary hero-play" onClick={() => void game.closeSeason()}>Close the season <span aria-hidden>▸</span></button></section>;
@@ -185,7 +206,7 @@ function WeekCommandCenter({ world, game, go, week }: { world: World; game: Game
   const offers = world.clientIds.reduce((sum, id) => sum + world.players[id]!.client!.offers.length, 0);
   const expiring = world.clientIds.filter((id) => world.players[id]!.client!.contract.untilSeason <= world.season).length;
   const tired = world.clientIds.filter((id) => world.players[id]!.player.condition < 80).length;
-  const clear = [amateurs === 0, pros === 0, offers === 0, expiring === 0, world.clientIds.length === 0, tired === 0, false].filter(Boolean).length;
+  const staffOpen = STAFF_ROLES.filter((role) => !hiredStaffer(world, role)).length;
   const scrollPlans = () => document.getElementById("weekly-player-plans")?.scrollIntoView({ behavior: "smooth", block: "start" });
   const playWeek = () => void game.play(Object.fromEntries(world.clientIds.map((id) => [id, week.choices[id] ?? defaultWeekChoice(world, id)])));
   const temperature = 68 + ((world.week * 7 + main.courseId.length) % 13);
@@ -197,8 +218,12 @@ function WeekCommandCenter({ world, game, go, week }: { world: World; game: Game
     { key: "extension", icon: "▤", title: "Extension talks", copy: "Discuss contract extensions with eligible clients.", status: `${expiring} contract${expiring === 1 ? "" : "s"} end this season`, action: "Open talks", run: () => go("agency") },
     { key: "plans", icon: "⚑", title: "Round plans", copy: "Set the approach each client takes into this week's event.", status: `${world.clientIds.length} client${world.clientIds.length === 1 ? "" : "s"} to review`, action: "Set plans", run: scrollPlans },
     { key: "condition", icon: "♥", title: "Player condition", copy: "Check fitness, fatigue and training before travel.", status: `${world.clientIds.length - tired} good · ${tired} tired`, action: "Review players", run: () => go("training") },
-    { key: "staff", icon: "♜", title: "Open staff spots", copy: "Strengthen the team around your clients.", status: "Review coaches and support staff", action: "Hire staff", run: () => go("hq") },
+    { key: "staff", icon: "♜", title: "Open staff spots", copy: "Strengthen the team around your clients.", status: staffOpen ? `${staffOpen} role${staffOpen === 1 ? "" : "s"} open` : "Every role filled", action: "Hire staff", run: () => go("hq") },
   ] as const;
+  // Done: nothing left to act on this week. Reviewed: you've opened it. Either counts toward the ring.
+  const done: Partial<Record<(typeof decisions)[number]["key"], boolean>> = { sponsor: offers === 0, extension: expiring === 0, condition: tired === 0, staff: staffOpen === 0 };
+  const stateOf = (key: (typeof decisions)[number]["key"]): "done" | "visited" | "" => (done[key] ? "done" : visited.includes(key) ? "visited" : "");
+  const clear = decisions.filter((d) => stateOf(d.key)).length;
   return <section className="week-command-center">
     <div className="week-event-masthead">
       <img src={VENUE_BANNERS[main.courseId] ?? "art/player-command/hero.png"} alt={`Illustrated view of ${course.name}`} />
@@ -212,7 +237,8 @@ function WeekCommandCenter({ world, game, go, week }: { world: World; game: Game
     <div className="week-decision-grid">{decisions.map((d, index) => {
       const images = DECISION_ART[d.key];
       const image = images[(artFrame + index) % images.length]!;
-      return <article className={`week-decision-card ${"urgent" in d && d.urgent ? "urgent" : ""}`} key={d.key}><img key={image} className="week-decision-rotating-art" src={decisionArtUrl(image)} alt="" /><div className="week-decision-copy"><span className="week-decision-icon">{d.icon}</span><h3>{d.title}</h3><p>{d.copy}</p><strong>{d.status}</strong><button className="btn btn-primary" onClick={d.run}>{d.action} <span aria-hidden>›</span></button></div></article>;
+      const state = stateOf(d.key);
+      return <article className={`week-decision-card ${"urgent" in d && d.urgent && !state ? "urgent" : ""} ${state}`} key={d.key}>{state && <span className="week-decision-check">{state === "done" ? "✓ Done" : "✓ Reviewed"}</span>}<img key={image} className="week-decision-rotating-art" src={decisionArtUrl(image)} alt="" /><div className="week-decision-copy"><span className="week-decision-icon">{d.icon}</span><h3>{d.title}</h3><p>{d.copy}</p><strong>{d.status}</strong><button className="btn btn-primary" onClick={() => { visit(d.key); d.run(); }}>{d.action} <span aria-hidden>›</span></button></div></article>;
     })}</div>
     <div className="week-complete-strip"><strong>Completed this week — {clear}</strong><span>✓ Decisions already clear stay out of your way.</span></div>
   </section>;
