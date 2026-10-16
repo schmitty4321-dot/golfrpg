@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { EYE_LABELS, SCOUT_REGIONS, regionPool, scoutEye, scoutOnTrip, type ScoutRegion, type World } from "../../season";
+import { EYE_LABELS, SCOUT_REGIONS, STATUS_LABELS, onShortlist, regionPool, scoutEye, scoutOnTrip, toggleShortlist, type ScoutRegion, type TripReport, type World } from "../../season";
+import { PlayerName } from "./PlayerLink";
 import type { Game } from "../useGame";
 import { money } from "../format";
 
@@ -86,6 +87,49 @@ export function ScoutTripsPanel({ world, game }: { world: World; game: Game }) {
           })}
         </ul>
       )}
+      {(a.tripReports ?? []).map((r) => <TripReportCard key={r.id} world={world} game={game} report={r} />)}
     </section>
+  );
+}
+
+/** A finished trip's report: everyone the scout saw, each a link to his card, with the watch list a click away. */
+function TripReportCard({ world, game, report }: { world: World; game: Game; report: TripReport }) {
+  const players = report.found.map((id) => world.players[id]).filter((wp): wp is NonNullable<typeof wp> => !!wp);
+  const unwatched = players.filter((wp) => !wp.client && !onShortlist(world, wp.player.id));
+  return (
+    <div className="trip-report">
+      <div className="trip-report-head">
+        <div>
+          <strong>{report.scoutName}'s report: {SCOUT_REGIONS[report.region].label}</strong>
+          <span className="muted small"> · {report.focus} · {report.weeks} weeks · back in week {report.week}, season {report.season}</span>
+        </div>
+        {unwatched.length > 0 && (
+          <button className="btn btn-small" onClick={() => game.act((w) => { for (const wp of unwatched) toggleShortlist(w, wp.player.id); })}>
+            Add all {unwatched.length} to watch list
+          </button>
+        )}
+      </div>
+      {report.rival && <p className="small bad-text" style={{ margin: "4px 0" }}>{report.rival}'s scout was there too.</p>}
+      <ul className="trip-report-list">
+        {players.map((wp) => {
+          const id = wp.player.id;
+          const watched = onShortlist(world, id);
+          return (
+            <li key={id} className={id === report.gem ? "gem" : undefined}>
+              <span>
+                <PlayerName id={id}>{wp.player.name}</PlayerName>
+                {id === report.gem && <span className="trip-report-gem"> ★ Could be a star</span>}
+                <span className="muted small"> · {wp.player.age} · {wp.player.nationality} · {wp.client ? "Your client" : STATUS_LABELS[wp.career.status]}</span>
+              </span>
+              {!wp.client && (
+                <button className="btn btn-small" onClick={() => game.act((w) => toggleShortlist(w, id))}>
+                  {watched ? "On watch list ✓" : "Add to watch list"}
+                </button>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   );
 }

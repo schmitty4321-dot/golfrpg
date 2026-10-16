@@ -532,6 +532,8 @@ export interface Agency {
   referrals?: Record<string, number>;
   /** Scouts away on trips (see scoutTrips.ts). */
   trips?: import("./scoutTrips").ScoutTrip[];
+  /** Reports from finished trips, newest first (see scoutTrips.ts). */
+  tripReports?: import("./scoutTrips").TripReport[];
   /** Players a rival's scout also found on one of your trips: player id to the rival. */
   contested?: Record<string, string>;
   brandOffers?: BrandDeal[];

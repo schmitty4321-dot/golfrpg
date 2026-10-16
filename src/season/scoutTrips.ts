@@ -58,6 +58,23 @@ export interface ScoutTrip {
   rival?: string;
 }
 
+/** What a scout brought back from a finished trip: shown on the Scouting page until newer trips push it off. */
+export interface TripReport {
+  id: string;
+  scoutName: string;
+  region: ScoutRegion;
+  focus: "amateurs" | "pros";
+  weeks: number;
+  season: number;
+  week: number;
+  /** Players he saw, in the order he found them. */
+  found: string[];
+  gem?: string;
+  rival?: string;
+}
+/** How many finished trips' reports are kept. */
+export const TRIP_REPORTS_KEPT = 6;
+
 /** The part of the game a scout watches most closely (fixed for each scout). */
 export function scoutEye(scout: Scout): ScoutEye {
   const eyes: ScoutEye[] = ["power", "irons", "shortGame", "putting", "mental"];
@@ -157,12 +174,26 @@ function finishTrip(world: World, trip: ScoutTrip, scout: Scout): void {
     const k = world.agency.knowledge[id];
     world.agency.knowledge[id] = { accuracy: Math.max(k?.accuracy ?? 0, reportAccuracy(scout.quality, 0)), reports: (k?.reports ?? 0) + 1, absWeek: now };
   }
+  const report: TripReport = {
+    id: trip.id,
+    scoutName: scout.name,
+    region: trip.region,
+    focus: trip.focus,
+    weeks: trip.weeks,
+    season: world.season,
+    week: world.week,
+    found: [...trip.found],
+    ...(trip.gem ? { gem: trip.gem } : {}),
+    ...(trip.rival ? { rival: trip.rival } : {}),
+  };
+  world.agency.tripReports = [report, ...(world.agency.tripReports ?? [])].slice(0, TRIP_REPORTS_KEPT);
   const names = trip.found.map((id) => world.players[id]?.player.name).filter(Boolean);
   const gem = trip.gem ? world.players[trip.gem]?.player.name : null;
   const text = [
     `Back from ${SCOUT_REGIONS[trip.region].label}: ${names.length} player${names.length === 1 ? "" : "s"} seen (${names.slice(0, 6).join(", ")}${names.length > 6 ? ", ..." : ""}).`,
     gem ? `One stands out: ${gem}. Ranked low, but I think he could be a star.` : "",
     trip.rival ? `${trip.rival}'s scout was there too. They'll want him.` : "",
+    "The full report, with every player, is on the Scouting page.",
   ]
     .filter(Boolean)
     .join(" ");
