@@ -95,3 +95,22 @@ export function assignPortraits(players: Iterable<{ player: Player }>): void {
     if (wp.player.portraitIndex === undefined || !isRealisticPortrait(wp.player.portraitIndex)) wp.player.portraitIndex = golferPortraitIndex(wp.player);
   }
 }
+
+/**
+ * Your clients never share a face: a client whose portrait matches one an earlier client
+ * wears moves to the next free face in his own pool. Everyone else keeps his number.
+ */
+export function distinctPortraits(players: Iterable<{ player: Player }>): void {
+  const used = new Set<number>();
+  for (const wp of players) {
+    const p = wp.player;
+    if (p.portraitIndex !== undefined && used.has(p.portraitIndex)) {
+      const nation = NATIONS[p.nationality];
+      const pool = PORTRAIT_POOLS[nation?.key === "India" ? "indian" : nation?.region === "ASIA" ? "asian" : "other"][ageBand(p.age)];
+      const start = portraitSeed(p.id) % pool.length;
+      const free = pool.map((_, i) => pool[(start + i) % pool.length]!).find((n) => !used.has(n));
+      if (free !== undefined) p.portraitIndex = free;
+    }
+    if (p.portraitIndex !== undefined) used.add(p.portraitIndex);
+  }
+}
