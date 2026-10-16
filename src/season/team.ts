@@ -2,6 +2,7 @@
  * A client's team and kit beyond his coaches: his caddie, how he travels (and
  * the agency jet), and the clubs in his bag.
  */
+import { personalWealth } from "./finance";
 import { EQUIPMENT_BY_ID, clamp, createRng, type CaddieOnBag, type EquipmentSlot } from "../engine";
 import type { Caddie, Region, TravelClass, World, WorldPlayer } from "./types";
 
@@ -148,6 +149,7 @@ export function equip(world: World, clientId: string, modelId: string): void {
   const m = EQUIPMENT_BY_ID.get(modelId);
   if (!wp || !c || !m) throw new Error("no such client or model");
   const owned = (c.ownedEquipment ??= []);
+  if (m.price > 0 && !owned.includes(modelId) && m.price > personalWealth(wp)) throw new Error("He can't afford it.");
   if (m.price > 0 && !owned.includes(modelId)) {
     owned.push(modelId);
     c.finances.equipment = (c.finances.equipment ?? 0) + m.price;

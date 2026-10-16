@@ -10,7 +10,7 @@ import { clamp, createRng, traceSeed } from "../engine";
 import { COACH_ROLES, abilityView, clientPeakView, coachFee, staffQuality } from "./staff";
 import { GOLF_SKILLS, developWeek, overall } from "./development";
 import { effectivePeak } from "./traits";
-import type { CoachRole, Intensity, TrainingFocus, WinterProgram, World, WorldPlayer } from "./types";
+import type { CoachRole, Finances, Intensity, TrainingFocus, WinterProgram, World, WorldPlayer } from "./types";
 import { hasSkill } from "./staffSkills";
 
 /** Each coach he employs takes this share of his prize money, on top of the retainer. */
@@ -117,6 +117,23 @@ export function developmentCost(world: World, id: string, winter: WinterProgram 
   const total = coaches + coachBonus + w;
   const agency = Math.round(total * fundingOf(wp));
   return { coaches, coachBonus, winter: w, total, agency, client: total - agency };
+}
+
+/** What he keeps from this season so far: prize money and endorsements, less commission and everything he paid for. */
+export function seasonNet(f: Finances): number {
+  return f.prizeMoney + f.endorsements - f.commission - f.caddie - f.travel - f.coaching - (f.training ?? 0) - (f.lifestyle ?? 0) - (f.equipment ?? 0);
+}
+
+/** What he had put by before he joined: a little cash plus about a quarter of his earlier career earnings. */
+export function startingSavings(wp: WorldPlayer): number {
+  return Math.round(50_000 + 0.25 * Math.max(0, wp.career.careerEarnings - wp.career.seasonEarnings));
+}
+
+/** A client's personal wealth: his savings plus what he has kept this season. It's what he can spend in the store. */
+export function personalWealth(wp: WorldPlayer): number {
+  const c = wp.client;
+  if (!c) return startingSavings(wp);
+  return (c.savings ?? startingSavings(wp)) + seasonNet(c.finances);
 }
 
 /** His development bill against what he earns: above about half, he starts to resent it. */

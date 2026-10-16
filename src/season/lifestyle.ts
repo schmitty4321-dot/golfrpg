@@ -1,3 +1,4 @@
+import { personalWealth } from "./finance";
 import { clamp } from "../engine";
 import { rankMap } from "./points";
 import { followers } from "./showcase";
@@ -68,6 +69,9 @@ export function lifestyleBlock(world: World, clientId: string, itemId: string): 
   const item = lifestyleItem(itemId);
   if (!item) return "No such item.";
   if ((wp.client.lifestyle ?? []).includes(itemId)) return "He already owns it.";
+  const old = item.kind === "extra" ? undefined : ownedLifestyle(wp).find((i) => i.kind === item.kind);
+  const cost = item.price - (old ? Math.round(old.price * TRADE_IN_SHARE) : 0);
+  if (cost > personalWealth(wp)) return `He can't afford it: he has ${Math.max(0, personalWealth(wp)).toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })}.`;
   if (item.kind === "extra" && ownedLifestyle(wp).filter((i) => i.kind === "extra").length >= MAX_EXTRAS) return "Two extras at most: sell one to make room.";
   return null;
 }

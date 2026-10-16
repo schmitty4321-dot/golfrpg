@@ -1717,3 +1717,5 @@ select, input[type="text"], input[type="number"] {
 .trip-report-list li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; padding: 5px 8px; border-radius: 8px; background: var(--surface); }
 .trip-report-list li.gem { border: 1px solid #c9a24a; }
 .trip-report-gem { color: #9a6415; font-weight: 700; font-size: 12px; }
+/* Store: the player's money to spend, under his name. */
+.shop-funds { display: block; margin: 2px 0 2px; color: #f3d27a; font-size: 15px; font-weight: 750; }

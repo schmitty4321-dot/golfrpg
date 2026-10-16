@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Check, CircleDollarSign, Search, ShoppingBag, SlidersHorizontal, Sparkles, Star } from "lucide-react";
 import { APPAREL_LABELS, APPAREL_SLOTS, EQUIPMENT, EQUIPMENT_SLOTS, SLOT_LABELS, type EquipmentModel, type GearSlot } from "../../engine";
-import { LIFESTYLE_ITEMS, buyLifestyle, equip, lifestyleBlock, ownedLifestyle, qRating, qTarget, type LifestyleItem, type LifestyleKind, type World } from "../../season";
+import { LIFESTYLE_ITEMS, buyLifestyle, equip, lifestyleBlock, ownedLifestyle, personalWealth, qRating, qTarget, type LifestyleItem, type LifestyleKind, type World } from "../../season";
 import { CutoutPortrait } from "../components/Portrait";
 import { money } from "../format";
 import { effects } from "./Team";
@@ -105,7 +105,7 @@ export function Store({ world, game, clientId }: { world: World; game: Game; cli
           </div>
           <div className="shop-player">
             <CutoutPortrait player={wp.player} height={270} title={wp.player.name} />
-            <div><small>SHOPPING FOR</small><strong>{wp.player.name}</strong><span>Season earnings {money(wp.career.seasonEarnings)}</span><em>Q rating {qRating(world, wp).toFixed(0)} · Player pays</em></div>
+            <div><small>SHOPPING FOR</small><strong>{wp.player.name}</strong><b className="shop-funds">Funds to spend {money(personalWealth(wp))}</b><span>Season earnings {money(wp.career.seasonEarnings)}</span><em>Q rating {qRating(world, wp).toFixed(0)} · Player pays</em></div>
           </div>
         </header>
 
@@ -161,9 +161,9 @@ export function Store({ world, game, clientId }: { world: World; game: Game; cli
             </div>
             <div className="shop-compare-effects">{selected.kind === "gear" ? effectTags(selected.value).map((x) => <div key={x.text}><span className={x.tone}>{x.tone === "good" ? "↑" : x.tone === "trade" ? "!" : "•"}</span><strong>{x.text}</strong></div>) : <><div><span className="good"><Star size={11} /></span><strong>Q rating +{selected.value.qBonus}</strong></div><div><span className="neutral">•</span><strong>{money(selected.value.upkeep)} yearly upkeep</strong></div></>}</div>
             <div className="shop-cost"><CircleDollarSign size={22} /><div><small>{gearOwned || lifestyleOwned ? "READY" : "PLAYER PAYS"}</small><strong>{gearOwned || lifestyleOwned ? "Already owned" : money(selected.value.price)}</strong></div></div>
-            {selectedGear && <button className="shop-buy" disabled={gearInBag} onClick={() => game.act((w) => equip(w, clientId, selectedGear.id))}>{gearInBag ? "In use" : gearOwned ? "Put in bag" : `Buy · ${money(selectedGear.price)}`}</button>}
+            {selectedGear && <button className="shop-buy" disabled={gearInBag || (!gearOwned && selectedGear.price > personalWealth(wp))} onClick={() => game.act((w) => equip(w, clientId, selectedGear.id))}>{gearInBag ? "In use" : gearOwned ? "Put in bag" : selectedGear.price > personalWealth(wp) ? `Can't afford · ${money(selectedGear.price)}` : `Buy · ${money(selectedGear.price)}`}</button>}
             {selectedLifestyle && <button className="shop-buy" disabled={lifestyleOwned || !!lifestyleBlocked} onClick={() => game.act((w) => buyLifestyle(w, clientId, selectedLifestyle.id))}>{lifestyleOwned ? "Owned" : `Buy · ${money(selectedLifestyle.price)}`}</button>}
-            <p>{selectedLifestyle && lifestyleBlocked ? lifestyleBlocked : selectedGear && gearOwned ? "Owned equipment can be swapped in for free." : selectedLifestyle ? "Homes and cars replace the current item with a half-price trade-in." : "The player pays, and the item is equipped immediately."}</p></> : <div className="shop-empty">Choose an item.</div>}
+            <p>{selectedGear && !gearOwned && selectedGear.price > personalWealth(wp) ? `He has ${money(personalWealth(wp))} to spend.` : selectedLifestyle && lifestyleBlocked ? lifestyleBlocked : selectedGear && gearOwned ? "Owned equipment can be swapped in for free." : selectedLifestyle ? "Homes and cars replace the current item with a half-price trade-in." : "The player pays, and the item is equipped immediately."}</p></> : <div className="shop-empty">Choose an item.</div>}
           </aside>
         </div>
       </section>
