@@ -46,6 +46,11 @@ describe("scouting trips", () => {
     expect(report).toBeDefined();
     const found = report.choices.find((c) => c.id === "board")!.effects[0]! as { ids: string[] };
     for (const id of found.ids) expect(w.agency.knowledge[id]!.accuracy).toBeGreaterThanOrEqual(reportAccuracy(scout.quality, 0) - 1e-9);
+    // The trip report on the Scouting page lists everyone he saw, with the scout and region.
+    const tripReport = w.agency.tripReports![0]!;
+    expect(tripReport.scoutName).toBe(scout.name);
+    expect(tripReport.region).toBe("EU");
+    expect(tripReport.found).toEqual(found.ids);
     resolveDecision(w, report.id, "board");
     for (const id of found.ids) expect(w.agency.shortlist).toContain(id);
   });

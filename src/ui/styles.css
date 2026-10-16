@@ -1709,3 +1709,11 @@ select, input[type="text"], input[type="number"] {
 .week-decision-card.visited > img, .week-decision-card.done > img { opacity: .72; filter: saturate(.75); }
 .week-decision-check { position: absolute; z-index: 3; top: 10px; left: 10px; padding: 3px 9px; border-radius: 999px; background: #1f6b45; color: #fff; font-size: 11px; font-weight: 700; letter-spacing: .02em; box-shadow: 0 1px 4px rgba(0,0,0,.18); }
 .week-decision-card.visited .week-decision-check { background: #fff; color: #1f6b45; border: 1px solid #1f6b45; }
+
+/* A scout's trip report on the Scouting page. */
+.trip-report { margin-top: 12px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); }
+.trip-report-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; }
+.trip-report-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; }
+.trip-report-list li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; padding: 5px 8px; border-radius: 8px; background: var(--surface); }
+.trip-report-list li.gem { border: 1px solid #c9a24a; }
+.trip-report-gem { color: #9a6415; font-weight: 700; font-size: 12px; }
