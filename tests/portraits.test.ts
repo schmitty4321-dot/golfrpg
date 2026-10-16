@@ -24,9 +24,13 @@ describe("portraits stay with a player for his whole career", () => {
   it("chooses a fitting number to start with, and only fills in players who don't have one", () => {
     const p = { ...flatPlayer("kim", 12), nationality: "KOR", age: 22 } as Player;
     const chosen = golferPortraitIndex(p);
+    p.portraitIndex = 277;
+    assignPortraits([wpOf(p)]);
+    expect(p.portraitIndex).toBe(277);
+    // Golfers use only the realistic faces (201-400): a cartoon face from an older save is replaced.
+    expect(chosen).toBeGreaterThanOrEqual(201);
     p.portraitIndex = 77;
     assignPortraits([wpOf(p)]);
-    expect(p.portraitIndex).toBe(77);
-    expect(chosen).toBeGreaterThanOrEqual(1);
+    expect(p.portraitIndex).toBe(chosen);
   });
 });

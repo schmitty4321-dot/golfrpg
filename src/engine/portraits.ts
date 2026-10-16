@@ -24,7 +24,11 @@ export function portraitSeed(playerId: string): number {
  * The male portraits sorted by how they look: Asian or not, and how old. 1-199 were sorted by eye;
  * 201-400 come tagged (public/people/portraits-201-400.json: 18-24, 25-40, 45-65; East or Southeast Asian or not).
  */
-export const PORTRAIT_POOLS: Record<"asian" | "indian" | "other", Record<AgeBand, readonly number[]>> = {
+/** The first realistic portrait: 1-200 are a cartoon style, 201-400 realistic. Golfers use only the realistic set for now. */
+export const FIRST_REALISTIC_PORTRAIT = 201;
+export const isRealisticPortrait = (n: number): boolean => n >= FIRST_REALISTIC_PORTRAIT;
+
+const ALL_PORTRAIT_POOLS: Record<"asian" | "indian" | "other", Record<AgeBand, readonly number[]>> = {
   // Indian players: the Indian faces of the tagged set (they appear among "other" faces too).
   indian: {
     young: [202, 212, 222, 232, 242],
@@ -74,9 +78,20 @@ export function golferPortraitIndex(player: Pick<Player, "id" | "nationality" | 
   return pool[portraitSeed(player.id) % pool.length]!;
 }
 
-/** Gives every player who doesn't have one his portrait number, which he keeps for his career. */
+/** The pools golfers are drawn from: the realistic faces only. */
+export const PORTRAIT_POOLS = Object.fromEntries(
+  Object.entries(ALL_PORTRAIT_POOLS).map(([group, bands]) => [
+    group,
+    Object.fromEntries(Object.entries(bands).map(([band, ids]) => [band, ids.filter(isRealisticPortrait)])),
+  ]),
+) as unknown as Record<"asian" | "indian" | "other", Record<AgeBand, readonly number[]>>;
+
+/**
+ * Gives every player who doesn't have one his portrait number, which he keeps for his career.
+ * A player from an older save with a cartoon face gets a realistic one in its place.
+ */
 export function assignPortraits(players: Iterable<{ player: Player }>): void {
   for (const wp of players) {
-    if (wp.player.portraitIndex === undefined) wp.player.portraitIndex = golferPortraitIndex(wp.player);
+    if (wp.player.portraitIndex === undefined || !isRealisticPortrait(wp.player.portraitIndex)) wp.player.portraitIndex = golferPortraitIndex(wp.player);
   }
 }
