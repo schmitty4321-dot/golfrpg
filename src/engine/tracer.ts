@@ -530,6 +530,19 @@ export function traceHole({ course, hole, score, player, windMph = 0, seed, call
   const driveLen = clamp(305 + (a.drivingDistance - TOUR_AVERAGE) * YARDS_PER_POINT + rng.normal(0, 9) - windMph * 0.6, 230, 345);
   // Fairways lead to greens: a hole where the approach finds the green was usually played from the short grass.
   const accurate = clamp(0.62 + (a.drivingAccuracy - TOUR_AVERAGE) * 0.03 + (plan.missGreen ? -0.25 : 0.12), 0.1, 0.95);
+  // A par 5 he can't reach in two: the score stays, but it's drawn as a lay-up and a wedge
+  // (one more full shot, one fewer chip or putt). A fairway wood goes about 45 yards shorter than his drive.
+  const driveTo = Math.min(driveLen, Y - 70, (layout.layupAt ?? Infinity) - 12);
+  if (hole.par === 5 && plan.long === 2 && plan.penalties === 0 && plan.recoveries === 0 && Y - driveTo > driveTo - 45) {
+    if (plan.chips > 0) {
+      plan.long = 3;
+      plan.chips--;
+      if (plan.chips === 0) plan.missGreen = false;
+    } else if (plan.putts > 0) {
+      plan.long = 3;
+      plan.putts--;
+    }
+  }
   const lastLong = plan.long;
   const finalLong = (club?: string) => {
     const from = cur;
