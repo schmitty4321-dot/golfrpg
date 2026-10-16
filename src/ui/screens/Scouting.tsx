@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { ScoutTripsPanel } from "../components/ScoutTrips";
-import { EYE_LABELS, intelCap, STATUS_LABELS, approachBlock, knownTraits, pointsList, queueScouting, rankMap, scoutEye, weeklyScoutCost, type TourStatus, type World, knownArchetype } from "../../season";
+import { EYE_LABELS, intelCap, STATUS_LABELS, approachBlock, knownTraits, rosterCount, rosterLimit, pointsList, queueScouting, rankMap, scoutEye, weeklyScoutCost, type TourStatus, type World, knownArchetype } from "../../season";
 import { PlayerName, useOpenPlayer } from "../components/PlayerLink";
 import { Stars } from "../components/Stars";
 import { TraitChips } from "../components/Traits";
@@ -16,7 +16,16 @@ type Filter = "all" | "approachable" | "free";
 export function Scouting({ world, game }: { world: World; game: Game }) {
   const openPlayer = useOpenPlayer();
   const [filter, setFilter] = useState<Filter>("approachable");
-  const [status, setStatus] = useState<TourStatus | "any">("any");
+  // "pros": every professional status. This week's Recruit pros card opens the list with it set.
+  const [status, setStatus] = useState<TourStatus | "any" | "pros">(() => {
+    try {
+      const asked = sessionStorage.getItem("fm-scouting-status");
+      sessionStorage.removeItem("fm-scouting-status");
+      return asked === "pros" ? "pros" : "any";
+    } catch {
+      return "any";
+    }
+  });
   const [maxAge, setMaxAge] = useState(50);
   const [q, setQ] = useState("");
   const [trait, setTrait] = useState("any");
@@ -24,13 +33,19 @@ export function Scouting({ world, game }: { world: World; game: Game }) {
   const ranks = rankMap(world);
   const pts = pointsList(world);
   const a = world.agency;
+  // With the roster full, "Can approach now" still lists everyone who would talk to you once there's room (as on This week).
+  const full = rosterCount(world) >= rosterLimit(a.reputation, a.hq);
+  const open = (id: string) => {
+    const block = approachBlock(world, id);
+    return !block || (full && block.startsWith("Your agency can manage"));
+  };
 
   const rows = useMemo(
     () =>
       Object.values(world.players)
         .filter((wp) => !wp.client)
-        .filter((wp) => filter === "all" || (filter === "free" ? !wp.agent : !approachBlock(world, wp.player.id)))
-        .filter((wp) => status === "any" || wp.career.status === status)
+        .filter((wp) => filter === "all" || (filter === "free" ? !wp.agent : open(wp.player.id)))
+        .filter((wp) => status === "any" || (status === "pros" ? wp.career.status !== "amateur" : wp.career.status === status))
         .filter((wp) => wp.player.age <= maxAge)
         .filter((wp) => !q || wp.player.name.toLowerCase().includes(q.toLowerCase()))
         .filter((wp) => trait === "any" || knownTraits(world, wp.player.id).includes(trait))
@@ -73,8 +88,9 @@ export function Scouting({ world, game }: { world: World; game: Game }) {
       </div>
 
       <div className="scouting-reports-grid">
-      <section className="panel player-reports-panel">
+      <section className="panel player-reports-panel" id="player-reports">
         <div className="panel-head"><h2>Player reports</h2><span className="muted small">{rows.length} players</span></div>
+        {full && filter === "approachable" && <p className="small secondary" style={{ marginTop: 0 }}>Your roster is full ({rosterCount(world)} of {rosterLimit(a.reputation, a.hq)}). These players would talk to you, but you'll need room first: grow your reputation, move to a bigger headquarters, or let a client go.</p>}
         <div className="btn-row" style={{ alignItems: "center", marginBottom: 12 }}>
           <div className="tabs" role="tablist" style={{ margin: 0 }}>
             {(["approachable", "free", "all"] as Filter[]).map((f) => (
@@ -83,8 +99,9 @@ export function Scouting({ world, game }: { world: World; game: Game }) {
               </button>
             ))}
           </div>
-          <select aria-label="Tour status" value={status} onChange={(e) => setStatus(e.target.value as TourStatus | "any")}>
+          <select aria-label="Tour status" value={status} onChange={(e) => setStatus(e.target.value as TourStatus | "any" | "pros")}>
             <option value="any">Any status</option>
+            <option value="pros">Professionals</option>
             {(Object.keys(STATUS_LABELS) as TourStatus[]).map((s) => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
           </select>
           <label className="small secondary">Max age <input type="number" min={16} max={50} value={maxAge} onChange={(e) => setMaxAge(Number(e.target.value) || 50)} style={{ width: 64 }} /></label>
