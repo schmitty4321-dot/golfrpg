@@ -1719,3 +1719,17 @@ select, input[type="text"], input[type="number"] {
 .trip-report-gem { color: #9a6415; font-weight: 700; font-size: 12px; }
 /* Store: the player's money to spend, under his name. */
 .shop-funds { display: block; margin: 2px 0 2px; color: #f3d27a; font-size: 15px; font-weight: 750; }
+
+/* Geometry-led Waialae pilot, sharing the replay's world coordinates. */
+.projected-hole { margin: 0; min-width: 0; background: #e9eee2; border-radius: 12px; overflow: hidden; }
+.projected-hole svg { display: block; width: 100%; height: auto; }
+.projected-hole figcaption { padding: 10px 16px; color: #36513d; font-size: 12px; }
+.projected-hole a { color: #245a36; }
+.projected-flight { stroke-dasharray: 1; animation: projected-flight 800ms ease-out both; }
+@keyframes projected-flight { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.tabs button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.tracer-preview-layout > * { min-width: 0; }
+@media (prefers-reduced-motion: reduce) { .projected-flight { animation: none; } }
+@media (max-width: 700px) { .tracer-preview-layout { grid-template-columns: minmax(0, 1fr); } .tracer-preview .panel-head { flex-wrap: wrap; } }
+/* Keep the replay inside the overlay's padded area, including fixed phone overlays. */
+.modal.tracer.tracer-cinematic { width: min(1280px, 100%); max-width: 100%; min-width: 0; }

@@ -1,4 +1,5 @@
 import { useEffect, useId, useMemo, useState } from "react";
+import { ProjectedHole } from "./ProjectedHole";
 import { aerialMatrix, useHoleMap } from "../holeMaps";
 import { traceHole, traceSeed, type HoleTrace, type PlayerEventResult, type Pt, type Shot, type TournamentResult } from "../../engine";
 import { hasIllustratedTracerArt, IllustratedTracer } from "./IllustratedTracer";
@@ -84,7 +85,9 @@ export function ShotTracer({ result, row, round: startRound, hole: startHole, on
   );
   const holesToShow = course.holes.map((_, i) => i).filter((i) => !keyOnly || card[i] !== course.holes[i]!.par || i === hole);
   const map = useHoleMap(trace.layout.real);
-  const illustrated = hasIllustratedTracerArt(trace);
+  const [holeView, setHoleView] = useState<"illustrated" | "current">("illustrated");
+  const pilot = trace.layout.real?.courseId === "waialae" && trace.layout.real.hole === 1;
+  const illustrated = pilot ? holeView === "illustrated" : hasIllustratedTracerArt(trace);
   const hasAerial = !!map?.aerial && !illustrated;
 
   // Auto-play: reveal a shot every 900 ms, then move to the next hole.
@@ -136,9 +139,10 @@ export function ShotTracer({ result, row, round: startRound, hole: startHole, on
           ))}
         </div>
 
+        {pilot && <div className="tabs" role="group" aria-label="Hole view"><button aria-pressed={holeView === "illustrated"} onClick={() => setHoleView("illustrated")}>Illustrated 3D</button><button aria-pressed={holeView === "current"} onClick={() => setHoleView("current")}>Current view</button></div>}
         {illustrated ? (
           <>
-            <IllustratedTracer trace={trace} step={step} courseName={course.name} />
+            {pilot ? <ProjectedHole trace={trace} step={step} map={map} /> : <IllustratedTracer trace={trace} step={step} courseName={course.name} />}
             <div className="illustrated-replay-controls">
               <strong>{step >= trace.shots.length ? trace.result : trace.shots[Math.max(0, step - 1)]?.text ?? "Ready to play"}</strong>
               <div className="btn-row">

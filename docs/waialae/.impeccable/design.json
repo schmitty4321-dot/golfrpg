@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-31T00:00:00Z",
+  "title": "Design System: Waialae Hole 1 projected runtime view",
+  "extensions": {
+    "scope": "Only docs/waialae/DESIGN.md and the Waialae Hole 1 ProjectedHole runtime surface. Existing app UI remains authoritative outside this boundary.",
+    "motion": [{"name":"flight-draw","value":"800ms ease-out both","purpose":"Draw the latest replay flight; animation is none when prefers-reduced-motion is reduce."}],
+    "breakpoints": [{"name":"preview-stack","value":"700px"}],
+    "projection": {"canvas":"1200 620","terrain":"flat","flight":"Illustrative parabola; zero height for putts and penalties; shared world-coordinate camera."}
+  },
+  "components": [{
+    "name":"Projected hole attribution",
+    "kind":"custom",
+    "description":"Visible attribution and limitation disclosure beneath the projected SVG.",
+    "html":"<figure class=\"ds-hole\"><figcaption>Map data © <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap contributors</a>. Flat terrain; flight height is illustrative.</figcaption></figure>",
+    "css":".ds-hole{margin:0;background:#e9eee2;border-radius:12px;overflow:hidden}.ds-hole figcaption{padding:10px 16px;color:#36513d;font-size:12px}.ds-hole a{color:#245a36}"
+  }],
+  "narrative": {
+    "northStar":"The mapped course diorama",
+    "overview":"This document applies only to the new Waialae Hole 1 projected replay view, its attribution, and its flight rendering. It does not define or replace the app's existing visual system. Preserve the surrounding navigation, replay controls, typography, themes, and other course views.",
+    "keyCharacteristics":["One orthographic camera for mapped geometry and replay coordinates.","Mapped land features, restrained illustrative depth, and legible replay paths.","Explicit separation between measured outlines and illustrative height."],
+    "rules":[{"name":"The Shared Camera Rule","body":"Project terrain, pin, tree locations, shot origins, and landing points through the same transform. Do not move a shot endpoint to make it visually fit a lie or hazard.","section":"elevation"}],
+    "dos":["Do preserve the existing app interface around this scoped pilot.","Do use actual mapped features and replay world coordinates.","Do retain visible OpenStreetMap attribution and the flat-terrain disclosure."],
+    "donts":["Don't imply that illustrative flight height is measured launch data.","Don't add decorative vegetation, invented hazards, or lie-snapped endpoints.","Don't apply this palette or composition as a redesign of the whole app."]
+  }
+}
