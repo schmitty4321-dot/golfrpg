@@ -194,8 +194,8 @@ function ExemptionLine({ row, canAsk, onAsk }: { row: ExemptionRow; canAsk: bool
   if (row.state === "pending") return <span className="schedule-exempt">{row.name}: asked, answer by the Monday</span>;
   return (
     <span className="schedule-exempt">
+      <span className="small"><span style={{ fontWeight: 600 }}>{row.name}</span>: {row.odds.read.toLowerCase()}{why}</span>
       <button className="btn btn-small" disabled={!canAsk} onClick={onAsk} title={canAsk ? undefined : "No asks left this season"}>Ask for an exemption</button>
-      <span className="small">{row.name}: {row.odds.read.toLowerCase()}{why}</span>
     </span>
   );
 }
