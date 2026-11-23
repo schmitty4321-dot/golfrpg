@@ -6,6 +6,8 @@ detail; read it before changing one.
 
 Live site: https://schmitty4321-dot.github.io/golfrpg/ (GitHub Pages; every push to `main` deploys).
 
+Studio website: https://sideeffectsstudio.buzz (Rare Side Effects Studio, domain registered 2026-10-18, managed on Spaceship).
+
 ## How we work
 
 1. **One branch per feature**, named `claude/<feature>` (e.g. `claude/caddies`), cut from an up-to-date `main`.
@@ -67,8 +69,9 @@ Live site: https://schmitty4321-dot.github.io/golfrpg/ (GitHub Pages; every push
 
 ## Ideas not built yet
 
-From the 25-idea list: pre-tournament routines, winter training camps, sponsor exemptions, coach
-specialties, a sports psychologist, physio and nutritionist, an agency performance center, golf ball choice,
-the putter swap, equipment deals that require the sponsor's clubs, a home base, family on tour, an analytics
-department, player businesses, contract bonus clauses, random events with choices, press conferences,
-achievements, and an agency perk tree. Also still to do: photos for the 11 courses without one (see README).
+From the 25-idea list, still open: pre-tournament routines, sponsor exemptions, coach specialties, a sports
+psychologist on staff (today only a one-off inbox choice), physio and nutritionist, golf ball choice, the putter
+swap, equipment deals that require the sponsor's clubs, a home base, family on tour, player businesses, and an
+agency perk tree. Built since the list was written: winter training camps, contract bonus clauses, the agency
+performance center, the analytics department (the analyst), random events with choices, press conferences and
+achievements. Also still to do: photos for the 11 courses without one (see README).
