@@ -28,6 +28,22 @@ export const SIGNATURE_HOLES: Readonly<Record<string, readonly number[]>> = {
   "east-lake": [18],
   "port-royal": [16],
   waialae: [18],
+  "grand-reserve": [3], // the 12th on the club card, nines swapped
+  "memorial-park": [15, 17],
+  "tpc-san-antonio-oaks": [16, 17],
+  "tpc-louisiana": [18],
+  aronimink: [17],
+  "tpc-craig-ranch": [17], // Ranch17 stadium hole
+  "osprey-valley-north": [14, 18], // 14: The Rink
+  "renaissance-club": [3, 4, 5], // the dunes stretch, 12-14 at the Scottish Open
+  "royal-birkdale": [12, 16, 17],
+  "tpc-twin-cities": [18],
+  "detroit-golf-club": [14, 15, 16], // Area 313
+  bellerive: [6],
+  "black-desert": [17],
+  "vidanta-vallarta": [17],
+  "barton-creek-fazio-canyons": [10, 18],
+  "sea-island-seaside": [13, 18],
 };
 
 /** A course's signature holes as indexes (0-17). */
