@@ -19,7 +19,7 @@ export function Calendar({ world, game, go }: { world: World; game: Game; go: Go
     const wp = world.players[id]!;
     const surname = wp.player.name.split(" ").slice(-1)[0];
     for (const r of wp.career.results.filter((x) => x.season === world.season)) {
-      mine.set(r.eventId, [...(mine.get(r.eventId) ?? []), { id, text: `${surname} ${r.label}${r.via === "monday" ? " (MQ)" : ""}` }]);
+      mine.set(r.eventId, [...(mine.get(r.eventId) ?? []), { id, text: `${surname} ${r.label}${r.via === "monday" ? " (MQ)" : r.via === "sponsor" ? " (SE)" : ""}` }]);
     }
   }
   const inSession = new Set(game.state.reports.flatMap((r) => r.results.map((x) => x.event.id)));

@@ -63,8 +63,8 @@ export interface EventRecord {
   owgrPoints: number;
   sgPerRound: number;
   madeCut: boolean;
-  /** "monday" when the player got in through a Monday qualifier. */
-  via: "field" | "monday";
+  /** "monday" when the player got in through a Monday qualifier, "sponsor" on a sponsor exemption. */
+  via: "field" | "monday" | "sponsor";
 }
 
 export interface Career {
@@ -509,6 +509,8 @@ export interface Agency {
   hq?: number;
   /** Owed on the credit line. */
   loan?: number;
+  /** Sponsor exemptions asked for this season (see exemptions.ts). */
+  exemptions?: import("./exemptions").ExemptionAsk[];
   /** Bank balance at the end of each week, for the finance chart. */
   bankHistory?: { season: number; week: number; bank: number }[];
   /** People the agency could hire, and who it has (one per role). */

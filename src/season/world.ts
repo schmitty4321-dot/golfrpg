@@ -42,7 +42,8 @@ import { recordProEntry } from "./proEntry";
 import { closeSeasonRecord, considerForHallOfFame, newHistory } from "./history";
 import { databasePlayer, type DatabasePlayer } from "./editor";
 import { expireSponsors } from "./sponsors";
-import { canPlayDev, devExempt, devPriority, finalsEligible, sponsorChance, courseFit, courseById, eventsInWeek, isInvitational, mixSeed, planWeek, priorityCompare, MONDAY_SPOTS } from "./entries";
+import { canPlayDev, devExempt, devPriority, finalsEligible, sponsorChance, courseFit, courseById, eventsInWeek, isInvitational, mixSeed, planWeek, priorityCompare, MONDAY_SPOTS, SPONSOR_SPOTS } from "./entries";
+import { hasExemption } from "./exemptions";
 import { pointsList, rankMap, worldRanking, type RankingRow } from "./points";
 import type { Course } from "../engine";
 import type { StaffRole } from "./types";
@@ -839,6 +840,10 @@ export function clientOptions(world: World, clientId: string): EntryOption[] {
         ? { ...base, access: "in" as const, detail: `${event.devFinals ? `Finals event ${event.devFinals} of 4` : "Developmental tour"}: in (priority ${pos} of ${event.fieldSize}${devExempt(world, client) ? ", fully exempt" : ""}). Top ${DEV_GRADUATES} on its points list earn cards${event.devFinals ? "" : "; 3 wins earn one on the spot"}.` }
         : { ...base, access: "alternate" as const, detail: `Developmental tour: alternate (priority ${pos} of ${event.fieldSize}).` };
     }
+    const exempt = plan.exemptions?.get(event.id) ?? [];
+    if (hasExemption(world, clientId, event.id) && exempt.includes(clientId)) {
+      return { ...base, access: isInvitational(event.tier) ? "invited" : "in", detail: "Sponsor exemption: he's in the field." };
+    }
     if (isInvitational(event.tier)) {
       const invited = plan.invited.get(event.id)!.has(clientId);
       return {
@@ -848,14 +853,14 @@ export function clientOptions(world: World, clientId: string): EntryOption[] {
       };
     }
     if (client.career.status === "none") {
-      return { ...base, access: "monday", detail: `No status: a sponsor's invitation (about ${Math.round(sponsorChance(world) * 100)}% for your client) or a Monday qualifier (${MONDAY_SPOTS} spots).` };
+      return { ...base, access: "monday", detail: `No status: a Monday qualifier (${MONDAY_SPOTS} spots), a sponsor's invitation now and then (about ${Math.round(sponsorChance(world) * 100)}%), or ask for a sponsor exemption on the Schedule.` };
     }
     const direct = [...plan.choices.entries()]
-      .filter(([id, c]) => c?.eventId === event.id && c.route === "entry" && world.players[id]!.career.status !== "none")
+      .filter(([id, c]) => c?.eventId === event.id && c.route === "entry" && world.players[id]!.career.status !== "none" && !exempt.includes(id))
       .map(([id]) => world.players[id]!)
       .sort(priorityCompare);
     const pos = direct.findIndex((wp) => wp.player.id === clientId) + 1;
-    const spots = event.fieldSize - MONDAY_SPOTS;
+    const spots = event.fieldSize - MONDAY_SPOTS - SPONSOR_SPOTS;
     return pos <= spots
       ? { ...base, access: "in", detail: `In on status (priority ${pos} of ${spots} spots).` }
       : { ...base, access: "alternate", detail: `Alternate (priority ${pos}, ${spots} spots): would go to the Monday qualifier.` };

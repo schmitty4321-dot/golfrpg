@@ -15,6 +15,7 @@ import { asSetUp } from "./courseSetup";
 import { pointsList, rankMap } from "./points";
 import type { EventTier, TourEvent, TourStatus, World, WorldPlayer } from "./types";
 import { titleEvent } from "./investments";
+import { aiExemptionPicks, exemptionSpots, grantedClients } from "./exemptions";
 
 /** Spots kept back in regular events for Monday qualifiers. */
 export const MONDAY_SPOTS = 4;
@@ -95,7 +96,8 @@ export function invitedField(world: World, ctx: WeekContext, event: TourEvent): 
     );
     return eligible
       .sort((a, b) => b.career.seasonPoints - a.career.seasonPoints || owgr(a.player.id) - owgr(b.player.id))
-      .slice(0, event.fieldSize)
+      // The last spots are sponsor exemptions (planWeek adds them).
+      .slice(0, event.fieldSize - exemptionSpots(event))
       .map((wp) => wp.player.id);
   }
   // Major: top 80 in the world, recent winners, last season's top 50 and the amateur champion,
@@ -239,6 +241,8 @@ export interface WeekPlan {
   invited: Map<string, Set<string>>;
   /** Everyone's choices, including the client's. */
   choices: Map<string, AiChoice>;
+  /** Sponsor exemptions by event id: your clients given one first, then the computer agencies' picks. */
+  exemptions?: Map<string, string[]>;
 }
 
 /** Everyone's choices for the week; your clients' choices are supplied (or "auto"). */
@@ -256,9 +260,53 @@ export function planWeek(world: World, clientChoices: Map<string, AiChoice | "au
     const own = mine !== undefined && mine !== "auto" && !wp.injury;
     choices.set(wp.player.id, own ? mine : ai);
   }
+  const exemptions = assignExemptions(world, events, invited, choices, clientChoices);
   // The Ryder Cup teams are busy this week.
   for (const id of ryderCupPlayers(world)) choices.set(id, null);
-  return { events, invited, choices };
+  return { events, invited, choices, exemptions };
+}
+
+/**
+ * Sponsor exemptions for this week's events: your clients given one play it
+ * (unless you've sent them elsewhere), and the computer agencies' players take
+ * the rest. Nobody already invited somewhere this week, or playing the
+ * developmental tour's Finals, is pulled away.
+ */
+function assignExemptions(world: World, events: TourEvent[], invited: Map<string, Set<string>>, choices: Map<string, AiChoice>, clientChoices: Map<string, AiChoice | "auto">): Map<string, string[]> {
+  const out = new Map<string, string[]>();
+  const taken = new Set<string>();
+  for (const set of invited.values()) for (const id of set) taken.add(id);
+  const finals = new Set(events.filter((e) => e.devFinals).map((e) => e.id));
+  for (const [id, c] of choices) if (c && finals.has(c.eventId)) taken.add(id);
+  for (const e of events) {
+    const spots = exemptionSpots(e);
+    if (!spots) continue;
+    const ids: string[] = [];
+    for (const id of grantedClients(world, e.id)) {
+      const wp = world.players[id];
+      if (!wp || wp.injury || taken.has(id)) continue;
+      const mine = clientChoices.get(id);
+      if (mine === undefined || mine === "auto") choices.set(id, { eventId: e.id, route: "entry" });
+      if (choices.get(id)?.eventId !== e.id) continue;
+      ids.push(id);
+      taken.add(id);
+    }
+    // An event nobody else is playing this week (e.g. one sharing its week with match play) stays empty.
+    let entrants = 0;
+    for (const c of choices.values()) if (c?.eventId === e.id) entrants++;
+    if (entrants - ids.length < 2) {
+      out.set(e.id, ids);
+      continue;
+    }
+    for (const id of aiExemptionPicks(world, e, spots - ids.length, taken)) {
+      choices.set(id, { eventId: e.id, route: "entry" });
+      taken.add(id);
+      ids.push(id);
+    }
+    if (isInvitational(e.tier)) for (const id of ids) invited.get(e.id)?.add(id);
+    out.set(e.id, ids);
+  }
+  return out;
 }
 
 export interface FieldResult {
@@ -285,7 +333,9 @@ export function buildFields(world: World, plan: WeekPlan): FieldResult[] {
         const order = [...inv];
         field = field.sort((a, b) => order.indexOf(a) - order.indexOf(b)).slice(0, event.fieldSize);
       }
-      return { event, field, alternates: [], mondayQualifiers: [], mondayPool: [] };
+      const exempt = new Set(plan.exemptions?.get(event.id) ?? []);
+      const sponsorInvites = field.filter((id) => exempt.has(id));
+      return { event, field, alternates: [], mondayQualifiers: [], mondayPool: [], ...(sponsorInvites.length ? { sponsorInvites } : {}) };
     }
     if (event.tier === "dev") {
       // The later Finals are for the top of the points list only.
@@ -303,15 +353,19 @@ export function buildFields(world: World, plan: WeekPlan): FieldResult[] {
       };
     }
 
+    // Sponsor exemptions: your clients given one, then the computer agencies' picks. They come
+    // off the bottom of the status order, so the field's size doesn't change.
+    const exempt = plan.exemptions?.get(event.id) ?? [];
+    const exemptSet = new Set(exempt);
     const direct = entrants
-      .filter(([id, c]) => c!.route === "entry" && world.players[id]!.career.status !== "none")
+      .filter(([id, c]) => !exemptSet.has(id) && c!.route === "entry" && world.players[id]!.career.status !== "none")
       .map(([id]) => world.players[id]!)
       .sort(priorityCompare)
       .map((wp) => wp.player.id);
     const spots = event.fieldSize - MONDAY_SPOTS - SPONSOR_SPOTS;
     const field = direct.slice(0, spots);
     const alternates = direct.slice(spots);
-    const mondayEntrants = entrants.filter(([id, c]) => c!.route === "monday" || world.players[id]!.career.status === "none").map(([id]) => id);
+    const mondayEntrants = entrants.filter(([id, c]) => !exemptSet.has(id) && (c!.route === "monday" || world.players[id]!.career.status === "none")).map(([id]) => id);
 
     // Alternates who missed out try Monday too; the client is always kept in the pool.
     let pool = [...new Set([...mondayEntrants, ...alternates])];
@@ -321,8 +375,11 @@ export function buildFields(world: World, plan: WeekPlan): FieldResult[] {
       pool = [...keep, ...others.slice(0, MONDAY_POOL_MAX - keep.length)];
     }
     const open = event.fieldSize - field.length;
-    // Sponsor invitations: a couple of spots for players without status, the developmental tour's best first.
-    const sponsorInvites = sponsorPicks(world, event, pool, Math.min(open, SPONSOR_SPOTS));
+    const sponsorSpots = Math.min(open, SPONSOR_SPOTS);
+    const playing = exempt.filter((id) => plan.choices.get(id)?.eventId === event.id);
+    const granted = playing.filter((id) => world.clientIds.includes(id)).slice(0, sponsorSpots);
+    const aiPicks = playing.filter((id) => !world.clientIds.includes(id));
+    const sponsorInvites = [...granted, ...sponsorPicks(world, event, pool, sponsorSpots - granted.length, aiPicks)];
     const mondayPool = pool.filter((id) => !sponsorInvites.includes(id));
     const mondayQualifiers = mondayQualifier(world, event, mondayPool, Math.min(open - sponsorInvites.length, MONDAY_SPOTS), rng);
     // Any spots still open go down the priority list (alternates, then past members by last season's rank).
@@ -336,15 +393,16 @@ export function buildFields(world: World, plan: WeekPlan): FieldResult[] {
   });
 }
 
-/** Spots in a regular event the tournament gives away. */
-export const SPONSOR_SPOTS = 2;
+/** Spots in a regular event the tournament gives away (sponsor exemptions; see exemptions.ts). */
+export const SPONSOR_SPOTS = 4;
 
 /**
- * Who a tournament invites: a player without status who asked to play. Your
- * client gets one now and then, likelier the bigger your agency's name;
- * otherwise the developmental tour's points leaders get the call.
+ * Who a tournament invites besides the clients you asked for: your clients at
+ * your title event, a client without status now and then (likelier the bigger
+ * your agency's name), the computer agencies' picks (`picks`, see
+ * aiExemptionPicks), then the developmental tour's points leaders.
  */
-export function sponsorPicks(world: World, event: TourEvent, pool: string[], spots: number): string[] {
+export function sponsorPicks(world: World, event: TourEvent, pool: string[], spots: number, picks: string[] = []): string[] {
   if (spots <= 0) return [];
   const rng = createRng(mixSeed(world.seed, world.season, world.week, 43, Number(event.id.replace(/\D/g, "")) || 1));
   const none = pool.map((id) => world.players[id]!).filter((wp) => wp.career.status === "none");
@@ -355,6 +413,7 @@ export function sponsorPicks(world: World, event: TourEvent, pool: string[], spo
     if (out.length >= spots) break;
     if (world.clientIds.includes(wp.player.id) && rng.chance(sponsorChance(world))) out.push(wp.player.id);
   }
+  for (const id of picks) if (out.length < spots && !out.includes(id)) out.push(id);
   const rest = none
     .filter((wp) => !out.includes(wp.player.id) && wp.career.devPoints > 0)
     .sort((a, b) => b.career.devPoints - a.career.devPoints || (a.career.priorPointsRank ?? 999) - (b.career.priorPointsRank ?? 999));

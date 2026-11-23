@@ -450,7 +450,7 @@ function PlayerResults({ wp, season, liveEvent }: { wp: WorldPlayer; season: num
                 <tr key={`${r.season}-${r.week}-${r.eventId}-${i}`}>
                   <td>{r.season}</td>
                   <td>{r.week}</td>
-                  <td>{r.eventName}{r.via === "monday" ? <span className="muted small"> · Monday qualifier</span> : null}</td>
+                  <td>{r.eventName}{r.via === "monday" ? <span className="muted small"> · Monday qualifier</span> : r.via === "sponsor" ? <span className="muted small"> · Sponsor exemption</span> : null}</td>
                   <td>{TIER_LABELS[r.tier]}</td>
                   <td>{r.label}</td>
                   <td className="num">{toPar(r.toPar)}</td>

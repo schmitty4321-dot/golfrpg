@@ -52,6 +52,8 @@ export function deserializeWorld(json: string): World {
   addMatchPlay(world);
   ensureRyderCup(world);
   ensureGoals(world);
+  // Saves from before sponsor exemptions: no asks made yet.
+  world.agency.exemptions ??= [];
   // Coaches are priced by the current fee curve (it changed in the 2026 finance model).
   // (A former client coaching for you keeps his friend's rate.)
   for (const c of world.coaches) c.weeklyFee = Math.round(coachFee(c.quality) * (c.formerClient ? LOYALTY_DISCOUNT : 1));
