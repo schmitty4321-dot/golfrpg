@@ -261,6 +261,12 @@ export interface PlayerEventContext {
   rivalry?: number;
   /** The world's Realism setting: day-to-day scatter multiplier (Lively worlds are wilder). */
   scatter?: number;
+  /** Playing through a knock his physio is managing: strokes a round, + hurts. */
+  knock?: number;
+  /** His nutritionist: share of the late-round fatigue taken away (0-1). */
+  lateFatigueRelief?: number;
+  /** His nutritionist: share of the jet lag taken away (0-1). */
+  jetLagRelief?: number;
 }
 
 /** The round being played, as the trait effects see it. */
@@ -353,7 +359,7 @@ export function traitRoundEffects(r: TraitRoundInfo): { sg: StrokesGained; strok
       case "home-crowd-hero": if (e?.home) strokes -= 0.12; break;
       case "dawn-patrol": strokes += r.wave === "AM" ? -0.08 : 0.08; break;
       case "rain-man": if (r.rain) strokes -= 0.1; break;
-      case "jet-lag": if (e?.regionChanged && !e.flewPrivate && r.round <= 2) strokes += 0.25; break;
+      case "jet-lag": if (e?.regionChanged && !e.flewPrivate && r.round <= 2) strokes += 0.25 * (1 - (e.jetLagRelief ?? 0)); break;
       case "night-before": if (r.round === 1) strokes += 0.15; break;
       case "late-fade": if (e?.lateSeason) strokes += 0.1; break;
       case "rhythm-player":

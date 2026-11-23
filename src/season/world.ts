@@ -28,6 +28,7 @@ import { DEV_EXEMPT_THROUGH, DEV_GRADUATES, addFullDevTour, buildTour, matchPlay
 import { MAX_POTENTIAL, archetypeCeiling, newDevelopment, overall } from "./development";
 import { asSetUp, nextCourseSetup } from "./courseSetup";
 import { generateCoaches, offseason, OFFSEASON_WEEKS } from "./staff";
+import { generateMedics } from "./medical";
 import { generateManagers } from "./managers";
 import { resetAmateurSeason } from "./amateurResults";
 import { assignPortraits, distinctPortraits } from "../engine/portraits";
@@ -245,6 +246,7 @@ export function createWorld(opts: CreateWorldOptions): World {
     news: [],
     coaches: generateCoaches(opts.seed),
     managers: generateManagers(opts.seed),
+    medics: generateMedics(opts.seed),
     caddies: generateCaddies(opts.seed),
     history: newHistory(),
     ...(opts.style && opts.style !== "realistic" ? { style: opts.style } : {}),

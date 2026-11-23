@@ -8,6 +8,7 @@ import { clamp, hasTrait, homeRegion, inferArchetype, rollTraits, traceSeed, tra
 import { rankMap } from "./points";
 import { familiarityContext } from "./familiarity";
 import { caddieOnBag, travelMode } from "./team";
+import { medicalContext } from "./medical";
 import type { Region, SponsorCategory, TourEvent, World, WorldPlayer } from "./types";
 
 /**
@@ -84,7 +85,7 @@ export function eventContext(world: World, event: TourEvent, id: string): Player
     ...(wp.seasonForm?.season === world.season ? { seasonForm: wp.seasonForm.sg } : {}),
     ...(world.style === "lively" ? { scatter: STYLES.lively.scatter } : {}),
     ...familiarityContext(wp, event),
-    ...(wp.client ? { caddie: caddieOnBag(world, wp), flewPrivate: travelMode(world, wp).private } : {}),
+    ...(wp.client ? { caddie: caddieOnBag(world, wp), flewPrivate: travelMode(world, wp).private, ...medicalContext(world, wp) } : {}),
   };
 }
 

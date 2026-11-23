@@ -214,7 +214,7 @@ export function playHole({ ctx, hole, dayForm, teeShotHoles, state, mod }: HoleI
 
   // Late fatigue on the weekend for low-stamina or worn-out players.
   if (ctx.round >= 3 && hole.number > 12) {
-    mean += Math.max(0, TOUR_AVERAGE - a.stamina) * 0.004 + Math.max(0, 70 - player.condition) * 0.002;
+    mean += (Math.max(0, TOUR_AVERAGE - a.stamina) * 0.004 + Math.max(0, 70 - player.condition) * 0.002) * (1 - (ctx.event?.lateFatigueRelief ?? 0));
   }
 
   if (mod) mean += mod.mean;
@@ -298,7 +298,7 @@ export function roundForm(ctx: RoundContext): StrokesGained {
   }
   traits.sg.approach += caddie.approach;
   traits.sg.putting += caddie.putting;
-  return drawDayForm(ctx.player, ctx.course, ctx.rng, (ctx.weekForm ?? 0) + (ctx.event?.seasonForm ?? 0) + (ctx.event?.rivalry ?? 0) + (ctx.boost ?? 0) - shift - traits.strokes - local.strokes, habits.streak, traits);
+  return drawDayForm(ctx.player, ctx.course, ctx.rng, (ctx.weekForm ?? 0) + (ctx.event?.seasonForm ?? 0) + (ctx.event?.rivalry ?? 0) + (ctx.boost ?? 0) - (ctx.event?.knock ?? 0) - shift - traits.strokes - local.strokes, habits.streak, traits);
 }
 
 /** His familiarity with the course this week, when the season supplied it. */

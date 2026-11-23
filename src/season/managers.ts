@@ -7,7 +7,8 @@
 import { clamp, createRng } from "../engine";
 import { COACH_ROLES, coachFee, hireCoach } from "./staff";
 import { MANAGER_SKILLS, maxQualityOf, paceOf, perceivedQuality, swapMargin } from "./managerFx";
-import type { Coach, Manager, World } from "./types";
+import { MEDIC_ROLES, hireMedic, medicOf } from "./medical";
+import type { Coach, Manager, Medic, MedicRole, World, WorldPlayer } from "./types";
 
 /** What the job is called in the UI. */
 export const MANAGER_LABEL = "Development director";
@@ -78,7 +79,27 @@ export function manageStaff(world: World, clientId: string): number {
     hireCoach(world, clientId, best.id);
     hires++;
   }
+  // Then the medical staff, where he thinks it pays: a nutritionist for anyone, a physio for a client who gets hurt.
+  const wp = world.players[clientId]!;
+  for (const role of MEDIC_ROLES) {
+    if (hires >= perWeek) break;
+    if (!wantsMedic(wp, role)) continue;
+    const current = medicOf(world, wp, role);
+    const options = (world.medics ?? []).filter((x) => x.role === role && x.quality <= cap);
+    if (options.length === 0) continue;
+    const readM = (x: Medic) => perceivedQuality(world, dir, x);
+    const best = options.reduce((a, b) => (readM(b) > readM(a) ? b : a));
+    if (current && (best.id === current.id || readM(best) - readM(current) < margin)) continue;
+    hireMedic(world, clientId, best.id);
+    hires++;
+  }
   return hires;
+}
+
+/** Whether a director sees the need for this medic: a physio once the client is hurt or injury-prone. */
+export function wantsMedic(wp: WorldPlayer, role: MedicRole): boolean {
+  if (role === "nutritionist") return true;
+  return !!wp.injury || !!wp.knock || wp.player.attributes.injuryProneness >= 12;
 }
 
 export function hireManager(world: World, clientId: string, managerId: string): void {

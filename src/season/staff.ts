@@ -14,6 +14,7 @@ import { activeTargets, burnoutInjury, fatigueWeek, peakView, type PeakView } fr
 import { hasSkill } from "./staffSkills";
 import { owns } from "./investments";
 import { feeMultiplier } from "./managerFx";
+import { canManageKnock, knockWeek, medicOf, physioWeeks, weeklyMedicalCost } from "./medical";
 
 export const COACH_ROLES: CoachRole[] = ["swing", "shortGame", "putting", "mental", "fitness"];
 
@@ -80,7 +81,7 @@ export function releaseCoach(world: World, clientId: string, role: CoachRole): v
   if (c) world.news.unshift(`${c.name} is no longer ${wp.player.name}'s ${ROLE_LABELS[role].toLowerCase()}.`);
 }
 
-/** A client's coaches' retainers (less what his development director haggles off) plus the director's own fee. */
+/** A client's coaches' and medics' retainers (less what his development director haggles off) plus the director's own fee. */
 export const weeklyStaffCost = (world: World, clientId: string): number => {
   const m = world.players[clientId]?.client;
   if (!m) return 0;
@@ -89,7 +90,8 @@ export const weeklyStaffCost = (world: World, clientId: string): number => {
     const c = world.coaches.find((x) => x.id === m.staff[r]);
     return s + (c ? Math.round(c.weeklyFee * (dir ? feeMultiplier(dir, c) : 1)) : 0);
   }, 0);
-  return coaches + (dir?.weeklyFee ?? 0);
+  const medics = weeklyMedicalCost(world, clientId, (x) => (dir ? feeMultiplier(dir, x) : 1));
+  return coaches + medics + (dir?.weeklyFee ?? 0);
 };
 
 // ---------------------------------------------------------------- swing rebuild
@@ -198,7 +200,8 @@ export function injuryChance(wp: WorldPlayer, competed: boolean, intensityRisk: 
 
 function rollInjury(world: World, wp: WorldPlayer, rng: Rng): Injury {
   const [name, lo, hi] = rng.pick(INJURIES);
-  const weeks = injuryLength(wp, rng.int(lo, hi));
+  // His physio shortens the lay-off (computed after the draw, so no other result moves).
+  const weeks = physioWeeks(world, wp, injuryLength(wp, rng.int(lo, hi)));
   const injury = { name, weeksLeft: weeks, totalWeeks: weeks };
   if (injury.weeksLeft >= 8 && rng.chance(0.4)) {
     const k = rng.pick(["drivingDistance", "flexibility"] as const);
@@ -206,6 +209,7 @@ function rollInjury(world: World, wp: WorldPlayer, rng: Rng): Injury {
   }
   if (wp.client) {
     world.news.unshift(`Injury: ${wp.player.name} has a ${name.toLowerCase()} and will miss about ${injury.weeksLeft} week${injury.weeksLeft === 1 ? "" : "s"}.`);
+    if (canManageKnock(world, { ...wp, injury })) world.news.unshift(`${medicOf(world, wp, "physio")!.name} thinks ${wp.player.name} could play through it (see his Training tab).`);
   }
   return injury;
 }
@@ -231,6 +235,7 @@ export function endOfWeek(world: World, competed: Set<string>, rng: Rng, boosts:
     const played = competed.has(wp.player.id) || wp.career.status === "amateur";
 
     if (wp.comebackWeeks) wp.comebackWeeks--;
+    knockWeek(wp);
     if (wp.injury) {
       wp.injury.weeksLeft--;
       if (wp.injury.weeksLeft <= 0) {
@@ -273,6 +278,7 @@ export const OFFSEASON_WEEKS = 10;
 export function offseason(world: World, weeks: number, rng: Rng): void {
   for (let w = 0; w < weeks; w++) {
     for (const wp of Object.values(world.players)) {
+      knockWeek(wp);
       if (wp.injury && --wp.injury.weeksLeft <= 0) {
         returnFromInjury(wp, wp.injury.totalWeeks ?? 0);
         wp.injury = null;

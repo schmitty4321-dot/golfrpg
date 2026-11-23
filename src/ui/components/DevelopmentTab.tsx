@@ -164,6 +164,7 @@ export function DevelopmentTab({ world, game, wp, potential, known }: { world: W
           <table className="dev-budget">
             <tbody>
               <tr><td>Coaches' retainers</td><td className="num">{money(cost.coaches)}</td></tr>
+              {cost.medical > 0 && <tr><td>Physio and nutritionist</td><td className="num">{money(cost.medical)}</td></tr>}
               <tr><td>Coaches' share of prize money (1% each, estimated)</td><td className="num">{money(cost.coachBonus)}</td></tr>
               <tr><td>{WINTER[m.training.winter ?? "standard"].label}</td><td className="num">{money(cost.winter)}</td></tr>
               <tr className="dev-total"><td>Total</td><td className="num">{money(cost.total)}</td></tr>

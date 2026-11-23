@@ -2,7 +2,14 @@ import { useState } from "react";
 import { ATTRIBUTE_LABELS, createRng, type AttributeKey } from "../../engine";
 import {
   COACH_ROLES,
+  KNOCK_STROKES,
+  MEDIC_BLURBS,
+  MEDIC_LABELS,
+  MEDIC_ROLES,
   REBUILDS,
+  canManageKnock,
+  medicOf,
+  type MedicRole,
   ROLE_LABELS,
   WINTER,
   canStartRebuild,
@@ -68,6 +75,17 @@ export function Training({ world, game, clientId }: { world: World; game: Game; 
       {wp.injury && (
         <section className="panel" style={{ background: "var(--neg-soft)" }}>
           <strong>Injured: {wp.injury.name}.</strong> Out for about {wp.injury.weeksLeft} more week{wp.injury.weeksLeft === 1 ? "" : "s"}. He can't enter events, and training does little until he's fit.
+          {canManageKnock(world, wp) && (
+            <div className="btn-row" style={{ marginTop: 8, alignItems: "center" }}>
+              <button className="btn" onClick={() => act((w) => game.lib.manageKnock(w, clientId))}>Play through it</button>
+              <span className="secondary small">His physio says it's a minor knock: he can play, about {KNOCK_STROKES} strokes a round worse until it clears.</span>
+            </div>
+          )}
+        </section>
+      )}
+      {wp.knock && (
+        <section className="panel">
+          <strong>Playing through a {wp.knock.name.toLowerCase()}.</strong> His physio is managing it: about {KNOCK_STROKES} strokes a round worse for {wp.knock.weeksLeft} more week{wp.knock.weeksLeft === 1 ? "" : "s"}.
         </section>
       )}
 
@@ -122,6 +140,16 @@ export function Training({ world, game, clientId }: { world: World; game: Game; 
               </table>
             </div>
             <p className="muted small">Better coaches speed up development in their area. With no coach he works it out alone, slowly. The fitness trainer also cuts injuries and slows the loss of distance with age.</p>
+          </section>
+
+          <section className="panel">
+            <div className="panel-head"><h2>Medical staff</h2><span className="secondary small">Paid from his winnings, like his coaches</span></div>
+            <div className="medic-list">
+              {MEDIC_ROLES.map((role) => (
+                <MedicRow key={role} role={role} world={world} game={game} clientId={clientId} />
+              ))}
+            </div>
+            <p className="muted small">The fitness trainer keeps him from getting hurt; the physio gets him back once he is. Better ones shorten injuries more and help him recover faster.</p>
           </section>
         </div>
 
@@ -197,6 +225,37 @@ export function Training({ world, game, clientId }: { world: World; game: Game; 
         </div>
       </div>
     </main>
+  );
+}
+
+/** A physio or nutritionist: who he has, the market to pick from, and what the job does. */
+export function MedicRow({ role, world, game, clientId }: { role: MedicRole; world: World; game: Game; clientId: string }) {
+  const wp = world.players[clientId]!;
+  const current = medicOf(world, wp, role);
+  const options = (world.medics ?? []).filter((m) => m.role === role).sort((a, b) => a.quality - b.quality);
+  return (
+    <div className="medic-row">
+      <div className="medic-head">
+        <strong>{MEDIC_LABELS[role]}</strong>
+        {current ? <Stars value={qualityStars(current.quality)} /> : <span className="muted small">None</span>}
+      </div>
+      <select
+        aria-label={MEDIC_LABELS[role]}
+        value={current?.id ?? ""}
+        onChange={(e) => {
+          const id = e.target.value;
+          game.act((w) => (id ? game.lib.hireMedic(w, clientId, id) : game.lib.releaseMedic(w, clientId, role)));
+        }}
+      >
+        <option value="">No one</option>
+        {options.map((m) => (
+          <option key={m.id} value={m.id}>
+            {m.name} · {m.quality}/20 · {money(m.weeklyFee)}/wk
+          </option>
+        ))}
+      </select>
+      <span className="secondary small">{MEDIC_BLURBS[role]}</span>
+    </div>
   );
 }
 

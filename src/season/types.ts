@@ -157,6 +157,18 @@ export interface TrainingPlan {
 
 export type CoachRole = "swing" | "shortGame" | "putting" | "mental" | "fitness";
 
+/** The medical staff, hired per client next to his coaches (see medical.ts). */
+export type MedicRole = "physio" | "nutritionist";
+
+export interface Medic {
+  id: string;
+  name: string;
+  role: MedicRole;
+  /** 1-20. */
+  quality: number;
+  weeklyFee: number;
+}
+
 export interface Coach {
   id: string;
   name: string;
@@ -295,6 +307,8 @@ export interface ClientManagement {
   training: TrainingPlan;
   /** Coach id per role. */
   staff: Partial<Record<CoachRole, string>>;
+  /** Medic id per role: his physio and nutritionist (ids in World.medics; older saves: none). */
+  medical?: Partial<Record<MedicRole, string>>;
   /** The development director in charge of his staff (id in World.managers), and whether he's let hire the coaches. */
   manager?: string;
   autoHire?: boolean;
@@ -389,6 +403,8 @@ export interface WorldPlayer {
   targetEvents: number;
   development: Development;
   injury: Injury | null;
+  /** A minor knock his physio is managing: he plays, a little worse, until it clears (see medical.ts). */
+  knock?: { name: string; weeksLeft: number };
   rebuild: SwingRebuild | null;
   /** A rival agency, or null for a free agent. Your clients use `client` instead. */
   agent: Representation | null;
@@ -699,6 +715,8 @@ export interface World {
   news: string[];
   /** Coaches available to hire (a coach can work with several players). */
   coaches: Coach[];
+  /** Physios and nutritionists available to hire (older saves get them on load). */
+  medics?: Medic[];
   /** Development directors available to hire, one client each (older saves get them on load). */
   managers?: Manager[];
   /** Each amateur's season to date, from the weekly events (see amateurResults.ts). */

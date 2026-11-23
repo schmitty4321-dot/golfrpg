@@ -12,6 +12,7 @@ import { GOLF_SKILLS, developWeek, overall } from "./development";
 import { effectivePeak } from "./traits";
 import type { CoachRole, Finances, Intensity, TrainingFocus, WinterProgram, World, WorldPlayer } from "./types";
 import { hasSkill } from "./staffSkills";
+import { MEDIC_ROLES, medicFee, medicOf } from "./medical";
 
 /** Each coach he employs takes this share of his prize money, on top of the retainer. */
 export const COACH_PRIZE_SHARE = 0.01;
@@ -97,6 +98,8 @@ export function earningsAtLevel(level: number): number {
 
 export interface DevelopmentCost {
   coaches: number;
+  /** His physio's and nutritionist's retainers. */
+  medical: number;
   coachBonus: number;
   winter: number;
   total: number;
@@ -112,11 +115,15 @@ export function developmentCost(world: World, id: string, winter: WinterProgram 
     const c = world.coaches.find((x) => x.id === m.staff[r]);
     return s + (c ? coachFee(c.quality) * RETAINER_WEEKS : 0);
   }, 0);
+  const medical = MEDIC_ROLES.reduce((s, r) => {
+    const x = medicOf(world, wp, r);
+    return s + (x ? medicFee(x.quality) * RETAINER_WEEKS : 0);
+  }, 0);
   const coachBonus = Math.round(earningsAtLevel(overall(wp.player)) * COACH_PRIZE_SHARE * coachesHired(world, id));
   const w = winterCost(world, id, winter);
-  const total = coaches + coachBonus + w;
+  const total = coaches + medical + coachBonus + w;
   const agency = Math.round(total * fundingOf(wp));
-  return { coaches, coachBonus, winter: w, total, agency, client: total - agency };
+  return { coaches, medical, coachBonus, winter: w, total, agency, client: total - agency };
 }
 
 /** What he keeps from this season so far: prize money and endorsements, less commission and everything he paid for. */

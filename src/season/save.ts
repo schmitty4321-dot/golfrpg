@@ -8,6 +8,7 @@ import { newDevelopment } from "./development";
 import { generateScouts } from "./scouting";
 import { coachFee, generateCoaches } from "./staff";
 import { generateManagers } from "./managers";
+import { ensureMedics } from "./medical";
 import { assignPortraits, distinctPortraits } from "../engine/portraits";
 import { ensureDiscovery } from "./discovery";
 import { AMATEUR_CLASS_SIZE, generateAmateur } from "./amateurs";
@@ -48,6 +49,8 @@ export function deserializeWorld(json: string): World {
   world.coaches.push(...generatedCoaches.filter((c) => !coachIds.has(c.id)));
   // Saves from before development directors: the market opens with the full pool.
   world.managers ??= generateManagers(world.seed);
+  // Saves from before the medical staff: physios and nutritionists join the market.
+  ensureMedics(world);
   ensureRivals(world);
   addMatchPlay(world);
   ensureRyderCup(world);

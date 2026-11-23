@@ -30,6 +30,7 @@ import { sponsorBonus, sponsorWeek } from "./sponsors";
 import { recordEvent } from "./history";
 import { beginRebuild, endOfWeek } from "./staff";
 import { manageStaff } from "./managers";
+import { jetLagRelief, restRecoveryBoost } from "./medical";
 import { amateurWeek } from "./amateurResults";
 import { familiarityWith, recordFamiliarity } from "./familiarity";
 import { courseRegion, takePracticeRound, takePracticeTrip } from "./practice";
@@ -357,7 +358,8 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
       // A perfectionist takes a missed cut harder than most.
       if (!r.madeCut && has(wp, "perfectionist")) wp.player.form = clamp(wp.player.form - 0.1, -1, 1);
       const mode = travelMode(world, wp);
-      const travel = c.lastRegion !== null && c.lastRegion !== f.event.region && feelsTravel(wp) ? TRAVEL_FATIGUE * mode.fatigue : 0;
+      // A nutritionist takes a quarter off what a long trip costs him.
+      const travel = c.lastRegion !== null && c.lastRegion !== f.event.region && feelsTravel(wp) ? TRAVEL_FATIGUE * mode.fatigue * (1 - jetLagRelief(world, wp)) : 0;
       const effort = (f.event.tier === "major" ? MAJOR_FATIGUE : EVENT_FATIGUE) * fatigueMultiplier(world, wp);
       wp.player.condition = clamp(wp.player.condition - effort - travel, 0, 100);
       c.lastRegion = f.event.region;
@@ -446,7 +448,7 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
   // Everyone who didn't play rests.
   for (const wp of Object.values(world.players)) {
     if (playedIds.has(wp.player.id)) continue;
-    wp.player.condition = clamp(wp.player.condition + REST_RECOVERY * recoveryMultiplier(world, wp), 0, 100);
+    wp.player.condition = clamp(wp.player.condition + REST_RECOVERY * recoveryMultiplier(world, wp) * restRecoveryBoost(world, wp), 0, 100);
     wp.player.form *= 0.9;
   }
   // Practice trips: the week at another course instead of resting.

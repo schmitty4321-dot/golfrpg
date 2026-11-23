@@ -6,7 +6,10 @@
  */
 import { createRng } from "../engine";
 import { mixSeed } from "./entries";
-import type { Coach, CoachRole, Manager, World } from "./types";
+import type { CoachRole, Manager, World } from "./types";
+
+/** Anyone he hires for a client: a coach, or a physio or nutritionist. */
+type Hire = { id: string; quality: number; role: string; formerClient?: boolean };
 
 export type ManagerEffect =
   /** Scales how far his read of a coach can drift from the truth (for one role, or all). */
@@ -64,14 +67,14 @@ export const idHash = (id: string): number => {
 };
 
 /** How far his read of a coach can drift: a sharp eye (a high-rated director) is near the truth. */
-export function readNoise(m: Manager, c: Coach): number {
+export function readNoise(m: Manager, c: Hire): number {
   let sd = 5.5 - 0.25 * m.quality;
   for (const f of fxOf(m)) if (f.kind === "eye" && (!f.role || f.role === c.role)) sd *= f.mult;
   return sd;
 }
 
 /** The quality he thinks he's hiring: the truth, his fixed misread of that coach, and his biases. */
-export function perceivedQuality(world: World, m: Manager, c: Coach): number {
+export function perceivedQuality(world: World, m: Manager, c: Hire): number {
   let bias = 0;
   for (const f of fxOf(m)) {
     if (f.kind === "bias" && (f.min === undefined || c.quality >= f.min) && (f.max === undefined || c.quality <= f.max)) bias += f.add;
@@ -81,7 +84,7 @@ export function perceivedQuality(world: World, m: Manager, c: Coach): number {
 }
 
 /** What he pays for this coach as a share of the list fee (his haggling, and old friends). */
-export function feeMultiplier(m: Manager, c: Coach): number {
+export function feeMultiplier(m: Manager, c: Hire): number {
   let mult = 1;
   for (const f of fxOf(m)) if (f.kind === "fee" && (!f.formerOnly || c.formerClient)) mult *= f.mult;
   return mult;

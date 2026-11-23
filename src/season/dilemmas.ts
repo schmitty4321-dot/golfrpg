@@ -9,6 +9,7 @@ import { homeRegion, type Rng } from "../engine";
 import { addDecision, lastFired, type Choice } from "./inbox";
 import { rankMap } from "./points";
 import { has } from "./traits";
+import { medicOf, rushBackRisk } from "./medical";
 import { absWeek, type CoachRole, type EventRecord, type TourEvent, type World, type WorldPlayer } from "./types";
 
 export interface DilemmaContext {
@@ -64,11 +65,11 @@ const TEMPLATES: Template[] = [
       {
         id: "rush",
         label: "Clear him to play",
-        detail: "He plays now; about a one-in-three chance it flares up for longer.",
+        detail: medicOf(c.world, c.wp, "physio") ? "He plays now; his physio halves the risk, to about one in six, that it flares up for longer." : "He plays now; about a one-in-three chance it flares up for longer.",
         effects: [
           { k: "heal" },
           { k: "mood", v: 4 },
-          { k: "chance", p: 0.35, then: [{ k: "injure", v: 4 + c.rng.int(0, 4), name: c.wp.injury!.name }, { k: "form", v: -0.1 }], else: [], thenNews: "The injury flares up again.", elseNews: "He comes through it fine." },
+          { k: "chance", p: rushBackRisk(c.world, c.wp, 0.35), then: [{ k: "injure", v: 4 + c.rng.int(0, 4), name: c.wp.injury!.name }, { k: "form", v: -0.1 }], else: [], thenNews: "The injury flares up again.", elseNews: "He comes through it fine." },
         ],
       },
       { id: "heal", label: "Make him wait", detail: "He's annoyed but healthy.", effects: [{ k: "mood", v: -3 }] },
