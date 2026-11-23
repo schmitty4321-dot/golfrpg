@@ -127,7 +127,7 @@ function HqPanel({ world, game }: { world: World; game: Game }) {
     <section className="panel">
       <div className="panel-head">
         <h2>Headquarters</h2>
-        <span className="muted small">Roster {world.clientIds.length} of {rosterLimit(world.agency.reputation, world.agency.hq)} · reputation {Math.round(world.agency.reputation)}</span>
+        <span className="muted small">Roster {world.clientIds.length} of {rosterLimit(world.agency.reputation, world.agency.hq, world.agency.perks)} · reputation {Math.round(world.agency.reputation)}</span>
       </div>
       <div className="hq-card-grid">
         {HQ_TIERS.map((t, i) => (

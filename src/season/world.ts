@@ -5,6 +5,7 @@ import { alumniReferrals, alumnusRetires } from "./legacy";
 import { taxWeek } from "./homeBase";
 import { venturesSeasonEnd } from "./ventures";
 import { checkAchievements } from "./achievements";
+import { awardPerkPoint } from "./perks";
 import { rivalRelationshipsSeasonEnd } from "./rivalAgents";
 import { seasonEndPromiseChecks } from "./promises";
 import { closeSeasonStats } from "./stats";
@@ -712,6 +713,8 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   ensureGoals(world);
   for (const x of expiringStaff) staffContractDecision(world, x.role);
   setObjectives(world);
+  // A season completed (not the warm-up season a new world plays first): a perk point for the tree.
+  if (season >= 1) awardPerkPoint(world, `Season ${season} complete`);
   return summary;
 }
 

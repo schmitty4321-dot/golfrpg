@@ -1,9 +1,7 @@
 import { useState } from "react";
 import type { EquipmentModel } from "../../engine";
 import {
-  JET_LEASE_WEEKLY,
   JET_PRICE,
-  JET_UPKEEP_WEEKLY,
   TRAVEL_CLASSES,
   caddieChemistry,
   caddieEmployer,
@@ -62,11 +60,11 @@ export function Team({ world, game, clientId }: { world: World; game: Game; clie
       <section className="panel">
         <div className="panel-head">
           <h2>Caddie</h2>
-          <span className="muted small">Reads greens, picks clubs, calms nerves. Chemistry builds three points a week together.</span>
+          <span className="muted small">Reads greens, picks clubs, calms nerves. Chemistry builds about three points a week together.</span>
         </div>
         {mine ? (
           <p style={{ marginTop: 0 }}>
-            <strong>{mine.name}</strong> is on the bag · {m.caddieWeeks ?? 0} weeks together · chemistry {caddieChemistry(m.caddieWeeks ?? 0)}/100{" "}
+            <strong>{mine.name}</strong> is on the bag · {m.caddieWeeks ?? 0} weeks together · chemistry {caddieChemistry(m.caddieWeeks ?? 0, game.lib.chemistryRate(world))}/100{" "}
             <button className="linkish" onClick={() => act((w) => game.lib.releaseCaddie(w, clientId))}>Let him go</button>
           </p>
         ) : (
@@ -136,11 +134,11 @@ export function Team({ world, game, clientId }: { world: World; game: Game; clie
             {world.agency.jet === "own" ? "The agency owns a jet." : world.agency.jet === "lease" ? "The agency leases a jet." : "No jet."} Bank {money(world.agency.bank)}.
           </span>
           {world.agency.jet !== "lease" && (
-            <button className="btn btn-small" onClick={() => act((w) => void game.lib.setJet(w, "lease"))}>Lease ({money(JET_LEASE_WEEKLY)}/week)</button>
+            <button className="btn btn-small" onClick={() => act((w) => void game.lib.setJet(w, "lease"))}>Lease ({money(game.lib.jetWeeklyFee(world, "lease"))}/week)</button>
           )}
           {world.agency.jet !== "own" && (
             <button className="btn btn-small" disabled={world.agency.bank < JET_PRICE} onClick={() => confirm(`Buy a jet for ${money(JET_PRICE)}?`) && act((w) => void game.lib.setJet(w, "own"))}>
-              Buy ({money(JET_PRICE)} + {money(JET_UPKEEP_WEEKLY)}/week)
+              Buy ({money(JET_PRICE)} + {money(game.lib.jetWeeklyFee(world, "own"))}/week)
             </button>
           )}
           {world.agency.jet && (

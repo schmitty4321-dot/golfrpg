@@ -15,6 +15,7 @@ import { rankMap } from "./points";
 import { playerRecord } from "./ryderCup";
 import { followers } from "./showcase";
 import type { World } from "./types";
+import { awardPerkPoint, earnsPerkPoint } from "./perks";
 
 export type AchievementGroup = "Career" | "Agency" | "Management" | "Story";
 
@@ -59,6 +60,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { id: "players-champ", title: "The fifth major", detail: "A client wins THE PLAYERS.", group: "Career", reward: 2, check: (w) => trophies(w).some((t) => /PLAYERS/.test(t.title)) },
   { id: "match-play", title: "Last man standing", detail: "A client wins the Match Play Championship.", group: "Career", reward: 2, check: (w) => trophies(w).some((t) => /Match Play/.test(t.title)) },
   { id: "top-ten", title: "Top ten", detail: "A client inside the world's top 10.", group: "Career", reward: 2, check: (w) => clientsOf(w).some((wp) => (rankMap(w).get(wp.player.id) ?? 999) <= 10) },
+  { id: "top50-five", title: "Strength in depth", detail: "Five clients inside the world's top 50 at once.", group: "Career", reward: 2, check: (w) => clientsOf(w).filter((wp) => (rankMap(w).get(wp.player.id) ?? 999) <= 50).length >= 5 },
   { id: "world-no1", title: "World No. 1", detail: "A client at the top of the world ranking.", group: "Career", reward: 3, check: (w) => clientsOf(w).some((wp) => rankMap(w).get(wp.player.id) === 1) },
   {
     id: "ryder-three",
@@ -128,6 +130,7 @@ export function checkAchievements(world: World): AchievementDef[] {
     got[a.id] = { season: world.season, week: world.week };
     addReputation(world.agency, a.reward);
     world.news.unshift(`Achievement unlocked: ${a.title}. ${a.detail} (+${a.reward} reputation)`);
+    if (earnsPerkPoint(a.id)) awardPerkPoint(world, `${a.title}`);
     fresh.push(a);
   }
   return fresh;

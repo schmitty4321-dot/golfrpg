@@ -15,6 +15,7 @@ import { commissionWeight, decisionSensitivity, extensionBias, heldOutPenalty, o
 import { cleanExtras, extrasAppeal, type DealExtras } from "./contractTerms";
 import { overall } from "./development";
 import { hasSkill } from "./staffSkills";
+import { PERK_FX, hasPerk } from "./perks";
 import { commissionGrace, firstCall, interestBonus, noteSigning, recruitBlock } from "./recruiting";
 import { leverageScore, loyaltyScore, marketScore, wishScore, type Wish } from "./extensions";
 
@@ -50,8 +51,8 @@ export const STARTING_REPUTATION = 15;
 /** Clients taking up a place: one you're letting go at the end of his deal has already given his up. */
 export const rosterCount = (world: World): number => world.clientIds.filter((id) => !world.players[id]?.client?.farewell).length;
 
-export const rosterLimit = (reputation: number, hq = 0): number =>
-  Math.min(8, 2 + Math.floor(reputation / 15)) + (reputation >= 85 ? 1 : 0) + (reputation >= 95 ? 1 : 0) + (HQ_TIERS[hq]?.roster ?? 0);
+export const rosterLimit = (reputation: number, hq = 0, perks?: readonly string[]): number =>
+  Math.min(8, 2 + Math.floor(reputation / 15)) + (reputation >= 85 ? 1 : 0) + (reputation >= 95 ? 1 : 0) + (HQ_TIERS[hq]?.roster ?? 0) + (perks?.includes("ops-roster") ? 1 : 0);
 
 export interface HqTier {
   name: string;
@@ -88,6 +89,8 @@ export function newAgency(name = "Your Agency"): Agency {
     knowledge: {},
     ledger: { prizeCommission: 0, endorsementCommission: 0, office: 0, scouts: 0 },
     cooldowns: {},
+    perks: [],
+    perkPoints: 0,
   };
 }
 
@@ -176,8 +179,8 @@ export function approachBlock(world: World, id: string): string | null {
   if (until !== undefined && until > absWeek(world.season, world.week)) return "He turned you down recently. Give it a few weeks.";
   const narrowed = recruitBlock(world, id);
   if (narrowed) return narrowed;
-  if (rosterCount(world) >= rosterLimit(world.agency.reputation, world.agency.hq)) {
-    return `Your agency can manage ${rosterLimit(world.agency.reputation, world.agency.hq)} clients at its reputation. Grow it, or move to a bigger headquarters, to take on more.`;
+  if (rosterCount(world) >= rosterLimit(world.agency.reputation, world.agency.hq, world.agency.perks)) {
+    return `Your agency can manage ${rosterLimit(world.agency.reputation, world.agency.hq, world.agency.perks)} clients at its reputation. Grow it, or move to a bigger headquarters, to take on more.`;
   }
   return null;
 }
@@ -289,7 +292,7 @@ export function clientSupportCost(world: World): number {
   const ranks = rankMap(world);
   return clients(world).reduce((s, wp) => {
     const r = ranks.get(wp.player.id) ?? 999;
-    const cost = SUPPORT_PER_CLIENT + (r <= 50 ? SUPPORT_STAR_EXTRA : r <= 125 ? SUPPORT_STAR_EXTRA / 3 : 0);
+    const cost = Math.round((SUPPORT_PER_CLIENT + (r <= 50 ? SUPPORT_STAR_EXTRA : r <= 125 ? SUPPORT_STAR_EXTRA / 3 : 0)) * (hasPerk(world, "ops-support") ? PERK_FX.supportCost : 1));
     wp.client!.finances.agencySupport = (wp.client!.finances.agencySupport ?? 0) + cost;
     // His retainer comes the other way and nets against the cost.
     const retainer = wp.client!.contract.extras?.retainer ?? 0;

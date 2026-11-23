@@ -98,6 +98,12 @@ npm run worldcheck -- 12 5   # 12 seasons on seed 5: tour strength, ages, injuri
 - **Agency money and reputation:** commission on prize money and endorsements against office and scout
   costs. Reputation rises with wins, top-fives, top-tens and clients keeping their cards, and fades a
   little each winter. It decides who will sign, sponsor sizes and roster size.
+- **Perk tree** (`src/season/perks.ts`, Agency › Perks): twenty small, permanent upgrades in four branches
+  (scouting, development, commercial, operations) of five tiers; each tier needs the perk above it. A perk
+  costs one point: the agency earns one for every season it finishes and one for each landmark achievement
+  (first major, three majors, season champion, world No. 1, a Hall of Famer, the Grand Slam, top agency, five
+  clients in the top 50). Each nudges one thing by 5-15% or one more of a small count, and none repeats a
+  staff skill, an investment or the Performance Center. Kept for good: no respec.
 - The terminal version has been retired; the browser game is the way to play.
 - **Step 5 (done): pathways and history** (`src/season/amateurs.ts`, `history.ts`, the developmental
   tour in `calendar.ts`, and the History tab).

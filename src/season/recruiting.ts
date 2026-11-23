@@ -518,7 +518,7 @@ export function signingDay(world: World, wp: WorldPlayer): string | null {
   if (top.you) {
     // A full roster can't take him: he goes to the winter market instead.
     // A commitment is honoured even one over the roster limit; only a roster already past it loses him.
-    if (rosterCount(world) > rosterLimit(world.agency.reputation, world.agency.hq)) return `Signing day: ${wp.player.name} wanted ${world.agency.name}, but your roster is full.`;
+    if (rosterCount(world) > rosterLimit(world.agency.reputation, world.agency.hq, world.agency.perks)) return `Signing day: ${wp.player.name} wanted ${world.agency.name}, but your roster is full.`;
     signClient(world, wp.player.id, { commission: marketRate(wp), years: ROOKIE_SEASONS });
     makeRookieDeal(world, wp);
     return `Signing day: ${wp.player.name} commits to ${world.agency.name} on a ${ROOKIE_SEASONS}-season rookie deal!`;

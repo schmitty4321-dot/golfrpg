@@ -9,7 +9,8 @@ import { mixSeed } from "./entries";
 import { HQ_TIERS, SUPPORT_PER_CLIENT, addReputation, clients, hqTier } from "./agency";
 import { developmentCost, earningsAtLevel } from "./finance";
 import { overall } from "./development";
-import { JET_LEASE_WEEKLY, JET_UPKEEP_WEEKLY } from "./team";
+import { jetWeeklyFee } from "./team";
+import { PERK_FX, hasPerk } from "./perks";
 import { commissionWeight } from "./traits";
 import { absWeek, type AgencyLedger, type World } from "./types";
 
@@ -243,8 +244,8 @@ export const agencyProfit = (l: AgencyLedger): number => agencyIncome(l) - agenc
 
 /** Weekly running costs: office, scouts, center, staff, interest and the jet. */
 export function weeklyRunningCosts(world: World, scouts: number, staff = 0): number {
-  const jet = world.agency.jet === "lease" ? JET_LEASE_WEEKLY : world.agency.jet === "own" ? JET_UPKEEP_WEEKLY : 0;
-  const support = world.clientIds.length * SUPPORT_PER_CLIENT;
+  const jet = jetWeeklyFee(world);
+  const support = Math.round(world.clientIds.length * SUPPORT_PER_CLIENT * (hasPerk(world, "ops-support") ? PERK_FX.supportCost : 1));
   return hqTier(world.agency).office + scouts + centerTier(world).upkeep + Math.max(staff, staffWages(world)) + jet + support + Math.round(((world.agency.loan ?? 0) * CREDIT_RATE) / 41);
 }
 

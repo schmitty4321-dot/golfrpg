@@ -17,6 +17,7 @@ import { mixSeed } from "./entries";
 import { reportAccuracy } from "./scouting";
 import { ensureRivals } from "./rivals";
 import { absWeek, type Scout, type World, type WorldPlayer } from "./types";
+import { PERK_FX, hasPerk } from "./perks";
 
 export type ScoutRegion = "NA" | "EU" | "ASIA" | "AUS" | "ROW";
 
@@ -83,7 +84,9 @@ export function scoutEye(scout: Scout): ScoutEye {
 
 export const regionOf = (wp: WorldPlayer): ScoutRegion => (homeRegion(wp.player.nationality) as ScoutRegion | null) ?? "ROW";
 export const scoutOnTrip = (world: World, scoutId: string): ScoutTrip | undefined => (world.agency.trips ?? []).find((t) => t.scoutId === scoutId);
-export const tripCostPerWeek = (region: ScoutRegion): number => SCOUT_REGIONS[region].travel;
+/** A trip's weekly travel bill (the Expense account perk takes 15% off). */
+export const tripCostPerWeek = (region: ScoutRegion, world?: Pick<World, "agency">): number =>
+  Math.round(SCOUT_REGIONS[region].travel * (world && hasPerk(world, "scout-expenses") ? PERK_FX.tripCost : 1));
 
 /** Who a trip can look at in a region: its amateurs, or its young professionals without a card. */
 export function regionPool(world: World, region: ScoutRegion, focus: "amateurs" | "pros"): WorldPlayer[] {
@@ -127,7 +130,7 @@ export function scoutTripsWeek(world: World): void {
     const rng = createRng(mixSeed(world.seed, world.season, world.week, 2201, Number(scout.id.replace(/\D/g, "")) || 1));
     const eye = scoutEye(scout);
     // The travel bills.
-    const cost = tripCostPerWeek(trip.region);
+    const cost = tripCostPerWeek(trip.region, world);
     world.agency.bank -= cost;
     world.agency.ledger.scouts += cost;
     // The ones already found are watched again: the picture sharpens.
@@ -141,15 +144,16 @@ export function scoutTripsWeek(world: World): void {
       .filter((wp) => !trip.found.includes(wp.player.id))
       .map((wp) => ({ wp, score: interest(wp, eye) + rng.normal(0, 0.8) }))
       .sort((a, b) => b.score - a.score);
-    for (const { wp } of pool.slice(0, 2)) {
+    const firstLook = hasPerk(world, "scout-first-look") ? PERK_FX.firstLook : 0.3;
+    for (const { wp } of pool.slice(0, hasPerk(world, "scout-wider-net") ? PERK_FX.tripFinds : 2)) {
       const id = wp.player.id;
       trip.found.push(id);
       const k = world.agency.knowledge[id];
       // First impressions only, for now.
-      world.agency.knowledge[id] = { accuracy: Math.max(k?.accuracy ?? 0, 0.3), reports: (k?.reports ?? 0) + 1, absWeek: now };
+      world.agency.knowledge[id] = { accuracy: Math.max(k?.accuracy ?? 0, firstLook), reports: (k?.reports ?? 0) + 1, absWeek: now };
     }
     // A hidden gem: an amateur ranked outside the top 15 with a star's ceiling. Better scouts find more.
-    if (!trip.gem && trip.focus === "amateurs" && rng.chance(0.03 + scout.quality * 0.012)) {
+    if (!trip.gem && trip.focus === "amateurs" && rng.chance((0.03 + scout.quality * 0.012) * (hasPerk(world, "scout-gems") ? PERK_FX.gemChance : 1))) {
       const gem = regionPool(world, trip.region, "amateurs").find((wp) => wp.development.potential >= 14 && (ranked.indexOf(wp.player.id) + 1 || 99) > 15);
       if (gem) {
         trip.gem = gem.player.id;

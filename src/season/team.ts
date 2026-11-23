@@ -6,6 +6,7 @@ import { personalWealth } from "./finance";
 import { withinDrive } from "./homeBase";
 import { EQUIPMENT, EQUIPMENT_BY_ID, KIT_LABELS, KIT_STANDARD, clamp, createRng, traceSeed, type CaddieOnBag, type EquipmentModel, type EquipmentSlot, type KitSlot, type StrokesGained } from "../engine";
 import { absWeek, type Caddie, type Region, type Sponsorship, type TravelClass, type World, type WorldPlayer } from "./types";
+import { PERK_FX, hasPerk } from "./perks";
 
 // ------------------------------------------------------------------ caddies
 
@@ -64,7 +65,9 @@ export function releaseCaddie(world: World, clientId: string): void {
 }
 
 /** Chemistry grows three points a week together, to 100. */
-export const caddieChemistry = (weeks: number): number => Math.min(100, weeks * 3);
+export const caddieChemistry = (weeks: number, rate = 3): number => Math.min(100, Math.round(weeks * rate));
+/** Chemistry points a week together: the Caddie bond perk builds it faster. */
+export const chemistryRate = (world: Pick<World, "agency">): number => (hasPerk(world, "dev-caddie") ? PERK_FX.chemistryRate : 3);
 
 /** His caddie as the course sees him, if he has one. */
 export function caddieOnBag(world: World, wp: WorldPlayer): CaddieOnBag | undefined {
@@ -72,7 +75,7 @@ export function caddieOnBag(world: World, wp: WorldPlayer): CaddieOnBag | undefi
   if (!c?.caddieId) return undefined;
   const k = caddiesOf(world).find((x) => x.id === c.caddieId);
   if (!k) return undefined;
-  return { greenReading: k.greenReading, clubbing: k.clubbing, calm: k.calm, chemistry: caddieChemistry(c.caddieWeeks ?? 0) };
+  return { greenReading: k.greenReading, clubbing: k.clubbing, calm: k.calm, chemistry: caddieChemistry(c.caddieWeeks ?? 0, chemistryRate(world)) };
 }
 
 /** What the caddie costs this week: his fee, plus his share of any prize money. */
@@ -98,7 +101,8 @@ export const JET_UPKEEP_WEEKLY = 10_000;
 export function travelMode(world: World, wp: WorldPlayer): { label: string; cost: number; fatigue: number; days: [number, number]; private: boolean } {
   if (wp.client && world.agency.jet) return { label: "Agency jet", cost: 0, fatigue: 0.25, days: [0, 0], private: true };
   const cls = TRAVEL_CLASSES[wp.client?.travelClass ?? "economy"];
-  return { label: cls.label, cost: cls.cost, fatigue: cls.fatigue, days: cls.days, private: wp.client?.travelClass === "charter" };
+  const fare = wp.client && hasPerk(world, "ops-travel") ? PERK_FX.travelCost : 1;
+  return { label: cls.label, cost: cls.cost * fare, fatigue: cls.fatigue, days: cls.days, private: wp.client?.travelClass === "charter" };
 }
 
 /** Travel days before an event: [same region, another region], a day fewer when it's a drive from home. */
@@ -136,8 +140,14 @@ export function setJet(world: World, jet: "lease" | "own" | null): string {
 }
 
 /** The jet's weekly bill, taken from the agency's bank. */
+/** The jet's weekly bill for a lease or an owned jet (the Jet deal perk takes 15% off). */
+export function jetWeeklyFee(world: Pick<World, "agency">, jet: "lease" | "own" | null | undefined = world.agency.jet): number {
+  const base = jet === "lease" ? JET_LEASE_WEEKLY : jet === "own" ? JET_UPKEEP_WEEKLY : 0;
+  return Math.round(base * (hasPerk(world, "ops-jet") ? PERK_FX.jetCost : 1));
+}
+
 export function payJet(world: World): void {
-  const fee = world.agency.jet === "lease" ? JET_LEASE_WEEKLY : world.agency.jet === "own" ? JET_UPKEEP_WEEKLY : 0;
+  const fee = jetWeeklyFee(world);
   world.agency.bank -= fee;
   world.agency.ledger.office += fee;
 }

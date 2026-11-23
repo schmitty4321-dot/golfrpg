@@ -13,6 +13,7 @@ import { mixSeed } from "./entries";
 import { applyEffects, describeEffects, type Effect } from "./inbox";
 import type { LiveEvent } from "./week";
 import type { World } from "./types";
+import { PERK_FX, hasPerk } from "./perks";
 
 /** A gamble: `p` chance of the first outcome. */
 interface Gamble {
@@ -73,6 +74,8 @@ export function roundCallsFor(world: World, ev: LiveEvent): RoundCall[] {
   const today = rows.filter((r) => r.rounds.length >= round).map((r) => r.rounds[round - 1]!);
   const fieldAvg = today.reduce((a, b) => a + b, 0) / Math.max(1, today.length);
   const leader = rows[0]!.toPar;
+  // Man-manager (a perk): the gambles land a little more often.
+  const lift = hasPerk(world, "ops-calls") ? PERK_FX.callGamble : 0;
   const out: RoundCall[] = [];
   for (const id of ev.clientIds) {
     const row = rows.find((r) => r.player.id === id);
@@ -113,7 +116,7 @@ export function roundCallsFor(world: World, ev: LiveEvent): RoundCall[] {
             id: "fire",
             label: "Fire him up",
             detail: "A big speech. It either lands or it doesn't.",
-            gamble: { p: 0.55, then: { edge: 0.25, line: `It landed: ${last} is wired.` }, else: { edge: -0.2, line: `Too much: ${last} looks tight.` } },
+            gamble: { p: 0.55 + lift, then: { edge: 0.25, line: `It landed: ${last} is wired.` }, else: { edge: -0.2, line: `Too much: ${last} looks tight.` } },
           },
         ],
       });
@@ -143,7 +146,7 @@ export function roundCallsFor(world: World, ev: LiveEvent): RoundCall[] {
             id: "talk",
             label: "Talk it through",
             detail: "Sit down with him tonight. Could settle him, could wind him up.",
-            gamble: { p: 0.6, then: { edge: 0.25, line: `${last} settled down after the talk.`, effects: [{ k: "mood", v: 2 }] }, else: { edge: -0.1, line: `${last} didn't want to hear it.`, effects: [{ k: "mood", v: -3 }] } },
+            gamble: { p: 0.6 + lift, then: { edge: 0.25, line: `${last} settled down after the talk.`, effects: [{ k: "mood", v: 2 }] }, else: { edge: -0.1, line: `${last} didn't want to hear it.`, effects: [{ k: "mood", v: -3 }] } },
           },
           { id: "range", label: "Extra range session", detail: "Find the fault before tomorrow. Better swing, tired legs.", edge: 0.15, effects: [{ k: "condition", v: -4 }] },
         ],

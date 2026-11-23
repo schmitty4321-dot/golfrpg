@@ -34,7 +34,7 @@ export function Scouting({ world, game }: { world: World; game: Game }) {
   const pts = pointsList(world);
   const a = world.agency;
   // With the roster full, "Can approach now" still lists everyone who would talk to you once there's room (as on This week).
-  const full = rosterCount(world) >= rosterLimit(a.reputation, a.hq);
+  const full = rosterCount(world) >= rosterLimit(a.reputation, a.hq, a.perks);
   const open = (id: string) => {
     const block = approachBlock(world, id);
     return !block || (full && block.startsWith("Your agency can manage"));
@@ -90,7 +90,7 @@ export function Scouting({ world, game }: { world: World; game: Game }) {
       <div className="scouting-reports-grid">
       <section className="panel player-reports-panel" id="player-reports">
         <div className="panel-head"><h2>Player reports</h2><span className="muted small">{rows.length} players</span></div>
-        {full && filter === "approachable" && <p className="small secondary" style={{ marginTop: 0 }}>Your roster is full ({rosterCount(world)} of {rosterLimit(a.reputation, a.hq)}). These players would talk to you, but you'll need room first: grow your reputation, move to a bigger headquarters, or let a client go.</p>}
+        {full && filter === "approachable" && <p className="small secondary" style={{ marginTop: 0 }}>Your roster is full ({rosterCount(world)} of {rosterLimit(a.reputation, a.hq, a.perks)}). These players would talk to you, but you'll need room first: grow your reputation, move to a bigger headquarters, or let a client go.</p>}
         <div className="btn-row" style={{ alignItems: "center", marginBottom: 12 }}>
           <div className="tabs" role="tablist" style={{ margin: 0 }}>
             {(["approachable", "free", "all"] as Filter[]).map((f) => (

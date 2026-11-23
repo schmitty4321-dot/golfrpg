@@ -6,6 +6,7 @@ import { rankMap } from "./points";
 import { absWeek, type ApparelItem, type SponsorCategory, type SponsorOffer, type Sponsorship, type World, type WorldPlayer } from "./types";
 import { bonusMultiplier, offerChanceMultiplier, sponsorValueMultiplier } from "./traits";
 import { hasSkill } from "./staffSkills";
+import { PERK_FX, hasPerk } from "./perks";
 import { owns } from "./investments";
 
 export const BRANDS: Record<SponsorCategory, string[]> = {
@@ -150,7 +151,7 @@ export function endorsementSlots(world: World, wp: WorldPlayer): number {
   const rank = rankMap(world).get(wp.player.id) ?? 999;
   const now = absWeek(world.season, world.week);
   const won = wp.career.results.some((r) => r.position === 1 && r.tier !== "dev" && now - absWeek(r.season, r.week) <= 52);
-  return 2 + (rank <= 100 ? 1 : 0) + (rank <= 30 ? 1 : 0) + (won ? 1 : 0);
+  return 2 + (rank <= 100 ? 1 : 0) + (rank <= 30 ? 1 : 0) + (won ? 1 : 0) + (hasPerk(world, "com-extra-slot") ? 1 : 0);
 }
 
 /** Why he can't take another deal now, or null. */
@@ -216,7 +217,8 @@ export function maybeOffer(world: World, wp: WorldPlayer, rng: Rng, chance: numb
     annualValue,
     winBonus: Math.round((annualValue * 0.1 * bonusMultiplier(wp)) / 1_000) * 1_000,
     majorBonus: Math.round((annualValue * 0.3 * bonusMultiplier(wp)) / 1_000) * 1_000,
-    untilSeason: world.season + rng.int(0, 2),
+    // Long-term partners (a perk): never just this season.
+    untilSeason: Math.max(world.season + rng.int(0, 2), hasPerk(world, "com-long-deals") ? world.season + 1 : 0),
     expiresAbsWeek: absWeek(world.season, world.week) + 3 + (hasSkill(world, "never-lapse") ? 3 : 0),
   };
   // An equipment deal names the slots he must fill with the brand's gear: only ones it makes.
@@ -228,6 +230,11 @@ export function maybeOffer(world: World, wp: WorldPlayer, rng: Rng, chance: numb
     offer.slots = [...COVERAGES[coverage].slots];
     scaleDeal(offer, COVERAGES[coverage].share, bonusMultiplier(wp));
     if (offer.annualValue < 10_000) return null;
+  }
+  // Bonus clauses (a perk): bigger win and major bonuses.
+  if (hasPerk(world, "com-bonuses")) {
+    offer.winBonus = Math.round((offer.winBonus * PERK_FX.sponsorBonus) / 1_000) * 1_000;
+    offer.majorBonus = Math.round((offer.majorBonus * PERK_FX.sponsorBonus) / 1_000) * 1_000;
   }
   c.offers.push(offer);
   const what = items && items.length < APPAREL_ITEMS.length ? items.map((it) => APPAREL_LABELS[it].toLowerCase()).join(" and ") : offer.slots ? dealCoverageLabel(offer).toLowerCase() + " equipment" : category;

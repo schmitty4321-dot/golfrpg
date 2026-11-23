@@ -38,6 +38,7 @@ const TAB_ICONS: Record<Tab, ReactNode> = {
   rivals: <><path d="m4 20 6-6M14 10l6-6M5 4l15 15M4 4l16 16"/><path d="m4 4 5 1-4 4M20 20l-5-1 4-4"/></>,
   trophies: <><path d="M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3M12 14v4M8 20h8"/></>,
   achievements: <><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></>,
+  perks: <><path d="M12 21v-7"/><path d="M12 14 7 9"/><path d="m12 14 5-5"/><circle cx="12" cy="6" r="2.5"/><circle cx="6" cy="8" r="2"/><circle cx="18" cy="8" r="2"/></>,
   finances: <><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v5c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 11v5c0 1.7 3.1 3 7 3s7-1.3 7-3v-5"/></>,
   schedule: <><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M9 14v5M9 14l6 2-6 2"/></>,
   standings: <><path d="M5 20V11h4v9M10 20V4h4v16M15 20v-6h4v6M3 20h18"/></>,
@@ -53,7 +54,7 @@ const TAB_DESCRIPTIONS: Record<Tab, string> = {
   home: "Plans and decisions", tournament: "Live results and fields", calendar: "Full season view",
   agency: "Roster and contracts", player: "Detailed player profile", training: "Focus and development", team: "Caddie, travel and clubs", store: "Clubs and apparel for his bag",
   hq: "Staff and facilities", partnerships: "Sponsors and relationships", scouting: "Find talent worldwide", recruiting: "Recruiting desk", amateurResults: "Track emerging players", scoutingBoard: "Players you are following", recruitmentBoard: "Players you are tracking",
-  rivals: "Competing agencies", trophies: "Titles and legacy", achievements: "Agency milestones", finances: "Revenue, costs and forecasts",
+  rivals: "Competing agencies", trophies: "Titles and legacy", achievements: "Agency milestones", perks: "The agency perk tree", finances: "Revenue, costs and forecasts",
   schedule: "Events and entry dates", standings: "Rankings across the tour", stats: "Performance and records", ryder: "International team golf",
   matchplay: "Brackets and results", history: "Past seasons and champions", career: "Back up your career", editor: "Edit the game world",
 };

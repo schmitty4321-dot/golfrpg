@@ -27,7 +27,7 @@ export function Agency({ world, game }: { world: World; game: Game }) {
   const [extending, setExtending] = useState<string | null>(null);
   const ranks = rankMap(world);
   const pts = pointsList(world);
-  const limit = rosterLimit(world.agency.reputation, world.agency.hq);
+  const limit = rosterLimit(world.agency.reputation, world.agency.hq, world.agency.perks);
   const clients = world.clientIds.map((id) => world.players[id]!).filter(Boolean);
   const featured = [...clients].sort((a, b) => (ranks.get(a.player.id) ?? 999) - (ranks.get(b.player.id) ?? 999)).slice(0, 3);
   const sponsorTotal = clients.reduce((sum, wp) => sum + wp.client!.sponsors.reduce((s, x) => s + x.annualValue, 0), 0);

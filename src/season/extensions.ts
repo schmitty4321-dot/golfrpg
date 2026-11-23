@@ -283,7 +283,7 @@ export function letHimGo(world: World, id: string): string {
 export function keepHim(world: World, id: string): string {
   const c = world.players[id]?.client;
   if (!c?.farewell) return "You haven't let him go.";
-  if (rosterCount(world) >= rosterLimit(world.agency.reputation, world.agency.hq)) return "His place has been filled: you can't take it back.";
+  if (rosterCount(world) >= rosterLimit(world.agency.reputation, world.agency.hq, world.agency.perks)) return "His place has been filled: you can't take it back.";
   c.farewell = false;
   return "He's staying for now: talk about a new deal when you're ready.";
 }

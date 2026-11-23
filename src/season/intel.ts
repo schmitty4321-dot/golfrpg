@@ -6,6 +6,7 @@
  * overseas. The home quarter changes only the time, not the cost.
  */
 import type { World, WorldPlayer } from "./types";
+import { hasPerk } from "./perks";
 
 export type UsRegion = "North" | "South" | "East" | "West";
 export const US_REGIONS: UsRegion[] = ["North", "South", "East", "West"];
@@ -34,7 +35,8 @@ export const hqRegionOf = (world: World): UsRegion => world.agency.hqRegion ?? "
 export function intelWeeks(world: World, wp: WorldPlayer): number {
   const r = intelRegionOf(wp);
   if (r === "overseas") return 3;
-  return r === hqRegionOf(world) ? 1 : 2;
+  // Regional contacts (a perk): anywhere in the US is a week away.
+  return r === hqRegionOf(world) || hasPerk(world, "scout-contacts") ? 1 : 2;
 }
 
 /** How many players one scout can work on at once in a region: two in the same region, three overseas. */
