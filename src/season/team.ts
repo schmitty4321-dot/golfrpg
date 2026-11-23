@@ -3,8 +3,8 @@
  * the agency jet), and the clubs in his bag.
  */
 import { personalWealth } from "./finance";
-import { EQUIPMENT_BY_ID, clamp, createRng, traceSeed, type CaddieOnBag, type KitSlot, type StrokesGained } from "../engine";
-import { absWeek, type Caddie, type Region, type TravelClass, type World, type WorldPlayer } from "./types";
+import { EQUIPMENT, EQUIPMENT_BY_ID, KIT_LABELS, KIT_STANDARD, clamp, createRng, traceSeed, type CaddieOnBag, type EquipmentModel, type EquipmentSlot, type KitSlot, type StrokesGained } from "../engine";
+import { absWeek, type Caddie, type Region, type Sponsorship, type TravelClass, type World, type WorldPlayer } from "./types";
 
 // ------------------------------------------------------------------ caddies
 
@@ -142,23 +142,140 @@ export function payJet(world: World): void {
 
 // ------------------------------------------------------------------ equipment
 
-/** Buys (if he doesn't own it yet) and puts a model in his bag. The client pays. */
+/**
+ * Buys (if he doesn't own it yet) and puts a model in his bag. The client
+ * pays, unless his equipment sponsor covers the slot and makes the model.
+ * A slot his deal covers takes only the sponsor's models.
+ */
 export function equip(world: World, clientId: string, modelId: string): void {
   const wp = world.players[clientId];
   const c = wp?.client;
   const m = EQUIPMENT_BY_ID.get(modelId);
   if (!wp || !c || !m) throw new Error("no such client or model");
+  const block = equipBlock(world, clientId, modelId);
+  if (block) throw new Error(block);
   const owned = (c.ownedEquipment ??= []);
-  if (m.price > 0 && !owned.includes(modelId) && m.price > personalWealth(wp)) throw new Error("He can't afford it.");
   if (m.price > 0 && !owned.includes(modelId)) {
     owned.push(modelId);
-    c.finances.equipment = (c.finances.equipment ?? 0) + m.price;
-    world.news.unshift(`${wp.player.name} puts a ${m.name} in the bag.`);
+    if (sponsorSupplies(wp, m)) world.news.unshift(`${wp.player.name} puts a ${m.name} in the bag, free from ${m.brand}.`);
+    else {
+      c.finances.equipment = (c.finances.equipment ?? 0) + m.price;
+      world.news.unshift(`${wp.player.name} puts a ${m.name} in the bag.`);
+    }
   }
   wp.player.equipment = { ...(wp.player.equipment ?? {}), [m.slot]: modelId };
 }
 
 export const inBag = (wp: WorldPlayer, slot: KitSlot): string | undefined => wp.player.equipment?.[slot];
+
+// ------------------------------------------------------------------ equipment deals
+
+/** What an equipment deal can cover. A brand offers only what it makes. */
+export type EquipmentCoverage = "full" | "woods-irons" | "putter" | "ball";
+export const COVERAGES: Record<EquipmentCoverage, { slots: KitSlot[]; share: number; label: string }> = {
+  full: { slots: ["driver", "irons", "wedges", "putter"], share: 1, label: "Full bag" },
+  "woods-irons": { slots: ["driver", "irons"], share: 0.7, label: "Driver and irons" },
+  putter: { slots: ["putter"], share: 0.5, label: "Putter only" },
+  ball: { slots: ["ball"], share: 0.3, label: "Ball only" },
+};
+/** A full-bag deal with an exception clause (he keeps one club of his own) pays this share. */
+export const OWN_CLUB_SHARE = 0.85;
+/** Strokes a round lost at first when a deal changes 1, 2, 3 or 4 of his clubs; a new ball alone costs less. */
+export const CLUB_SWITCH_PENALTY = [0.1, 0.12, 0.14, 0.15];
+export const BALL_SWITCH_PENALTY = 0.04;
+
+const SLOT_CATEGORY: Record<EquipmentSlot, keyof StrokesGained> = { driver: "offTheTee", irons: "approach", wedges: "aroundTheGreen", putter: "putting" };
+
+/** Whether a brand makes anything for a bag slot. */
+export const brandMakes = (brand: string, slot: KitSlot): boolean => EQUIPMENT.some((m) => m.brand === brand && m.slot === slot);
+
+/** The deals a brand can offer: only the slots it makes. */
+export const coveragesFor = (brand: string): EquipmentCoverage[] => (Object.keys(COVERAGES) as EquipmentCoverage[]).filter((k) => COVERAGES[k].slots.every((s) => brandMakes(brand, s)));
+
+/** The brand's best model for a slot (its priciest), which the sponsor hands him on signing. */
+export const flagship = (brand: string, slot: KitSlot): EquipmentModel | undefined =>
+  EQUIPMENT.filter((m) => m.brand === brand && m.slot === slot).reduce<EquipmentModel | undefined>((best, m) => (!best || m.price > best.price ? m : best), undefined);
+
+/** What a deal covers, in plain words ("Full bag, his own putter"); older deals leave the bag to him. */
+export function dealCoverageLabel(s: Sponsorship): string {
+  if (s.category !== "equipment") return "";
+  if (!s.slots?.length) return "His choice of clubs";
+  const slots = s.ownClub ? [...s.slots, s.ownClub] : s.slots;
+  const k = (Object.keys(COVERAGES) as EquipmentCoverage[]).find((x) => COVERAGES[x].slots.length === slots.length && COVERAGES[x].slots.every((y) => slots.includes(y)));
+  const label = k ? COVERAGES[k].label : s.slots.map((x) => KIT_LABELS[x]).join(", ");
+  return s.ownClub ? `${label}, his own ${KIT_LABELS[s.ownClub].toLowerCase()}` : label;
+}
+
+/** His equipment deal, if he has one. */
+export const equipmentDeal = (wp: WorldPlayer): Sponsorship | undefined => wp.client?.sponsors.find((s) => s.category === "equipment");
+
+/** The deal that ties a bag slot to a brand, if any. */
+export const dealCovering = (wp: WorldPlayer, slot: KitSlot): Sponsorship | undefined => wp.client?.sponsors.find((s) => s.category === "equipment" && !!s.slots?.includes(slot));
+
+/** The sponsor gives him this model: his deal covers its slot and the brand makes it. */
+export const sponsorSupplies = (wp: WorldPlayer, m: EquipmentModel): boolean => {
+  const deal = m.slot in KIT_LABELS ? dealCovering(wp, m.slot as KitSlot) : undefined;
+  return !!deal && m.brand === deal.sponsor;
+};
+
+/** Why he can't put a model in his bag, or null. */
+export function equipBlock(world: World, clientId: string, modelId: string): string | null {
+  const wp = world.players[clientId];
+  const m = EQUIPMENT_BY_ID.get(modelId);
+  if (!wp?.client || !m) return "No such client or model.";
+  if (m.slot in KIT_LABELS) {
+    const deal = dealCovering(wp, m.slot as KitSlot);
+    if (deal && m.brand !== deal.sponsor) return `His ${deal.sponsor} deal covers his ${KIT_LABELS[m.slot as KitSlot].toLowerCase()}: he plays theirs until the end of S${deal.untilSeason}.`;
+    if (deal) return null;
+  }
+  const owned = wp.client.ownedEquipment ?? [];
+  if (m.price > 0 && !owned.includes(modelId) && m.price > personalWealth(wp)) return "He can't afford it.";
+  return null;
+}
+
+/**
+ * A new equipment deal: the sponsor's best model goes in every slot it
+ * covers (free), and new clubs cost strokes for the first few weeks.
+ */
+export function signEquipmentDeal(world: World, wp: WorldPlayer, deal: Sponsorship): void {
+  const c = wp.client;
+  if (!c || deal.category !== "equipment" || !deal.slots?.length) return;
+  const changed: KitSlot[] = [];
+  for (const slot of deal.slots) {
+    const current = EQUIPMENT_BY_ID.get(wp.player.equipment?.[slot] ?? KIT_STANDARD[slot]);
+    if (current?.brand === deal.sponsor) continue;
+    const m = flagship(deal.sponsor, slot);
+    if (!m) continue;
+    const owned = (c.ownedEquipment ??= []);
+    if (!owned.includes(m.id)) owned.push(m.id);
+    wp.player.equipment = { ...(wp.player.equipment ?? {}), [slot]: m.id };
+    changed.push(slot);
+  }
+  if (!changed.length) return;
+  const clubs = changed.filter((s): s is EquipmentSlot => s !== "ball");
+  const penalty = clubs.length ? CLUB_SWITCH_PENALTY[Math.min(clubs.length, 4) - 1]! : BALL_SWITCH_PENALTY;
+  const sg: Partial<StrokesGained> = {};
+  const cats: (keyof StrokesGained)[] = clubs.length ? clubs.map((s) => SLOT_CATEGORY[s]) : ["offTheTee", "approach"];
+  for (const k of cats) sg[k] = (sg[k] ?? 0) - penalty / cats.length;
+  const weeks = clubs.length >= 3 ? 4 : 3;
+  c.clubSwitch = { weeksLeft: weeks, totalWeeks: weeks, sg };
+  refreshKitAdjust(wp);
+  world.news.unshift(`${wp.player.name} puts ${deal.sponsor} ${clubs.length ? "clubs" : "balls"} in the bag. New gear takes a few weeks to settle in.`);
+}
+
+/** Weekly: he gets used to new clubs. */
+export function kitWeek(wp: WorldPlayer): void {
+  const s = wp.client?.clubSwitch;
+  if (s && --s.weeksLeft <= 0) delete wp.client!.clubSwitch;
+  refreshKitAdjust(wp);
+}
+
+/** Strokes a round the switch to new clubs still costs him (0 once he's used to them). */
+export function clubSwitchCost(wp: WorldPlayer): number {
+  const s = wp.client?.clubSwitch;
+  if (!s) return 0;
+  return -Object.values(s.sg).reduce((t, v) => t + (v ?? 0), 0) * (s.weeksLeft / s.totalWeeks);
+}
 
 // ------------------------------------------------------------------ the putter swap
 
@@ -232,6 +349,8 @@ export function kitAdjustOf(wp: WorldPlayer): Partial<StrokesGained> | undefined
   const out: Partial<StrokesGained> = {};
   const lift = putterSwapLift(wp);
   if (lift) out.putting = lift;
+  const sw = wp.client?.clubSwitch;
+  if (sw) for (const [k, v] of Object.entries(sw.sg) as [keyof StrokesGained, number][]) out[k] = (out[k] ?? 0) + (v * sw.weeksLeft) / sw.totalWeeks;
   return Object.keys(out).length ? out : undefined;
 }
 

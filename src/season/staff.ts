@@ -3,6 +3,7 @@ const analystQuality = (world: World) => stafferQuality(world, "analyst");
 import { masteryWeek } from "./mastery";
 import { rivalCoaching } from "./rivals";
 import { centerTier } from "./business";
+import { kitWeek } from "./team";
 import { chargeDevelopment } from "./finance";
 import { clamp, createRng, type Rng } from "../engine";
 import { COACH_GROUPS, INTENSITY, developWeek, overall, potentialEstimate } from "./development";
@@ -289,6 +290,7 @@ export function offseason(world: World, weeks: number, rng: Rng): void {
       );
       masteryWeek(wp, false, wp.client?.training.focus);
       if (wp.client) progressRebuild(world, wp, rng);
+      if (wp.client) kitWeek(wp);
     }
   }
   // How the winter leaves him: a camp's hard work makes him rusty, a rest leaves him fresh.

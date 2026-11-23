@@ -1,5 +1,5 @@
 import { EQUIPMENT, KIT_LABELS, KIT_SLOTS, KIT_STANDARD } from "../../engine";
-import { APPAREL_ITEMS, APPAREL_LABELS, BRAND_ART, COACH_ROLES, MANAGER_LABEL, MANAGER_SKILLS, availableManagers, coldPuttingStreak, putterSwapBlock, putterSwapLift, swapPutter, weeklyStaffCost, wardrobe, type World, type WorldPlayer } from "../../season";
+import { APPAREL_ITEMS, APPAREL_LABELS, BRAND_ART, COACH_ROLES, MANAGER_LABEL, MANAGER_SKILLS, availableManagers, clubSwitchCost, coldPuttingStreak, dealCoverageLabel, dealCovering, putterSwapBlock, putterSwapLift, swapPutter, weeklyStaffCost, wardrobe, type World, type WorldPlayer } from "../../season";
 import { money } from "../format";
 import type { Game } from "../useGame";
 import { StaffRow } from "../screens/Training";
@@ -122,22 +122,26 @@ export function ProfileEquipment({ wp, world, game }: { wp: WorldPlayer; world?:
       <section className="panel">
         <div className="panel-head">
           <h2>In the bag</h2>
-          <span className="secondary small">{clubDeal ? `Club deal: ${clubDeal.sponsor}, ${money(clubDeal.annualValue)} a season` : "No club deal"}</span>
+          <span className="secondary small">{clubDeal ? `Equipment deal: ${clubDeal.sponsor} (${dealCoverageLabel(clubDeal).toLowerCase()}), ${money(clubDeal.annualValue)} a season` : "No equipment deal"}</span>
         </div>
         <div className="bag-grid">
           {KIT_SLOTS.map((slot) => {
             const model = EQUIPMENT.find((e) => e.id === (wp.player.equipment?.[slot] ?? KIT_STANDARD[slot]));
+            const deal = dealCovering(wp, slot);
             return (
-              <article key={slot} className="bag-card">
+              <article key={slot} className={`bag-card${deal ? " sponsored" : ""}`}>
                 <img className="club-art" src={`${base}art/clubs/${slot === "ball" ? "ball.svg" : `${slot}.webp`}`} alt="" />
                 <span className="recruit-label">{KIT_LABELS[slot]}</span>
                 <strong>{model?.name ?? "Tour standard"}</strong>
                 <span className="small secondary">{model?.blurb}</span>
+                {deal && <span className="small secondary">{deal.sponsor} only, to S{deal.untilSeason}</span>}
+                {clubDeal?.ownClub === slot && <span className="small secondary">His own, under the deal's exception clause</span>}
               </article>
             );
           })}
         </div>
-        {wp.client && <p className="muted small">Buy or swap clubs and apparel in Clients → Store.</p>}
+        {clubSwitchCost(wp) > 0 && <p className="small" style={{ marginBottom: 0 }}>Still getting used to his new {clubDeal?.sponsor ?? ""} gear: about {clubSwitchCost(wp).toFixed(2)} strokes a round for now ({wp.client!.clubSwitch!.weeksLeft} week{wp.client!.clubSwitch!.weeksLeft === 1 ? "" : "s"} to settle).</p>}
+        {wp.client && <p className="muted small">Buy or swap clubs, balls and apparel in Clients → Store.{clubDeal?.slots?.length ? " Slots his equipment deal covers take only the sponsor's models, free." : ""}</p>}
       </section>
       {wp.client && world && game && <PutterSwapPanel world={world} game={game} wp={wp} />}
       <section className="panel">

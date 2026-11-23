@@ -245,6 +245,10 @@ export interface Sponsorship {
   category: SponsorCategory;
   /** Apparel only: what the deal covers (older deals: the full kit). */
   items?: ApparelItem[];
+  /** Equipment only: the bag slots he must fill with the brand's models while the deal runs (older deals: none, the bag is his). */
+  slots?: import("../engine").KitSlot[];
+  /** Equipment only: the club he keeps of his own under an exception clause, for a little less money. */
+  ownClub?: import("../engine").EquipmentSlot;
   /** Why the sponsor came calling ("after his win at the Farmers"). */
   reason?: string;
   /** Paid in weekly instalments over the season. */
@@ -326,6 +330,8 @@ export interface ClientManagement {
   travelClass?: TravelClass;
   /** His last putter swap: the absolute week, events played since, and how the new one felt (see team.ts). */
   putterSwap?: { absWeek: number; played: number; feel: "fresh" | "wrong" };
+  /** Getting used to a sponsor's clubs: strokes a round lost at first by category, easing to nothing (see team.ts). */
+  clubSwitch?: { weeksLeft: number; totalWeeks: number; sg: Partial<Record<"offTheTee" | "approach" | "aroundTheGreen" | "putting", number>> };
   /** Equipment models he owns (tour standard is always free). */
   ownedEquipment?: string[];
   /** Lifestyle items he owns (see lifestyle.ts). */

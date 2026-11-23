@@ -33,7 +33,7 @@ import { manageStaff } from "./managers";
 import { amateurWeek } from "./amateurResults";
 import { familiarityWith, recordFamiliarity } from "./familiarity";
 import { courseRegion, takePracticeRound, takePracticeTrip } from "./practice";
-import { caddiePay, kitAfterEvent, payJet, travelMode } from "./team";
+import { caddiePay, kitAfterEvent, kitWeek, payJet, travelMode } from "./team";
 import { ensureGoals } from "./goals";
 import { EVENT_WEEK_ACTIVITIES, OFF_WEEK_ACTIVITIES, applyPlan, familiarityAfterPractice, fitPlan, trainingBoost, weekDays, type DayActivity } from "./planner";
 import {
@@ -467,6 +467,8 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
   for (const id of world.clientIds) {
     const m = world.players[id]?.client;
     if (m?.caddieId) m.caddieWeeks = (m.caddieWeeks ?? 0) + 1;
+    // New clubs from a sponsor settle in.
+    if (m) kitWeek(world.players[id]!);
   }
   if (world.clientIds.length > 0) payJet(world);
   weeklyTraitEvents(world, rng, beginRebuild);

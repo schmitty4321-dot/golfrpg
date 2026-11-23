@@ -1,6 +1,7 @@
 import { brandLift, followerLift, followers } from "./showcase";
 import { hiredStaffer, sponsorBoost } from "./market";
-import { clamp, type Rng } from "../engine";
+import { clamp, createRng, traceSeed, type EquipmentSlot, type Rng } from "../engine";
+import { COVERAGES, OWN_CLUB_SHARE, coveragesFor, dealCoverageLabel, signEquipmentDeal } from "./team";
 import { rankMap } from "./points";
 import { absWeek, type ApparelItem, type SponsorCategory, type SponsorOffer, type Sponsorship, type World, type WorldPlayer } from "./types";
 import { bonusMultiplier, offerChanceMultiplier, sponsorValueMultiplier } from "./traits";
@@ -218,24 +219,75 @@ export function maybeOffer(world: World, wp: WorldPlayer, rng: Rng, chance: numb
     untilSeason: world.season + rng.int(0, 2),
     expiresAbsWeek: absWeek(world.season, world.week) + 3 + (hasSkill(world, "never-lapse") ? 3 : 0),
   };
+  // An equipment deal names the slots he must fill with the brand's gear: only ones it makes.
+  // Its own seeded stream, so the rest of the week's draws don't move.
+  if (category === "equipment") {
+    const options = coveragesFor(offer.sponsor);
+    if (!options.length) return null;
+    const coverage = createRng(traceSeed(world.seed, offer.id, "coverage")).pick(options);
+    offer.slots = [...COVERAGES[coverage].slots];
+    scaleDeal(offer, COVERAGES[coverage].share, bonusMultiplier(wp));
+    if (offer.annualValue < 10_000) return null;
+  }
   c.offers.push(offer);
-  const what = items && items.length < APPAREL_ITEMS.length ? items.map((it) => APPAREL_LABELS[it].toLowerCase()).join(" and ") : category;
-  world.news.unshift(`${offer.sponsor} offers ${wp.player.name} a ${what} deal worth $${annualValue.toLocaleString("en-US")} a season, ${offer.reason}.`);
+  const what = items && items.length < APPAREL_ITEMS.length ? items.map((it) => APPAREL_LABELS[it].toLowerCase()).join(" and ") : offer.slots ? dealCoverageLabel(offer).toLowerCase() + " equipment" : category;
+  world.news.unshift(`${offer.sponsor} offers ${wp.player.name} a ${what} deal worth $${offer.annualValue.toLocaleString("en-US")} a season, ${offer.reason}.`);
   return offer;
 }
 
-export function acceptSponsor(world: World, clientId: string, offerId: string): void {
-  const c = world.players[clientId]?.client;
+/**
+ * A full-bag deal from a brand that makes every club, priced the way an
+ * offer would be, for the inbox's "equipment deal" dilemma. Its own seeded
+ * stream; null when no brand would pay enough.
+ */
+export function fullBagDeal(world: World, wp: WorldPlayer): Sponsorship | null {
+  const rng = createRng(traceSeed(world.seed, wp.player.id, absWeek(world.season, world.week), "full-bag"));
+  const brands = BRANDS.equipment.filter((b) => coveragesFor(b).includes("full"));
+  if (!brands.length) return null;
+  const m = Math.min(1, marketability(world, wp));
+  const annualValue = Math.round((TOP_VALUE.equipment * m * m * (0.8 + rng.next() * 0.5) * sponsorValueMultiplier(world, wp, "equipment") * sponsorBoost(world) * brandLift(world, "equipment") * followerLift(world, wp) * marketingSkills(world, wp, "equipment")) / 5_000) * 5_000;
+  if (annualValue < 20_000) return null;
+  const deal: Sponsorship = { id: `eqd${world.season}-${world.week}-${wp.player.id}`, sponsor: rng.pick(brands), category: "equipment", slots: [...COVERAGES.full.slots], reason: profileOf(world, wp).reason, annualValue, winBonus: 0, majorBonus: 0, untilSeason: world.season + rng.int(1, 2) };
+  scaleDeal(deal, 1, bonusMultiplier(wp));
+  return deal;
+}
+
+/** Scales a deal's money (its value and bonuses) by a share. */
+function scaleDeal(s: Sponsorship, share: number, bonus = 1): void {
+  s.annualValue = Math.round((s.annualValue * share) / 5_000) * 5_000;
+  s.winBonus = Math.round((s.annualValue * 0.1 * bonus) / 1_000) * 1_000;
+  s.majorBonus = Math.round((s.annualValue * 0.3 * bonus) / 1_000) * 1_000;
+}
+
+/** What a full-bag deal becomes with an exception clause: he keeps one club, for a little less money. */
+export function withOwnClub<T extends Sponsorship>(deal: T, club: EquipmentSlot, bonus = 1): T {
+  if (deal.category !== "equipment" || !deal.slots?.includes(club) || deal.slots.length < 4) return deal;
+  const out = { ...deal, slots: deal.slots.filter((s) => s !== club), ownClub: club };
+  scaleDeal(out, OWN_CLUB_SHARE, bonus);
+  return out;
+}
+
+/** Signs a deal: it takes a slot and, for equipment, puts the sponsor's gear in the bag. */
+export function addSponsorship(world: World, wp: WorldPlayer, deal: Sponsorship): void {
+  wp.client!.sponsors.push(deal);
+  if (deal.category === "equipment") signEquipmentDeal(world, wp, deal);
+}
+
+/** Accepts an offer; `ownClub` signs a full-bag equipment deal with the exception clause. */
+export function acceptSponsor(world: World, clientId: string, offerId: string, ownClub?: EquipmentSlot): void {
+  const wp = world.players[clientId];
+  const c = wp?.client;
   const offer = c?.offers.find((o) => o.id === offerId);
-  if (!c || !offer) throw new Error("no such offer");
+  if (!wp || !c || !offer) throw new Error("no such offer");
   // No free slot: the offer stays on the table until it lapses or you decline it.
   if (sponsorBlock(world, clientId)) return;
   c.offers = c.offers.filter((o) => o.id !== offerId);
-  const { expiresAbsWeek: _drop, ...deal } = offer;
+  const { expiresAbsWeek: _drop, ...signed } = offer;
   void _drop;
-  c.sponsors.push(deal);
+  const deal = ownClub ? withOwnClub(signed, ownClub, bonusMultiplier(wp)) : signed;
+  addSponsorship(world, wp, deal);
   c.happiness = clamp(c.happiness + 5, 0, 100);
-  world.news.unshift(`${world.players[clientId]!.player.name} signs with ${offer.sponsor}.`);
+  world.news.unshift(`${wp.player.name} signs with ${offer.sponsor}.`);
 }
 
 export function declineSponsor(world: World, clientId: string, offerId: string): void {
@@ -270,13 +322,13 @@ function lapseOffer(world: World, wp: WorldPlayer, o: SponsorOffer, rng: Rng): v
   if (c.sponsors.length >= endorsementSlots(world, wp)) return;
   const lead = hiredStaffer(world, "marketing");
   if (lead) {
-    c.sponsors.push(deal);
+    addSponsorship(world, wp, deal);
     world.news.unshift(`${lead.name} closes ${wp.player.name}'s ${o.category} deal with ${o.sponsor} while you were busy.`);
     return;
   }
   if (!rng.chance(SELF_SIGN_CHANCE)) return;
   const k = SELF_SIGNED_SHARE;
-  c.sponsors.push({ ...deal, annualValue: Math.round((deal.annualValue * k) / 1000) * 1000, winBonus: Math.round(deal.winBonus * k), majorBonus: Math.round(deal.majorBonus * k) });
+  addSponsorship(world, wp, { ...deal, annualValue: Math.round((deal.annualValue * k) / 1000) * 1000, winBonus: Math.round(deal.winBonus * k), majorBonus: Math.round(deal.majorBonus * k) });
   world.news.unshift(`${wp.player.name} signs a smaller ${o.category} deal with ${o.sponsor} himself after the offer went unanswered.`);
 }
 
