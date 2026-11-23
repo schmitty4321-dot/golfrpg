@@ -2,7 +2,11 @@ import { useState } from "react";
 import { ATTRIBUTE_LABELS, createRng, type AttributeKey } from "../../engine";
 import {
   COACH_ROLES,
+  COACH_SPECIALTIES,
   KNOCK_STROKES,
+  rebuildChance,
+  rebuildWeeks,
+  specialtiesOf,
   MEDIC_BLURBS,
   MEDIC_LABELS,
   MEDIC_ROLES,
@@ -17,7 +21,6 @@ import {
   clientPeakView,
   describePeak,
   mixSeed,
-  rebuildSuccessChance,
   seasonChange,
   staffQuality,
   weeklyStaffCost,
@@ -139,7 +142,7 @@ export function Training({ world, game, clientId }: { world: World; game: Game; 
                 </tbody>
               </table>
             </div>
-            <p className="muted small">Better coaches speed up development in their area. With no coach he works it out alone, slowly. The fitness trainer also cuts injuries and slows the loss of distance with age.</p>
+            <p className="muted small">Better coaches speed up development in their area. With no coach he works it out alone, slowly. The fitness trainer also cuts injuries and slows the loss of distance with age. Each coach has a specialty (the best have two) that makes one part of his work count more; specialists ask a little more.</p>
           </section>
 
           <section className="panel">
@@ -190,11 +193,11 @@ export function Training({ world, game, clientId }: { world: World; game: Game; 
                       <button key={a} role="radio" aria-checked={area === a} aria-selected={area === a} onClick={() => setArea(a)}>{REBUILDS[a].label}</button>
                     ))}
                   </span>
-                  A {R.weeks}-week project with his {R.coach === "shortGame" ? "short-game" : R.coach} coach. He'll lose up to {R.penalty} strokes a round at first. If it works, {R.blurb.toLowerCase()} improves and his ceiling rises; if it doesn't, the weeks are gone.
+                  A {rebuildWeeks(world, clientId, area)}-week project with his {R.coach === "shortGame" ? "short-game" : R.coach} coach. He'll lose up to {R.penalty} strokes a round at first. If it works, {R.blurb.toLowerCase()} improves and his ceiling rises; if it doesn't, the weeks are gone.
                 </p>
                 {m.staff[R.coach] && (
                   <p className="secondary small">
-                    Chance it works with his current coach: {Math.round(rebuildSuccessChance(quality[R.coach] ?? 4, wp.player.attributes.coachability) * 100)}%.
+                    Chance it works with his current coach: {Math.round(rebuildChance(world, wp, area) * 100)}%.
                   </p>
                 )}
                 <button className="btn btn-primary" disabled={!rebuildCheck.ok} onClick={() => act((w) => game.lib.startRebuild(w, clientId, area))}>Start</button>
@@ -262,9 +265,10 @@ export function MedicRow({ role, world, game, clientId }: { role: MedicRole; wor
 export function StaffRow({ role, world, game, clientId }: { role: CoachRole; world: World; game: Game; clientId: string }) {
   const current = world.coaches.find((c) => c.id === world.players[clientId]!.client!.staff[role]);
   const options = world.coaches.filter((c) => c.role === role).sort((a, b) => a.quality - b.quality);
+  const specs = (c: { id: string; role: CoachRole; quality: number }) => specialtiesOf(world.seed, c).map((s) => COACH_SPECIALTIES[s]!);
   return (
     <tr>
-      <td><div className="coach-role-cell">{current ? <Portrait player={{ id: `coach-${current.id}`, nationality: "USA", age: 30 + (Number(current.id.slice(1)) % 28) }} size={48} title={current.name} /> : <span className="coach-vacancy" aria-hidden>+</span>}<span><strong>{ROLE_LABELS[role]}</strong>{current && <small>{current.name}</small>}</span></div></td>
+      <td><div className="coach-role-cell">{current ? <Portrait player={{ id: `coach-${current.id}`, nationality: "USA", age: 30 + (Number(current.id.slice(1)) % 28) }} size={48} title={current.name} /> : <span className="coach-vacancy" aria-hidden>+</span>}<span><strong>{ROLE_LABELS[role]}</strong>{current && <small>{current.name}</small>}{current && specs(current).map((s) => <small key={s.label} className="coach-specialty" title={s.blurb}>{s.label}: {s.blurb}</small>)}</span></div></td>
       <td>
         <select
           aria-label={`${ROLE_LABELS[role]}`}
@@ -277,7 +281,7 @@ export function StaffRow({ role, world, game, clientId }: { role: CoachRole; wor
           <option value="">No one</option>
           {options.map((c) => (
             <option key={c.id} value={c.id}>
-              {c.name}{c.formerClient ? " (former client)" : ""} · {c.quality}/20 · {money(c.weeklyFee)}/wk
+              {c.name}{c.formerClient ? " (former client)" : ""} · {c.quality}/20 · {money(c.weeklyFee)}/wk · {specs(c).map((s) => s.label).join(", ")}
             </option>
           ))}
         </select>

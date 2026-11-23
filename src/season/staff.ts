@@ -14,6 +14,7 @@ import { activeTargets, burnoutInjury, fatigueWeek, peakView, type PeakView } fr
 import { hasSkill } from "./staffSkills";
 import { owns } from "./investments";
 import { feeMultiplier } from "./managerFx";
+import { INJURY_PREVENTION, REBUILD_SPECIALIST_CHANCE, REBUILD_SPECIALIST_WEEKS, clientSpecialties, hasSpecialty, specialistPremium } from "./coachSpecialties";
 import { canManageKnock, knockWeek, medicOf, physioWeeks, weeklyMedicalCost } from "./medical";
 
 export const COACH_ROLES: CoachRole[] = ["swing", "shortGame", "putting", "mental", "fitness"];
@@ -32,6 +33,9 @@ const LAST = ["Harlan", "Whitcombe", "Garrity", "Lindell", "Pryce", "Osgood", "T
 /** Weekly retainer: about $74k a season for a tour-average coach (12), $330k for the best (20). */
 export const coachFee = (quality: number): number => Math.round((100 + quality ** 3) / 100) * 100;
 
+/** What a coach asks: his rating's going rate, and a little more for his specialties (see coachSpecialties.ts). */
+export const specialistFee = (seed: number, c: Pick<Coach, "id" | "role" | "quality">): number => Math.round((coachFee(c.quality) * specialistPremium(seed, c)) / 100) * 100;
+
 /** The market of coaches for hire: 25 per role, from local teachers to tour gurus. */
 export function generateCoaches(seed: number): Coach[] {
   const rng = createRng(seed ^ 0xc0ac4);
@@ -44,7 +48,8 @@ export function generateCoaches(seed: number): Coach[] {
       while (used.has(name));
       used.add(name);
       const quality = clamp(3 + Math.round((tier / 24) * 16) + rng.int(-1, 1), 1, 20);
-      coaches.push({ id: `c${coaches.length + 1}`, name, role, quality, weeklyFee: coachFee(quality) });
+      const id = `c${coaches.length + 1}`;
+      coaches.push({ id, name, role, quality, weeklyFee: specialistFee(seed, { id, role, quality }) });
     }
   }
   return coaches;
@@ -115,12 +120,27 @@ export function canStartRebuild(world: World, clientId: string, area: RebuildAre
   return { ok: true };
 }
 
+/** How long a rebuild would take with his coaches now: a rebuild specialist takes 4 weeks off a swing rebuild. */
+export function rebuildWeeks(world: World, clientId: string, area: RebuildArea = "swing"): number {
+  const r = REBUILDS[area];
+  return r.weeks - (area === "swing" && hasSpecialty(world, world.players[clientId], "rebuild-specialist") ? REBUILD_SPECIALIST_WEEKS : 0);
+}
+
+/** His chance a rebuild works, with the coach he has for it now. */
+export function rebuildChance(world: World, wp: WorldPlayer, area: RebuildArea = "swing"): number {
+  const r = REBUILDS[area];
+  const coachQ = world.coaches.find((c) => c.id === wp.client?.staff[r.coach])?.quality ?? 4;
+  const specialist = area === "swing" && hasSpecialty(world, wp, "rebuild-specialist") ? REBUILD_SPECIALIST_CHANCE : 0;
+  return Math.min(0.95, rebuildSuccessChance(coachQ, wp.player.attributes.coachability) + specialist + (hasSkill(world, "rebuild-planner") ? 0.1 : 0));
+}
+
 export function startRebuild(world: World, clientId: string, area: RebuildArea = "swing"): void {
   const check = canStartRebuild(world, clientId, area);
   if (!check.ok) throw new Error(check.reason);
   const wp = world.players[clientId]!;
   const r = REBUILDS[area];
-  wp.rebuild = { weeksLeft: r.weeks, totalWeeks: r.weeks, area };
+  const weeks = rebuildWeeks(world, clientId, area);
+  wp.rebuild = { weeksLeft: weeks, totalWeeks: weeks, area };
   applyRebuildPenalty(wp);
   world.news.unshift(`${wp.player.name} begins a ${r.label.toLowerCase()}. Expect some rough weeks.`);
 }
@@ -161,8 +181,7 @@ function progressRebuild(world: World, wp: WorldPlayer, rng: Rng): void {
   wp.rebuild = null;
   delete wp.player.sgAdjust;
   const area = REBUILDS[done ?? "swing"];
-  const coachQ = world.coaches.find((c) => c.id === wp.client?.staff[area.coach])?.quality ?? 4;
-  if (rng.chance(Math.min(0.95, rebuildSuccessChance(coachQ, wp.player.attributes.coachability) + (hasSkill(world, "rebuild-planner") ? 0.1 : 0)))) {
+  if (rng.chance(rebuildChance(world, wp, done ?? "swing"))) {
     // The whole swing lifts the ceiling most; a short game or putting change, less.
     wp.development.potential = Math.min(19, wp.development.potential + (done === "swing" || !done ? 1 : 0.5));
     const pool = [...area.skills];
@@ -189,12 +208,13 @@ const INJURIES: [string, number, number][] = [
 ];
 
 /** Weekly injury chance for a player who competed (training alone is much safer). */
-export function injuryChance(wp: WorldPlayer, competed: boolean, intensityRisk: number, fitnessQuality: number): number {
+export function injuryChance(wp: WorldPlayer, competed: boolean, intensityRisk: number, fitnessQuality: number, prevention = 1): number {
   // About one start in a hundred ends in an injury (real withdrawals: 1.8% of starts, all causes).
   const base = competed ? 0.009 : 0.002;
   const prone = wp.player.attributes.injuryProneness / 10;
   const tired = wp.player.condition < 60 ? 2 : 1;
-  const fit = clamp(1 - (fitnessQuality - 4) / 40, 0.6, 1.1);
+  // An Injury Prevention trainer's work counts 30% more.
+  const fit = clamp(1 - ((fitnessQuality - 4) / 40) * prevention, 0.6, 1.1);
   return base * prone * tired * intensityRisk * fit * injuryRisk(wp, intensityRisk > 1);
 }
 
@@ -231,6 +251,7 @@ export function endOfWeek(world: World, competed: Set<string>, rng: Rng, boosts:
     const isClient = !!wp.client;
     const plan = wp.client ? wp.client.training : { focus: "balanced" as const, intensity: "normal" as const };
     const quality = isClient ? staffQuality(world, wp.player.id) : rivalCoaching(world, wp);
+    const specialties = isClient ? clientSpecialties(world, wp) : undefined;
     // Amateurs are playing college and amateur events most weeks.
     const played = competed.has(wp.player.id) || wp.career.status === "amateur";
 
@@ -243,7 +264,7 @@ export function endOfWeek(world: World, competed: Set<string>, rng: Rng, boosts:
         wp.injury = null;
         if (isClient) world.news.unshift(`${wp.player.name} is fit again.`);
       }
-    } else if (rng.chance(injuryChance(wp, played, INTENSITY[plan.intensity].injury, quality.fitness ?? 4) * (boosts.get(wp.player.id)?.injury ?? 1) * burnoutInjury(wp.client?.fatigue) * (isClient && hasSkill(world, "injury-watch") ? 0.8 : 1))) {
+    } else if (rng.chance(injuryChance(wp, played, INTENSITY[plan.intensity].injury, quality.fitness ?? 4, specialties?.has("injury-prevention") ? INJURY_PREVENTION : 1) * (boosts.get(wp.player.id)?.injury ?? 1) * burnoutInjury(wp.client?.fatigue) * (isClient && hasSkill(world, "injury-watch") ? 0.8 : 1))) {
       wp.injury = rollInjury(world, wp, rng);
     }
 
@@ -252,7 +273,7 @@ export function endOfWeek(world: World, competed: Set<string>, rng: Rng, boosts:
     // The agency's resort is a training base: clients carry the load 10% better.
     const burnout = isClient ? fatigueWeek(wp, played, owns(world, "resort") ? 0.9 : 1) : 1;
     const targets = isClient ? activeTargets(world, wp) : [];
-    const changes = developWeek(wp, { plan, coachQuality: quality, competed: played, mentored, managed: isClient, ...(isClient ? { facility: centerTier(world).growth + (hasSkill(world, "stats-guru") ? 0.03 : 0), burnout } : {}), ...(targets.length ? { targets } : {}), ...(boost ? { boost } : {}) }, rng);
+    const changes = developWeek(wp, { plan, coachQuality: quality, competed: played, mentored, managed: isClient, ...(isClient ? { facility: centerTier(world).growth + (hasSkill(world, "stats-guru") ? 0.03 : 0), burnout } : {}), ...(targets.length ? { targets } : {}), ...(boost ? { boost } : {}), ...(specialties?.size ? { specialties } : {}) }, rng);
     masteryWeek(wp, played, plan.focus);
     if (isClient) {
       wp.player.condition = clamp(wp.player.condition + INTENSITY[plan.intensity].condition, 0, 100);
@@ -289,7 +310,7 @@ export function offseason(world: World, weeks: number, rng: Rng): void {
           plan: wp.client ? wp.client.training : { focus: "balanced", intensity: "normal" },
           coachQuality: wp.client ? staffQuality(world, wp.player.id) : rivalCoaching(world, wp),
           competed: false,
-          ...(wp.client ? { managed: true, winter: wp.client.training.winter ?? "standard", facility: centerTier(world).growth } : wp.agent?.winter ? { winter: wp.agent.winter } : {}),
+          ...(wp.client ? { managed: true, winter: wp.client.training.winter ?? "standard", facility: centerTier(world).growth, specialties: clientSpecialties(world, wp) } : wp.agent?.winter ? { winter: wp.agent.winter } : {}),
         },
         rng,
       );

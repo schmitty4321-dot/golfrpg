@@ -7,7 +7,7 @@
  */
 import { centerTier, recordDealFunding } from "./business";
 import { clamp, createRng, traceSeed } from "../engine";
-import { COACH_ROLES, abilityView, clientPeakView, coachFee, staffQuality } from "./staff";
+import { COACH_ROLES, abilityView, clientPeakView, coachFee, specialistFee, staffQuality } from "./staff";
 import { GOLF_SKILLS, developWeek, overall } from "./development";
 import { effectivePeak } from "./traits";
 import type { CoachRole, Finances, Intensity, TrainingFocus, WinterProgram, World, WorldPlayer } from "./types";
@@ -113,7 +113,7 @@ export function developmentCost(world: World, id: string, winter: WinterProgram 
   const m = wp.client!;
   const coaches = COACH_ROLES.reduce((s, r) => {
     const c = world.coaches.find((x) => x.id === m.staff[r]);
-    return s + (c ? coachFee(c.quality) * RETAINER_WEEKS : 0);
+    return s + (c ? (c.formerClient ? coachFee(c.quality) : specialistFee(world.seed, c)) * RETAINER_WEEKS : 0);
   }, 0);
   const medical = MEDIC_ROLES.reduce((s, r) => {
     const x = medicOf(world, wp, r);

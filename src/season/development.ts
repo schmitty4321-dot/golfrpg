@@ -15,6 +15,7 @@ import {
 import { MASTERY_CENTRE, masteryGrowth } from "./mastery";
 import type { CoachRole, Development, Intensity, TrainingFocus, TrainingPlan, WinterProgram, WorldPlayer } from "./types";
 import { effectivePeak, has } from "./traits";
+import { LONGEVITY, OLD_PROS, OLD_PROS_FROM, specialtyGrowth } from "./coachSpecialties";
 
 /** Skills that decide scoring: the average of these is a player's overall level. */
 export const GOLF_SKILLS: readonly VisibleAttribute[] = [
@@ -202,6 +203,8 @@ export interface DevelopmentInputs {
   burnout?: number;
   /** This season's practice targets: they grow faster, everything else a little slower. */
   targets?: readonly AttributeKey[];
+  /** His coaches' specialties (see coachSpecialties.ts): your clients only. */
+  specialties?: ReadonlySet<string>;
 }
 
 /** A practice target's growth, and the rest of his game's while he chases it. */
@@ -272,7 +275,9 @@ export function developWeek(wp: WorldPlayer, inputs: DevelopmentInputs, rng: Rng
   // Asked once a week rather than once per skill.
   const sponge = has(wp, "sponge");
   const gymRat = has(wp, "gym-rat");
-  const slow = yearsPast > 0 ? clamp(1 - (fitnessQ - SELF_TAUGHT) / 30, 0.5, 1) * (inputs.plan.focus === "fitness" ? 0.7 : 1) * (has(wp, "ageless") ? 0.5 : 1) * (winter?.decline ?? 1) : 1;
+  const longevity = inputs.specialties?.has("longevity") ? LONGEVITY : 1;
+  const oldPros = inputs.specialties?.has("old-pros") && p.age >= OLD_PROS_FROM ? OLD_PROS : 1;
+  const slow = yearsPast > 0 ? clamp(1 - ((fitnessQ - SELF_TAUGHT) / 30) * longevity, 0.5, 1) * (inputs.plan.focus === "fitness" ? 0.7 : 1) * (has(wp, "ageless") ? 0.5 : 1) * (winter?.decline ?? 1) : 1;
   const years = yearsPast > 0 ? declineYears(yearsPast) : 0;
   const experience = p.age < 46 ? 0.0015 * (inputs.competed ? 1.3 : 1) * (inputs.competed && has(wp, "tournament-learner") ? 2 : 1) : 0;
   const cap = Math.min(20, Math.ceil(dev.potential + STRENGTH_ROOM));
@@ -295,12 +300,15 @@ export function developWeek(wp: WorldPlayer, inputs: DevelopmentInputs, rng: Rng
     if (delta > 0 && inputs.burnout !== undefined) delta *= inputs.burnout;
     if (delta > 0 && inputs.targets?.length) delta *= inputs.targets.includes(key) ? TARGET_GROWTH : OTHERS_GROWTH;
     if (delta > 0) delta *= (mastered.get(key) ?? 1) * MASTERY_CENTRE;
+    if (delta > 0 && inputs.specialties) delta *= specialtyGrowth(inputs.specialties, key, p.age);
 
     // Ageing: power goes first, then the short putts; fitness work slows it.
     if (yearsPast > 0) {
-      if (PHYSICAL.includes(key)) delta -= 0.0015 * years * slow;
+      // An Old Pros swing coach keeps the long game and irons going longer.
+      const swing = oldPros !== 1 && COACH_GROUPS.swing.includes(key) ? oldPros : 1;
+      if (PHYSICAL.includes(key)) delta -= 0.0015 * years * slow * swing;
       else if (key === "shortPutts") delta -= 0.0009 * years;
-      else if (!EXPERIENCE.includes(key)) delta -= 0.0006 * years;
+      else if (!EXPERIENCE.includes(key)) delta -= 0.0006 * years * swing;
     }
     // Experience: the mind keeps improving into the forties, faster when competing,
     // up to his ceiling (without one, the whole tour drifts to 16s in composure).

@@ -6,7 +6,8 @@ import { ensureRivals, spreadStartingContracts } from "./rivals";
 import { assignRivalAgents, emptyFinances, newAgency, newManagement } from "./agency";
 import { newDevelopment } from "./development";
 import { generateScouts } from "./scouting";
-import { coachFee, generateCoaches } from "./staff";
+import { coachFee, generateCoaches, specialistFee } from "./staff";
+
 import { generateManagers } from "./managers";
 import { ensureMedics } from "./medical";
 import { assignPortraits, distinctPortraits } from "../engine/portraits";
@@ -57,7 +58,8 @@ export function deserializeWorld(json: string): World {
   ensureGoals(world);
   // Coaches are priced by the current fee curve (it changed in the 2026 finance model).
   // (A former client coaching for you keeps his friend's rate.)
-  for (const c of world.coaches) c.weeklyFee = Math.round(coachFee(c.quality) * (c.formerClient ? LOYALTY_DISCOUNT : 1));
+  // Specialists ask a little more (see coachSpecialties.ts).
+  for (const c of world.coaches) c.weeklyFee = c.formerClient ? Math.round(coachFee(c.quality) * LOYALTY_DISCOUNT) : specialistFee(world.seed, c);
   // Saves from before portrait numbers: each player keeps the face he's shown today.
   ensureDiscovery(world);
   assignPortraits(Object.values(world.players));

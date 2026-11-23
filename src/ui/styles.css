@@ -1103,6 +1103,7 @@ select, input[type="text"], input[type="number"] {
 .medic-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .coach-role-cell .portrait { flex: 0 0 auto; border-radius: 10px; }
 .coach-role-cell span { display: grid; gap: 2px; }
+.coach-role-cell .coach-specialty { color: var(--text-2); max-width: 260px; white-space: normal; }
 .coach-role-cell small { color: var(--muted); }
 .coach-vacancy { place-items: center; width: 48px; height: 48px; border: 1px dashed var(--border); border-radius: 10px; color: var(--muted); font-size: 24px; }
 @media (max-width: 900px) { .gear-market { grid-template-columns: minmax(0, 1fr); } }

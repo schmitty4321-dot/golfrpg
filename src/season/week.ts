@@ -31,6 +31,7 @@ import { recordEvent } from "./history";
 import { beginRebuild, endOfWeek } from "./staff";
 import { manageStaff } from "./managers";
 import { jetLagRelief, restRecoveryBoost } from "./medical";
+import { CLOSER, hasSpecialty } from "./coachSpecialties";
 import { amateurWeek } from "./amateurResults";
 import { familiarityWith, recordFamiliarity } from "./familiarity";
 import { courseRegion, takePracticeRound, takePracticeTrip } from "./practice";
@@ -371,7 +372,7 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
       if (wp.client) {
         const m = wp.client;
         // Contending hardens a client's mind (the tour's own players are calibrated without it).
-        if (r.madeCut) pressureGrowth(wp, r.position, f.event.tier);
+        if (r.madeCut) pressureGrowth(wp, r.position, f.event.tier, hasSpecialty(world, wp, "closer") ? CLOSER : 1);
         if (r.madeCut) checkBreakthrough(world, wp, r.position, f.event.tier);
         const caddie = caddiePay(world, wp, r.earnings, caddieShare(r.position, r.madeCut));
         const prizeBefore = m.finances.prizeMoney;

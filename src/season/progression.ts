@@ -44,9 +44,9 @@ export function checkBreakthrough(world: World, wp: WorldPlayer, position: numbe
 const PRESSURE_SKILLS: AttributeKey[] = ["composure", "sundayNerves", "focus"];
 
 /** Being in contention hardens the mind: progress towards the next point of composure and nerve. */
-export function pressureGrowth(wp: WorldPlayer, position: number, tier: string): void {
+export function pressureGrowth(wp: WorldPlayer, position: number, tier: string, mult = 1): void {
   if (position > 10 || tier === "dev") return;
-  const amount = (position <= 3 ? 0.12 : 0.06) * (tier === "major" ? 1.5 : 1);
+  const amount = (position <= 3 ? 0.12 : 0.06) * (tier === "major" ? 1.5 : 1) * mult;
   for (const k of PRESSURE_SKILLS) {
     if (wp.player.attributes[k] >= Math.ceil(wp.development.potential) + 2) continue;
     wp.development.progress[k] = (wp.development.progress[k] ?? 0) + amount;

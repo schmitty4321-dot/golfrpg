@@ -8,6 +8,7 @@ import { clamp, createRng } from "../engine";
 import { COACH_ROLES, coachFee, hireCoach } from "./staff";
 import { MANAGER_SKILLS, maxQualityOf, paceOf, perceivedQuality, swapMargin } from "./managerFx";
 import { MEDIC_ROLES, hireMedic, medicOf } from "./medical";
+import { specialtyValue } from "./coachSpecialties";
 import type { Coach, Manager, Medic, MedicRole, World, WorldPlayer } from "./types";
 
 /** What the job is called in the UI. */
@@ -67,7 +68,9 @@ export function manageStaff(world: World, clientId: string): number {
   const { perWeek, roles } = paceOf(dir);
   const margin = swapMargin(dir);
   const cap = maxQualityOf(dir);
-  const read = (x: Coach) => perceivedQuality(world, dir, x);
+  const wp0 = world.players[clientId]!;
+  // He reads a coach's rating, and what his specialties are worth to this client.
+  const read = (x: Coach) => perceivedQuality(world, dir, x) + specialtyValue(world, wp0, x);
   let hires = 0;
   for (const role of roles ?? COACH_ROLES) {
     if (hires >= perWeek) break;
