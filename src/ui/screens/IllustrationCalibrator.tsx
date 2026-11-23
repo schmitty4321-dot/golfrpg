@@ -6,8 +6,8 @@ const LABELS = ["Tee", "Landing area", "Green"];
 const pad = (value: number) => String(value).padStart(2, "0");
 
 function defaultImage(courseId: string, hole: number): string {
-  // Innisbrook's pictures are hole-NN.png; the Waialae pilot used its own names.
-  if (courseId === "innisbrook-copperhead") return `art-demo/${courseId}/hole-${pad(hole)}.png`;
+  // Innisbrook's pictures are hole-NN.webp; the Waialae pilot used its own names.
+  if (courseId === "innisbrook-copperhead") return `art-demo/${courseId}/hole-${pad(hole)}.webp`;
   return `art-demo/${courseId}/hole-${pad(hole)}-${hole === 2 ? "course.png" : "illustrated.jpg"}`;
 }
 
