@@ -2,6 +2,7 @@ import { personalWealth } from "./finance";
 import { chargeWinterPrograms } from "./finance";
 import { checkChallenge } from "./challenges";
 import { alumniReferrals, alumnusRetires } from "./legacy";
+import { taxWeek } from "./homeBase";
 import { checkAchievements } from "./achievements";
 import { rivalRelationshipsSeasonEnd } from "./rivalAgents";
 import { seasonEndPromiseChecks } from "./promises";
@@ -690,7 +691,8 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   addFullDevTour(world);
   addMatchPlay(world);
   drawSeasonForm(world);
-  // What he kept this season goes into his savings before the books start over.
+  // What he kept this season goes into his savings before the books start over (after the last of the season's tax).
+  taxWeek(world);
   for (const wp of clients(world)) {
     wp.client!.savings = personalWealth(wp);
     wp.client!.finances = emptyFinances();

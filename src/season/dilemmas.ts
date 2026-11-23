@@ -118,7 +118,7 @@ const TEMPLATES: Template[] = [
     key: "homesick",
     cooldown: 10,
     chance: 0.35,
-    fits: (c) => has(c.wp, "homesick") && c.wp.career.lastRegion !== null && c.wp.career.lastRegion !== homeRegion(c.wp.player.nationality),
+    fits: (c) => has(c.wp, "homesick") && c.wp.career.lastRegion !== null && c.wp.career.lastRegion !== homeRegion(c.wp.player.nationality) && absWeek(c.world.season, c.world.week) - (c.wp.client!.homeWeek ?? -99) > 3,
     title: (c) => `${name(c)} misses home`,
     text: (c) => `Weeks on the road are getting to ${first(c)}. He'd like to fly home for a week.`,
     choices: () => [

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Check, CircleDollarSign, Search, ShoppingBag, SlidersHorizontal, Sparkles, Star } from "lucide-react";
 import { APPAREL_LABELS, APPAREL_SLOTS, EQUIPMENT, EQUIPMENT_SLOTS, SLOT_LABELS, type EquipmentModel, type GearSlot } from "../../engine";
-import { LIFESTYLE_ITEMS, buyLifestyle, equip, lifestyleBlock, ownedLifestyle, personalWealth, qRating, qTarget, type LifestyleItem, type LifestyleKind, type World } from "../../season";
+import { LIFESTYLE_ITEMS, buyLifestyle, equip, lifestyleBlock, ownedLifestyle, personalWealth, qRating, qTarget, cityLabel, homeCityOf, type LifestyleItem, type LifestyleKind, type World } from "../../season";
 import { CutoutPortrait } from "../components/Portrait";
 import { money } from "../format";
 import { effects } from "./Team";
@@ -129,7 +129,7 @@ export function Store({ world, game, clientId }: { world: World; game: Game; cli
 
           <div className="shop-products">
             <div className="shop-title">
-              <div><span>{isGear ? "PLAYER FITTING" : "PLAYER LIFESTYLE"}</span><h2>{isGear ? slotLabel(category as GearSlot) : category === "home" ? "Homes" : category === "car" ? "Cars" : "Extras"}</h2><p>{isGear ? "Compare performance, price and tradeoffs." : `Q rating ${qRating(world, wp).toFixed(0)}, heading toward ${qTarget(world, wp).toFixed(0)}.`}</p></div>
+              <div><span>{isGear ? "PLAYER FITTING" : "PLAYER LIFESTYLE"}</span><h2>{isGear ? slotLabel(category as GearSlot) : category === "home" ? "Homes" : category === "car" ? "Cars" : "Extras"}</h2><p>{isGear ? "Compare performance, price and tradeoffs." : `${category === "home" ? `In ${cityLabel(homeCityOf(wp))}, his home city: weeks off there recover more. ` : ""}Q rating ${qRating(world, wp).toFixed(0)}, heading toward ${qTarget(world, wp).toFixed(0)}.`}</p></div>
               <strong>{items.length} choices</strong>
             </div>
             <div className="shop-grid" role="radiogroup">

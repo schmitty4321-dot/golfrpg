@@ -19,6 +19,7 @@ import { ensureTraits } from "./traits";
 import { ensureFamiliarity } from "./familiarity";
 import { generateCaddies } from "./team";
 import { ensureGoals } from "./goals";
+import { ensureHomeCities } from "./homeBase";
 
 export function serializeWorld(world: World): string {
   return JSON.stringify(world);
@@ -52,6 +53,8 @@ export function deserializeWorld(json: string): World {
   addMatchPlay(world);
   ensureRyderCup(world);
   ensureGoals(world);
+  // Saves from before home bases: each client lives where his nationality points.
+  ensureHomeCities(world);
   // Coaches are priced by the current fee curve (it changed in the 2026 finance model).
   // (A former client coaching for you keeps his friend's rate.)
   for (const c of world.coaches) c.weeklyFee = Math.round(coachFee(c.quality) * (c.formerClient ? LOYALTY_DISCOUNT : 1));

@@ -350,6 +350,10 @@ export interface ClientManagement {
   bestRank?: number;
   /** He made a bold claim this week (absolute): his next start tests it. */
   boldClaim?: number;
+  /** The last week (absolute) he spent at home: homesickness starts over from it. */
+  homeWeek?: number;
+  /** The season he last moved house (one move a season). */
+  movedSeason?: number;
 }
 
 /** Who represents a player. */
@@ -402,6 +406,8 @@ export interface WorldPlayer {
   client?: ClientManagement;
   /** Comeback Kids: weeks of faster development left after a long injury. */
   comebackWeeks?: number;
+  /** His home city (see homeBase.ts; computer players and older saves: from nationality). */
+  homeCity?: string;
   /** Bronze-silver-gold progress for his traits and archetype, by trait id or "archetype" (see mastery.ts). */
   mastery?: Record<string, number>;
 }
@@ -599,6 +605,9 @@ export interface Finances {
   lifestyle?: number;
   /** Clubs bought. */
   equipment?: number;
+  /** Income tax where he lives (see homeBase.ts), and the income it has been worked out on so far. */
+  tax?: number;
+  taxedIncome?: number;
   /** Your agency's cut of prize money and endorsements. */
   commission: number;
 }
@@ -739,6 +748,8 @@ export interface World {
   inbox?: import("./inbox").Decision[];
   /** The rival agencies (older saves get them on load). */
   rivals?: RivalAgency[];
+  /** Income tax by home city (on unless switched off). */
+  homeTax?: boolean;
   /** Set once anything has been changed in the editor, like an "edited" save in FM. */
   edited?: boolean;
 }

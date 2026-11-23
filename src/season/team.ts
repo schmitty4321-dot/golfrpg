@@ -3,6 +3,7 @@
  * the agency jet), and the clubs in his bag.
  */
 import { personalWealth } from "./finance";
+import { withinDrive } from "./homeBase";
 import { EQUIPMENT_BY_ID, clamp, createRng, type CaddieOnBag, type EquipmentSlot } from "../engine";
 import type { Caddie, Region, TravelClass, World, WorldPlayer } from "./types";
 
@@ -100,11 +101,12 @@ export function travelMode(world: World, wp: WorldPlayer): { label: string; cost
   return { label: cls.label, cost: cls.cost, fatigue: cls.fatigue, days: cls.days, private: wp.client?.travelClass === "charter" };
 }
 
-/** Travel days before an event: [same region, another region]. */
-export function travelDays(world: World, wp: WorldPlayer, to: Region): number {
+/** Travel days before an event: [same region, another region], a day fewer when it's a drive from home. */
+export function travelDays(world: World, wp: WorldPlayer, to: Region, courseId?: string): number {
   const m = travelMode(world, wp);
   const changed = wp.career.lastRegion !== null && wp.career.lastRegion !== to;
-  return changed ? m.days[1] : m.days[0];
+  const days = changed ? m.days[1] : m.days[0];
+  return wp.client && withinDrive(wp, courseId) ? Math.max(0, days - 1) : days;
 }
 
 export function setTravelClass(world: World, clientId: string, cls: TravelClass): void {

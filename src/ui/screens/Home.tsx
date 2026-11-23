@@ -409,7 +409,7 @@ function DayPlanner({ world, id, choice, entered, onChoose, open, onToggle }: { 
   const wp = world.players[id]!;
   const event = choice.kind === "enter" ? entered?.event : undefined;
   if (choice.kind === "enter" && !event) return null;
-  const { days, travel } = weekDays(world, wp, event?.region ?? null);
+  const { days, travel } = weekDays(world, wp, event?.region ?? null, event?.courseId);
   const allowed = event ? EVENT_WEEK_ACTIVITIES : OFF_WEEK_ACTIVITIES;
   const plan = fitPlan(choice.days ?? (choice.kind === "enter" && choice.practice ? ["practice"] : undefined), days.length - travel, allowed);
   const set = (i: number, a: DayActivity) => {

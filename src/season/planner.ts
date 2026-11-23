@@ -31,9 +31,9 @@ const EVENT_DAYS = ["Mon", "Tue", "Wed"];
 const WEEK_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 /** The week's days: which are travel, which are his to plan. */
-export function weekDays(world: World, wp: WorldPlayer, eventRegion: Region | null): { days: string[]; travel: number } {
+export function weekDays(world: World, wp: WorldPlayer, eventRegion: Region | null, courseId?: string): { days: string[]; travel: number } {
   if (!eventRegion) return { days: WEEK_DAYS, travel: 0 };
-  return { days: EVENT_DAYS, travel: Math.min(EVENT_DAYS.length, travelDays(world, wp, eventRegion)) };
+  return { days: EVENT_DAYS, travel: Math.min(EVENT_DAYS.length, travelDays(world, wp, eventRegion, courseId)) };
 }
 
 /**

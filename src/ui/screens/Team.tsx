@@ -15,6 +15,7 @@ import {
 import { money } from "../format";
 import { Portrait } from "../components/Portrait";
 import { ProfileEquipment } from "../components/ProfileGear";
+import { HomeBasePanel } from "../components/HomeBase";
 import { PlayerName } from "../components/PlayerLink";
 import type { Game } from "../useGame";
 
@@ -91,6 +92,8 @@ export function Team({ world, game, clientId }: { world: World; game: Game; clie
 
       {/* His clubs and apparel at a glance; buying and swapping are in the Store. */}
       <ProfileEquipment wp={wp} />
+
+      <HomeBasePanel world={world} game={game} clientId={clientId} />
 
       <section className="panel">
         <div className="panel-head">

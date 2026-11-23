@@ -1,4 +1,5 @@
 import { personalWealth } from "./finance";
+import { homeCityOf } from "./homeBase";
 import { clamp } from "../engine";
 import { rankMap } from "./points";
 import { followers } from "./showcase";
@@ -98,7 +99,7 @@ export function buyLifestyle(world: World, clientId: string, itemId: string): vo
   }
   owned.push(itemId);
   c.finances.lifestyle = (c.finances.lifestyle ?? 0) + item.price - credit;
-  if (!credit) world.news.unshift(`${wp.player.name} buys a ${item.name}.`);
+  if (!credit) world.news.unshift(`${wp.player.name} buys a ${item.name}${item.kind === "home" ? ` in ${homeCityOf(wp).name}` : ""}.`);
 }
 
 /**

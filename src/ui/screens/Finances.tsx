@@ -172,13 +172,13 @@ function ClientMoney({ world }: { world: World }) {
       {world.clientIds.map((id) => {
         const wp = world.players[id]!;
         const f = wp.client!.finances;
-        const expenses = f.caddie + f.travel + f.coaching + (f.training ?? 0) + (f.equipment ?? 0) + (f.lifestyle ?? 0);
+        const expenses = f.caddie + f.travel + f.coaching + (f.training ?? 0) + (f.equipment ?? 0) + (f.lifestyle ?? 0) + (f.tax ?? 0);
         const net = f.prizeMoney + f.endorsements - expenses - f.commission;
         return <article className="client-money-card" key={id}>
           <div className="client-money-person"><Portrait player={wp.player} size={70} title={wp.player.name} /><strong><PlayerName id={id}>{wp.player.name}</PlayerName></strong></div>
           <MoneyStep icon="♛" label="Prize money" value={money(f.prizeMoney)} />
           <b className="money-arrow">+</b><MoneyStep icon="◆" label="Endorsements" value={money(f.endorsements)} />
-          <b className="money-arrow">−</b><MoneyStep icon="▤" label="Player expenses" value={money(expenses)} bad />
+          <b className="money-arrow">−</b><MoneyStep icon="▤" label={f.tax ? `Player expenses and ${money(f.tax)} tax` : "Player expenses"} value={money(expenses)} bad />
           <b className="money-arrow">−</b><MoneyStep icon="●" label="Agency commission" value={money(f.commission)} bad />
           <b className="money-arrow">→</b><MoneyStep icon="▣" label="Take-home" value={cash(net)} good={net >= 0} bad={net < 0} />
         </article>;
