@@ -2,6 +2,7 @@ import { useEffect, useId, useMemo, useState } from "react";
 import { aerialMatrix, useHoleMap } from "../holeMaps";
 import { traceHole, traceSeed, type HoleTrace, type PlayerEventResult, type Pt, type Shot, type TournamentResult } from "../../engine";
 import { hasIllustratedTracerArt, IllustratedTracer } from "./IllustratedTracer";
+import { GreenCam } from "./GreenCam";
 
 interface Props {
   result: TournamentResult;
@@ -227,6 +228,7 @@ export function HoleDrawing({ trace, step, photo, map }: { trace: HoleTrace; ste
   const shapes = (list: number[][][] | undefined, fill: string, key: string) =>
     list?.map((q, i) => <polygon key={`${key}${i}`} points={poly(q.map(([x, y]) => ({ x: x!, y: y! })))} fill={fill} />);
   return (
+    <div className="hole-svg-frame">
     <svg className="hole-svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Hole diagram: par ${L.par}, ${L.yards} yards. ${trace.shots.slice(0, step).map((s) => s.text).join(" ")}`}>
       <defs>
         <clipPath id={clip}><rect x={0} y={0} width={W} height={H} /></clipPath>
@@ -301,5 +303,7 @@ export function HoleDrawing({ trace, step, photo, map }: { trace: HoleTrace; ste
         );
       })}
     </svg>
+    <GreenCam trace={trace} step={step} />
+    </div>
   );
 }
