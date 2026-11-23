@@ -14,6 +14,7 @@ import { rankMap } from "./points";
 import { coachFee } from "./staff";
 import type { CoachRole, World, WorldPlayer } from "./types";
 import { amateurRanking } from "./amateurs";
+import { retirementValue, type VentureKind } from "./ventures";
 
 export interface Alumnus {
   id: string;
@@ -29,6 +30,10 @@ export interface Alumnus {
   /** "elsewhere" (still playing), "retired", or "coaching" (on the coach market). */
   status: "elsewhere" | "retired" | "coaching";
   hallOfFame: boolean;
+  /** His own businesses when he left, the agency's share of them under his last contract, and what they were worth when he retired. */
+  ventures?: { kind: VentureKind; stake: number }[];
+  businessShare?: number;
+  venturePayout?: number;
 }
 
 /** In the agency Hall of Fame: a major, or three wins, while he was yours. */
@@ -68,6 +73,12 @@ export function recordAlumnus(world: World, wp: WorldPlayer): void {
   entry.wins = wins;
   entry.majors = majors;
   entry.bestRank = Math.min(entry.bestRank, rank, wp.client.bestRank ?? 999);
+  // His businesses go with him, on the record.
+  if (wp.client.ventures?.length) {
+    entry.ventures = wp.client.ventures.map((v) => ({ kind: v.kind, stake: v.stake }));
+    entry.businessShare = wp.client.contract.extras?.businessShare;
+    if (!entry.businessShare) delete entry.businessShare;
+  }
   if (!existing) legacy.alumni.push(entry);
   if (!entry.hallOfFame && hallWorthy(entry)) {
     entry.hallOfFame = true;
@@ -112,6 +123,16 @@ export function alumnusRetires(world: World, wp: WorldPlayer): void {
   const role = bestRole(wp);
   world.coaches.push({ id: `alum-${wp.player.id}`, name: wp.player.name, role, quality, weeklyFee: Math.round(coachFee(quality) * LOYALTY_DISCOUNT), formerClient: true });
   a.status = "coaching";
+  // His businesses are valued as he retires; the agency's share, if his deal had one, is paid out.
+  if (a.ventures?.length) {
+    a.venturePayout = retirementValue(a.ventures, wp.career.careerMajors);
+    const cut = Math.round(a.venturePayout * (a.businessShare ?? 0));
+    if (cut) {
+      world.agency.bank += cut;
+      world.agency.ledger.businessShare = (world.agency.ledger.businessShare ?? 0) + cut;
+    }
+    world.news.unshift(`${wp.player.name}'s businesses are worth ${(a.venturePayout / 1e6).toFixed(1)}M as he retires${cut ? `; ${world.agency.name}'s share is ${(cut / 1e6).toFixed(2)}M` : ""}.`);
+  }
   world.news.unshift(`${wp.player.name} retires and offers his services to ${world.agency.name}: a ${role === "shortGame" ? "short-game" : role} coach (quality ${quality}), at a friend's rate.`);
 }
 

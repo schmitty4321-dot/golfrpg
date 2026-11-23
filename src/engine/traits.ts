@@ -249,6 +249,9 @@ export interface PlayerEventContext {
   home: boolean;
   /** He flew in from another region. */
   regionChanged: boolean;
+  /** The event is in his home state or country (his home city's), and the field's share of such players. */
+  homeCrowd?: boolean;
+  fieldHomeCrowd?: number;
   /** Straight weeks played, counting this one. */
   consecutiveStarts: number;
   /** Weeks since his last start (0: he played last week). */
@@ -291,6 +294,8 @@ export interface TraitRoundInfo {
  * are calibrated to; a player's traits only move him against the field.
  */
 export const TRAIT_BALANCE = 0.1;
+/** Strokes a round a home crowd is worth (see season/homeBase.ts). */
+export const HOME_CROWD = 0.05;
 
 const SG_ZERO = (): StrokesGained => ({ offTheTee: 0, approach: 0, aroundTheGreen: 0, putting: 0 });
 
@@ -309,6 +314,8 @@ export function traitRoundEffects(r: TraitRoundInfo): { sg: StrokesGained; strok
   const weekend = r.round >= 3;
   const inTheHunt = (n: number) => weekend && r.shotsBehind !== null && r.shotsBehind <= n;
   const firmDry = !r.rain && course.firmness > 0.6;
+  // The home crowd (his home state or country): measured against the field's share of home players, so a field still scores the same.
+  if (e && e.fieldHomeCrowd !== undefined) strokes -= HOME_CROWD * ((e.homeCrowd ? 1 : 0) - e.fieldHomeCrowd);
   for (const id of traitsOf(p)) {
     switch (id) {
       case "wedge-wizard": {

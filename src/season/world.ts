@@ -2,6 +2,8 @@ import { personalWealth } from "./finance";
 import { chargeWinterPrograms } from "./finance";
 import { checkChallenge } from "./challenges";
 import { alumniReferrals, alumnusRetires } from "./legacy";
+import { taxWeek } from "./homeBase";
+import { venturesSeasonEnd } from "./ventures";
 import { checkAchievements } from "./achievements";
 import { rivalRelationshipsSeasonEnd } from "./rivalAgents";
 import { seasonEndPromiseChecks } from "./promises";
@@ -632,6 +634,8 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   // Brand partners pay their goal bonuses, then the investments pay out (or cost), before the books close.
   settleBrandGoals(world);
   investmentsSeasonEnd(world);
+  // The clients' own businesses report too (before anyone leaves).
+  venturesSeasonEnd(world);
   const ledger = { ...world.agency.ledger };
   // The owners judge the season on its closing books.
   const verdict = settleBoard(world, ledger);
@@ -693,7 +697,8 @@ export function finishSeason(world: World, rngIn?: Rng): SeasonSummary | null {
   addFullDevTour(world);
   addMatchPlay(world);
   drawSeasonForm(world);
-  // What he kept this season goes into his savings before the books start over.
+  // What he kept this season goes into his savings before the books start over (after the last of the season's tax).
+  taxWeek(world);
   for (const wp of clients(world)) {
     wp.client!.savings = personalWealth(wp);
     wp.client!.finances = emptyFinances();

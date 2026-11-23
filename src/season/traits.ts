@@ -9,6 +9,7 @@ import { rankMap } from "./points";
 import { familiarityContext } from "./familiarity";
 import { caddieOnBag, travelMode } from "./team";
 import { medicalContext } from "./medical";
+import { homeCrowd } from "./homeBase";
 import type { Region, SponsorCategory, TourEvent, World, WorldPlayer } from "./types";
 
 /**
@@ -59,9 +60,11 @@ function awayStreak(world: World, wp: WorldPlayer): number {
   const home = homeRegion(wp.player.nationality);
   if (!home) return 0;
   const recent = wp.career.results.filter((r) => r.season === world.season).sort((a, b) => b.week - a.week);
+  // A week at home (or with his family on the road) starts the count over.
+  const homeWeek = wp.client?.homeWeek ?? -1;
   let n = 0;
   for (const r of recent) {
-    if (regionOf(world, r.eventId) === home) break;
+    if (regionOf(world, r.eventId) === home || r.season * 52 + r.week < homeWeek) break;
     n++;
   }
   return n;
@@ -78,6 +81,7 @@ export function eventContext(world: World, event: TourEvent, id: string): Player
     missedCutHereLastSeason: results.some((r) => r.season === world.season - 1 && r.eventId === event.id && !r.madeCut),
     top25sHere: results.filter((r) => r.season < world.season && r.eventId === event.id && r.madeCut && r.position <= 25).length,
     home: homeRegion(wp.player.nationality) === event.region,
+    homeCrowd: homeCrowd(wp, event.courseId),
     regionChanged: wp.career.lastRegion !== null && wp.career.lastRegion !== event.region,
     consecutiveStarts: streakBefore(world, wp) + 1,
     weeksOff: last === 0 ? 99 : world.week - 1 - last,

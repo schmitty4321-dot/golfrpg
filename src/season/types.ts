@@ -374,6 +374,20 @@ export interface ClientManagement {
   bestRank?: number;
   /** He made a bold claim this week (absolute): his next start tests it. */
   boldClaim?: number;
+  /** The last week (absolute) he spent at home: homesickness starts over from it. */
+  homeWeek?: number;
+  /** The season he last moved house (one move a season). */
+  movedSeason?: number;
+  /** His family is with him on tour every week up to this one (absolute; a school-holidays decision). */
+  familyTourUntil?: number;
+  /** His own businesses (see ventures.ts). */
+  ventures?: import("./ventures").Venture[];
+}
+
+/** Single, a partner or married, and children by the season they were born. */
+export interface Family {
+  status: "single" | "partner" | "married";
+  children: number[];
 }
 
 /** Who represents a player. */
@@ -428,6 +442,10 @@ export interface WorldPlayer {
   client?: ClientManagement;
   /** Comeback Kids: weeks of faster development left after a long injury. */
   comebackWeeks?: number;
+  /** Clients: his family (see family.ts). Computer players: drawn from age when shown. */
+  family?: Family;
+  /** His home city (see homeBase.ts; computer players and older saves: from nationality). */
+  homeCity?: string;
   /** Bronze-silver-gold progress for his traits and archetype, by trait id or "archetype" (see mastery.ts). */
   mastery?: Record<string, number>;
 }
@@ -484,6 +502,8 @@ export interface AgencyLedger {
   investments?: number;
   /** Capital put into investments (less sales): an asset, not a cost. */
   invested?: number;
+  /** The agency's share of clients' business profits, where a contract has one. */
+  businessShare?: number;
 }
 
 /** A scout out gathering intel on one player: he reports when the weeks run out. */
@@ -627,6 +647,12 @@ export interface Finances {
   lifestyle?: number;
   /** Clubs bought. */
   equipment?: number;
+  /** Income tax where he lives (see homeBase.ts), and the income it has been worked out on so far. */
+  tax?: number;
+  taxedIncome?: number;
+  /** His businesses: this winter's results (+ or −), and money put in less sales (see ventures.ts). */
+  business?: number;
+  ventures?: number;
   /** Your agency's cut of prize money and endorsements. */
   commission: number;
 }
@@ -769,6 +795,8 @@ export interface World {
   inbox?: import("./inbox").Decision[];
   /** The rival agencies (older saves get them on load). */
   rivals?: RivalAgency[];
+  /** Income tax by home city (on unless switched off). */
+  homeTax?: boolean;
   /** Set once anything has been changed in the editor, like an "edited" save in FM. */
   edited?: boolean;
 }

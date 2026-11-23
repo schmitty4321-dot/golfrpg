@@ -18,6 +18,8 @@ import { absWeek, type CoachRole, type Sponsorship, type StaffRole, type World, 
 import { hiredStaffer, releaseStaffer, renewStaffer } from "./market";
 import { addSponsorship, sponsorBlock } from "./sponsors";
 import { dealCoverageLabel } from "./team";
+import { addChild, marry } from "./family";
+import { addToStake, sellVenture } from "./ventures";
 
 /** One thing a choice does. Numbers are changes (followers: a share, e.g. 0.03 = +3%). */
 export type Effect =
@@ -54,6 +56,14 @@ export type Effect =
   | { k: "staffRenew"; role: StaffRole; years: number }
   /** Lets the agency's staffer in a role go when their deal is up (nothing to pay). */
   | { k: "staffRelease"; role: StaffRole }
+  /** Family: a baby born, a wedding, the family on tour for some weeks (see family.ts). */
+  | { k: "child" }
+  | { k: "married" }
+  | { k: "familyTour"; v: number }
+  /** His businesses (see ventures.ts): money in (paid by him when `paid`), closing one for a share back, a sponsor walking away. */
+  | { k: "ventureStake"; kind: import("./ventures").VentureKind; v: number; paid: boolean }
+  | { k: "closeVenture"; kind: import("./ventures").VentureKind; share: number }
+  | { k: "endSponsor"; category: import("./types").SponsorCategory }
   /** A gamble: `p` chance of `then`, otherwise `else`, each with a line for the news. */
   | { k: "chance"; p: number; then: Effect[]; else: Effect[]; thenNews: string; elseNews: string };
 
@@ -233,6 +243,27 @@ export function applyEffects(world: World, wp: WorldPlayer | null, effects: Effe
       case "boldClaim":
         m.boldClaim = now;
         break;
+      case "child":
+        addChild(world, wp);
+        break;
+      case "married":
+        marry(world, wp);
+        break;
+      case "ventureStake":
+        addToStake(wp, e.kind, e.v, e.paid);
+        break;
+      case "closeVenture":
+        sellVenture(world, wp.player.id, e.kind, e.share);
+        break;
+      case "endSponsor": {
+        const gone = m.sponsors.filter((s) => s.category === e.category);
+        m.sponsors = m.sponsors.filter((s) => s.category !== e.category);
+        for (const s of gone) lines.push(`${s.sponsor} ends its deal.`);
+        break;
+      }
+      case "familyTour":
+        m.familyTourUntil = Math.max(m.familyTourUntil ?? 0, now + e.v);
+        break;
       case "practiceAt": {
         if (!e.courseId) break;
         const fam = (wp.career.familiarity ??= {});
@@ -265,6 +296,12 @@ export function describeEffects(effects: Effect[]): string {
     else if (e.k === "targetEvents") parts.push(`${e.v > 0 ? "more" : "fewer"} starts`);
     else if (e.k === "boldClaim") parts.push("risky if he plays badly next");
     else if (e.k === "practiceAt") parts.push("knows the course better");
+    else if (e.k === "child") parts.push("a new arrival");
+    else if (e.k === "ventureStake") parts.push(e.v >= 0 ? `he puts in $${Math.round(e.v / 1000)}k` : "his stake shrinks");
+    else if (e.k === "closeVenture") parts.push(`closes it, ${Math.round(e.share * 100)}% back`);
+    else if (e.k === "endSponsor") parts.push(`loses his ${e.category} sponsor`);
+    else if (e.k === "married") parts.push("married");
+    else if (e.k === "familyTour") parts.push(`family on tour for ${e.v} weeks`);
     else if (e.k === "relationship") parts.push(`${e.agency}: ${e.v > 0 ? "warmer" : "cooler"}`);
     else if (e.k === "scoutBoost") parts.push("a full report on him");
     else if (e.k === "shortlist") parts.push(`${e.ids.length} on your board`);

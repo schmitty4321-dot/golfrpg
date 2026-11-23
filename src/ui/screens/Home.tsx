@@ -5,6 +5,8 @@ import { ShotOfTheWeek } from "../components/Highlights";
 import { InboxPanel } from "../components/Inbox";
 import {
   FULL_CARD,
+  VENTURES,
+  ventureDay,
   REGION_NAMES,
   seasonWeeks,
   PRO_AGE,
@@ -370,6 +372,16 @@ function ClientWeek({ world, game, id, choice, onChoose }: { world: World; game:
             <span className="schedule-chip" style={{ borderColor: ACCESS_TONE[entered.access] }}>{entered.detail}</span>
             <span className={`schedule-chip ${fit.tone}`}>{fit.label} {signed(entered.fit, 2)}/round</span>
             <span className={`schedule-chip ${!entered.debut && entered.familiarity >= 40 ? "good" : "warn"}`}>{entered.debut ? "Course debut" : `${familiarityLabel(entered.familiarity)} ${Math.round(entered.familiarity)}`}</span>
+            {choice.kind === "enter" && game.lib.hasFamily(world, wp) && (
+              <label className="client-week-inline small">
+                Family{" "}
+                <select value={choice.family ?? ""} onChange={(e) => onChoose({ ...choice, family: (e.target.value || undefined) as "travel" | "home" | undefined })}>
+                  <option value="">His call ({game.lib.familyDefault(world, wp, entered.event) ? "they come" : "they stay home"})</option>
+                  <option value="travel">They travel with him (+{game.lib.FAMILY_MOOD} mood, {money(game.lib.familyTripCost(world, wp, entered.event))})</option>
+                  <option value="home">They stay home</option>
+                </select>
+              </label>
+            )}
           </>
         )}
         {choice.kind === "rest" && (
@@ -409,7 +421,7 @@ function DayPlanner({ world, id, choice, entered, onChoose, open, onToggle }: { 
   const wp = world.players[id]!;
   const event = choice.kind === "enter" ? entered?.event : undefined;
   if (choice.kind === "enter" && !event) return null;
-  const { days, travel } = weekDays(world, wp, event?.region ?? null);
+  const { days, travel } = weekDays(world, wp, event?.region ?? null, event?.courseId);
   const allowed = event ? EVENT_WEEK_ACTIVITIES : OFF_WEEK_ACTIVITIES;
   const plan = fitPlan(choice.days ?? (choice.kind === "enter" && choice.practice ? ["practice"] : undefined), days.length - travel, allowed);
   const set = (i: number, a: DayActivity) => {
@@ -431,6 +443,9 @@ function DayPlanner({ world, id, choice, entered, onChoose, open, onToggle }: { 
   if (count(plan, "sponsor") > 0) notes.push("Sponsor goodwill");
   if (count(plan, "media") > 0) notes.push("Agency profile");
   if (cost.condition === 0 && cost.fees === 0 && !count(plan, "media")) notes.push("All rest: nothing gained, nothing spent");
+  // His businesses take his last free day now and then.
+  const busy = plan.length ? ventureDay(world, wp) : null;
+  if (busy) notes.push(`${days[days.length - 1]}: his ${VENTURES[busy.kind].label.toLowerCase()} takes the day (${busy.day})`);
   const line = [...days.map((d, i) => (i < travel ? `${d} ✈ Travel` : `${d} ${ACTIVITIES[plan[i - travel]!].short}`)), ...(event ? [`Thu–Sun ${event.name}`] : [])].join(" · ");
   if (!open) {
     return (

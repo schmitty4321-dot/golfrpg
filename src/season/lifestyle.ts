@@ -1,4 +1,6 @@
 import { personalWealth } from "./finance";
+import { homeCityOf } from "./homeBase";
+import { ventureQ } from "./ventures";
 import { clamp } from "../engine";
 import { rankMap } from "./points";
 import { followers } from "./showcase";
@@ -54,7 +56,7 @@ export function qBaseline(world: World, wp: WorldPlayer): number {
 
 /** Where his Q rating is heading: the baseline plus everything he owns. */
 export function qTarget(world: World, wp: WorldPlayer): number {
-  return clamp(qBaseline(world, wp) + ownedLifestyle(wp).reduce((s, i) => s + i.qBonus, 0), 0, 100);
+  return clamp(qBaseline(world, wp) + ownedLifestyle(wp).reduce((s, i) => s + i.qBonus, 0) + ventureQ(wp), 0, 100);
 }
 
 /** His Q rating now (a new client starts at his baseline). */
@@ -98,7 +100,7 @@ export function buyLifestyle(world: World, clientId: string, itemId: string): vo
   }
   owned.push(itemId);
   c.finances.lifestyle = (c.finances.lifestyle ?? 0) + item.price - credit;
-  if (!credit) world.news.unshift(`${wp.player.name} buys a ${item.name}.`);
+  if (!credit) world.news.unshift(`${wp.player.name} buys a ${item.name}${item.kind === "home" ? ` in ${homeCityOf(wp).name}` : ""}.`);
 }
 
 /**

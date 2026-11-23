@@ -128,7 +128,7 @@ export function developmentCost(world: World, id: string, winter: WinterProgram 
 
 /** What he keeps from this season so far: prize money and endorsements, less commission and everything he paid for. */
 export function seasonNet(f: Finances): number {
-  return f.prizeMoney + f.endorsements - f.commission - f.caddie - f.travel - f.coaching - (f.training ?? 0) - (f.lifestyle ?? 0) - (f.equipment ?? 0);
+  return f.prizeMoney + f.endorsements - f.commission - f.caddie - f.travel - f.coaching - (f.training ?? 0) - (f.lifestyle ?? 0) - (f.equipment ?? 0) - (f.tax ?? 0) + (f.business ?? 0) - (f.ventures ?? 0);
 }
 
 /** What he had put by before he joined: a little cash plus about a quarter of his earlier career earnings. */

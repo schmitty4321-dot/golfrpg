@@ -1,8 +1,11 @@
-import { payBrands, recordClientWin, updateFollowers } from "./showcase";
+import { followers, payBrands, recordClientWin, updateFollowers } from "./showcase";
 import { brandGoalsWeek, noteBoldHeld, noteBrandResult, noteRyderTeam } from "./brandGoals";
 import { scoutTripsWeek } from "./scoutTrips";
 import { earlyTurnPros } from "./amateurs";
 import { lifestyleWeek } from "./lifestyle";
+import { familyWeek } from "./family";
+import { withVentureDay } from "./ventures";
+import { DRIVE_COST_SHARE, homeCrowd, homePracticeBoost, homeRecovery, noteHomeWeek, offWeekAtHome, taxWeek, withinDrive } from "./homeBase";
 import { checkChallenge } from "./challenges";
 import { trackBestRanks } from "./legacy";
 import { checkAchievements } from "./achievements";
@@ -69,7 +72,7 @@ import { rivalRecruitingWeek } from "./recruiting";
 
 /** What a client does this week. "auto" lets him pick his own schedule. */
 export type ClientChoice =
-  | { kind: "enter"; eventId: string; /** A practice round there first (older saves; the planner's days replace it). */ practice?: boolean; /** Monday to Wednesday. */ days?: DayActivity[] }
+  | { kind: "enter"; eventId: string; /** A practice round there first (older saves; the planner's days replace it). */ practice?: boolean; /** Monday to Wednesday. */ days?: DayActivity[]; /** Whether his family travels with him (missing: his call). */ family?: "travel" | "home" }
   | { kind: "rest"; /** The week off, Monday to Sunday. */ days?: DayActivity[] }
   | { kind: "auto" }
   /** A week's practice trip to any course, instead of an event. */
@@ -181,8 +184,9 @@ export function weekPlans(world: World, choices: ClientChoices): Map<string, Day
     const wp = world.players[id];
     if (!wp || !c || (c.kind !== "enter" && c.kind !== "rest")) continue;
     const event = c.kind === "enter" ? world.schedule.find((e) => e.id === c.eventId) : undefined;
-    const { days, travel } = weekDays(world, wp, event?.region ?? null);
-    out.set(id, fitPlan(c.days, days.length - travel, event ? EVENT_WEEK_ACTIVITIES : OFF_WEEK_ACTIVITIES, !!event));
+    const { days, travel } = weekDays(world, wp, event?.region ?? null, event?.courseId);
+    // His businesses take a day now and then (the podcast a media day, the design firm and academy a business day).
+    out.set(id, withVentureDay(world, wp, fitPlan(c.days, days.length - travel, event ? EVENT_WEEK_ACTIVITIES : OFF_WEEK_ACTIVITIES, !!event)));
   }
   return out;
 }
@@ -199,6 +203,9 @@ function tournamentConfig(world: World, f: FieldResult, i: number, practice: Map
   const all = Object.values(context);
   const fieldFamiliarity = all.reduce((s, c) => s + (c.familiarity ?? 0), 0) / Math.max(1, all.length);
   for (const c of all) c.fieldFamiliarity = fieldFamiliarity;
+  // The home crowd counts against the field's share of home players too.
+  const fieldHomeCrowd = all.filter((c) => c.homeCrowd).length / Math.max(1, all.length);
+  for (const c of all) c.fieldHomeCrowd = fieldHomeCrowd;
   // A hot rival in the field gets to your clients.
   const fieldSet = new Set(f.field);
   for (const id of f.field) {
@@ -383,7 +390,16 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
         m.finances.prizeMoney += r.earnings;
         chargeDevelopment(world, wp.player.id, Math.round(r.earnings * COACH_PRIZE_SHARE * coachesHired(world, wp.player.id)), "coaching");
         m.finances.caddie += caddie;
-        m.finances.travel += Math.round(TRAVEL_COST[f.event.region] * mode.cost);
+        // His family travels with him, or stays home (his call unless you choose).
+        m.happiness = clamp(m.happiness + familyWeek(world, wp, f.event, pc?.kind === "enter" && pc.eventId === f.event.id ? pc.family : undefined), 0, 100);
+        // A drive from home costs less than a flight.
+        m.finances.travel += Math.round(TRAVEL_COST[f.event.region] * mode.cost * (withinDrive(wp, f.event.courseId) ? DRIVE_COST_SHARE : 1));
+        // The home crowd: more press, more fans, and he loves it.
+        if (homeCrowd(wp, f.event.courseId) && f.event.tier !== "dev") {
+          m.followers = Math.round(followers(world, wp) * 1.01);
+          m.buzz = clamp((m.buzz ?? 0) + 0.02, -0.3, 0.3);
+          m.happiness = clamp(m.happiness + 2, 0, 100);
+        }
         const commission = prizeCut(m.contract, prizeBefore, r.earnings, f.event.tier === "major");
         m.finances.commission += commission;
         recordDealCommission(world, wp.player.id, commission);
@@ -453,7 +469,10 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
   // Everyone who didn't play rests.
   for (const wp of Object.values(world.players)) {
     if (playedIds.has(wp.player.id)) continue;
-    wp.player.condition = clamp(wp.player.condition + REST_RECOVERY * recoveryMultiplier(world, wp) * restRecoveryBoost(world, wp), 0, 100);
+    // A client's week off at home recovers more (his own house there, more again), and the homesickness goes.
+    const atHome = !!wp.client && choices[wp.player.id]?.kind !== "practice" && offWeekAtHome(world, wp);
+    if (atHome) noteHomeWeek(world, wp);
+    wp.player.condition = clamp(wp.player.condition + REST_RECOVERY * recoveryMultiplier(world, wp) * restRecoveryBoost(world, wp) * (atHome ? homeRecovery(wp) : 1), 0, 100);
     wp.player.form *= 0.9;
   }
   // Practice trips: the week at another course instead of resting.
@@ -466,7 +485,20 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
   }
   // Development directors fill and upgrade the staff they're trusted with, before the week's wages are paid.
   for (const id of world.clientIds) manageStaff(world, id);
-  endOfWeek(world, playedIds, rng, new Map([...plans].map(([id, p]) => [id, trainingBoost(p)])));
+  endOfWeek(
+    world,
+    playedIds,
+    rng,
+    new Map(
+      [...plans].map(([id, p]) => {
+        const boost = trainingBoost(p);
+        // Range work at home uses his home city's practice facilities.
+        const wp = world.players[id];
+        const home = wp && !playedIds.has(id) && choices[id]?.kind === "rest" && offWeekAtHome(world, wp);
+        return [id, home ? { ...boost, training: boost.training * homePracticeBoost(wp) } : boost];
+      }),
+    ),
+  );
   // A week longer together: the caddie and his player get to know each other.
   for (const id of world.clientIds) {
     const m = world.players[id]?.client;
@@ -518,6 +550,7 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
     scoutTripsWeek(world);
     earlyTurnPros(world);
     lifestyleWeek(world);
+    taxWeek(world);
     // A tax planner trims the running costs.
     const trim = hasSkill(world, "tax-planner") ? 0.95 : 1;
     const office = Math.round(hqTier(world.agency).office * trim);

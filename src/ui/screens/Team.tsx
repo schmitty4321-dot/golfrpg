@@ -15,6 +15,8 @@ import {
 import { money } from "../format";
 import { Portrait } from "../components/Portrait";
 import { ProfileEquipment } from "../components/ProfileGear";
+import { HomeBasePanel } from "../components/HomeBase";
+import { VenturesPanel } from "../components/Ventures";
 import { PlayerName } from "../components/PlayerLink";
 import type { Game } from "../useGame";
 
@@ -45,8 +47,10 @@ const bar = (v: number) => (
 export function Team({ world, game, clientId }: { world: World; game: Game; clientId: string }) {
   const wp = world.players[clientId]!;
   const m = wp.client!;
-  const caddies = caddiesOf(world);
-  const mine = caddies.find((k) => k.id === m.caddieId);
+  // The family caddie is his alone: offered below, not on the market.
+  const caddies = caddiesOf(world).filter((k) => !game.lib.isFamilyCaddie(k.id));
+  const family = game.lib.familyCaddie(world, clientId);
+  const mine = caddiesOf(world).find((k) => k.id === m.caddieId);
   const mode = travelMode(world, wp);
   const act = game.act;
   const [caddiePage, setCaddiePage] = useState(0);
@@ -67,6 +71,12 @@ export function Team({ world, game, clientId }: { world: World; game: Game; clie
           </p>
         ) : (
           <p className="muted" style={{ marginTop: 0 }}>No caddie hired: a tour caddie on a standard deal ($2,000 a week plus a share of winnings).</p>
+        )}
+        {m.caddieId !== family.id && (
+          <p className="small">
+            <strong>{family.name}</strong> would carry the bag: {money(family.weeklyFee)}/wk, {Math.round(family.share * 100)}% of winnings, chemistry starts at {game.lib.caddieChemistry(game.lib.FAMILY_CADDIE_WEEKS)}, but greens {family.greenReading}, clubs {family.clubbing}, calm {family.calm}.{" "}
+            <button className="btn btn-small" onClick={() => act((w) => game.lib.hireFamilyCaddie(w, clientId))}>Hire family</button>
+          </p>
         )}
         <div className="person-market">
               {shownCaddies.map((k) => {
@@ -94,6 +104,10 @@ export function Team({ world, game, clientId }: { world: World; game: Game; clie
 
       {/* His clubs and apparel at a glance; buying and swapping are in the Store. */}
       <ProfileEquipment wp={wp} world={world} game={game} />
+
+      <HomeBasePanel world={world} game={game} clientId={clientId} />
+
+      <VenturesPanel world={world} game={game} clientId={clientId} />
 
       <section className="panel">
         <div className="panel-head">
