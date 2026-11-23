@@ -5,6 +5,8 @@ import { ShotOfTheWeek } from "../components/Highlights";
 import { InboxPanel } from "../components/Inbox";
 import {
   FULL_CARD,
+  VENTURES,
+  ventureDay,
   REGION_NAMES,
   seasonWeeks,
   PRO_AGE,
@@ -441,6 +443,9 @@ function DayPlanner({ world, id, choice, entered, onChoose, open, onToggle }: { 
   if (count(plan, "sponsor") > 0) notes.push("Sponsor goodwill");
   if (count(plan, "media") > 0) notes.push("Agency profile");
   if (cost.condition === 0 && cost.fees === 0 && !count(plan, "media")) notes.push("All rest: nothing gained, nothing spent");
+  // His businesses take his last free day now and then.
+  const busy = plan.length ? ventureDay(world, wp) : null;
+  if (busy) notes.push(`${days[days.length - 1]}: his ${VENTURES[busy.kind].label.toLowerCase()} takes the day (${busy.day})`);
   const line = [...days.map((d, i) => (i < travel ? `${d} ✈ Travel` : `${d} ${ACTIVITIES[plan[i - travel]!].short}`)), ...(event ? [`Thu–Sun ${event.name}`] : [])].join(" · ");
   if (!open) {
     return (

@@ -210,11 +210,11 @@ export const taxOn = (world: World): boolean => world.homeTax !== false;
 /** His tax rate where he lives now (0 when the setting is off). */
 export const taxRate = (world: World, wp: WorldPlayer): number => (taxOn(world) ? homeCityOf(wp).tax : 0);
 
-/** Income that tax is due on: prize money and endorsements, after the agency's commission. */
+/** Income that tax is due on: prize money, endorsements and business profits, after the agency's commission. */
 export function taxableIncome(wp: WorldPlayer): number {
   const f = wp.client?.finances;
   if (!f) return 0;
-  return f.prizeMoney + f.endorsements - f.commission;
+  return f.prizeMoney + f.endorsements + Math.max(0, f.business ?? 0) - f.commission;
 }
 
 /**

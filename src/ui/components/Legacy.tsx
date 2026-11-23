@@ -1,4 +1,4 @@
-import { alumni, eras, legacyScore, type World } from "../../season";
+import { VENTURES, alumni, eras, legacyScore, type World } from "../../season";
 import { PlayerName } from "./PlayerLink";
 
 const STATUS = { elsewhere: "Still playing", retired: "Retired", coaching: "Coaching (on your coach market)" } as const;
@@ -58,7 +58,7 @@ export function LegacyPanel({ world }: { world: World }) {
                   <td className="num">{a.wins}</td>
                   <td className="num">{a.majors}</td>
                   <td className="num">{a.bestRank < 999 ? `#${a.bestRank}` : "—"}</td>
-                  <td className="small">{STATUS[a.status]}</td>
+                  <td className="small">{STATUS[a.status]}{a.ventures?.length ? ` · ${a.ventures.map((v) => VENTURES[v.kind].label.toLowerCase()).join(", ")}${a.venturePayout ? `, worth $${(a.venturePayout / 1e6).toFixed(1)}M at retirement` : ""}` : ""}</td>
                 </tr>
               ))}
             </tbody>

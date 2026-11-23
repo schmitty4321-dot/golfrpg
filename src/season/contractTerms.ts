@@ -21,6 +21,8 @@ export interface DealExtras {
   releaseClause?: number;
   /** A weekly retainer he pays the agency whatever his results: steady income in a slump. */
   retainer?: number;
+  /** The agency's share of the profits from his own businesses (see ventures.ts). */
+  businessShare?: number;
 }
 
 /** The season prize money at which a ladder or star deal changes rate, and by how much. */
@@ -37,6 +39,7 @@ export const WIN_BONUS_STEPS = [0, 25_000, 50_000, 100_000];
 export const SIGNING_BONUS_STEPS = [0, 50_000, 150_000, 300_000];
 export const RELEASE_CLAUSE_STEPS = [0, 500_000, 1_500_000, 4_000_000];
 export const RETAINER_STEPS = [0, 500, 1_000, 2_000];
+export const BUSINESS_SHARE_STEPS = [0, 0.05, 0.1, 0.2];
 
 /**
  * The agency's cut of one event's prize money: the rate for this event (majors can differ),
@@ -71,6 +74,8 @@ export function extrasAppeal(wp: WorldPlayer, worldRank: number, x: DealExtras |
   if (wp.player.attributes.ambition >= 15 && x.releaseClause) score += 1;
   // A retainer stings most for those who earn least.
   if (x.retainer) score -= (x.retainer / 500) * (worldRank > 125 ? 3 : worldRank > 50 ? 2 : 1);
+  // A cut of his own businesses: he'd rather keep them his, more so when he has some.
+  if (x.businessShare) score -= x.businessShare * 100 * 0.4 * ((wp.client?.ventures?.length ?? 0) > 0 ? 2 : 1);
   return score;
 }
 
@@ -85,6 +90,7 @@ export function describeExtras(x: DealExtras | undefined): string {
   if (x.signingBonus) parts.push(`${k(x.signingBonus)} signing bonus`);
   if (x.releaseClause) parts.push(`${k(x.releaseClause)} release clause`);
   if (x.retainer) parts.push(`$${x.retainer.toLocaleString("en-US")} a week retainer`);
+  if (x.businessShare) parts.push(`${Math.round(x.businessShare * 100)}% of business profits`);
   return parts.join(", ");
 }
 
@@ -98,5 +104,6 @@ export function cleanExtras(x: DealExtras | undefined): DealExtras | undefined {
   if (x.signingBonus) out.signingBonus = x.signingBonus;
   if (x.releaseClause) out.releaseClause = x.releaseClause;
   if (x.retainer) out.retainer = x.retainer;
+  if (x.businessShare) out.businessShare = x.businessShare;
   return Object.keys(out).length ? out : undefined;
 }

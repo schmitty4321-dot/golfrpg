@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { WISHES, rivalBidFor, cardsInHand, knownWishes, leverage, maxYears, roundsFor, wishMet, commissionGrace, interestedAgencies, marketRate, negotiationFor, offerBlock, RELEASE_CLAUSE_STEPS, RETAINER_STEPS, SIGNING_BONUS_STEPS, STRUCTURE_LABELS, WIN_BONUS_STEPS, cleanExtras, describeTerms, warmth, type CommissionStructure, type PromiseKind, type World } from "../../season";
+import { WISHES, rivalBidFor, cardsInHand, knownWishes, leverage, maxYears, roundsFor, wishMet, commissionGrace, interestedAgencies, marketRate, negotiationFor, offerBlock, RELEASE_CLAUSE_STEPS, RETAINER_STEPS, BUSINESS_SHARE_STEPS, SIGNING_BONUS_STEPS, STRUCTURE_LABELS, WIN_BONUS_STEPS, cleanExtras, describeTerms, warmth, type CommissionStructure, type PromiseKind, type World } from "../../season";
 import type { Game } from "../useGame";
 import { PromisePicker } from "./Promises";
 import { PlayerName } from "./PlayerLink";
@@ -20,9 +20,10 @@ export function NegotiationTable({ world, game, playerId, onClose }: { world: Wo
   const [signing, setSigning] = useState(was?.signingBonus ?? 0);
   const [clause, setClause] = useState(was?.releaseClause ?? 0);
   const [retainer, setRetainer] = useState(was?.retainer ?? 0);
+  const [bizShare, setBizShare] = useState(was?.businessShare ?? 0);
   if (!n || n.playerId !== playerId || !wp) return null;
   const open = n.status === "open";
-  const extras = cleanExtras({ structure, ...(majors !== "same" ? { majorCommission: majors / 100 } : {}), winBonus, signingBonus: signing, releaseClause: clause, retainer });
+  const extras = cleanExtras({ structure, ...(majors !== "same" ? { majorCommission: majors / 100 } : {}), winBonus, signingBonus: signing, releaseClause: clause, retainer, businessShare: bizShare });
   const terms = { commission: commission / 100, years, promises, ...(extras ? { extras } : {}) };
   const k = (n: number) => (n === 0 ? "None" : n >= 1e6 ? `$${(n / 1e6).toFixed(1)}M` : `$${n / 1000}k`);
   const blocked = n ? offerBlock(world, n) : null;
@@ -116,6 +117,11 @@ export function NegotiationTable({ world, game, playerId, onClose }: { world: Wo
                   <label className="small secondary" title="He pays the agency this every week, whatever his results">Retainer
                     <select value={retainer} onChange={(e) => setRetainer(Number(e.target.value))} style={{ marginLeft: 6 }}>
                       {RETAINER_STEPS.map((v) => <option key={v} value={v}>{v ? `$${v.toLocaleString("en-US")}/wk` : "None"}</option>)}
+                    </select>
+                  </label>
+                  <label className="small secondary" title="The agency's share of the profits from his own businesses. He'd rather keep them his.">Business share
+                    <select value={bizShare} onChange={(e) => setBizShare(Number(e.target.value))} style={{ marginLeft: 6 }}>
+                      {BUSINESS_SHARE_STEPS.map((v) => <option key={v} value={v}>{v ? `${Math.round(v * 100)}%` : "None"}</option>)}
                     </select>
                   </label>
                   <label className="small secondary" title="A rival can pay this to take him while he's restless">Release clause

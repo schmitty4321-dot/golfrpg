@@ -16,6 +16,7 @@ import { money } from "../format";
 import { Portrait } from "../components/Portrait";
 import { ProfileEquipment } from "../components/ProfileGear";
 import { HomeBasePanel } from "../components/HomeBase";
+import { VenturesPanel } from "../components/Ventures";
 import { PlayerName } from "../components/PlayerLink";
 import type { Game } from "../useGame";
 
@@ -102,6 +103,8 @@ export function Team({ world, game, clientId }: { world: World; game: Game; clie
       <ProfileEquipment wp={wp} />
 
       <HomeBasePanel world={world} game={game} clientId={clientId} />
+
+      <VenturesPanel world={world} game={game} clientId={clientId} />
 
       <section className="panel">
         <div className="panel-head">

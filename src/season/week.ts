@@ -4,6 +4,7 @@ import { scoutTripsWeek } from "./scoutTrips";
 import { earlyTurnPros } from "./amateurs";
 import { lifestyleWeek } from "./lifestyle";
 import { familyWeek } from "./family";
+import { withVentureDay } from "./ventures";
 import { DRIVE_COST_SHARE, homeCrowd, homePracticeBoost, homeRecovery, noteHomeWeek, offWeekAtHome, taxWeek, withinDrive } from "./homeBase";
 import { checkChallenge } from "./challenges";
 import { trackBestRanks } from "./legacy";
@@ -181,7 +182,8 @@ export function weekPlans(world: World, choices: ClientChoices): Map<string, Day
     if (!wp || !c || (c.kind !== "enter" && c.kind !== "rest")) continue;
     const event = c.kind === "enter" ? world.schedule.find((e) => e.id === c.eventId) : undefined;
     const { days, travel } = weekDays(world, wp, event?.region ?? null, event?.courseId);
-    out.set(id, fitPlan(c.days, days.length - travel, event ? EVENT_WEEK_ACTIVITIES : OFF_WEEK_ACTIVITIES, !!event));
+    // His businesses take a day now and then (the podcast a media day, the design firm and academy a business day).
+    out.set(id, withVentureDay(world, wp, fitPlan(c.days, days.length - travel, event ? EVENT_WEEK_ACTIVITIES : OFF_WEEK_ACTIVITIES, !!event)));
   }
   return out;
 }

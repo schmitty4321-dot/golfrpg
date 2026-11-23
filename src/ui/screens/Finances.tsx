@@ -172,7 +172,7 @@ function ClientMoney({ world }: { world: World }) {
       {world.clientIds.map((id) => {
         const wp = world.players[id]!;
         const f = wp.client!.finances;
-        const expenses = f.caddie + f.travel + f.coaching + (f.training ?? 0) + (f.equipment ?? 0) + (f.lifestyle ?? 0) + (f.tax ?? 0);
+        const expenses = f.caddie + f.travel + f.coaching + (f.training ?? 0) + (f.equipment ?? 0) + (f.lifestyle ?? 0) + (f.tax ?? 0) + (f.ventures ?? 0) - (f.business ?? 0);
         const net = f.prizeMoney + f.endorsements - expenses - f.commission;
         return <article className="client-money-card" key={id}>
           <div className="client-money-person"><Portrait player={wp.player} size={70} title={wp.player.name} /><strong><PlayerName id={id}>{wp.player.name}</PlayerName></strong></div>
@@ -198,6 +198,7 @@ function LedgerTable({ l }: { l: AgencyLedger }) {
     ["Win bonuses from contracts", l.winBonuses ?? 0, false],
     ["Retainers from contracts", l.retainers ?? 0, false],
     ["Investments (returns less running costs)", l.investments ?? 0, false],
+    ["Share of clients' business profits", l.businessShare ?? 0, false],
     ["Buyouts and release clauses", l.buyouts ?? 0, false],
     ["Brand partnerships", l.brands ?? 0, false],
     ["Brand goal bonuses", l.brandBonuses ?? 0, false],

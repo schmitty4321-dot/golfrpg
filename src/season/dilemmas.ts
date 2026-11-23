@@ -11,6 +11,8 @@ import { rankMap } from "./points";
 import { has } from "./traits";
 import { childAges, familyOf, hasFamily, hasSchoolKids } from "./family";
 import { withinDrive } from "./homeBase";
+import { VENTURES, ownsVenture, venturesOf } from "./ventures";
+import { personalWealth } from "./finance";
 import { absWeek, type CoachRole, type EventRecord, type TourEvent, type World, type WorldPlayer } from "./types";
 
 export interface DilemmaContext {
@@ -269,6 +271,50 @@ const TEMPLATES: Template[] = [
     defaultChoice: "bring",
   },
   {
+    key: "apparel-clash",
+    big: true,
+    cooldown: 40,
+    chance: 0.15,
+    fits: (c) => ownsVenture(c.wp, "apparel") && c.wp.client!.sponsors.some((s) => s.category === "apparel"),
+    title: (c) => `${name(c)}'s apparel sponsor objects`,
+    text: (c) => `${c.wp.client!.sponsors.find((s) => s.category === "apparel")!.sponsor} says his own clothing line breaks the spirit of their deal.`,
+    choices: () => [
+      { id: "keep", label: "Keep his line", detail: "The sponsor walks away now.", effects: [{ k: "endSponsor", category: "apparel" }, { k: "mood", v: 2 }] },
+      { id: "shelve", label: "Shelve the line", detail: "He gets 60% of what he put in back; the sponsor stays.", effects: [{ k: "closeVenture", kind: "apparel", share: 0.6 }, { k: "mood", v: -3 }] },
+    ],
+    defaultChoice: "shelve",
+  },
+  {
+    key: "venture-expand",
+    cooldown: 52,
+    chance: 0.04,
+    fits: (c) => expandable(c) !== null,
+    title: (c) => `${name(c)} could grow his ${VENTURES[expandable(c)!.kind].label.toLowerCase()}`,
+    text: (c) => `It made ${k(expandable(c)!.last ?? 0).toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })} last winter. A partner suggests putting more in.`,
+    choices: (c) => {
+      const v = expandable(c)!;
+      const more = k(v.stake * 0.5);
+      return [
+        { id: "grow", label: "Put more in", detail: "He pays; bigger results either way from next winter.", effects: [{ k: "ventureStake", kind: v.kind, v: more, paid: true }, { k: "mood", v: 1 }] },
+        { id: "hold", label: "Keep it as it is", detail: "Nothing changes.", effects: [] },
+      ];
+    },
+    defaultChoice: "hold",
+  },
+  {
+    key: "tech-round",
+    cooldown: 52,
+    chance: 0.05,
+    fits: (c) => ownsVenture(c.wp, "techStake") && personalWealth(c.wp) >= 1_000_000,
+    title: (c) => `${name(c)}'s startup is raising money`,
+    text: () => "The tech company is raising a new round. Put more in, or let his share shrink.",
+    choices: () => [
+      { id: "in", label: "Put in $1M more", detail: "His stake grows: more to win, more to lose.", effects: [{ k: "ventureStake", kind: "techStake", v: 1_000_000, paid: true }] },
+      { id: "out", label: "Sit this one out", detail: "His share is diluted by a fifth.", effects: [{ k: "ventureStake", kind: "techStake", v: -600_000, paid: false }] },
+    ],
+    defaultChoice: "out",
+  },
+  {
     key: "tv-interview",
     cooldown: 6,
     chance: 0.5,
@@ -381,6 +427,12 @@ const TEMPLATES: Template[] = [
     defaultChoice: "no",
   },
 ];
+
+/** A restaurant or podcast that made money last winter, and the money to grow it. */
+function expandable(c: DilemmaContext) {
+  const v = venturesOf(c.wp).find((x) => (x.kind === "restaurant" || x.kind === "podcast") && (x.last ?? 0) > 0);
+  return v && personalWealth(c.wp) >= v.stake * 0.5 ? v : null;
+}
 
 /** A veteran with children: he wants to be home more, not play more. */
 const familyVeteran = (c: DilemmaContext): boolean => c.wp.player.age >= 36 && childAges(c.world, c.wp).length > 0;

@@ -12,7 +12,7 @@ import { travelDays } from "./team";
 import type { Region, World, WorldPlayer } from "./types";
 import { addReputation } from "./agency";
 
-export type DayActivity = "rest" | "range" | "gym" | "practice" | "sponsor" | "media";
+export type DayActivity = "rest" | "range" | "gym" | "practice" | "sponsor" | "media" | "business";
 
 export const ACTIVITIES: Record<DayActivity, { label: string; short: string; blurb: string; condition: number; fee: number }> = {
   rest: { label: "Rest", short: "Rest", blurb: "Recover. Costs nothing.", condition: 0, fee: 0 },
@@ -20,6 +20,7 @@ export const ACTIVITIES: Record<DayActivity, { label: string; short: string; blu
   gym: { label: "Gym", short: "Gym", blurb: "Recovers 2 condition, lowers injury risk, and stamina and flexibility grow 30% faster this week.", condition: 0, fee: 0 },
   practice: { label: "Practice round", short: "Practice", blurb: "Learn this week's course: familiarity well up before the event.", condition: -1, fee: 2_500 },
   sponsor: { label: "Sponsor day", short: "Sponsor", blurb: "Keeps sponsors sweet: a new offer is likelier, and he's paid an appearance fee.", condition: -1, fee: 0 },
+  business: { label: "Business day", short: "Business", blurb: "His own businesses take the day: site visits, meetings.", condition: 0, fee: 0 },
   media: { label: "Media day", short: "Media", blurb: "Interviews and content: a little reputation for the agency (one media day a week counts); some players hate it.", condition: 0, fee: 0 },
 };
 

@@ -356,6 +356,8 @@ export interface ClientManagement {
   movedSeason?: number;
   /** His family is with him on tour every week up to this one (absolute; a school-holidays decision). */
   familyTourUntil?: number;
+  /** His own businesses (see ventures.ts). */
+  ventures?: import("./ventures").Venture[];
 }
 
 /** Single, a partner or married, and children by the season they were born. */
@@ -474,6 +476,8 @@ export interface AgencyLedger {
   investments?: number;
   /** Capital put into investments (less sales): an asset, not a cost. */
   invested?: number;
+  /** The agency's share of clients' business profits, where a contract has one. */
+  businessShare?: number;
 }
 
 /** A scout out gathering intel on one player: he reports when the weeks run out. */
@@ -618,6 +622,9 @@ export interface Finances {
   /** Income tax where he lives (see homeBase.ts), and the income it has been worked out on so far. */
   tax?: number;
   taxedIncome?: number;
+  /** His businesses: this winter's results (+ or −), and money put in less sales (see ventures.ts). */
+  business?: number;
+  ventures?: number;
   /** Your agency's cut of prize money and endorsements. */
   commission: number;
 }
