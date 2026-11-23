@@ -33,7 +33,7 @@ import { manageStaff } from "./managers";
 import { amateurWeek } from "./amateurResults";
 import { familiarityWith, recordFamiliarity } from "./familiarity";
 import { courseRegion, takePracticeRound, takePracticeTrip } from "./practice";
-import { caddiePay, payJet, travelMode } from "./team";
+import { caddiePay, kitAfterEvent, payJet, travelMode } from "./team";
 import { ensureGoals } from "./goals";
 import { EVENT_WEEK_ACTIVITIES, OFF_WEEK_ACTIVITIES, applyPlan, familiarityAfterPractice, fitPlan, trainingBoost, weekDays, type DayActivity } from "./planner";
 import {
@@ -317,6 +317,7 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
         owgrPoints: r.madeCut ? owgrPointsFor(winnerOwgr, r.position, count) : 0,
         sgPerRound: Math.round(r.sgPerRound * 100) / 100 + 0, // + 0: no negative zero, which a save can't keep
         madeCut: r.madeCut,
+        ...(wp.client && !result.bracket && r.rounds.length > 0 ? { putting: Math.round((r.sg.putting / r.rounds.length) * 100) / 100 + 0 } : {}),
         via: f.mondayQualifiers.includes(r.player.id) ? "monday" : "field",
       };
       c.results.push(record);
@@ -368,6 +369,8 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
 
       if (wp.client) {
         const m = wp.client;
+        // A new putter's lift fades event by event.
+        kitAfterEvent(wp);
         // Contending hardens a client's mind (the tour's own players are calibrated without it).
         if (r.madeCut) pressureGrowth(wp, r.position, f.event.tier);
         if (r.madeCut) checkBreakthrough(world, wp, r.position, f.event.tier);

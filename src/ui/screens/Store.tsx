@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Check, CircleDollarSign, Search, ShoppingBag, SlidersHorizontal, Sparkles, Star } from "lucide-react";
-import { APPAREL_LABELS, APPAREL_SLOTS, EQUIPMENT, EQUIPMENT_SLOTS, SLOT_LABELS, type EquipmentModel, type GearSlot } from "../../engine";
+import { APPAREL_LABELS, APPAREL_SLOTS, EQUIPMENT, EQUIPMENT_SLOTS, KIT_LABELS, KIT_SLOTS, type EquipmentModel, type GearSlot } from "../../engine";
 import { LIFESTYLE_ITEMS, buyLifestyle, equip, lifestyleBlock, ownedLifestyle, personalWealth, qRating, qTarget, type LifestyleItem, type LifestyleKind, type World } from "../../season";
 import { CutoutPortrait } from "../components/Portrait";
 import { money } from "../format";
@@ -10,8 +10,8 @@ import type { Game } from "../useGame";
 type StoreCategory = GearSlot | LifestyleKind;
 type StoreItem = { kind: "gear"; value: EquipmentModel } | { kind: "lifestyle"; value: LifestyleItem };
 
-const slotLabel = (slot: GearSlot): string => (slot in SLOT_LABELS ? SLOT_LABELS[slot as keyof typeof SLOT_LABELS] : APPAREL_LABELS[slot as keyof typeof APPAREL_LABELS]);
-const makerOf = (m: EquipmentModel) => m.name.split(" ")[0] ?? "Tour";
+const slotLabel = (slot: GearSlot): string => (slot in KIT_LABELS ? KIT_LABELS[slot as keyof typeof KIT_LABELS] : APPAREL_LABELS[slot as keyof typeof APPAREL_LABELS]);
+const makerOf = (m: EquipmentModel) => m.brand ?? m.name.split(" ")[0] ?? "Tour";
 const SPECIALTY_CLUB_ART = new Set([
   "driver-standard", "driver-bomber", "driver-fairway", "driver-adjustable",
   "irons-standard", "irons-blades", "irons-gi", "irons-combo",
@@ -21,6 +21,7 @@ const SPECIALTY_CLUB_ART = new Set([
 const artFor = (category: StoreCategory, id?: string): string => {
   if (id && SPECIALTY_CLUB_ART.has(id)) return `art/clubs/specialty/${id}.webp`;
   if (id && (id.startsWith("ap-") || id.startsWith("home-") || id.startsWith("car-"))) return `art/store/items/${id}.webp`;
+  if (category === "ball") return "art/clubs/ball.svg";
   if ((EQUIPMENT_SLOTS as readonly string[]).includes(category)) return `art/clubs/${category}.webp`;
   if ((APPAREL_SLOTS as readonly string[]).includes(category)) return "art/sponsors/apparel.webp";
   if (category === "home") return "art/facilities/hq-3.webp";
@@ -50,7 +51,7 @@ export function Store({ world, game, clientId }: { world: World; game: Game; cli
   const [page, setPage] = useState(0);
   const [selectedId, setSelectedId] = useState("driver-bomber");
 
-  const isGear = [...EQUIPMENT_SLOTS, ...APPAREL_SLOTS].includes(category as GearSlot);
+  const isGear = [...KIT_SLOTS, ...APPAREL_SLOTS].includes(category as GearSlot);
   const brands = useMemo(() => isGear ? [...new Set(EQUIPMENT.filter((m) => m.slot === category && m.price > 0).map(makerOf))] : [], [category, isGear]);
   const items = useMemo<StoreItem[]>(() => {
     const query = search.trim().toLowerCase();
@@ -120,7 +121,7 @@ export function Store({ world, game, clientId }: { world: World; game: Game; cli
         <div className="shop-shell">
           <aside className="shop-categories">
             <strong>CLUBS</strong>
-            {EQUIPMENT_SLOTS.map((slot) => <button key={slot} aria-selected={category === slot} onClick={() => chooseCategory(slot)}>{SLOT_LABELS[slot]}<span>›</span></button>)}
+            {KIT_SLOTS.map((slot) => <button key={slot} aria-selected={category === slot} onClick={() => chooseCategory(slot)}>{KIT_LABELS[slot]}<span>›</span></button>)}
             <strong>APPAREL</strong>
             {APPAREL_SLOTS.map((slot) => <button key={slot} aria-selected={category === slot} onClick={() => chooseCategory(slot)}>{APPAREL_LABELS[slot]}<span>›</span></button>)}
             <strong>LIFESTYLE</strong>

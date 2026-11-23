@@ -290,7 +290,7 @@ export function roundForm(ctx: RoundContext): StrokesGained {
   traits.sg.approach += local.approach;
   traits.sg.putting += local.putting;
   // His clubs and his caddie.
-  const bag = equipmentRound(ctx.player, !ctx.weather.rain && ctx.course.firmness > 0.6, ctx.weather.rain);
+  const bag = equipmentRound(ctx.player, !ctx.weather.rain && ctx.course.firmness > 0.6, ctx.weather.rain, ctx.weather.windMph[ctx.wave]);
   const caddie = caddieRound(ctx.event?.caddie);
   for (const k of SG_CATEGORIES) {
     traits.sg[k] += bag.sg[k];

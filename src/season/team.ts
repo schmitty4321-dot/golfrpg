@@ -3,8 +3,8 @@
  * the agency jet), and the clubs in his bag.
  */
 import { personalWealth } from "./finance";
-import { EQUIPMENT_BY_ID, clamp, createRng, type CaddieOnBag, type EquipmentSlot } from "../engine";
-import type { Caddie, Region, TravelClass, World, WorldPlayer } from "./types";
+import { EQUIPMENT_BY_ID, clamp, createRng, traceSeed, type CaddieOnBag, type KitSlot, type StrokesGained } from "../engine";
+import { absWeek, type Caddie, type Region, type TravelClass, type World, type WorldPlayer } from "./types";
 
 // ------------------------------------------------------------------ caddies
 
@@ -158,4 +158,93 @@ export function equip(world: World, clientId: string, modelId: string): void {
   wp.player.equipment = { ...(wp.player.equipment ?? {}), [m.slot]: modelId };
 }
 
-export const inBag = (wp: WorldPlayer, slot: EquipmentSlot): string | undefined => wp.player.equipment?.[slot];
+export const inBag = (wp: WorldPlayer, slot: KitSlot): string | undefined => wp.player.equipment?.[slot];
+
+// ------------------------------------------------------------------ the putter swap
+
+/** A putting week this bad (strokes gained a round against the field) counts as cold. */
+export const COLD_PUTTING = -0.3;
+/** Weeks before he can swap putters again. */
+export const PUTTER_SWAP_COOLDOWN = 4;
+/** A new putter's "fresh eyes": strokes a round on the greens in his first and second events with it. */
+export const PUTTER_FRESH = [0.1, 0.05];
+/** The odds a new putter just feels wrong, and what that costs in those two events. */
+export const PUTTER_WRONG_CHANCE = 0.2;
+export const PUTTER_WRONG = -0.05;
+
+/** How many of his latest events in a row he putted cold (stroke play, as your client). */
+export function coldPuttingStreak(wp: WorldPlayer): number {
+  let n = 0;
+  for (let i = wp.career.results.length - 1; i >= 0; i--) {
+    const p = wp.career.results[i]!.putting;
+    if (p === undefined || p > COLD_PUTTING) break;
+    n++;
+  }
+  return n;
+}
+
+/** Why he can't swap putters this week, or null. */
+export function putterSwapBlock(world: World, clientId: string): string | null {
+  const wp = world.players[clientId];
+  if (!wp?.client) return "He isn't your client.";
+  const swap = wp.client.putterSwap;
+  const now = absWeek(world.season, world.week);
+  if (swap && now - swap.absWeek < PUTTER_SWAP_COOLDOWN) {
+    const left = PUTTER_SWAP_COOLDOWN - (now - swap.absWeek);
+    return `He changed putters ${now - swap.absWeek === 0 ? "this week" : "recently"}: give it ${left} more week${left === 1 ? "" : "s"}.`;
+  }
+  const cold = coldPuttingStreak(wp);
+  if (cold < 2) return cold === 1 ? "His putting was cold last time out. One more bad week on the greens and a new putter might help." : "His putting isn't cold. A swap helps when he's lost his touch for two events or more.";
+  return null;
+}
+
+/** What his putter swap is worth on the greens in his next event (0 once it has faded). */
+export function putterSwapLift(wp: WorldPlayer): number {
+  const s = wp.client?.putterSwap;
+  if (!s || s.played >= PUTTER_FRESH.length) return 0;
+  return s.feel === "wrong" ? PUTTER_WRONG : PUTTER_FRESH[s.played]!;
+}
+
+/**
+ * He puts a new putter in the bag after a cold spell: usually a lift for an
+ * event or two, sometimes it just feels wrong. Seeded by the world, the
+ * player and the week, so the same swap always turns out the same.
+ */
+export function swapPutter(world: World, clientId: string): string {
+  const block = putterSwapBlock(world, clientId);
+  if (block) return block;
+  const wp = world.players[clientId]!;
+  const now = absWeek(world.season, world.week);
+  const rng = createRng(traceSeed(world.seed, wp.player.id, now, "putter-swap"));
+  const feel = rng.chance(PUTTER_WRONG_CHANCE) ? "wrong" : "fresh";
+  wp.client!.putterSwap = { absWeek: now, played: 0, feel };
+  refreshKitAdjust(wp);
+  world.news.unshift(
+    feel === "fresh"
+      ? `${wp.player.name} tries a new putter after a cold spell on the greens. He likes the look of it.`
+      : `${wp.player.name} tries a new putter after a cold spell on the greens, but it doesn't sit right in his hands.`,
+  );
+  return feel === "fresh" ? "He likes the look of it." : "It doesn't feel right.";
+}
+
+/** The kit's passing effects on his game this week (the putter swap; the club switch adds to it). */
+export function kitAdjustOf(wp: WorldPlayer): Partial<StrokesGained> | undefined {
+  const out: Partial<StrokesGained> = {};
+  const lift = putterSwapLift(wp);
+  if (lift) out.putting = lift;
+  return Object.keys(out).length ? out : undefined;
+}
+
+/** Puts the kit's passing effects on the player, where the course sees them. */
+export function refreshKitAdjust(wp: WorldPlayer): void {
+  const adj = kitAdjustOf(wp);
+  if (adj) wp.player.kitAdjust = adj;
+  else delete wp.player.kitAdjust;
+}
+
+/** After each event he plays: a new putter's lift fades. */
+export function kitAfterEvent(wp: WorldPlayer): void {
+  const s = wp.client?.putterSwap;
+  if (s && s.played < PUTTER_FRESH.length) s.played++;
+  refreshKitAdjust(wp);
+}

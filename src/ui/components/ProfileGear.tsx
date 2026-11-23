@@ -1,5 +1,5 @@
-import { EQUIPMENT, EQUIPMENT_SLOTS, SLOT_LABELS, STANDARD } from "../../engine";
-import { APPAREL_ITEMS, APPAREL_LABELS, BRAND_ART, COACH_ROLES, MANAGER_LABEL, MANAGER_SKILLS, availableManagers, weeklyStaffCost, wardrobe, type World, type WorldPlayer } from "../../season";
+import { EQUIPMENT, KIT_LABELS, KIT_SLOTS, KIT_STANDARD } from "../../engine";
+import { APPAREL_ITEMS, APPAREL_LABELS, BRAND_ART, COACH_ROLES, MANAGER_LABEL, MANAGER_SKILLS, availableManagers, coldPuttingStreak, putterSwapBlock, putterSwapLift, swapPutter, weeklyStaffCost, wardrobe, type World, type WorldPlayer } from "../../season";
 import { money } from "../format";
 import type { Game } from "../useGame";
 import { StaffRow } from "../screens/Training";
@@ -85,7 +85,35 @@ export function ProfileCoaches({ world, game, wp }: { world: World; game: Game; 
 }
 
 /** What's in his bag, and who dresses him. */
-export function ProfileEquipment({ wp }: { wp: WorldPlayer }) {
+/** The putter swap: open after two cold putting weeks in a row, then a four-week wait. */
+function PutterSwapPanel({ world, game, wp }: { world: World; game: Game; wp: WorldPlayer }) {
+  const id = wp.player.id;
+  const block = putterSwapBlock(world, id);
+  const lift = putterSwapLift(wp);
+  const swap = wp.client?.putterSwap;
+  const cold = coldPuttingStreak(wp);
+  return (
+    <section className="panel">
+      <div className="panel-head">
+        <h2>Putter swap</h2>
+        <span className="secondary small">{cold >= 2 ? `Cold on the greens ${cold} events running` : cold === 1 ? "Cold on the greens last time out" : "Putting is fine"}</span>
+      </div>
+      <p style={{ marginTop: 0 }}>
+        {lift > 0
+          ? `His new putter has him seeing the line again: +${lift.toFixed(2)} putting a round next time out.`
+          : lift < 0
+            ? `The new putter doesn't sit right: ${lift.toFixed(2)} putting a round next time out.`
+            : swap
+              ? "The new putter's lift has worn off."
+              : "A new putter can wake up a cold putting stroke for an event or two."}
+      </p>
+      <button className="btn btn-small" disabled={!!block} onClick={() => game.act((w) => swapPutter(w, id))}>Try a new putter</button>
+      <p className="muted small">{block ?? "Usually +0.10 putting a round in his next event, +0.05 in the one after, then it fades. One time in five it just feels wrong (−0.05). He can swap again after four weeks."}</p>
+    </section>
+  );
+}
+
+export function ProfileEquipment({ wp, world, game }: { wp: WorldPlayer; world?: World; game?: Game }) {
   const clubDeal = wp.client?.sponsors.find((s) => s.category === "equipment");
   const kit = wardrobe(wp);
   const base = import.meta.env.BASE_URL;
@@ -97,12 +125,12 @@ export function ProfileEquipment({ wp }: { wp: WorldPlayer }) {
           <span className="secondary small">{clubDeal ? `Club deal: ${clubDeal.sponsor}, ${money(clubDeal.annualValue)} a season` : "No club deal"}</span>
         </div>
         <div className="bag-grid">
-          {EQUIPMENT_SLOTS.map((slot) => {
-            const model = EQUIPMENT.find((e) => e.id === (wp.player.equipment?.[slot] ?? STANDARD[slot]));
+          {KIT_SLOTS.map((slot) => {
+            const model = EQUIPMENT.find((e) => e.id === (wp.player.equipment?.[slot] ?? KIT_STANDARD[slot]));
             return (
               <article key={slot} className="bag-card">
-                <img className="club-art" src={`${base}art/clubs/${slot}.webp`} alt="" />
-                <span className="recruit-label">{SLOT_LABELS[slot]}</span>
+                <img className="club-art" src={`${base}art/clubs/${slot === "ball" ? "ball.svg" : `${slot}.webp`}`} alt="" />
+                <span className="recruit-label">{KIT_LABELS[slot]}</span>
                 <strong>{model?.name ?? "Tour standard"}</strong>
                 <span className="small secondary">{model?.blurb}</span>
               </article>
@@ -111,6 +139,7 @@ export function ProfileEquipment({ wp }: { wp: WorldPlayer }) {
         </div>
         {wp.client && <p className="muted small">Buy or swap clubs and apparel in Clients → Store.</p>}
       </section>
+      {wp.client && world && game && <PutterSwapPanel world={world} game={game} wp={wp} />}
       <section className="panel">
         <div className="panel-head">
           <h2>What he wears</h2>

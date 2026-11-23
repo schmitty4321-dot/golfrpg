@@ -289,7 +289,7 @@ export function PlayerProfile({ world, game, id, onClose }: { world: World; game
             ) : tab === "recruiting" && recruiting ? (
               <ProspectCard world={world} game={game} id={wp.player.id} />
             ) : tab === "equipment" || tab === "recruiting" ? (
-              <ProfileEquipment wp={wp} />
+              <ProfileEquipment wp={wp} world={world} game={game} />
             ) : tab === "development" ? (
               <DevelopmentTab world={world} game={game} wp={wp} potential={potential} known={known} />
             ) : tab === "stats" ? (

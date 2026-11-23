@@ -44,6 +44,7 @@ export function foursomesPlayer(x: Player, y: Player): Player {
     condition: (x.condition + y.condition) / 2,
     traits: [],
     sgAdjust: undefined,
+    kitAdjust: undefined,
     archetype: undefined,
     equipment: undefined,
   };

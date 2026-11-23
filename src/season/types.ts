@@ -63,6 +63,8 @@ export interface EventRecord {
   owgrPoints: number;
   sgPerRound: number;
   madeCut: boolean;
+  /** Your clients, stroke play: strokes gained putting a round against the field (older records: none). */
+  putting?: number;
   /** "monday" when the player got in through a Monday qualifier. */
   via: "field" | "monday";
 }
@@ -322,6 +324,8 @@ export interface ClientManagement {
   roundPlan?: RoundPlan;
   /** How he flies between events (the agency jet, when you have one, beats all of these). */
   travelClass?: TravelClass;
+  /** His last putter swap: the absolute week, events played since, and how the new one felt (see team.ts). */
+  putterSwap?: { absWeek: number; played: number; feel: "fresh" | "wrong" };
   /** Equipment models he owns (tour standard is always free). */
   ownedEquipment?: string[];
   /** Lifestyle items he owns (see lifestyle.ts). */

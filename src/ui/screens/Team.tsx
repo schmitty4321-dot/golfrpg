@@ -28,6 +28,9 @@ export function effects(m: EquipmentModel): string {
   if (m.bunker) out.push("bunkers cost less");
   if (m.firm) out.push("better on firm greens, worse on soft");
   if (m.wet) out.push("better in the rain");
+  if (m.windy) out.push(Object.values(m.windy).some((v) => v! > 0) ? "better in the wind" : "worse in the wind");
+  if (m.calm) out.push(Object.values(m.calm).some((v) => v! > 0) ? "better in calm air" : "a little shorter in calm air");
+  if (m.firmGreens) out.push(Object.values(m.firmGreens).some((v) => v! > 0) ? "better into firm greens" : "less check into firm greens");
   if (m.tightBlowup) out.push(m.tightBlowup > 1 ? "riskier on tight holes" : "safer on tight holes");
   return out.join(" · ") || "No change";
 }
@@ -90,7 +93,7 @@ export function Team({ world, game, clientId }: { world: World; game: Game; clie
       </section>
 
       {/* His clubs and apparel at a glance; buying and swapping are in the Store. */}
-      <ProfileEquipment wp={wp} />
+      <ProfileEquipment wp={wp} world={world} game={game} />
 
       <section className="panel">
         <div className="panel-head">
