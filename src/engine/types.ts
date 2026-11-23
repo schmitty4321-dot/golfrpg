@@ -27,12 +27,17 @@ export interface Player {
    * rebuild is bedding in. Absent for most players.
    */
   sgAdjust?: Partial<StrokesGained>;
+  /**
+   * Strokes gained per round from changes to his bag that wear off: a new
+   * putter's fresh eyes, or getting used to a sponsor's clubs. Absent for most players.
+   */
+  kitAdjust?: Partial<StrokesGained>;
   /** Trait ids (see traits.ts). Rolled once, then kept; absent until assigned. */
   traits?: string[];
   /** The shape of his game (see archetypes.ts). Absent in older saves until filled in on load. */
   archetype?: ArchetypeId;
   /** Model ids in his bag by slot (see equipment.ts); tour standard where absent. */
-  equipment?: Partial<Record<"driver" | "irons" | "wedges" | "putter" | "hat" | "shirt" | "shoes", string>>;
+  equipment?: Partial<Record<"driver" | "irons" | "wedges" | "putter" | "ball" | "hat" | "shirt" | "shoes", string>>;
 }
 
 export interface Hole {

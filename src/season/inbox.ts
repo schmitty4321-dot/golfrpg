@@ -14,8 +14,10 @@ import { addReputation } from "./agency";
 import { mixSeed } from "./entries";
 import { followers } from "./showcase";
 import { releaseCoach } from "./staff";
-import { absWeek, type CoachRole, type StaffRole, type World, type WorldPlayer } from "./types";
+import { absWeek, type CoachRole, type Sponsorship, type StaffRole, type World, type WorldPlayer } from "./types";
 import { hiredStaffer, releaseStaffer, renewStaffer } from "./market";
+import { addSponsorship, sponsorBlock } from "./sponsors";
+import { dealCoverageLabel } from "./team";
 
 /** One thing a choice does. Numbers are changes (followers: a share, e.g. 0.03 = +3%). */
 export type Effect =
@@ -30,6 +32,8 @@ export type Effect =
   | { k: "agencyCost"; v: number }
   /** Paid to the client (an appearance fee, an equipment deal); the agency takes its endorsement cut. */
   | { k: "clientMoney"; v: number }
+  /** Signs an equipment deal: the sponsor's gear goes in his bag. */
+  | { k: "equipmentDeal"; deal: Sponsorship }
   /** Sits out this many coming weeks. */
   | { k: "rest"; v: number }
   /** Back from injury now. */
@@ -205,6 +209,12 @@ export function applyEffects(world: World, wp: WorldPlayer | null, effects: Effe
         world.agency.ledger.endorsementCommission += cut;
         break;
       }
+      case "equipmentDeal": {
+        const busy = sponsorBlock(world, wp.player.id) ?? (m.sponsors.some((s) => s.category === "equipment") ? "he already has a club deal." : null);
+        if (busy) lines.push(`No deal: ${busy}`);
+        else addSponsorship(world, wp, { ...e.deal, ...(e.deal.slots ? { slots: [...e.deal.slots] } : {}) });
+        break;
+      }
       case "rest":
         m.restUntil = Math.max(m.restUntil ?? 0, now + e.v);
         break;
@@ -247,6 +257,7 @@ export function describeEffects(effects: Effect[]): string {
     else if (e.k === "trust") parts.push(`trust ${sign(e.v)}${Math.abs(e.v)}`);
     else if (e.k === "agencyCost") parts.push(`costs $${Math.round(e.v / 1000)}k`);
     else if (e.k === "clientMoney") parts.push(`pays him $${Math.round(e.v / 1000)}k`);
+    else if (e.k === "equipmentDeal") parts.push(`$${Math.round(e.deal.annualValue / 1000)}k a season to S${e.deal.untilSeason}, plays ${e.deal.sponsor} gear (${dealCoverageLabel(e.deal).toLowerCase()})`);
     else if (e.k === "rest") parts.push(e.v === 1 ? "sits out next week" : `sits out ${e.v} weeks`);
     else if (e.k === "heal") parts.push("plays straight away");
     else if (e.k === "injure") parts.push(`out ${e.v} weeks`);

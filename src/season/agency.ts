@@ -392,6 +392,7 @@ export function releaseClient(world: World, id: string): void {
   delete wp.client;
   wp.agent = null;
   wp.player.sgAdjust = undefined;
+  delete wp.player.kitAdjust;
   wp.rebuild = null;
   world.clientIds = world.clientIds.filter((x) => x !== id);
   world.news.unshift(`${wp.player.name} leaves ${world.agency.name}.`);

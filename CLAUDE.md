@@ -70,8 +70,8 @@ Studio website: https://sideeffectsstudio.buzz (Rare Side Effects Studio, domain
 ## Ideas not built yet
 
 From the 25-idea list, still open: pre-tournament routines, sponsor exemptions, coach specialties, a sports
-psychologist on staff (today only a one-off inbox choice), physio and nutritionist, golf ball choice, the putter
-swap, equipment deals that require the sponsor's clubs, a home base, family on tour, player businesses, and an
+psychologist on staff (today only a one-off inbox choice), physio and nutritionist,
+a home base, family on tour, player businesses, and an
 agency perk tree. Built since the list was written: winter training camps, contract bonus clauses, the agency
 performance center, the analytics department (the analyst), random events with choices, press conferences and
-achievements. Also still to do: photos for the 11 courses without one (see README).
+achievements, golf ball choice and the putter swap, and equipment deals that require the sponsor's clubs. Also still to do: photos for the 11 courses without one (see README).

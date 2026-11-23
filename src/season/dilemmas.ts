@@ -8,8 +8,9 @@
 import { homeRegion, type Rng } from "../engine";
 import { addDecision, lastFired, type Choice } from "./inbox";
 import { rankMap } from "./points";
-import { has } from "./traits";
+import { bonusMultiplier, has } from "./traits";
 import { medicOf, rushBackRisk } from "./medical";
+import { fullBagDeal, sponsorBlock, withOwnClub } from "./sponsors";
 import { absWeek, type CoachRole, type EventRecord, type TourEvent, type World, type WorldPlayer } from "./types";
 
 export interface DilemmaContext {
@@ -145,13 +146,18 @@ const TEMPLATES: Template[] = [
     key: "equipment-deal",
     cooldown: 40,
     chance: 0.03,
-    fits: (c) => c.rank <= 150,
+    fits: (c) => c.rank <= 150 && c.wp.career.status !== "amateur" && !sponsorBlock(c.world, c.wp.player.id) && ![...c.wp.client!.sponsors, ...c.wp.client!.offers].some((s) => s.category === "equipment") && !!fullBagDeal(c.world, c.wp),
     title: (c) => `An equipment deal for ${name(c)}`,
-    text: () => "A manufacturer offers a full-bag deal, but he'd have to change his driver and irons mid-season.",
+    text: (c) => {
+      const d = fullBagDeal(c.world, c.wp)!;
+      return `${d.sponsor} offers a full-bag deal: $${d.annualValue.toLocaleString("en-US")} a season through S${d.untilSeason}. He'd play their driver, irons, wedges and putter mid-season, and new clubs take a few weeks to settle in.`;
+    },
     choices: (c) => {
-      const fee = k(c.rank <= 20 ? 600_000 : c.rank <= 60 ? 300_000 : 120_000);
+      const d = fullBagDeal(c.world, c.wp)!;
+      const own = withOwnClub(d, "putter", bonusMultiplier(c.wp));
       return [
-        { id: "switch", label: "Take the deal", detail: "Big money; a few weeks getting used to new clubs.", effects: [{ k: "clientMoney", v: fee }, { k: "form", v: -0.12 }] },
+        { id: "switch", label: "Take the deal", detail: "Big money; his whole bag changes and costs him strokes for a few weeks.", effects: [{ k: "equipmentDeal", deal: d }] },
+        { id: "own-putter", label: "Take it, keep his own putter", detail: "A little less money; the putter stays.", effects: [{ k: "equipmentDeal", deal: own }] },
         { id: "stay", label: "Stay with his clubs", detail: "No money, no disruption.", effects: [] },
       ];
     },
