@@ -13,6 +13,7 @@ import type { Coach, CoachRole, Injury, RebuildArea, World, WorldPlayer } from "
 import type { AttributeKey } from "../engine";
 import { activeTargets, burnoutInjury, fatigueWeek, peakView, type PeakView } from "./progression";
 import { hasSkill } from "./staffSkills";
+import { PERK_FX, hasPerk } from "./perks";
 import { owns } from "./investments";
 import { feeMultiplier } from "./managerFx";
 import { INJURY_PREVENTION, REBUILD_SPECIALIST_CHANCE, REBUILD_SPECIALIST_WEEKS, clientSpecialties, hasSpecialty, specialistPremium } from "./coachSpecialties";
@@ -142,7 +143,7 @@ export function startRebuild(world: World, clientId: string, area: RebuildArea =
   const r = REBUILDS[area];
   const weeks = rebuildWeeks(world, clientId, area);
   wp.rebuild = { weeksLeft: weeks, totalWeeks: weeks, area };
-  applyRebuildPenalty(wp);
+  applyRebuildPenalty(wp, hasPerk(world, "dev-rebuild"));
   world.news.unshift(`${wp.player.name} begins a ${r.label.toLowerCase()}. Expect some rough weeks.`);
 }
 
@@ -159,11 +160,12 @@ export function abandonRebuild(world: World, clientId: string): void {
   world.news.unshift(`${wp.player.name} abandons the change and goes back to what he knew.`);
 }
 
-function applyRebuildPenalty(wp: WorldPlayer): void {
+/** `gentle`: the agency's Gentle rebuilds perk, a smaller penalty while it settles in. */
+function applyRebuildPenalty(wp: WorldPlayer, gentle = false): void {
   if (!wp.rebuild) return;
   const r = REBUILDS[wp.rebuild.area ?? "swing"];
   const left = wp.rebuild.weeksLeft / wp.rebuild.totalWeeks;
-  const pen = r.penalty * left;
+  const pen = r.penalty * left * (gentle ? PERK_FX.rebuildPenalty : 1);
   const adjust: Partial<Record<"offTheTee" | "approach" | "aroundTheGreen" | "putting", number>> = {};
   for (const [k, share] of Object.entries(r.sg)) adjust[k as keyof typeof adjust] = -pen * share!;
   wp.player.sgAdjust = adjust;
@@ -177,7 +179,7 @@ export function rebuildSuccessChance(swingCoachQuality: number, coachability: nu
 function progressRebuild(world: World, wp: WorldPlayer, rng: Rng): void {
   if (!wp.rebuild) return;
   wp.rebuild.weeksLeft--;
-  if (wp.rebuild.weeksLeft > 0) return applyRebuildPenalty(wp);
+  if (wp.rebuild.weeksLeft > 0) return applyRebuildPenalty(wp, !!wp.client && hasPerk(world, "dev-rebuild"));
   const done = wp.rebuild.area;
   wp.rebuild = null;
   delete wp.player.sgAdjust;
@@ -274,7 +276,7 @@ export function endOfWeek(world: World, competed: Set<string>, rng: Rng, boosts:
     // The agency's resort is a training base: clients carry the load 10% better.
     const burnout = isClient ? fatigueWeek(wp, played, owns(world, "resort") ? 0.9 : 1) : 1;
     const targets = isClient ? activeTargets(world, wp) : [];
-    const changes = developWeek(wp, { plan, coachQuality: quality, competed: played, mentored, managed: isClient, ...(isClient ? { facility: centerTier(world).growth + (hasSkill(world, "stats-guru") ? 0.03 : 0), burnout } : {}), ...(targets.length ? { targets } : {}), ...(boost ? { boost } : {}), ...(specialties?.size ? { specialties } : {}) }, rng);
+    const changes = developWeek(wp, { plan, coachQuality: quality, competed: played, mentored, managed: isClient, ...(isClient ? { facility: centerTier(world).growth + (hasSkill(world, "stats-guru") ? 0.03 : 0) + perkBudget(world, played), burnout } : {}), ...(targets.length ? { targets } : {}), ...(boost ? { boost } : {}), ...(specialties?.size ? { specialties } : {}) }, rng);
     masteryWeek(wp, played, plan.focus);
     if (isClient) {
       wp.player.condition = clamp(wp.player.condition + INTENSITY[plan.intensity].condition, 0, 100);
@@ -294,6 +296,10 @@ function labelOf(key: string): string {
   return key.replace(/([A-Z])/g, " $1").toLowerCase();
 }
 
+/** What the Development fund and Tournament reps perks add to a client's week in the season. */
+export const perkBudget = (world: World, competed: boolean): number =>
+  (hasPerk(world, "dev-fund") ? PERK_FX.devBudget : 0) + (competed && hasPerk(world, "dev-reps") ? PERK_FX.competing : 0);
+
 export const OFFSEASON_WEEKS = 10;
 
 /** The winter break: injuries heal and everyone trains, with no events, fees or new injuries. */
@@ -311,7 +317,7 @@ export function offseason(world: World, weeks: number, rng: Rng): void {
           plan: wp.client ? wp.client.training : { focus: "balanced", intensity: "normal" },
           coachQuality: wp.client ? staffQuality(world, wp.player.id) : rivalCoaching(world, wp),
           competed: false,
-          ...(wp.client ? { managed: true, winter: wp.client.training.winter ?? "standard", facility: centerTier(world).growth, specialties: clientSpecialties(world, wp) } : wp.agent?.winter ? { winter: wp.agent.winter } : {}),
+          ...(wp.client ? { managed: true, winter: wp.client.training.winter ?? "standard", facility: centerTier(world).growth + (hasPerk(world, "dev-winter") ? PERK_FX.winterBudget : 0), specialties: clientSpecialties(world, wp) } : wp.agent?.winter ? { winter: wp.agent.winter } : {}),
         },
         rng,
       );

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { AchievementsScreen } from "./screens/Achievements";
+import { Perks } from "./screens/Perks";
 import { Agency } from "./screens/Agency";
 import { Calendar } from "./screens/Calendar";
 import { Schedule } from "./screens/Schedule";
@@ -187,6 +188,8 @@ export function App() {
         <Editor world={world} game={game} />
       ) : tab === "achievements" ? (
         <AchievementsScreen world={world} />
+      ) : tab === "perks" ? (
+        <Perks world={world} game={game} />
       ) : tab === "ryder" ? (
         <RyderCupScreen world={world} />
       ) : tab === "matchplay" ? (

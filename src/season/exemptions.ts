@@ -20,6 +20,7 @@ import { titleEvent } from "./investments";
 import { qRating } from "./lifestyle";
 import { ryderCupPlayers } from "./ryderCup";
 import type { TourEvent, World, WorldPlayer } from "./types";
+import { PERK_FX, hasPerk } from "./perks";
 
 /** Sponsor exemptions in each regular (open) event. */
 export const REGULAR_EXEMPTIONS = 4;
@@ -47,7 +48,7 @@ export function exemptionSpots(event: TourEvent): number {
 }
 
 /** Asks a season: 3, one more at reputation 50 and another at 80. */
-export const asksAllowed = (world: World): number => BASE_ASKS + (world.agency.reputation >= 50 ? 1 : 0) + (world.agency.reputation >= 80 ? 1 : 0);
+export const asksAllowed = (world: World): number => BASE_ASKS + (world.agency.reputation >= 50 ? 1 : 0) + (world.agency.reputation >= 80 ? 1 : 0) + (hasPerk(world, "com-extra-ask") ? 1 : 0);
 
 /** This season's asks (older ones are dropped as new ones are made). */
 export const exemptionAsks = (world: World): ExemptionAsk[] => (world.agency.exemptions ?? []).filter((a) => a.season === world.season);
@@ -115,6 +116,10 @@ export function exemptionOdds(world: World, wp: WorldPlayer, event: TourEvent): 
     reasons.push(`${wins} developmental tour win${wins === 1 ? "" : "s"}`);
   }
   if (event.tier === "signature") p *= 0.5;
+  if (hasPerk(world, "com-exemption-odds")) {
+    p += PERK_FX.exemptionOdds;
+    reasons.push("friends at the tournaments");
+  }
   const chance = Math.round(clamp(p, 0.03, 0.9) * 100) / 100;
   return { chance, read: oddsWord(chance), reasons };
 }

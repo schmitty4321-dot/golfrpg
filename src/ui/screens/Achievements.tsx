@@ -1,10 +1,10 @@
-import { ACHIEVEMENTS, type AchievementGroup, type World } from "../../season";
+import { ACHIEVEMENTS, earnsPerkPoint, type AchievementGroup, type World } from "../../season";
 
 const GROUPS: AchievementGroup[] = ["Career", "Agency", "Management", "Story"];
 
 const BADGES: Record<string, string> = {
   "first-win": "trophy", "five-wins": "crown", "twenty-wins": "crown", "first-major": "major", "three-majors": "trophy", dynasty: "crown",
-  "grand-slam": "major", "points-title": "world-no1", "players-champ": "trophy", "match-play": "calendar", "top-ten": "podium", "world-no1": "world-no1",
+  "grand-slam": "major", "points-title": "world-no1", "players-champ": "trophy", "match-play": "calendar", "top-ten": "podium", "top50-five": "roster", "world-no1": "world-no1",
   "ryder-three": "ryder", "ryder-hero": "ryder", ace: "ace", "hall-of-famer": "major", "rep-50": "map", "rep-75": "headquarters",
   "rep-90": "agency", "roster-5": "roster", "roster-10": "full-house", millionaire: "bank", "ten-million": "wealth", "profit-season": "bank",
   center: "headquarters", "hq-top": "headquarters", "top-agency": "world-no1", survivor: "five-years", gold: "trophy", "promises-5": "agency", "counter-deal": "agency",
@@ -39,7 +39,7 @@ export function AchievementsScreen({ world }: { world: World }) {
                   <div className="achievement-copy">
                     <strong>{a.title}</strong>
                     <div className="small">{a.detail}</div>
-                    <div className="achievement-meta"><span>{when ? "✓ Unlocked" : "▣ Locked"}</span><b>+{a.reward} REP</b></div>
+                    <div className="achievement-meta"><span>{when ? "✓ Unlocked" : "▣ Locked"}</span><b>+{a.reward} REP{earnsPerkPoint(a.id) ? " · +1 PERK" : ""}</b></div>
                     {when && <div className="small muted">Season {when.season}, week {when.week}</div>}
                   </div>
                 </div>

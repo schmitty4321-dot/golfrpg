@@ -37,7 +37,7 @@ export function ScoutTripsPanel({ world, game }: { world: World; game: Game }) {
             <span className="region-check" aria-hidden>{region === r ? "✓" : ""}</span>
             <strong>{SCOUT_REGIONS[r].label}</strong>
             <span className="small">{regionPool(world, r, "amateurs").length} amateurs · {regionPool(world, r, "pros").length} without a card</span>
-            <span className="small muted">{money(SCOUT_REGIONS[r].travel)}/week travel</span>
+            <span className="small muted">{money(game.lib.tripCostPerWeek(r, world))}/week travel</span>
           </button>
         ))}
       </div>
@@ -69,7 +69,7 @@ export function ScoutTripsPanel({ world, game }: { world: World; game: Game }) {
               setMsg(m);
             }}
           >
-            Send him ({money(SCOUT_REGIONS[region].travel * weeks)} travel)
+            Send him ({money(game.lib.tripCostPerWeek(region, world) * weeks)} travel)
           </button>
           {msg && <span className="small bad-text">{msg}</span>}
         </div>

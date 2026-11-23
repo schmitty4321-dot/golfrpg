@@ -1743,3 +1743,18 @@ select, input[type="text"], input[type="number"] {
 @media (max-width: 700px) { .illustrated-stage .green-cam { top: 12%; right: 6px; } }
 .schedule-exempt { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; font-size: 12px; max-width: 100%; padding: 4px 0; border-top: 1px solid var(--line, rgba(127,127,127,.2)); }
 .schedule-exempt-summary, .schedule-exempt-note { margin: 6px 0 0; }
+
+/* The agency perk tree: four branches side by side, stacked on phones. */
+.perk-tree { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 1000px) { .perk-tree { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 700px) { .perk-tree { grid-template-columns: minmax(0, 1fr); } }
+.perk-branch h3 { margin: 0; }
+.perk-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.perk { border: 1px solid var(--border); border-radius: 8px; padding: 10px; display: grid; gap: 4px; background: var(--surface); min-width: 0; overflow-wrap: anywhere; }
+.perk .btn { justify-self: start; margin-top: 4px; }
+.perk-top { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+.perk-owned { border-color: var(--accent); background: var(--accent-soft); }
+.perk-owned .perk-state { color: var(--good-text); font-weight: 600; }
+.perk-available { border-color: var(--accent); }
+.perk-available .perk-state { color: var(--accent); font-weight: 600; }
+.perk-locked { opacity: 0.75; }

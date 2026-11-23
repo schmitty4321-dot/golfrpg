@@ -196,13 +196,13 @@ function WeekCommandCenter({ world, game, go, week }: { world: World; game: Game
   const featured = field.map((id) => world.players[id]!).filter(Boolean).sort((x, y) => (ranks.get(x.player.id) ?? 9999) - (ranks.get(y.player.id) ?? 9999)).slice(0, 4);
   // Players you could approach this week: known to the agency, not a client, and with nothing blocking the approach.
   // Players you could approach if you had room: known to the agency, not a client, and nothing but a full roster in the way.
-  const full = rosterCount(world) >= rosterLimit(world.agency.reputation, world.agency.hq);
+  const full = rosterCount(world) >= rosterLimit(world.agency.reputation, world.agency.hq, world.agency.perks);
   const approachable = (amateur: boolean) => Object.values(world.players).filter((wp) => {
     if (wp.client || (wp.career.status === "amateur") !== amateur || !isDiscovered(world, wp.player.id)) return false;
     const block = approachBlock(world, wp.player.id);
     return !block || (full && block.startsWith("Your agency can manage"));
   }).length;
-  const rosterNote = full ? ` · roster full (${rosterCount(world)} of ${rosterLimit(world.agency.reputation, world.agency.hq)})` : "";
+  const rosterNote = full ? ` · roster full (${rosterCount(world)} of ${rosterLimit(world.agency.reputation, world.agency.hq, world.agency.perks)})` : "";
   const amateurs = approachable(true);
   const pros = approachable(false);
   const offers = world.clientIds.reduce((sum, id) => sum + world.players[id]!.client!.offers.length, 0);

@@ -23,6 +23,7 @@ import { generateCaddies } from "./team";
 import { ensureGoals } from "./goals";
 import { ensureHomeCities } from "./homeBase";
 import { ensureFamilies } from "./family";
+import { ensurePerks } from "./perks";
 
 export function serializeWorld(world: World): string {
   return JSON.stringify(world);
@@ -63,6 +64,8 @@ export function deserializeWorld(json: string): World {
   // Saves from before home bases: each client lives where his nationality points.
   ensureHomeCities(world);
   ensureFamilies(world);
+  // Saves from before the perk tree: the points their seasons and achievements have earned.
+  ensurePerks(world);
   // Coaches are priced by the current fee curve (it changed in the 2026 finance model).
   // (A former client coaching for you keeps his friend's rate.)
   // Specialists ask a little more (see coachSpecialties.ts).

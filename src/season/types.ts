@@ -599,6 +599,10 @@ export interface Agency {
   trophies?: Trophy[];
   /** Reputation at each season's end. */
   repHistory?: { season: number; reputation: number }[];
+  /** Perks bought from the perk tree, kept for good (see perks.ts). */
+  perks?: string[];
+  /** Perk points not yet spent. */
+  perkPoints?: number;
 }
 
 export type TravelClass = "economy" | "business" | "charter";
