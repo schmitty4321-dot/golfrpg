@@ -1,5 +1,6 @@
 import { holeNote, type HoleTrace, type Pt, type Shot } from "../../engine";
 import { artForTrace, illustratedShotPaths } from "../illustratedArt";
+import { GreenCam } from "./GreenCam";
 
 const SHOT_COLORS = ["#ffd84f", "#53d8ff", "#ff6d63", "#f7f4df", "#d59cff", "#ffad4a"];
 export function hasIllustratedTracerArt(trace: HoleTrace): boolean {
@@ -69,6 +70,8 @@ export function IllustratedTracer({ trace, step, courseName }: { trace: HoleTrac
           })}
         </svg>}
         {finalShot !== undefined ? <div className="illustrated-live-caption">{finalShot.text}</div> : null}
+        {/* Once the ball is on or around the green, the green from above. */}
+        {!art.displayOnly && <GreenCam trace={trace} step={step} />}
       </div>
       {/* The hole's story sits under the painting, where it never covers the shots. */}
       {note && (

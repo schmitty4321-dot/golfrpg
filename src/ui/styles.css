@@ -1719,3 +1719,20 @@ select, input[type="text"], input[type="number"] {
 .trip-report-gem { color: #9a6415; font-weight: 700; font-size: 12px; }
 /* Store: the player's money to spend, under his name. */
 .shop-funds { display: block; margin: 2px 0 2px; color: #f3d27a; font-size: 15px; font-weight: 750; }
+
+/* Green cam: the green from above, in the corner of the hole picture once the ball is near the green. */
+.hole-svg-frame { position: relative; }
+.green-cam { position: absolute; z-index: 5; top: 12px; right: 12px; width: min(21%, 170px); padding: 5px 5px 3px; border-radius: 10px; background: rgba(2, 39, 28, 0.9); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); color: #fff; animation: illustrated-land 0.35s ease-out both; }
+.green-cam svg { display: block; width: 100%; height: auto; border-radius: 6px; }
+.green-cam-label { display: block; margin: 0 2px 4px; font-size: 10px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #f3d27a; }
+.green-cam-caption { display: block; min-height: 1.2em; margin: 4px 2px 0; font-size: 11px; font-weight: 700; text-align: center; }
+.green-cam-shot line { stroke: #ffe08a; stroke-width: 0.7; stroke-linecap: round; }
+.green-cam-putt line { stroke: #fff; stroke-width: 0.5; stroke-dasharray: 1.2 0.9; stroke-linecap: round; }
+.green-cam-mark { fill: #fff; opacity: 0.75; }
+@media (max-width: 700px) {
+  .green-cam { top: 6px; right: 6px; width: 27%; padding: 3px 3px 2px; }
+  .green-cam-label { font-size: 8px; margin-bottom: 2px; }
+  .green-cam-caption { font-size: 9px; margin-top: 2px; }
+}
+.illustrated-stage .green-cam { top: 13%; right: 12px; }
+@media (max-width: 700px) { .illustrated-stage .green-cam { top: 12%; right: 6px; } }
