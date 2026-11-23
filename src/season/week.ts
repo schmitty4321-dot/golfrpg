@@ -62,6 +62,7 @@ import { setObjectives } from "./board";
 import { checkBreakthrough, pressureGrowth } from "./progression";
 import { hasSkill } from "./staffSkills";
 import { talksWeek } from "./negotiation";
+import { answerExemptions } from "./exemptions";
 import { extensionsWeek } from "./extensions";
 import { brandOfferWeek } from "./showcase";
 import { rivalRecruitingWeek } from "./recruiting";
@@ -320,7 +321,7 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
         sgPerRound: Math.round(r.sgPerRound * 100) / 100 + 0, // + 0: no negative zero, which a save can't keep
         madeCut: r.madeCut,
         ...(wp.client && !result.bracket && r.rounds.length > 0 ? { putting: Math.round((r.sg.putting / r.rounds.length) * 100) / 100 + 0 } : {}),
-        via: f.mondayQualifiers.includes(r.player.id) ? "monday" : "field",
+        via: f.mondayQualifiers.includes(r.player.id) ? "monday" : f.sponsorInvites?.includes(r.player.id) ? "sponsor" : "field",
       };
       c.results.push(record);
       // Season shot stats are stroke play's: partial match-play rounds would skew them.
@@ -549,6 +550,8 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
   amateurWeek(world);
   world.news = world.news.slice(0, 40);
   world.week++;
+  // Sponsor exemptions asked for the coming week's events get their answer by its Monday.
+  answerExemptions(world);
   // The inbox for the coming week: press conferences about this one, then a dilemma or two.
   if (world.clientIds.length > 0) {
     const records = new Map(world.clientIds.map((id) => [id, report.clients[id]?.record ?? null]));
@@ -594,7 +597,7 @@ function describeClientWeek(world: World, clientId: string, choice: AiChoice, fi
   const f = fields.find((x) => x.event.id === choice.eventId);
   if (!f) return `${name} rested this week.`;
   if (record) {
-    const via = record.via === "monday" ? " (Monday qualifier)" : "";
+    const via = record.via === "monday" ? " (Monday qualifier)" : record.via === "sponsor" ? " (sponsor exemption)" : "";
     const toPar = record.toPar === 0 ? "E" : record.toPar > 0 ? `+${record.toPar}` : `${record.toPar}`;
     if (!record.madeCut) return `${name} missed the cut at ${theEvent(f.event.name)}${via}, ${toPar}.`;
     if (f.event.format === "matchplay") {

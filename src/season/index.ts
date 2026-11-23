@@ -62,3 +62,4 @@ export * from "./discovery";
 export * from "./schools";
 export * from "./recruiting";
 export * from "./extensions";
+export * from "./exemptions";

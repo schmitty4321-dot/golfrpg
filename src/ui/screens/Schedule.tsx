@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { MapPin, Trophy, Users } from "lucide-react";
-import { eventsInWeek, finaleWeek, isRyderCupSeason, lastRegularWeek, ryderCupWeek, seasonWeeks, yearOf, type TourEvent, type World } from "../../season";
+import { askExemption, asksAllowed, asksLeft, eventsInWeek, exemptionBoard, exemptionSpots, finaleWeek, isRyderCupSeason, lastRegularWeek, ryderCupWeek, seasonWeeks, yearOf, type ExemptionRow, type TourEvent, type World } from "../../season";
 import { TIER_LABELS, millions, money, toPar } from "../format";
 import type { Go } from "../nav";
 import type { Game } from "../useGame";
@@ -52,6 +52,15 @@ export function Schedule({ world, game, go }: { world: World; game: Game; go: Go
       if (wp.client) mine.set(r.eventId, [...(mine.get(r.eventId) ?? []), { id: wp.player.id, name: wp.player.name, label: r.label, toPar: r.toPar, earnings: r.earnings, points: r.seasonPoints, madeCut: r.madeCut }]);
     }
   }
+  const exemptions = exemptionBoard(world);
+  const [note, setNote] = useState<string | null>(null);
+  const ask = (clientId: string, eventId: string) => {
+    let message = "";
+    game.act((w) => {
+      message = askExemption(w, clientId, eventId);
+    });
+    setNote(message);
+  };
   const inSession = new Set(game.state.reports.flatMap((r) => r.results.map((x) => x.event.id)));
   const majors = all.filter((e) => e.tier === "major").length;
   const purse = all.filter((e) => e.tier !== "dev").reduce((s, e) => s + e.purse, 0);
@@ -92,6 +101,12 @@ export function Schedule({ world, game, go }: { world: World; game: Game; go: Go
             ))}
           </div>
         </div>
+        {world.clientIds.length > 0 && (
+          <p className="secondary small schedule-exempt-summary">
+            Sponsor exemptions: {asksLeft(world)} of {asksAllowed(world)} asks left this season. Regular events give 4, signature events 2; a "no" still uses an ask.
+          </p>
+        )}
+        {note && <p className="small schedule-exempt-note" role="status">{note}</p>}
         <div className="schedule-progress" aria-hidden>
           <span style={{ width: `${Math.min(100, ((world.week - 1) / weeks) * 100)}%` }} />
         </div>
@@ -153,6 +168,8 @@ export function Schedule({ world, game, go }: { world: World; game: Game; go: Go
                               <small>{w === world.week ? "This week" : `Week ${w}`}</small>
                               <strong>{w === world.week ? "Tournament in progress" : "Upcoming event"}</strong>
                               <span>{e.cutTop ? `Top ${e.cutTop} and ties make the cut` : "No-cut event"}</span>
+                              {exemptionSpots(e) > 0 && <span className="muted small">{exemptionSpots(e)} sponsor exemptions</span>}
+                              {exemptions.get(e.id)?.map((row) => <ExemptionLine key={row.clientId} row={row} canAsk={asksLeft(world) > 0} onAsk={() => ask(row.clientId, e.id)} />)}
                             </aside>
                           )}
                         </article>
@@ -166,5 +183,19 @@ export function Schedule({ world, game, go }: { world: World; game: Game; go: Go
         );
       })}
     </main>
+  );
+}
+
+/** One client's sponsor exemption for an upcoming event: the button, or where his ask stands. */
+function ExemptionLine({ row, canAsk, onAsk }: { row: ExemptionRow; canAsk: boolean; onAsk: () => void }) {
+  const why = row.odds.reasons.length ? ` (${row.odds.reasons.join(", ")})` : "";
+  if (row.state === "yes") return <span className="schedule-exempt good-text">{row.name}: Sponsor exemption</span>;
+  if (row.state === "no") return <span className="schedule-exempt bad-text">{row.name}: they said no</span>;
+  if (row.state === "pending") return <span className="schedule-exempt">{row.name}: asked, answer by the Monday</span>;
+  return (
+    <span className="schedule-exempt">
+      <button className="btn btn-small" disabled={!canAsk} onClick={onAsk} title={canAsk ? undefined : "No asks left this season"}>Ask for an exemption</button>
+      <span className="small">{row.name}: {row.odds.read.toLowerCase()}{why}</span>
+    </span>
   );
 }
