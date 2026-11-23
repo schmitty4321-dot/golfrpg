@@ -3,6 +3,7 @@ import { brandGoalsWeek, noteBoldHeld, noteBrandResult, noteRyderTeam } from "./
 import { scoutTripsWeek } from "./scoutTrips";
 import { earlyTurnPros } from "./amateurs";
 import { lifestyleWeek } from "./lifestyle";
+import { familyWeek } from "./family";
 import { DRIVE_COST_SHARE, homeCrowd, homePracticeBoost, homeRecovery, noteHomeWeek, offWeekAtHome, taxWeek, withinDrive } from "./homeBase";
 import { checkChallenge } from "./challenges";
 import { trackBestRanks } from "./legacy";
@@ -67,7 +68,7 @@ import { rivalRecruitingWeek } from "./recruiting";
 
 /** What a client does this week. "auto" lets him pick his own schedule. */
 export type ClientChoice =
-  | { kind: "enter"; eventId: string; /** A practice round there first (older saves; the planner's days replace it). */ practice?: boolean; /** Monday to Wednesday. */ days?: DayActivity[] }
+  | { kind: "enter"; eventId: string; /** A practice round there first (older saves; the planner's days replace it). */ practice?: boolean; /** Monday to Wednesday. */ days?: DayActivity[]; /** Whether his family travels with him (missing: his call). */ family?: "travel" | "home" }
   | { kind: "rest"; /** The week off, Monday to Sunday. */ days?: DayActivity[] }
   | { kind: "auto" }
   /** A week's practice trip to any course, instead of an event. */
@@ -380,6 +381,8 @@ export function playWeek(world: World, choices: ClientChoices = {}, played: Reco
         m.finances.prizeMoney += r.earnings;
         chargeDevelopment(world, wp.player.id, Math.round(r.earnings * COACH_PRIZE_SHARE * coachesHired(world, wp.player.id)), "coaching");
         m.finances.caddie += caddie;
+        // His family travels with him, or stays home (his call unless you choose).
+        m.happiness = clamp(m.happiness + familyWeek(world, wp, f.event, pc?.kind === "enter" && pc.eventId === f.event.id ? pc.family : undefined), 0, 100);
         // A drive from home costs less than a flight.
         m.finances.travel += Math.round(TRAVEL_COST[f.event.region] * mode.cost * (withinDrive(wp, f.event.courseId) ? DRIVE_COST_SHARE : 1));
         // The home crowd: more press, more fans, and he loves it.

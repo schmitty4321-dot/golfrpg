@@ -61,3 +61,4 @@ export * from "./schools";
 export * from "./recruiting";
 export * from "./extensions";
 export * from "./homeBase";
+export * from "./family";

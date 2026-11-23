@@ -370,6 +370,16 @@ function ClientWeek({ world, game, id, choice, onChoose }: { world: World; game:
             <span className="schedule-chip" style={{ borderColor: ACCESS_TONE[entered.access] }}>{entered.detail}</span>
             <span className={`schedule-chip ${fit.tone}`}>{fit.label} {signed(entered.fit, 2)}/round</span>
             <span className={`schedule-chip ${!entered.debut && entered.familiarity >= 40 ? "good" : "warn"}`}>{entered.debut ? "Course debut" : `${familiarityLabel(entered.familiarity)} ${Math.round(entered.familiarity)}`}</span>
+            {choice.kind === "enter" && game.lib.hasFamily(world, wp) && (
+              <label className="client-week-inline small">
+                Family{" "}
+                <select value={choice.family ?? ""} onChange={(e) => onChoose({ ...choice, family: (e.target.value || undefined) as "travel" | "home" | undefined })}>
+                  <option value="">His call ({game.lib.familyDefault(world, wp, entered.event) ? "they come" : "they stay home"})</option>
+                  <option value="travel">They travel with him (+{game.lib.FAMILY_MOOD} mood, {money(game.lib.familyTripCost(world, wp, entered.event))})</option>
+                  <option value="home">They stay home</option>
+                </select>
+              </label>
+            )}
           </>
         )}
         {choice.kind === "rest" && (

@@ -9,6 +9,8 @@ import { homeRegion, type Rng } from "../engine";
 import { addDecision, lastFired, type Choice } from "./inbox";
 import { rankMap } from "./points";
 import { has } from "./traits";
+import { childAges, familyOf, hasFamily, hasSchoolKids } from "./family";
+import { withinDrive } from "./homeBase";
 import { absWeek, type CoachRole, type EventRecord, type TourEvent, type World, type WorldPlayer } from "./types";
 
 export interface DilemmaContext {
@@ -130,13 +132,13 @@ const TEMPLATES: Template[] = [
   {
     key: "new-baby",
     cooldown: 150,
-    chance: 0.0015,
-    fits: (c) => c.wp.player.age >= 26 && c.wp.player.age <= 40,
+    chance: 0.004,
+    fits: (c) => c.wp.player.age >= 25 && c.wp.player.age <= 42 && hasFamily(c.world, c.wp) && childAges(c.world, c.wp).length < 4,
     title: (c) => `${name(c)} is going to be a dad`,
     text: (c) => `The baby is due any day. ${first(c)} is torn about the next couple of weeks.`,
     choices: () => [
-      { id: "leave", label: "Two weeks off", detail: "Family first: he's happier, and fans love it.", effects: [{ k: "rest", v: 2 }, { k: "mood", v: 8 }, { k: "followers", v: 0.02 }] },
-      { id: "play", label: "Keep playing", detail: "No starts missed, but his mind is elsewhere.", effects: [{ k: "mood", v: -6 }, { k: "form", v: -0.05 }] },
+      { id: "leave", label: "Two weeks off", detail: "Family first: he's happier, and fans love it.", effects: [{ k: "child" }, { k: "rest", v: 2 }, { k: "mood", v: 8 }, { k: "followers", v: 0.02 }] },
+      { id: "play", label: "Keep playing", detail: "No starts missed, but his mind is elsewhere.", effects: [{ k: "child" }, { k: "mood", v: -6 }, { k: "form", v: -0.05 }] },
     ],
     defaultChoice: "leave",
   },
@@ -191,7 +193,7 @@ const TEMPLATES: Template[] = [
     key: "more-starts",
     cooldown: 20,
     chance: 0.06,
-    fits: (c) => has(c.wp, "money-motivated") || c.wp.player.attributes.ambition >= 15,
+    fits: (c) => (has(c.wp, "money-motivated") || c.wp.player.attributes.ambition >= 15) && !familyVeteran(c),
     title: (c) => `${name(c)} wants to play more`,
     text: (c) => `${first(c)} wants three more starts this season to chase money and points.`,
     choices: () => [
@@ -199,6 +201,72 @@ const TEMPLATES: Template[] = [
       { id: "refuse", label: "Stick to the plan", detail: "He's disappointed.", effects: [{ k: "mood", v: -3 }] },
     ],
     defaultChoice: "refuse",
+  },
+  {
+    key: "fewer-starts",
+    cooldown: 30,
+    chance: 0.05,
+    fits: (c) => familyVeteran(c),
+    title: (c) => `${name(c)} wants more time at home`,
+    text: (c) => `With the kids growing up, ${first(c)} would like to play three fewer events this season.`,
+    choices: () => [
+      { id: "agree", label: "Cut back his schedule", detail: "He's happier and fresher; fewer starts.", effects: [{ k: "targetEvents", v: -3 }, { k: "mood", v: 5 }] },
+      { id: "refuse", label: "Keep him playing", detail: "He's unhappy about it.", effects: [{ k: "mood", v: -4 }] },
+    ],
+    defaultChoice: "agree",
+  },
+  {
+    key: "wedding",
+    cooldown: 200,
+    chance: 0.004,
+    fits: (c) => familyOf(c.world, c.wp).status === "partner" && c.wp.player.age >= 23 && c.wp.player.age <= 40,
+    title: (c) => `${name(c)} is getting married`,
+    text: (c) => `${first(c)} and his partner have set a date. He'd like time off around it.`,
+    choices: () => [
+      { id: "two", label: "Two weeks off", detail: "The wedding and a honeymoon: he's delighted, and the fans love it.", effects: [{ k: "married" }, { k: "rest", v: 2 }, { k: "mood", v: 8 }, { k: "followers", v: 0.02 }] },
+      { id: "one", label: "Just the wedding week", detail: "The honeymoon waits for the winter.", effects: [{ k: "married" }, { k: "rest", v: 1 }, { k: "mood", v: 3 }] },
+    ],
+    defaultChoice: "two",
+  },
+  {
+    key: "school-holidays",
+    cooldown: 100,
+    chance: 0.15,
+    fits: (c) => c.world.week >= 22 && c.world.week <= 26 && hasSchoolKids(c.world, c.wp) && familyOf(c.world, c.wp).status !== "single",
+    title: (c) => `The ${c.wp.player.name.split(" ").slice(1).join(" ") || name(c)} kids are off school`,
+    text: (c) => `It's the summer holidays. ${first(c)}'s family would like to come on tour with him for the next six weeks.`,
+    choices: () => [
+      { id: "tour", label: "Bring them on tour", detail: "Happier all summer; the family's travel costs him.", effects: [{ k: "familyTour", v: 6 }, { k: "mood", v: 5 }] },
+      { id: "home", label: "They stay home", detail: "He misses them.", effects: [{ k: "mood", v: -3 }] },
+    ],
+    defaultChoice: "tour",
+  },
+  {
+    key: "family-emergency",
+    big: true,
+    cooldown: 150,
+    chance: 0.002,
+    fits: (c) => hasFamily(c.world, c.wp),
+    title: (c) => `A family emergency for ${name(c)}`,
+    text: (c) => `Someone close to ${first(c)} is in hospital. He wants to withdraw and go home.`,
+    choices: () => [
+      { id: "home", label: "Withdraw and go home", detail: "He misses next week; he won't forget you backed him.", effects: [{ k: "rest", v: 1 }, { k: "mood", v: 4 }, { k: "trust", v: 4 }] },
+      { id: "play", label: "Ask him to play on", detail: "He plays, badly and resentfully.", effects: [{ k: "mood", v: -10 }, { k: "form", v: -0.1 }, { k: "trust", v: -5 }] },
+    ],
+    defaultChoice: "home",
+  },
+  {
+    key: "first-event",
+    cooldown: 300,
+    chance: 0.12,
+    fits: (c) => childAges(c.world, c.wp).some((a) => a >= 3 && a <= 10) && c.next.some((e) => withinDrive(c.wp, e.courseId)),
+    title: (c) => `${name(c)}'s children could see him play`,
+    text: (c) => `${c.next.find((e) => withinDrive(c.wp, e.courseId))!.name} is a drive from home. The kids have never watched him play in person.`,
+    choices: () => [
+      { id: "bring", label: "Bring them along", detail: "A day he'll remember; the cameras love it.", effects: [{ k: "mood", v: 6 }, { k: "followers", v: 0.01 }, { k: "condition", v: -2 }] },
+      { id: "no", label: "Another time", detail: "Nothing changes.", effects: [] },
+    ],
+    defaultChoice: "bring",
   },
   {
     key: "tv-interview",
@@ -313,6 +381,9 @@ const TEMPLATES: Template[] = [
     defaultChoice: "no",
   },
 ];
+
+/** A veteran with children: he wants to be home more, not play more. */
+const familyVeteran = (c: DilemmaContext): boolean => c.wp.player.age >= 36 && childAges(c.world, c.wp).length > 0;
 
 /** Another client of yours, 34 or older, for mentoring. */
 function veteranClient(c: DilemmaContext): WorldPlayer | null {

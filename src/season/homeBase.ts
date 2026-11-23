@@ -13,6 +13,7 @@ import { clamp, homeRegion, traceSeed } from "../engine";
 import { ownedLifestyle } from "./lifestyle";
 import { personalWealth } from "./finance";
 import { has } from "./traits";
+import { ensureFamilies } from "./family";
 import { absWeek, type Region, type World, type WorldPlayer } from "./types";
 
 export interface HomeCity {
@@ -222,6 +223,7 @@ export function taxableIncome(wp: WorldPlayer): number {
  */
 export function taxWeek(world: World): void {
   ensureHomeCities(world);
+  ensureFamilies(world);
   for (const id of world.clientIds) {
     const wp = world.players[id];
     const f = wp?.client?.finances;

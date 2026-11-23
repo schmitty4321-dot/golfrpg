@@ -354,6 +354,14 @@ export interface ClientManagement {
   homeWeek?: number;
   /** The season he last moved house (one move a season). */
   movedSeason?: number;
+  /** His family is with him on tour every week up to this one (absolute; a school-holidays decision). */
+  familyTourUntil?: number;
+}
+
+/** Single, a partner or married, and children by the season they were born. */
+export interface Family {
+  status: "single" | "partner" | "married";
+  children: number[];
 }
 
 /** Who represents a player. */
@@ -406,6 +414,8 @@ export interface WorldPlayer {
   client?: ClientManagement;
   /** Comeback Kids: weeks of faster development left after a long injury. */
   comebackWeeks?: number;
+  /** Clients: his family (see family.ts). Computer players: drawn from age when shown. */
+  family?: Family;
   /** His home city (see homeBase.ts; computer players and older saves: from nationality). */
   homeCity?: string;
   /** Bronze-silver-gold progress for his traits and archetype, by trait id or "archetype" (see mastery.ts). */
