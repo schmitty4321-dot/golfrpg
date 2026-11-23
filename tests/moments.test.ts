@@ -325,7 +325,7 @@ describe("live weeks", () => {
 
   it("featured holes come one from each third of the course and change from round to round", () => {
     // A course with no signature holes: every pick is random.
-    const t = startLive({ ...config(), course: getCourse("grand-reserve") }, [a, b]);
+    const t = startLive({ ...config(), course: getCourse("sedgefield") }, [a, b]);
     const picked: number[][] = [];
     for (let r = 0; r < 4; r++) {
       startLiveRound(t);
